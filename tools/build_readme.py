@@ -25,6 +25,7 @@ TEXT = {
     "en": dict(
         intro="A working media screen for your truck cabin in **Euro Truck Simulator 2**. Watch YouTube, listen to music and follow the game's GPS map on a tablet mounted at the windscreen, while you drive.",
         download="Download",
+        release_download="Download **{zip}** below and unzip it.",
         download_body="**[Download the latest version]({repo}/releases/latest)** and get the file named `CabinPlay-x.y.z.zip`.",
         install="Install",
         install_intro="Close the game and unzip the file. Then pick one:",
@@ -61,6 +62,7 @@ TEXT = {
     "tr": dict(
         intro="**Euro Truck Simulator 2** için tır kabininde gerçekten çalışan bir medya ekranı. Sürerken ön cama takılı tablette YouTube izle, müzik dinle ve oyunun GPS haritasını takip et.",
         download="İndir",
+        release_download="Aşağıdaki **{zip}** dosyasını indir ve aç.",
         download_body="**[Son sürümü indir]({repo}/releases/latest)**; `CabinPlay-x.y.z.zip` adlı dosyayı al.",
         install="Kur",
         install_intro="Oyunu kapat ve zip'i aç. Sonra birini seç:",
@@ -97,6 +99,7 @@ TEXT = {
     "de": dict(
         intro="Ein funktionierender Medienbildschirm für deine Lkw-Kabine in **Euro Truck Simulator 2**. Schau YouTube, höre Musik und folge der GPS-Karte des Spiels auf einem Tablet an der Windschutzscheibe, während du fährst.",
         download="Download",
+        release_download="Lade unten **{zip}** herunter und entpacke die Datei.",
         download_body="**[Lade die neueste Version herunter]({repo}/releases/latest)** und nimm die Datei `CabinPlay-x.y.z.zip`.",
         install="Installation",
         install_intro="Schließe das Spiel und entpacke die Datei. Wähle dann eine Variante:",
@@ -133,6 +136,7 @@ TEXT = {
     "pl": dict(
         intro="Działający ekran multimedialny w kabinie ciężarówki w **Euro Truck Simulator 2**. Oglądaj YouTube, słuchaj muzyki i śledź mapę GPS z gry na tablecie przy przedniej szybie, podczas jazdy.",
         download="Pobieranie",
+        release_download="Pobierz poniżej **{zip}** i rozpakuj plik.",
         download_body="**[Pobierz najnowszą wersję]({repo}/releases/latest)** i weź plik `CabinPlay-x.y.z.zip`.",
         install="Instalacja",
         install_intro="Zamknij grę i rozpakuj plik. Następnie wybierz jeden sposób:",
@@ -169,6 +173,7 @@ TEXT = {
     "fr": dict(
         intro="Un écran multimédia fonctionnel pour la cabine de votre camion dans **Euro Truck Simulator 2**. Regardez YouTube, écoutez de la musique et suivez la carte GPS du jeu sur une tablette fixée au pare-brise, tout en conduisant.",
         download="Téléchargement",
+        release_download="Téléchargez **{zip}** ci-dessous et décompressez-le.",
         download_body="**[Téléchargez la dernière version]({repo}/releases/latest)** et prenez le fichier `CabinPlay-x.y.z.zip`.",
         install="Installation",
         install_intro="Fermez le jeu et décompressez le fichier. Choisissez ensuite une méthode :",
@@ -205,6 +210,7 @@ TEXT = {
     "es": dict(
         intro="Una pantalla multimedia que funciona de verdad en la cabina de tu camión en **Euro Truck Simulator 2**. Mira YouTube, escucha música y sigue el mapa GPS del juego en una tableta fijada al parabrisas, mientras conduces.",
         download="Descarga",
+        release_download="Descarga **{zip}** más abajo y descomprímelo.",
         download_body="**[Descarga la última versión]({repo}/releases/latest)** y elige el archivo `CabinPlay-x.y.z.zip`.",
         install="Instalación",
         install_intro="Cierra el juego y descomprime el archivo. Después elige una opción:",
@@ -241,6 +247,7 @@ TEXT = {
     "ru": dict(
         intro="Работающий медиаэкран в кабине грузовика в **Euro Truck Simulator 2**. Смотрите YouTube, слушайте музыку и следите за GPS-картой игры на планшете у лобового стекла прямо во время поездки.",
         download="Скачать",
+        release_download="Скачайте **{zip}** ниже и распакуйте файл.",
         download_body="**[Скачайте последнюю версию]({repo}/releases/latest)** и возьмите файл `CabinPlay-x.y.z.zip`.",
         install="Установка",
         install_intro="Закройте игру и распакуйте файл. Затем выберите способ:",
@@ -361,17 +368,69 @@ TEMPLATE = """# CabinPlay
 """
 
 
+RELEASE_SECTION = """{intro}
+
+{release_download} {install_intro_tail}
+
+{auto}
+
+{manual}
+
+1. {manual_1}
+2. {manual_2}
+3. {manual_3}
+
+{then}
+
+1. {game_1}
+2. {game_2}
+3. {game_3}
+
+**{needs}:** {need_1}. {need_2}. {need_3}.
+
+**{help}:** {help_line}
+
+**{business}:** {business_body}
+"""
+
+
+def release_notes(version):
+    """Text for the GitHub release page: English in full, every other language folded."""
+    zip_name = "CabinPlay-%s.zip" % version
+    parts = []
+    for code, (name, filename) in LANGUAGES.items():
+        values = {k: v.format(repo=REPO, discord=DISCORD, email=EMAIL, zip=zip_name) for k, v in TEXT[code].items()}
+        # "Close the game and unzip the file. Then pick one:" -> keep only the last sentence,
+        # the download line above already covers the first.
+        values["install_intro_tail"] = values["install_intro"].split(". ", 1)[-1]
+        values["help_line"] = values["help_body"].replace("\n\n", " ")
+        section = RELEASE_SECTION.format(**values)
+        if code == "en":
+            parts.append(section)
+        else:
+            parts.append("<details>\n<summary><b>%s</b></summary>\n\n%s\n</details>\n" % (name, section))
+    others = ", ".join(name for code, (name, _) in LANGUAGES.items() if code != "en")
+    return "🌐 **English** below. Click a language further down to open it: %s.\n\n%s" % (others, "\n".join(parts))
+
+
 def main():
     for code, (_, filename) in LANGUAGES.items():
         bar = " · ".join("**%s**" % name if c == code else "[%s](%s)" % (name, f)
                          for c, (name, f) in LANGUAGES.items())
-        values = {k: v.format(repo=REPO, discord=DISCORD, email=EMAIL) for k, v in TEXT[code].items()}
+        values = {k: v.format(repo=REPO, discord=DISCORD, email=EMAIL, zip="") for k, v in TEXT[code].items()}
         missing = set(TEXT["en"]) - set(TEXT[code])
         assert not missing, "%s lacks: %s" % (code, ", ".join(sorted(missing)))
         text = TEMPLATE.format(languages=bar, building=BUILDING if code == "en" else "", **values)
         with io.open(os.path.join(ROOT, filename), "w", encoding="utf-8", newline="\n") as f:
             f.write(text)
         print("wrote", filename)
+    version_file = os.path.join(ROOT, "VERSION")
+    dist = os.path.join(ROOT, "dist")
+    if os.path.isdir(dist):
+        version = io.open(version_file, encoding="utf-8").read().strip()
+        with io.open(os.path.join(dist, "release-notes.md"), "w", encoding="utf-8", newline="\n") as f:
+            f.write(release_notes(version))
+        print("wrote dist/release-notes.md for", version)
 
 
 if __name__ == "__main__":
