@@ -167,6 +167,7 @@ internal sealed class MainForm : Form
             _environment = await CoreWebView2Environment.CreateAsync(
                 null, Path.Combine(Program.DataDir, "WebView2"),
                 new CoreWebView2EnvironmentOptions(BrowserArguments));
+            _environment.ProcessInfosChanged += (_, _) => RaisePriorities();
 
             await _shell.EnsureCoreWebView2Async(_environment);
             CoreWebView2 core = _shell.CoreWebView2;
@@ -386,9 +387,42 @@ internal sealed class MainForm : Form
         if (LeaveWithGame())
             return;
         await HoldMediaForGameAsync();
+        if (_stateTick % 40 == 0)
+            RaisePriorities();
+        if (_stateTick % 120 == 0)
+            LogCaptureRate();
         // The game state (speed, route) is cheap and refreshed every tick; asking the
         // page about its player is not, so that happens once a second.
         await PushStateAsync(withMedia: _stateTick++ % 4 == 0);
+    }
+
+    /// <summary>Lets this app and every browser process go ahead of the game; see <see cref="Priority"/>.</summary>
+    private void RaisePriorities()
+    {
+        if (_environment is null)
+            return;
+        try
+        {
+            Priority.Raise(Environment.ProcessId, "app");
+            foreach (CoreWebView2ProcessInfo info in _environment.GetProcessInfos())
+                Priority.Raise(info.ProcessId, info.Kind.ToString());
+        }
+        catch (Exception ex)
+        {
+            Log.Write("raising priority failed: " + ex.Message);
+        }
+    }
+
+    private long _rateFrames, _rateTick;
+
+    /// <summary>A playing video should arrive at its own frame rate; far less means the screen is being starved.</summary>
+    private void LogCaptureRate()
+    {
+        long now = Environment.TickCount64, frames = _capture?.FramesCaptured ?? 0;
+        if (_rateTick != 0 && _lastMedia is JsonObject media && (bool?)media["playing"] == true)
+            Log.Write($"capture while playing: {(frames - _rateFrames) * 1000.0 / (now - _rateTick):F1} frames/s");
+        _rateFrames = frames;
+        _rateTick = now;
     }
 
     private async Task PushStateAsync(bool withMedia)

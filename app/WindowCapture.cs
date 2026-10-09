@@ -71,6 +71,9 @@ internal sealed unsafe class WindowCapture : IDisposable
         Marshal.ThrowExceptionForHR(Marshal.QueryInterface(_device, ref IID_IDXGIDevice, out IntPtr dxgi));
         try
         {
+            // The copies made here must not queue behind the game's own rendering.
+            ((delegate* unmanaged[Stdcall]<IntPtr, int, int>)Vtbl(dxgi, 10))(dxgi, 7);
+            LogAdapter(dxgi);
             Marshal.ThrowExceptionForHR(CreateDirect3D11DeviceFromDXGIDevice(dxgi, out IntPtr inspectable));
             _winrtDevice = MarshalInterface<IDirect3DDevice>.FromAbi(inspectable);
             Marshal.Release(inspectable);
@@ -94,6 +97,21 @@ internal sealed unsafe class WindowCapture : IDisposable
         try { _session.IsCursorCaptureEnabled = false; } catch { /* older Windows builds */ }
         try { _session.IsBorderRequired = false; } catch { /* needs Windows 11 */ }
         _session.StartCapture();
+    }
+
+    /// <summary>Which graphics card does the work: the first thing to know when the screen stutters.</summary>
+    private static void LogAdapter(IntPtr dxgiDevice)
+    {
+        IntPtr adapter;
+        if (((delegate* unmanaged[Stdcall]<IntPtr, IntPtr*, int>)Vtbl(dxgiDevice, 7))(dxgiDevice, &adapter) < 0)
+            return;
+        byte* desc = stackalloc byte[304]; // DXGI_ADAPTER_DESC
+        if (((delegate* unmanaged[Stdcall]<IntPtr, byte*, int>)Vtbl(adapter, 8))(adapter, desc) >= 0)
+        {
+            string name = new string((char*)desc, 0, 128).Split('\0')[0];
+            Log.Write($"graphics card: {name}, {(ulong)*(nuint*)(desc + 272) / (1024 * 1024)} MB");
+        }
+        Marshal.Release(adapter);
     }
 
     private void OnFrameArrived(Direct3D11CaptureFramePool sender, object args)
