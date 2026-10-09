@@ -57,9 +57,11 @@ Questions, problems and news: **[join our Discord](https://discord.gg/rhGEbsu3zy
 
 To report a problem, open **Settings** on the screen, press **Create error report** and post the zip it saves to your desktop.
 
-## Collaboration and sponsorship
+## Contact
 
-Write to **[contact@hydrabon.com](mailto:contact@hydrabon.com)** or reach us on [Discord](https://discord.gg/rhGEbsu3zy).
+**Collaboration and sponsorship:** write to **[contact@hydrabon.com](mailto:contact@hydrabon.com)** or reach us on [Discord](https://discord.gg/rhGEbsu3zy).
+
+**Complaints and suggestions:** write to the same address or tell us on [Discord](https://discord.gg/rhGEbsu3zy).
 
 ## Building from source
 

@@ -39,8 +39,9 @@ HELP
   To report a problem, open Settings on the screen, press "Create error report" and
   post the zip it saves.
 
-COLLABORATION AND SPONSORSHIP
-  contact@hydrabon.com, or reach us on Discord.
+CONTACT
+  Collaboration and sponsorship: contact@hydrabon.com, or reach us on Discord.
+  Complaints and suggestions:    the same address, or tell us on Discord.
 
 REMOVE
   Double-click Uninstall.cmd, or delete the files you copied in B).

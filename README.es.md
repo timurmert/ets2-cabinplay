@@ -57,9 +57,11 @@ Preguntas, problemas y novedades: **[únete a nuestro Discord](https://discord.g
 
 Para informar de un problema, abre **Ajustes** en la pantalla, pulsa **Crear informe de error** y publica el zip que guarda en el escritorio.
 
-## Colaboración y patrocinio
+## Contacto
 
-Escribe a **[contact@hydrabon.com](mailto:contact@hydrabon.com)** o contáctanos en [Discord](https://discord.gg/rhGEbsu3zy).
+**Colaboración y patrocinio:** escribe a **[contact@hydrabon.com](mailto:contact@hydrabon.com)** o contáctanos en [Discord](https://discord.gg/rhGEbsu3zy).
+
+**Quejas y sugerencias:** escribe a la misma dirección o cuéntanoslo en [Discord](https://discord.gg/rhGEbsu3zy).
 
 ## Créditos y licencia
 

@@ -57,9 +57,11 @@ Sorular, sorunlar ve duyurular için **[Discord sunucumuza katıl](https://disco
 
 Sorun bildirmek için ekrandaki **Ayarlar**'ı aç, **Hata raporu oluştur**'a bas ve masaüstüne kaydettiği zip'i paylaş.
 
-## İş birliği ve sponsorluk
+## İletişim
 
-**[contact@hydrabon.com](mailto:contact@hydrabon.com)** adresine yaz ya da bize [Discord](https://discord.gg/rhGEbsu3zy) üzerinden ulaş.
+**İş birliği ve sponsorluk için:** **[contact@hydrabon.com](mailto:contact@hydrabon.com)** adresine yaz ya da bize [Discord](https://discord.gg/rhGEbsu3zy) üzerinden ulaş.
+
+**Şikayet ve önerilerin için:** aynı adrese yaz ya da [Discord](https://discord.gg/rhGEbsu3zy) sunucumuzda bize ilet.
 
 ## Emeği geçenler ve lisans
 

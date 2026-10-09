@@ -40,8 +40,9 @@ YARDIM
   Sorun bildirmek için ekrandaki Ayarlar'ı aç, "Hata raporu oluştur"a bas ve
   kaydettiği zip'i paylaş.
 
-İŞ BİRLİĞİ VE SPONSORLUK
-  contact@hydrabon.com ya da Discord üzerinden bize ulaş.
+İLETİŞİM
+  İş birliği ve sponsorluk için:  contact@hydrabon.com ya da Discord üzerinden bize ulaş.
+  Şikayet ve önerilerin için:     aynı adrese yaz ya da Discord'da bize ilet.
 
 KALDIRMA
   Uninstall.cmd dosyasına çift tıkla ya da B) bölümünde kopyaladığın dosyaları sil.

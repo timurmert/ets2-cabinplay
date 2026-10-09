@@ -57,9 +57,11 @@
 
 Чтобы сообщить о проблеме, откройте **Настройки** на экране, нажмите **Создать отчёт об ошибке** и отправьте zip-файл, сохранённый на рабочем столе.
 
-## Сотрудничество и спонсорство
+## Контакты
 
-Пишите на **[contact@hydrabon.com](mailto:contact@hydrabon.com)** или свяжитесь с нами в [Discord](https://discord.gg/rhGEbsu3zy).
+**Сотрудничество и спонсорство:** пишите на **[contact@hydrabon.com](mailto:contact@hydrabon.com)** или свяжитесь с нами в [Discord](https://discord.gg/rhGEbsu3zy).
+
+**Жалобы и предложения:** пишите на тот же адрес или расскажите нам в [Discord](https://discord.gg/rhGEbsu3zy).
 
 ## Авторы и лицензия
 
