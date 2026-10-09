@@ -1,43 +1,32 @@
 # CabinPlay
 
-**Euro Truck Simulator 2** için tır kabininde gerçekten çalışan bir medya ekranı. Sürerken ön cama
-takılı tablette YouTube izle, müzik dinle ve oyunun GPS haritasını takip et.
+[English](README.md) · **Türkçe** · [Deutsch](README.de.md) · [Polski](README.pl.md) · [Français](README.fr.md) · [Español](README.es.md) · [Русский](README.ru.md)
 
-[English](README.md)
+**Euro Truck Simulator 2** için tır kabininde gerçekten çalışan bir medya ekranı. Sürerken ön cama takılı tablette YouTube izle, müzik dinle ve oyunun GPS haritasını takip et.
 
 ## İndir
 
-**[Son sürümü indir](https://github.com/timurmert/ets2-cabinplay/releases/latest)**;
-`CabinPlay-x.y.z.zip` adlı dosyayı al.
+**[Son sürümü indir](https://github.com/timurmert/ets2-cabinplay/releases/latest)**; `CabinPlay-x.y.z.zip` adlı dosyayı al.
 
 ## Kur
 
 Oyunu kapat ve zip'i aç. Sonra birini seç:
 
-**A) Otomatik.** **Install.cmd** dosyasına çift tıkla.
-Windows "kişisel bilgisayarınızı korudu" derse *Ek bilgi*, sonra *Yine de çalıştır* de (dosyalar
-imzalı değil). `Install.cmd` yalnızca `data\install.ps1` dosyasını çalıştırır; bu, açıp
-okuyabileceğin düz metin bir betiktir.
+**A) Otomatik.** **Install.cmd** dosyasına çift tıkla. Windows "kişisel bilgisayarınızı korudu" derse *Ek bilgi*, sonra *Yine de çalıştır* de (dosyalar imzalı değil). `Install.cmd` yalnızca `data\install.ps1` dosyasını çalıştırır; bu, açıp okuyabileceğin düz metin bir betiktir.
 
 **B) Elle.** Hiçbir betik çalışmaz; `data` klasöründen üç şeyi kopyalarsın:
 
 1. `cabinplay.scs` dosyasını `Belgeler\Euro Truck Simulator 2\mod` klasörüne
-2. `plugin\cabinplay.dll` ve `plugin\cabinplay.ini` dosyalarını oyunun `bin\win_x64\plugins`
-   klasörüne (`plugins` yoksa oluştur). Oyun klasörünü bulmak için: Steam'de oyuna sağ tıkla >
-   *Yönet* > *Yerel dosyalara göz at*.
-3. `app` klasörünü istediğin bir yere; sonra içindeki `CabinPlay.exe` dosyasını bir kez
-   çalıştır. Sonrasında oyunla birlikte kendiliğinden açılır.
+2. `plugin\cabinplay.dll` ve `plugin\cabinplay.ini` dosyalarını oyunun `bin\win_x64\plugins` klasörüne (`plugins` yoksa oluştur). Oyun klasörünü bulmak için: Steam'de oyuna sağ tıkla > *Yönet* > *Yerel dosyalara göz at*.
+3. `app` klasörünü istediğin bir yere; sonra içindeki `CabinPlay.exe` dosyasını bir kez çalıştır. Sonrasında oyunla birlikte kendiliğinden açılır.
 
 **Sonra, oyunda:**
 
 1. Oyunu başlat ve bir kez çıkan "SDK özellikleri" uyarısını onayla.
 2. **Mod Yöneticisi**'nde **CabinPlay Screen**'i etkinleştir.
-3. Serviste, sol ön cam aksesuar yuvasına **CabinPlay Screen**'i tak. İki sürüm var:
-   *Large* (11", kolda) ve *Compact* (10", camın dibinde).
+3. Serviste, sol ön cam aksesuar yuvasına **CabinPlay Screen**'i tak. İki sürüm var: *Large* (11", kolda) ve *Compact* (10", camın dibinde).
 
-Bu kadar. Ekran tırın kontağıyla birlikte açılır.
-
-Kaldırmak için **Uninstall.cmd** dosyasına çift tıkla ya da elle kopyaladığın dosyaları sil.
+Bu kadar. Ekran tırın kontağıyla birlikte açılır. Kaldırmak için **Uninstall.cmd** dosyasına çift tıkla ya da elle kopyaladığın dosyaları sil.
 
 ## Kullan
 
@@ -51,11 +40,9 @@ Kaldırmak için **Uninstall.cmd** dosyasına çift tıkla ya da elle kopyaladı
 | `Ctrl+Alt+↑` `↓` | 10 saniye ileri / geri |
 | `Ctrl+Alt+F` | Videoyu tam ekran yap |
 
-Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil (İngilizce, Türkçe, Almanca,
-Lehçe, Fransızca, İspanyolca, Rusça) ekrandaki **Ayarlar**'dan değişir.
+Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, ekrandaki **Ayarlar**'dan değişir.
 
-Tırı fareyle sürüyorsan oyunun `bin\win_x64\plugins` klasöründeki `cabinplay.ini` içinde
-`control_mouse=0` yap: fare tırda kalır, ekrandaki imleci ok tuşları oynatır.
+Tırı fareyle sürüyorsan oyunun `bin\win_x64\plugins` klasöründeki `cabinplay.ini` içinde `control_mouse=0` yap: fare tırda kalır, ekrandaki imleci ok tuşları oynatır.
 
 ## Gerekenler
 
@@ -64,16 +51,18 @@ Tırı fareyle sürüyorsan oyunun `bin\win_x64\plugins` klasöründeki `cabinpl
 - Tek oyunculu: TruckersMP ile çalışmaz
 - 23 tıra uyar; DAF XF Electric, Renault E-Tech T ve Scania S 2024e'ye uymaz
 
-## Yardım
+## Yardım ve topluluk
 
-Ekrandaki **Ayarlar**'ı aç ve **Hata raporu oluştur**'a bas. Masaüstüne bir zip kaydeder; yardım
-isterken o dosyayı paylaş.
+Sorular, sorunlar ve duyurular için **[Discord sunucumuza katıl](https://discord.gg/rhGEbsu3zy)**.
+
+Sorun bildirmek için ekrandaki **Ayarlar**'ı aç, **Hata raporu oluştur**'a bas ve masaüstüne kaydettiği zip'i paylaş.
+
+## İş birliği ve sponsorluk
+
+**[contact@hydrabon.com](mailto:contact@hydrabon.com)** adresine yaz ya da bize [Discord](https://discord.gg/rhGEbsu3zy) üzerinden ulaş.
 
 ## Emeği geçenler ve lisans
 
-Topluluk sunucumuz ve yazılım ekibimiz **HydRaboN** tarafından yapıldı. CabinPlay ücretsiz ve
-açık kaynaklıdır; [MIT lisansı](LICENSE) ile yayınlanır. İçinde
-[MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause) kullanılır.
+Topluluk sunucumuz ve yazılım ekibimiz **HydRaboN** tarafından yapıldı. CabinPlay ücretsiz ve açık kaynaklıdır; [MIT lisansı](LICENSE) ile yayınlanır. İçinde [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause) kullanılır.
 
-CabinPlay resmi olmayan bir hayran projesidir. SCS Software, Google/YouTube, Twitch veya Apple ile
-bağlantılı değildir ve onlar tarafından desteklenmez.
+CabinPlay resmi olmayan bir hayran projesidir. SCS Software, Google/YouTube, Twitch veya Apple ile bağlantılı değildir ve onlar tarafından desteklenmez.

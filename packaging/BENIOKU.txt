@@ -36,7 +36,12 @@ GEREKENLER
   Yalnızca tek oyunculu: TruckersMP ile çalışmaz.
 
 YARDIM
-  Ekrandaki Ayarlar'ı aç, "Hata raporu oluştur"a bas ve kaydettiği zip'i paylaş.
+  Discord sunucumuza katıl: https://discord.gg/rhGEbsu3zy
+  Sorun bildirmek için ekrandaki Ayarlar'ı aç, "Hata raporu oluştur"a bas ve
+  kaydettiği zip'i paylaş.
+
+İŞ BİRLİĞİ VE SPONSORLUK
+  contact@hydrabon.com ya da Discord üzerinden bize ulaş.
 
 KALDIRMA
   Uninstall.cmd dosyasına çift tıkla ya da B) bölümünde kopyaladığın dosyaları sil.

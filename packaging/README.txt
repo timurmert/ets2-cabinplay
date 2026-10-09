@@ -35,7 +35,12 @@ NEEDS
   Single player only: it does not work with TruckersMP.
 
 HELP
-  Open Settings on the screen, press "Create error report" and share the zip it saves.
+  Join our Discord: https://discord.gg/rhGEbsu3zy
+  To report a problem, open Settings on the screen, press "Create error report" and
+  post the zip it saves.
+
+COLLABORATION AND SPONSORSHIP
+  contact@hydrabon.com, or reach us on Discord.
 
 REMOVE
   Double-click Uninstall.cmd, or delete the files you copied in B).

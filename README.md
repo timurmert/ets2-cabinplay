@@ -1,42 +1,32 @@
 # CabinPlay
 
-A working media screen for your truck cabin in **Euro Truck Simulator 2**. Watch YouTube, listen
-to music and follow the game's GPS map on a tablet mounted at the windscreen, while you drive.
+**English** · [Türkçe](README.tr.md) · [Deutsch](README.de.md) · [Polski](README.pl.md) · [Français](README.fr.md) · [Español](README.es.md) · [Русский](README.ru.md)
 
-[Türkçe](README.tr.md)
+A working media screen for your truck cabin in **Euro Truck Simulator 2**. Watch YouTube, listen to music and follow the game's GPS map on a tablet mounted at the windscreen, while you drive.
 
 ## Download
 
-**[Download the latest version](https://github.com/timurmert/ets2-cabinplay/releases/latest)** and
-get the file named `CabinPlay-x.y.z.zip`.
+**[Download the latest version](https://github.com/timurmert/ets2-cabinplay/releases/latest)** and get the file named `CabinPlay-x.y.z.zip`.
 
 ## Install
 
 Close the game and unzip the file. Then pick one:
 
-**A) Automatic.** Double-click **Install.cmd**.
-If Windows says it protected your PC, click *More info*, then *Run anyway* (the files are not
-code-signed). `Install.cmd` only starts `data\install.ps1`, a plain text script you can read.
+**A) Automatic.** Double-click **Install.cmd**. If Windows says it protected your PC, click *More info*, then *Run anyway* (the files are not code-signed). `Install.cmd` only starts `data\install.ps1`, a plain text script you can read.
 
 **B) By hand.** No script is run; you copy three things from the `data` folder:
 
 1. `cabinplay.scs` into `Documents\Euro Truck Simulator 2\mod`
-2. `plugin\cabinplay.dll` and `plugin\cabinplay.ini` into the game's `bin\win_x64\plugins` folder
-   (create `plugins` if it is not there). To find the game folder: in Steam, right-click the
-   game > *Manage* > *Browse local files*.
-3. the `app` folder to anywhere you like, then start `CabinPlay.exe` in it once. From then on it
-   starts with the game by itself.
+2. `plugin\cabinplay.dll` and `plugin\cabinplay.ini` into the game's `bin\win_x64\plugins` folder (create `plugins` if it is not there). To find the game folder: in Steam, right-click the game > *Manage* > *Browse local files*.
+3. the `app` folder to anywhere you like, then start `CabinPlay.exe` in it once. From then on it starts with the game by itself.
 
 **Then, in the game:**
 
 1. Start the game and accept the "SDK features" notice it shows once.
 2. In the **Mod Manager**, switch on **CabinPlay Screen**.
-3. In a truck workshop, fit **CabinPlay Screen** in the left windscreen accessory slot. There are
-   two versions: *Large* (11", on an arm) and *Compact* (10", at the glass).
+3. In a truck workshop, fit **CabinPlay Screen** in the left windscreen accessory slot. There are two versions: *Large* (11", on an arm) and *Compact* (10", at the glass).
 
-That's it. The screen switches on with the truck's ignition.
-
-To remove it, double-click **Uninstall.cmd**, or delete the files you copied by hand.
+That's it. The screen switches on with the truck's ignition. To remove it, double-click **Uninstall.cmd**, or delete the files you copied by hand.
 
 ## Use
 
@@ -50,12 +40,9 @@ To remove it, double-click **Uninstall.cmd**, or delete the files you copied by 
 | `Ctrl+Alt+↑` `↓` | 10 seconds forward / back |
 | `Ctrl+Alt+F` | Video fullscreen |
 
-Playback pauses when you pause the game or switch the ignition off. The language (English,
-Turkish, German, Polish, French, Spanish, Russian) is under **Settings** on the screen.
+Playback pauses when you pause the game or switch the ignition off. The language is under **Settings** on the screen.
 
-If you steer with the mouse, set `control_mouse=0` in `cabinplay.ini` (in the game's
-`bin\win_x64\plugins` folder): the mouse then stays with the truck and the arrow keys move the
-screen's cursor.
+If you steer with the mouse, set `control_mouse=0` in `cabinplay.ini` (in the game's `bin\win_x64\plugins` folder): the mouse then stays with the truck and the arrow keys move the screen's cursor.
 
 ## What you need
 
@@ -64,10 +51,15 @@ screen's cursor.
 - Single player: it does not work with TruckersMP
 - Fits 23 trucks; not the DAF XF Electric, Renault E-Tech T or Scania S 2024e
 
-## Help
+## Help and community
 
-Open **Settings** on the screen and press **Create error report**. It saves a zip to your desktop;
-share that file when you ask for help.
+Questions, problems and news: **[join our Discord](https://discord.gg/rhGEbsu3zy)**.
+
+To report a problem, open **Settings** on the screen, press **Create error report** and post the zip it saves to your desktop.
+
+## Collaboration and sponsorship
+
+Write to **[contact@hydrabon.com](mailto:contact@hydrabon.com)** or reach us on [Discord](https://discord.gg/rhGEbsu3zy).
 
 ## Building from source
 
@@ -79,13 +71,11 @@ Needs Python 3, MinGW-w64 gcc and the .NET 8 SDK on Windows.
 ```
 
 `tools\` generates the mod, `plugin\` is the game plugin, `app\` is the companion app with the
-screen's interface in `app\ui\`. The version number lives in `VERSION`.
+screen's interface in `app\ui\`. The version number lives in `VERSION`. This README and its
+translations are generated by `tools\build_readme.py`.
 
 ## Credits and licence
 
-Made by **HydRaboN**, our community server and software team. CabinPlay is free and open source
-under the [MIT licence](LICENSE). It includes [MinHook](https://github.com/TsudaKageyu/minhook)
-(BSD 2-Clause).
+Made by **HydRaboN**, our community server and software team. CabinPlay is free and open source under the [MIT licence](LICENSE). It includes [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).
 
-CabinPlay is an unofficial fan project. It is not affiliated with or endorsed by SCS Software,
-Google/YouTube, Twitch or Apple.
+CabinPlay is an unofficial fan project. It is not affiliated with or endorsed by SCS Software, Google/YouTube, Twitch or Apple.
