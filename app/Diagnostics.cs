@@ -43,11 +43,16 @@ internal static class Diagnostics
         }
     }
 
-    /// <summary>Recorded by the installer in install.json.</summary>
+    /// <summary>Recorded by the plugin in the registry, or by the installer in install.json.</summary>
     private static string? PluginFolder()
     {
         try
         {
+            using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(Program.RegistryKey))
+            {
+                if (key?.GetValue("PluginDir") is string dir && Directory.Exists(dir))
+                    return dir;
+            }
             string path = Path.Combine(Program.DataDir, "install.json");
             if (!File.Exists(path))
                 return null;

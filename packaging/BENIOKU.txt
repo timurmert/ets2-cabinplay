@@ -1,0 +1,47 @@
+﻿CabinPlay - tır kabininde çalışan medya ekranı (Euro Truck Simulator 2)
+HydRaboN tarafından yapıldı.            English: README.txt
+
+Önce oyunu kapat. Sonra iki yoldan biriyle kur.
+
+A) OTOMATİK
+  Install.cmd dosyasına çift tıkla.
+  Windows "kişisel bilgisayarınızı korudu" derse "Ek bilgi", sonra "Yine de çalıştır" de.
+  Install.cmd yalnızca data\install.ps1 dosyasını çalıştırır; bu, açıp okuyabileceğin
+  düz metin bir betiktir.
+
+B) ELLE (hiçbir betik çalışmaz)
+  1. data\cabinplay.scs dosyasını şuraya kopyala:
+        Belgeler\Euro Truck Simulator 2\mod
+  2. data\plugin içindeki cabinplay.dll ve cabinplay.ini dosyalarını oyunun
+        bin\win_x64\plugins
+     klasörüne kopyala. "plugins" klasörü yoksa oluştur.
+     Oyun klasörünü bulmak için: Steam'de oyuna sağ tıkla > Yönet > Yerel dosyalara göz at.
+  3. data\app klasörünü istediğin bir yere kopyala (örneğin Belgeler\CabinPlay) ve
+     içindeki CabinPlay.exe dosyasını bir kez çalıştır. Sonrasında oyunla birlikte
+     kendiliğinden açılır.
+
+SONRA, OYUNDA
+  1. Oyunu başlat ve bir kez çıkan "SDK özellikleri" uyarısını onayla.
+  2. Mod Yöneticisi'nde "CabinPlay Screen" modunu etkinleştir.
+  3. Serviste, sol ön cam aksesuar yuvasına "CabinPlay Screen"i tak (Large veya Compact).
+
+KULLANIM
+  Ctrl+Alt+C       ekranı oyunun içinden fare ve klavyeyle kullan (çıkış: Esc)
+  Ctrl+Alt+N       navigasyon haritası     Ctrl+Alt+H   ana ekran
+  Ctrl+Alt+Boşluk  oynat / duraklat        Ctrl+Alt+F   videoyu tam ekran yap
+  Dil ve tüm kısayollar ekrandaki Ayarlar bölümünde.
+
+GEREKENLER
+  Euro Truck Simulator 2 1.61, Windows 10 veya 11, Kabin Aksesuarları DLC'si.
+  Yalnızca tek oyunculu: TruckersMP ile çalışmaz.
+
+YARDIM
+  Ekrandaki Ayarlar'ı aç, "Hata raporu oluştur"a bas ve kaydettiği zip'i paylaş.
+
+KALDIRMA
+  Uninstall.cmd dosyasına çift tıkla ya da B) bölümünde kopyaladığın dosyaları sil.
+
+CabinPlay ücretsiz ve açık kaynaklıdır (MIT lisansı, bkz. LICENSE.txt):
+https://github.com/timurmert/ets2-cabinplay
+Resmi olmayan bir hayran projesidir; SCS Software, Google/YouTube, Twitch veya Apple
+ile bağlantılı değildir ve onlar tarafından desteklenmez.

@@ -1,3 +1,3 @@
-# Batch files must keep Windows line endings to run reliably.
+# Batch files must keep Windows line endings to run reliably; the text files are read in Notepad.
 *.cmd text eol=crlf
-packaging/README.txt text eol=crlf
+packaging/*.txt text eol=crlf

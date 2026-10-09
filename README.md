@@ -12,18 +12,31 @@ get the file named `CabinPlay-x.y.z.zip`.
 
 ## Install
 
-1. Close the game.
-2. Unzip the file and double-click **Install.cmd**.
-   If Windows says it protected your PC, click *More info*, then *Run anyway* (the files are not
-   code-signed).
-3. Start the game and accept the "SDK features" notice it shows once.
-4. In the **Mod Manager**, switch on **CabinPlay Screen**.
-5. In a truck workshop, fit **CabinPlay Screen** in the left windscreen accessory slot. There are
+Close the game and unzip the file. Then pick one:
+
+**A) Automatic.** Double-click **Install.cmd**.
+If Windows says it protected your PC, click *More info*, then *Run anyway* (the files are not
+code-signed). `Install.cmd` only starts `data\install.ps1`, a plain text script you can read.
+
+**B) By hand.** No script is run; you copy three things from the `data` folder:
+
+1. `cabinplay.scs` into `Documents\Euro Truck Simulator 2\mod`
+2. `plugin\cabinplay.dll` and `plugin\cabinplay.ini` into the game's `bin\win_x64\plugins` folder
+   (create `plugins` if it is not there). To find the game folder: in Steam, right-click the
+   game > *Manage* > *Browse local files*.
+3. the `app` folder to anywhere you like, then start `CabinPlay.exe` in it once. From then on it
+   starts with the game by itself.
+
+**Then, in the game:**
+
+1. Start the game and accept the "SDK features" notice it shows once.
+2. In the **Mod Manager**, switch on **CabinPlay Screen**.
+3. In a truck workshop, fit **CabinPlay Screen** in the left windscreen accessory slot. There are
    two versions: *Large* (11", on an arm) and *Compact* (10", at the glass).
 
 That's it. The screen switches on with the truck's ignition.
 
-To remove it, double-click **Uninstall.cmd**.
+To remove it, double-click **Uninstall.cmd**, or delete the files you copied by hand.
 
 ## Use
 
@@ -68,7 +81,11 @@ Needs Python 3, MinGW-w64 gcc and the .NET 8 SDK on Windows.
 `tools\` generates the mod, `plugin\` is the game plugin, `app\` is the companion app with the
 screen's interface in `app\ui\`. The version number lives in `VERSION`.
 
----
+## Credits and licence
+
+Made by **HydRaboN**, our community server and software team. CabinPlay is free and open source
+under the [MIT licence](LICENSE). It includes [MinHook](https://github.com/TsudaKageyu/minhook)
+(BSD 2-Clause).
 
 CabinPlay is an unofficial fan project. It is not affiliated with or endorsed by SCS Software,
 Google/YouTube, Twitch or Apple.

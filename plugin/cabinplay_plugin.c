@@ -14,6 +14,7 @@
 #define COBJMACROS
 #define WIN32_LEAN_AND_MEAN
 #define DIRECTINPUT_VERSION 0x0800
+#define _WIN32_WINNT 0x0601
 #include <windows.h>
 #include <d3d11.h>
 #include <dinput.h>
@@ -24,6 +25,9 @@
 
 #include "MinHook.h"
 #include "frame_protocol.h"
+
+/* Where the plugin and the app leave each other their locations. */
+#define REGISTRY_KEY L"Software\\CabinPlay"
 
 #define MAX_ENTRIES 48
 #define MAX_SCREEN_TARGETS 4
@@ -213,6 +217,15 @@ static void open_log_and_config(void)
     wcscpy(dot, L".log");
     if (!g_log)
         g_log = _wfopen(path, L"w");
+
+    /* Tell the app where this plugin lives, so its error report can include the log. */
+    wchar_t ns[4];
+    wchar_t *slash = wcsrchr(path, L'\\');
+    if (slash && !GetEnvironmentVariableW(L"CABINPLAY_TEST_NAMESPACE", ns, 4)) {
+        *slash = 0;
+        RegSetKeyValueW(HKEY_CURRENT_USER, REGISTRY_KEY, L"PluginDir", REG_SZ, path,
+                        (DWORD)((wcslen(path) + 1) * sizeof(wchar_t)));
+    }
 }
 
 /* The self-test sets CABINPLAY_TEST_NAMESPACE so it never talks to a running game or app. */
@@ -1802,8 +1815,19 @@ static void register_telemetry(const scs_telemetry_init_params_t *p)
 static void start_companion(void)
 {
     wchar_t ns[4];
-    if (!g_cfg_autostart || !g_cfg_app_path[0] || GetEnvironmentVariableW(L"CABINPLAY_TEST_NAMESPACE", ns, 4))
+    if (!g_cfg_autostart || GetEnvironmentVariableW(L"CABINPLAY_TEST_NAMESPACE", ns, 4))
         return;
+    if (!g_cfg_app_path[0]) {
+        /* Installed by hand: the app notes where it is every time it runs. */
+        DWORD bytes = sizeof(g_cfg_app_path);
+        if (RegGetValueW(HKEY_CURRENT_USER, REGISTRY_KEY, L"AppPath", RRF_RT_REG_SZ, NULL, g_cfg_app_path, &bytes) !=
+            ERROR_SUCCESS)
+            g_cfg_app_path[0] = 0;
+    }
+    if (!g_cfg_app_path[0]) {
+        logf_("the companion app's location is not known yet: start CabinPlay once by hand");
+        return;
+    }
     HANDLE running = OpenMutexW(SYNCHRONIZE, FALSE, L"Local\\CabinPlayApp");
     if (running) {
         CloseHandle(running);
