@@ -15,7 +15,7 @@ internal static class Diagnostics
         {
             string zipPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
-                $"CabinPlay-diagnostics-{DateTime.Now:yyyyMMdd-HHmmss}.zip");
+                $"CabinPlay-error-report-{DateTime.Now:yyyyMMdd-HHmmss}.zip");
             using (ZipArchive zip = ZipFile.Open(zipPath, ZipArchiveMode.Create))
             {
                 Add(zip, Path.Combine(Program.DataDir, "app.log"), "app.log");
@@ -35,11 +35,11 @@ internal static class Diagnostics
                 writer.WriteLine($"Plugin folder: {plugins ?? "(unknown)"}");
             }
             Process.Start("explorer.exe", $"/select,\"{zipPath}\"");
-            Log.Write("diagnostics written to " + zipPath);
+            Log.Write("error report written to " + zipPath);
         }
         catch (Exception ex)
         {
-            Log.Write("diagnostics failed: " + ex.Message);
+            Log.Write("error report failed: " + ex.Message);
         }
     }
 

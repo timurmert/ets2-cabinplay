@@ -317,8 +317,9 @@ kbd {
   font: 600 14px "Segoe UI", sans-serif;
   text-align: center;
 }
-.sheet-actions { display: flex; justify-content: space-between; margin-top: 16px; }
+.sheet-actions { display: flex; justify-content: space-between; margin-top: 12px; }
 .sheet-actions button { padding: 9px 20px; border-radius: 14px; font-size: 16px; font-weight: 650; background: var(--accent); }
 .sheet-actions button.danger { background: rgba(255, 69, 58, .22); color: #ff6961; }
 .sheet-actions button.quiet { background: rgba(255, 255, 255, .12); }
+.sheet p.sheet-note { margin-top: 8px; font-size: 13px; text-align: center; }
 .sheet-actions button:active { transform: scale(.96); }
