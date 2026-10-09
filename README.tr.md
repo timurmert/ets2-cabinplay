@@ -49,7 +49,7 @@ Tırı fareyle sürüyorsan oyunun `bin\win_x64\plugins` klasöründeki `cabinpl
 - Euro Truck Simulator 2 **1.61**, Windows 10 veya 11
 - DLC gerekmez
 - Tek oyunculu: TruckersMP ile çalışmaz
-- 23 tıra uyar; DAF XF Electric, Renault E-Tech T ve Scania S 2024e'ye uymaz
+- 25 tıra uyar; Renault E-Tech T'ye uymaz
 
 ## Yardım ve topluluk
 

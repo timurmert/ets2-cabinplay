@@ -49,7 +49,7 @@ Si vous dirigez à la souris, mettez `control_mouse=0` dans `cabinplay.ini` (dan
 - Euro Truck Simulator 2 **1.61**, Windows 10 ou 11
 - Aucun DLC requis
 - Solo uniquement : ne fonctionne pas avec TruckersMP
-- Compatible avec 23 camions ; pas avec les DAF XF Electric, Renault E-Tech T et Scania S 2024e
+- Compatible avec 25 camions ; pas avec le Renault E-Tech T
 
 ## Aide et communauté
 

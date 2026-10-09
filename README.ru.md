@@ -49,7 +49,7 @@
 - Euro Truck Simulator 2 **1.61**, Windows 10 или 11
 - DLC не требуется
 - Только одиночная игра: с TruckersMP не работает
-- Подходит для 23 грузовиков; не подходит для DAF XF Electric, Renault E-Tech T и Scania S 2024e
+- Подходит для 25 грузовиков; не подходит для Renault E-Tech T
 
 ## Помощь и сообщество
 

@@ -49,7 +49,7 @@ Si conduces con el ratón, pon `control_mouse=0` en `cabinplay.ini` (en la carpe
 - Euro Truck Simulator 2 **1.61**, Windows 10 u 11
 - No requiere DLC
 - Un jugador: no funciona con TruckersMP
-- Compatible con 23 camiones; no con DAF XF Electric, Renault E-Tech T ni Scania S 2024e
+- Compatible con 25 camiones; no con el Renault E-Tech T
 
 ## Ayuda y comunidad
 

@@ -49,7 +49,7 @@ If you steer with the mouse, set `control_mouse=0` in `cabinplay.ini` (in the ga
 - Euro Truck Simulator 2 **1.61**, Windows 10 or 11
 - No DLC needed
 - Single player: it does not work with TruckersMP
-- Fits 23 trucks; not the DAF XF Electric, Renault E-Tech T or Scania S 2024e
+- Fits 25 trucks; not the Renault E-Tech T
 
 ## Help and community
 

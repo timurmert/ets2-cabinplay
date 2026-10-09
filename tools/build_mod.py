@@ -25,12 +25,12 @@ MODEL_DIR = "/vehicle/truck/upgrade/cabinplay"
 # Trucks whose interiors have the left-windshield accessory slot (the one the
 # game's own portable navigator uses).
 TRUCKS = [
-    "daf.2021", "daf.xd", "daf.xf", "daf.xf_euro6",
+    "daf.2021", "daf.xd", "daf.xf", "daf.xf_electric", "daf.xf_euro6",
     "iveco.hiway", "iveco.stralis", "iveco.sway",
     "man.tgx", "man.tgx_2020", "man.tgx_euro6",
     "mercedes.actros", "mercedes.actros2014",
     "renault.magnum", "renault.premium", "renault.t",
-    "scania.r", "scania.r_2016", "scania.s_2016", "scania.streamline",
+    "scania.r", "scania.r_2016", "scania.s_2016", "scania.s_2024e", "scania.streamline",
     "volvo.fh16", "volvo.fh16_2012", "volvo.fh_2021", "volvo.fh_2024",
 ]
 SLOT = "set_lglass"

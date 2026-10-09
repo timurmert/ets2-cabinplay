@@ -49,7 +49,7 @@ Jeśli kierujesz myszą, ustaw `control_mouse=0` w `cabinplay.ini` (w folderze g
 - Euro Truck Simulator 2 **1.61**, Windows 10 lub 11
 - Nie wymaga DLC
 - Tryb jednoosobowy: nie działa z TruckersMP
-- Pasuje do 23 ciężarówek; nie do DAF XF Electric, Renault E-Tech T i Scania S 2024e
+- Pasuje do 25 ciężarówek; nie do Renault E-Tech T
 
 ## Pomoc i społeczność
 
