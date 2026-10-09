@@ -10,7 +10,7 @@ REPO = "https://github.com/timurmert/ets2-cabinplay"
 DISCORD = "https://discord.gg/rhGEbsu3zy"
 EMAIL = "contact@hydrabon.com"
 MEDIA = "docs/media"
-VIDEO = REPO + "/raw/main/" + MEDIA + "/cabinplay-demo.mp4"
+VIDEO = REPO + "/blob/main/" + MEDIA + "/cabinplay-demo.mp4"
 
 # code -> (language name, file name)
 LANGUAGES = {
