@@ -1,4 +1,4 @@
-"""Builds dist/ets2_carplay.scs: the in-cabin CarPlay screen accessory.
+"""Builds dist/cabinplay.scs: the in-cabin CabinPlay screen accessory.
 
 Everything in the package is generated here (model, textures, materials, defs),
 so the mod has no source assets besides this script.
@@ -20,7 +20,7 @@ STATIC = os.path.join(ROOT, "mod_static")
 
 MOD_VERSION = "1.2"
 GAME_VERSION = "1.61.*"
-MODEL_DIR = "/vehicle/truck/upgrade/carplay"
+MODEL_DIR = "/vehicle/truck/upgrade/cabinplay"
 
 # Trucks whose interiors have the left-windshield accessory slot (the one the
 # game's own portable navigator uses).
@@ -37,12 +37,12 @@ SLOT = "set_lglass"
 
 # The screen texture is a flat fill of this exact colour. The plugin recognises the
 # texture by it, at any mip level, and replaces its contents with live frames.
-# Keep in sync with plugin/carplay_plugin.c.
+# Keep in sync with plugin/cabinplay_plugin.c.
 MARKER_BGRA = (0x06, 0x02, 0x04, 0xFF)
 SCREEN_TEX_W, SCREEN_TEX_H = 1024, 512
 
 # The game draws its navigation map into a texture of this size for the accessory
-# (ui_drawable_size). The map takes the part right of the CarPlay dock; the strip that
+# (ui_drawable_size). The map takes the part right of the CabinPlay dock; the strip that
 # is left over carries the colours the plugin recognises the texture by.
 # Keep in sync with plugin/frame_protocol.h.
 NAV_W, NAV_H = 1024, 512
@@ -67,11 +67,11 @@ DOCK_W = 88
 #   yaw      degrees it turns right (negative: left)
 VARIANTS = [
     # 11 inch on the gooseneck arm: raised, clear of the A-pillar, squarely facing the driver.
-    dict(unit="carplay", model="carplay", name="CarPlay Screen (Large)", price=1500,
+    dict(unit="cabinplay", model="cabinplay", name="CabinPlay Screen (Large)", price=1500,
          screen=(0.1260, 0.0630), screen_r=0.0055, body=(0.1330, 0.0700, 0.0095, 0.0130),
          center=(0.039, 0.092, 0.236), tilt=12.0, yaw=-12.0),
     # 10 inch right at the glass, where the stock navigator sits.
-    dict(unit="carplay_s", model="carplay_compact", name="CarPlay Screen (Compact)", price=1200,
+    dict(unit="cabinplay_s", model="cabinplay_compact", name="CabinPlay Screen (Compact)", price=1200,
          screen=(0.1150, 0.0575), screen_r=0.0050, body=(0.1220, 0.0645, 0.0090, 0.0120),
          center=(0.0, 0.025, 0.105), tilt=10.0, yaw=0.0),
 ]
@@ -476,7 +476,7 @@ def main():
     u_span = 0.84
     v_span = u_span * NAV_H / map_w
     fill = "<img src=/material/ui/white.mat color=%s xscale=stretch yscale=stretch>"
-    write("/ui/dashboard/carplay_nav.sii",
+    write("/ui/dashboard/cabinplay_nav.sii",
           'SiiNunit\n{\n'
           'ui::window : _nameless.wnd {\n'
           ' window_handler: null\n clip_children: true\n keep_aspect: none\n user_string_data: ""\n'
@@ -501,11 +501,11 @@ def main():
           + '}\n')
 
     # accessory icon
-    write("/material/ui/accessory/carplay_screen.dds", dds_bytes(256, 64, [(256, 64)], lambda w, h: render_icon(w, h)))
-    write("/material/ui/accessory/carplay_screen.tobj",
-          tobj_bytes("/material/ui/accessory/carplay_screen.dds", mips=False))
-    write("/material/ui/accessory/carplay_screen.mat",
-          'effect : "ui.rfx" {\n\ttexture : "texture" {\n\t\tsource : "carplay_screen.tobj"\n'
+    write("/material/ui/accessory/cabinplay_screen.dds", dds_bytes(256, 64, [(256, 64)], lambda w, h: render_icon(w, h)))
+    write("/material/ui/accessory/cabinplay_screen.tobj",
+          tobj_bytes("/material/ui/accessory/cabinplay_screen.dds", mips=False))
+    write("/material/ui/accessory/cabinplay_screen.mat",
+          'effect : "ui.rfx" {\n\ttexture : "texture" {\n\t\tsource : "cabinplay_screen.tobj"\n'
           '\t\tu_address : clamp\n\t\tv_address : clamp\n\t\tmip_filter : none\n\t}\n}\n')
 
     # one accessory definition per truck and version
@@ -517,10 +517,10 @@ def main():
                   '\tname: "%s"\n'
                   '\tprice: %d\n'
                   '\tunlock: 0\n'
-                  '\ticon: "carplay_screen"\n'
+                  '\ticon: "cabinplay_screen"\n'
                   '\tpart_type: aftermarket\n\n'
                   '\tinterior_model: "%s/%s.pmd"\n\n'
-                  '\tui_path: "/ui/dashboard/carplay_nav.sii"\n'
+                  '\tui_path: "/ui/dashboard/cabinplay_nav.sii"\n'
                   '\tui_drawable_texture_path: "%s/nav_ui.tobj"\n'
                   '\tui_drawable_size: (%d, %d)\n'
                   '}\n}\n' % (variant["unit"], truck, SLOT, variant["name"], variant["price"],
@@ -533,7 +533,7 @@ def main():
     write("/manifest.sii",
           'SiiNunit\n{\nmod_package : .package_name\n{\n'
           '\tpackage_version: "%s"\n'
-          '\tdisplay_name: "CarPlay Screen"\n'
+          '\tdisplay_name: "CabinPlay Screen"\n'
           '\tauthor: "HydRaboN"\n'
           '\tcategory[]: "interior"\n'
           '%s'
@@ -541,13 +541,13 @@ def main():
           '\tcompatible_versions[]: "%s"\n'
           '}\n}\n' % (MOD_VERSION, '\ticon: "mod_icon.jpg"\n' if has_icon else '', GAME_VERSION))
     write("/mod_description.txt",
-          "CarPlay Screen\n\n"
+          "CabinPlay Screen\n\n"
           "Adds an in-cabin display to the left windshield accessory slot of every truck, in two\n"
           "versions: Large (11 inch, on an arm) and Compact (10 inch, at the glass).\n"
-          "The picture comes from the ETS2 CarPlay companion app through the carplay plugin;\n"
+          "The picture comes from the CabinPlay companion app through the cabinplay plugin;\n"
           "without them the screen stays off.\n")
 
-    out = os.path.join(DIST, "ets2_carplay.scs")
+    out = os.path.join(DIST, "cabinplay.scs")
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
         for base, _, files in os.walk(TREE):
             for name in sorted(files):

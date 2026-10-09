@@ -1,6 +1,6 @@
 using System.IO.MemoryMappedFiles;
 
-namespace Ets2CarPlay;
+namespace CabinPlay;
 
 /// <summary>
 /// Publishes frames to the game plugin through shared memory.
@@ -11,7 +11,7 @@ internal sealed unsafe class FrameWriter : IDisposable
     public const int Width = 1024;
     public const int Height = 512;
 
-    public static readonly string MappingName = Program.SharedName("ETS2CarPlayFrame");
+    public static readonly string MappingName = Program.SharedName("CabinPlayFrame");
     private const uint Magic = 0x594C5043; // "CPLY"
     private const uint Version = 1;
     private const int HeaderSize = 64;

@@ -12,9 +12,9 @@ if ($LASTEXITCODE -ne 0) { throw 'plugin build failed' }
 
 Write-Host '== companion app'
 # Published next to the live copy, which may be running; install.ps1 swaps it in.
-& dotnet publish (Join-Path $root 'app\ETS2CarPlay.csproj') -c Release -r win-x64 --self-contained false `
+& dotnet publish (Join-Path $root 'app\CabinPlay.csproj') -c Release -r win-x64 --self-contained false `
     -o (Join-Path $root 'dist\app.new') -nologo -v q
 if ($LASTEXITCODE -ne 0) { throw 'app build failed' }
 
 Write-Host ''
-Write-Host 'Done. Close the game and the CarPlay app, then run install.ps1 to put the files in place.'
+Write-Host 'Done. Close the game and the CabinPlay app, then run install.ps1 to put the files in place.'

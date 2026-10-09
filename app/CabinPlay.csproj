@@ -9,8 +9,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
-    <AssemblyName>ETS2CarPlay</AssemblyName>
-    <RootNamespace>Ets2CarPlay</RootNamespace>
+    <AssemblyName>CabinPlay</AssemblyName>
+    <RootNamespace>CabinPlay</RootNamespace>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <!-- The WebView2 package also carries a WPF assembly this WinForms app never loads. -->

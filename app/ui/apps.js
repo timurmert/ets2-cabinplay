@@ -1,11 +1,12 @@
 // Apps shown on the home screen. Add an entry to put another site on the screen.
+//   name / nameKey   label under the tile; nameKey is looked up in i18n.js instead
 //   next / prev      CSS selectors of the site's own skip buttons (used by the media keys)
 //   fullscreenKey    key the site's player uses to toggle fullscreen (Ctrl+Alt+F sends it)
 //   builtin          drawn by the shell itself instead of loading a site
-window.CARPLAY_APPS = [
+window.CABINPLAY_APPS = [
   {
     id: 'maps',
-    name: 'Haritalar',
+    nameKey: 'maps',
     builtin: true,
     icon: `<svg viewBox="0 0 100 100"><defs><linearGradient id="g-mp" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0" stop-color="#d9f2d0"/><stop offset="1" stop-color="#a8dfa2"/></linearGradient></defs>

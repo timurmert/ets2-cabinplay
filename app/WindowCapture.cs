@@ -5,7 +5,7 @@ using Windows.Graphics.DirectX;
 using Windows.Graphics.DirectX.Direct3D11;
 using WinRT;
 
-namespace Ets2CarPlay;
+namespace CabinPlay;
 
 /// <summary>
 /// Captures this app's own window with Windows.Graphics.Capture (which keeps delivering

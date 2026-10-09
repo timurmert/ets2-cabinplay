@@ -1,6 +1,6 @@
 using System.IO.MemoryMappedFiles;
 
-namespace Ets2CarPlay;
+namespace CabinPlay;
 
 internal enum GameEventType : uint
 {
@@ -32,7 +32,7 @@ internal readonly record struct GameState(
 /// </summary>
 internal sealed unsafe class GameLink : IDisposable
 {
-    private static readonly string MappingName = Program.SharedName("ETS2CarPlayState");
+    private static readonly string MappingName = Program.SharedName("CabinPlayState");
     private const uint Magic = 0x54535043; // "CPST"
     private const int EventCapacity = 256;
     private const int EventsOffset = 64;
