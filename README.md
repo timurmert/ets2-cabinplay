@@ -1,103 +1,74 @@
 # CabinPlay
 
-Euro Truck Simulator 2 (1.61) için kabin içi ekran: ön cama esnek kolla takılan 12 inçlik bir
-ekran aksesuarı ve o ekranda YouTube ile oyunun navigasyon haritasını gösteren araç ekranı tarzı
-bir arayüz.
+A working media screen for your truck cabin in **Euro Truck Simulator 2**. Watch YouTube, listen
+to music and follow the game's GPS map on a tablet mounted at the windscreen, while you drive.
 
-## Parçalar
+[Türkçe](README.tr.md)
 
-| Parça | Nerede | Ne yapar |
-|---|---|---|
-| `cabinplay.scs` | `Belgeler\Euro Truck Simulator 2\mod` | Ekran aksesuarını (model, materyal, tanımlar) oyuna ekler |
-| `cabinplay.dll` | `<oyun>\bin\win_x64\plugins` | Ekranın dokusunu canlı görüntüyle değiştirir; kontak, duraklatma ve navigasyon bilgisini okur; oyun içi kontrolü sağlar |
-| `CabinPlay.exe` | `dist\app` (masaüstünde kısayol) | CabinPlay arayüzünü ve YouTube'u çalıştırır, görüntüyü eklentiye yollar |
+## Download
 
-Ses bilgisayardan normal şekilde çıkar. Uygulama kapalıyken oyundaki ekran kapalı (siyah) durur.
+**[Download the latest version](https://github.com/timurmert/ets2-cabinplay/releases/latest)** and
+get the file named `CabinPlay-x.y.z.zip`.
 
-Oyunla birlikte davranış:
+## Install
 
-- **Kontak kapalıyken** ekran kararır ve çalan şey durur; kontak açılınca kaldığı yerden devam eder.
-- **Oyun duraklatıldığında** (menü dahil) çalan şey durur, oyuna dönünce devam eder.
-- **Haritalar** uygulaması oyunun kendi GPS haritasını gösterir; hız, hız sınırı, varış saati ve
-  kalan mesafe üstüne yazılır. Harita yalnızca oyundaki ekranda görünür, masaüstü penceresinde
-  o alan siyahtır.
+1. Close the game.
+2. Unzip the file and double-click **Install.cmd**.
+   If Windows says it protected your PC, click *More info*, then *Run anyway* (the files are not
+   code-signed).
+3. Start the game and accept the "SDK features" notice it shows once.
+4. In the **Mod Manager**, switch on **CabinPlay Screen**.
+5. In a truck workshop, fit **CabinPlay Screen** in the left windscreen accessory slot. There are
+   two versions: *Large* (11", on an arm) and *Compact* (10", at the glass).
 
-## Kullanım
+That's it. The screen switches on with the truck's ignition.
 
-1. Oyunu başlat. CabinPlay uygulaması oyunla birlikte arka planda kendiliğinden açılır ve oyun
-   kapanınca kapanır (`cabinplay.ini` içinde `autostart=0` ile kapatılabilir). İlk açılışta
-   "SDK özellikleri kullanılıyor" uyarısı çıkar, onayla.
-2. Mod Yöneticisi'nde **CabinPlay Screen** modunu etkinleştir.
-3. Servise gir, tırın iç aksesuarlarında ön cam (sol) yuvasından ekranı tak. Bu yuva oyunun
-   taşınabilir navigasyon cihazının takıldığı yerdir. İki sürüm var:
-   - **CabinPlay Screen (Large):** 11 inç, esnek kolla yukarıda ve sürücüye yakın.
-   - **CabinPlay Screen (Compact):** 10 inç, camın dibinde, navigasyon cihazının durduğu yerde.
+To remove it, double-click **Uninstall.cmd**.
 
-Uygulamanın penceresini görmek istersen sistem tepsisindeki CabinPlay simgesinden **Göster**'i seç;
-masaüstü kısayoluyla oyun olmadan da açılabilir. Arayüz dili Ayarlar'dan değişir: İngilizce, Türkçe,
-Almanca, Lehçe, Fransızca, İspanyolca, Rusça. Ayarlar'daki **Tanılama kaydet** düğmesi, destek için
-gereken günlükleri masaüstüne tek bir zip olarak yazar.
+## Use
 
-### Oyunun içinden kontrol
-
-`Ctrl+Alt+C` ekranı oyunun ortasında büyük olarak açar. Bu moddayken fare ekrandaki imleci
-oynatır, tıklama, tekerlek ve klavye CabinPlay'e gider (YouTube'da arama yazabilirsin); oyun bu
-sırada fare ve klavyeyi görmez. Direksiyon ve gamepad çalışmaya devam eder, klavyeyle sürüyorsan
-tır o sırada komut almaz. `Esc` veya tekrar `Ctrl+Alt+C` ile çıkılır; oyun duraklatılınca mod
-kendiliğinden kapanır.
-
-Tırı fareyle sürüyorsan ve fare oyunda kalsın istiyorsan `cabinplay.ini` içinde `control_mouse=0` yap:
-o zaman imleci ok tuşları oynatır, `Enter` tıklar, `Page Up` / `Page Down` kaydırır, `Shift+Enter`
-gerçek Enter yazar.
-
-Ekrandaki uygulamayı fareyle CabinPlay penceresinden de yönetebilirsin. Oyundayken şu kısayollar çalışır:
-
-| Kısayol | İşlev |
+| Shortcut | What it does |
 |---|---|
-| `Ctrl+Alt+Boşluk` | Oynat / duraklat |
-| `Ctrl+Alt+→` / `←` | Sonraki / önceki |
-| `Ctrl+Alt+↑` / `↓` | 10 sn ileri / geri |
-| `Ctrl+Alt+F` | Videoyu tam ekran yap |
-| `Ctrl+Alt+H` | Ana ekran |
-| `Ctrl+Alt+N` | Navigasyon (Haritalar) |
-| `Ctrl+Alt+C` | Oyunun içinden kontrol |
+| `Ctrl+Alt+C` | Use the screen from inside the game with mouse and keyboard (`Esc` to leave) |
+| `Ctrl+Alt+N` | Navigation map |
+| `Ctrl+Alt+H` | Home screen |
+| `Ctrl+Alt+Space` | Play / pause |
+| `Ctrl+Alt+→` `←` | Next / previous |
+| `Ctrl+Alt+↑` `↓` | 10 seconds forward / back |
+| `Ctrl+Alt+F` | Video fullscreen |
 
-Pencereyi taşımak için sol üstteki saati sürükle. Sistem tepsisindeki simgeden "her zaman üstte"
-ve "çıkış" seçenekleri var.
+Playback pauses when you pause the game or switch the ignition off. The language (English,
+Turkish, German, Polish, French, Spanish, Russian) is under **Settings** on the screen.
 
-## Kapsam
+If you steer with the mouse, set `control_mouse=0` in `cabinplay.ini` (in the game's
+`bin\win_x64\plugins` folder): the mouse then stays with the truck and the arrow keys move the
+screen's cursor.
 
-- 23 tırda çalışır. DAF XF Electric, Renault E-Tech T ve Scania S 2024e'de ön cam aksesuar
-  yuvası olmadığı için bu üçünde ekran takılamaz.
-- Yuva Kabin Aksesuarları DLC'siyle gelir.
-- Oyunu pencereli veya kenarlıksız modda çalıştırmak, CabinPlay penceresine geçişi kolaylaştırır.
-- Eklenti oyunun içine yüklendiği için TruckersMP'de kullanılamaz.
+## What you need
 
-## Sorun giderme
+- Euro Truck Simulator 2 **1.61**, Windows 10 or 11
+- The **Cabin Accessories** DLC (it provides the mounting slot)
+- Single player: it does not work with TruckersMP
+- Fits 23 trucks; not the DAF XF Electric, Renault E-Tech T or Scania S 2024e
 
-- **Ekran siyah kalıyor:** CabinPlay uygulaması açık mı? `<oyun>\bin\win_x64\plugins\cabinplay.log`
-  dosyasında `screen texture found` ve `connected to the companion app` satırları olmalı.
-- **Görüntü baş aşağı:** `cabinplay.ini` içinde `flip_v=1` yap.
-- **Harita gelmiyor:** günlükte `navigation texture found` satırı olmalı. Yoksa `ignored a 1024x512
-  render target` satırına bak.
-- **Kontrol modu açılmıyor:** günlükte `input hooks: ... installed` satırı olmalı. İmleç hızı ve
-  ekranın boyutu `cabinplay.ini` içindeki `cursor_speed` ve `overlay_size` ile ayarlanır;
-  kısayol tuşu `control_key` ile değişir.
-- **Aksesuar listede yok:** `Belgeler\Euro Truck Simulator 2\game.log.txt` içinde `cabinplay` ara.
-- Uygulamanın kendi günlüğü: `%LocalAppData%\CabinPlay\app.log`
+## Help
 
-## Değiştirme ve yeniden derleme
+Open **Settings** on the screen and press **Create error report**. It saves a zip to your desktop;
+share that file when you ask for help.
+
+## Building from source
+
+Needs Python 3, MinGW-w64 gcc and the .NET 8 SDK on Windows.
 
 ```powershell
-.\build.ps1      # dist\ altına mod, eklenti ve uygulamayı üretir
-.\install.ps1    # dosyaları yerlerine kopyalar (oyun ve CabinPlay uygulaması kapalıyken)
-.\install.ps1 -Uninstall
+.\build.ps1      # builds the mod, plugin, app and dist\CabinPlay-<version>.zip
+.\install.ps1    # installs that build on this PC
 ```
 
-- Ekranın konumu, boyutu ve açısı: `tools\build_mod.py` başındaki `VARIANTS` listesi (sürüm başına
-  `screen`, `body`, `center`, `tilt`, `yaw`). `center` metre cinsindendir: sağ, yukarı, sürücüye doğru.
-  `tools\preview_model.py` modeli oyunu açmadan PNG olarak çizer.
-- Ana ekrana uygulama eklemek: `app\ui\apps.js`.
-- Arayüz: `app\ui\` (HTML/CSS/JS).
+`tools\` generates the mod, `plugin\` is the game plugin, `app\` is the companion app with the
+screen's interface in `app\ui\`. The version number lives in `VERSION`.
 
-Gerekenler: Python 3, MinGW-w64 gcc, .NET 8 SDK, WebView2 Runtime.
+---
+
+CabinPlay is an unofficial fan project. It is not affiliated with or endorsed by SCS Software,
+Google/YouTube, Twitch or Apple.
