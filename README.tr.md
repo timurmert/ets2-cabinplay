@@ -47,7 +47,7 @@ Tırı fareyle sürüyorsan oyunun `bin\win_x64\plugins` klasöründeki `cabinpl
 ## Gerekenler
 
 - Euro Truck Simulator 2 **1.61**, Windows 10 veya 11
-- **Kabin Aksesuarları** DLC'si (takma yuvasını o sağlıyor)
+- DLC gerekmez
 - Tek oyunculu: TruckersMP ile çalışmaz
 - 23 tıra uyar; DAF XF Electric, Renault E-Tech T ve Scania S 2024e'ye uymaz
 

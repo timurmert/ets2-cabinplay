@@ -47,7 +47,7 @@ Si vous dirigez à la souris, mettez `control_mouse=0` dans `cabinplay.ini` (dan
 ## Prérequis
 
 - Euro Truck Simulator 2 **1.61**, Windows 10 ou 11
-- Le DLC **Cabin Accessories** (il fournit l'emplacement de fixation)
+- Aucun DLC requis
 - Solo uniquement : ne fonctionne pas avec TruckersMP
 - Compatible avec 23 camions ; pas avec les DAF XF Electric, Renault E-Tech T et Scania S 2024e
 

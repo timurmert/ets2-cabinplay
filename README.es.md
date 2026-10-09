@@ -47,7 +47,7 @@ Si conduces con el ratón, pon `control_mouse=0` en `cabinplay.ini` (en la carpe
 ## Requisitos
 
 - Euro Truck Simulator 2 **1.61**, Windows 10 u 11
-- El DLC **Cabin Accessories** (aporta la ranura de montaje)
+- No requiere DLC
 - Un jugador: no funciona con TruckersMP
 - Compatible con 23 camiones; no con DAF XF Electric, Renault E-Tech T ni Scania S 2024e
 

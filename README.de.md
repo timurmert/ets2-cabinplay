@@ -47,7 +47,7 @@ Wenn du mit der Maus lenkst, setze `control_mouse=0` in `cabinplay.ini` (im Ordn
 ## Voraussetzungen
 
 - Euro Truck Simulator 2 **1.61**, Windows 10 oder 11
-- Das DLC **Cabin Accessories** (es stellt den Zubehörplatz bereit)
+- Kein DLC nötig
 - Einzelspieler: funktioniert nicht mit TruckersMP
 - Passt in 23 Lkw; nicht in DAF XF Electric, Renault E-Tech T und Scania S 2024e
 

@@ -47,7 +47,7 @@ If you steer with the mouse, set `control_mouse=0` in `cabinplay.ini` (in the ga
 ## What you need
 
 - Euro Truck Simulator 2 **1.61**, Windows 10 or 11
-- The **Cabin Accessories** DLC (it provides the mounting slot)
+- No DLC needed
 - Single player: it does not work with TruckersMP
 - Fits 23 trucks; not the DAF XF Electric, Renault E-Tech T or Scania S 2024e
 

@@ -31,7 +31,7 @@ USE
   The language and all shortcuts are under Settings on the screen.
 
 NEEDS
-  Euro Truck Simulator 2 1.61, Windows 10 or 11, the Cabin Accessories DLC.
+  Euro Truck Simulator 2 1.61, Windows 10 or 11. No DLC is needed.
   Single player only: it does not work with TruckersMP.
 
 HELP

@@ -32,7 +32,7 @@ KULLANIM
   Dil ve tüm kısayollar ekrandaki Ayarlar bölümünde.
 
 GEREKENLER
-  Euro Truck Simulator 2 1.61, Windows 10 veya 11, Kabin Aksesuarları DLC'si.
+  Euro Truck Simulator 2 1.61, Windows 10 veya 11. DLC gerekmez.
   Yalnızca tek oyunculu: TruckersMP ile çalışmaz.
 
 YARDIM
