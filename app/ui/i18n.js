@@ -16,7 +16,8 @@ window.CABINPLAY_I18N = {
     scFullscreen: 'Make the video fullscreen', scHomeNav: 'Home / navigation',
     scControl: 'Control from inside the game (leave with Esc)',
     hint: 'Shortcuts also work while the game is running. In control mode the screen grows over the game and the mouse and keyboard go to CabinPlay.',
-    language: 'Language', diagnostics: 'Save diagnostics', quit: 'Close CabinPlay', ok: 'Done',
+    language: 'Language', diagnostics: 'Create error report',
+    diagnosticsHint: 'Saves a zip file to your desktop. Share that file on Discord when you ask for help.', quit: 'Close CabinPlay', ok: 'Done',
     dragTitle: 'Drag to move the window',
   },
   tr: {
@@ -34,7 +35,8 @@ window.CABINPLAY_I18N = {
     scFullscreen: 'Videoyu tam ekran yap', scHomeNav: 'Ana ekran / navigasyon',
     scControl: 'Oyunun içinden kontrol (çıkış: Esc)',
     hint: 'Kısayollar oyun açıkken de çalışır. Kontrol modunda ekran oyunun üstünde büyür; fare ve klavye CabinPlay\'e gider.',
-    language: 'Dil', diagnostics: 'Tanılama kaydet', quit: 'CabinPlay\'i kapat', ok: 'Tamam',
+    language: 'Dil', diagnostics: 'Hata raporu oluştur',
+    diagnosticsHint: 'Masaüstüne bir zip dosyası kaydeder. Yardım isterken bu dosyayı Discord\'da paylaş.', quit: 'CabinPlay\'i kapat', ok: 'Tamam',
     dragTitle: 'Pencereyi taşımak için sürükle',
   },
   de: {
@@ -52,7 +54,8 @@ window.CABINPLAY_I18N = {
     scFullscreen: 'Video im Vollbild anzeigen', scHomeNav: 'Startbildschirm / Navigation',
     scControl: 'Im Spiel bedienen (verlassen mit Esc)',
     hint: 'Die Tastenkürzel funktionieren auch im laufenden Spiel. Im Steuermodus wird der Bildschirm über dem Spiel vergrößert, Maus und Tastatur gehen an CabinPlay.',
-    language: 'Sprache', diagnostics: 'Diagnose speichern', quit: 'CabinPlay beenden', ok: 'Fertig',
+    language: 'Sprache', diagnostics: 'Fehlerbericht erstellen',
+    diagnosticsHint: 'Speichert eine Zip-Datei auf dem Desktop. Teile diese Datei auf Discord, wenn du um Hilfe bittest.', quit: 'CabinPlay beenden', ok: 'Fertig',
     dragTitle: 'Ziehen, um das Fenster zu verschieben',
   },
   pl: {
@@ -70,7 +73,8 @@ window.CABINPLAY_I18N = {
     scFullscreen: 'Wideo na pełnym ekranie', scHomeNav: 'Ekran główny / nawigacja',
     scControl: 'Sterowanie z poziomu gry (wyjście: Esc)',
     hint: 'Skróty działają także podczas gry. W trybie sterowania ekran powiększa się nad grą, a mysz i klawiatura obsługują CabinPlay.',
-    language: 'Język', diagnostics: 'Zapisz diagnostykę', quit: 'Zamknij CabinPlay', ok: 'Gotowe',
+    language: 'Język', diagnostics: 'Utwórz raport o błędzie',
+    diagnosticsHint: 'Zapisuje plik zip na pulpicie. Udostępnij go na Discordzie, gdy prosisz o pomoc.', quit: 'Zamknij CabinPlay', ok: 'Gotowe',
     dragTitle: 'Przeciągnij, aby przesunąć okno',
   },
   fr: {
@@ -88,7 +92,8 @@ window.CABINPLAY_I18N = {
     scFullscreen: 'Passer la vidéo en plein écran', scHomeNav: 'Accueil / navigation',
     scControl: 'Contrôler depuis le jeu (quitter avec Échap)',
     hint: 'Les raccourcis fonctionnent aussi pendant le jeu. En mode contrôle, l\'écran s\'agrandit par-dessus le jeu et la souris et le clavier sont envoyés à CabinPlay.',
-    language: 'Langue', diagnostics: 'Enregistrer le diagnostic', quit: 'Fermer CabinPlay', ok: 'OK',
+    language: 'Langue', diagnostics: 'Créer un rapport d\'erreur',
+    diagnosticsHint: 'Enregistre un fichier zip sur le bureau. Partagez-le sur Discord quand vous demandez de l\'aide.', quit: 'Fermer CabinPlay', ok: 'OK',
     dragTitle: 'Faites glisser pour déplacer la fenêtre',
   },
   es: {
@@ -106,7 +111,8 @@ window.CABINPLAY_I18N = {
     scFullscreen: 'Poner el vídeo a pantalla completa', scHomeNav: 'Inicio / navegación',
     scControl: 'Controlar desde el juego (salir con Esc)',
     hint: 'Los atajos también funcionan con el juego en marcha. En el modo de control la pantalla se amplía sobre el juego y el ratón y el teclado pasan a CabinPlay.',
-    language: 'Idioma', diagnostics: 'Guardar diagnóstico', quit: 'Cerrar CabinPlay', ok: 'Listo',
+    language: 'Idioma', diagnostics: 'Crear informe de error',
+    diagnosticsHint: 'Guarda un archivo zip en el escritorio. Compártelo en Discord cuando pidas ayuda.', quit: 'Cerrar CabinPlay', ok: 'Listo',
     dragTitle: 'Arrastra para mover la ventana',
   },
   ru: {
@@ -124,7 +130,8 @@ window.CABINPLAY_I18N = {
     scFullscreen: 'Развернуть видео на весь экран', scHomeNav: 'Домой / навигация',
     scControl: 'Управление из игры (выход: Esc)',
     hint: 'Сочетания клавиш работают и во время игры. В режиме управления экран увеличивается поверх игры, а мышь и клавиатура передаются CabinPlay.',
-    language: 'Язык', diagnostics: 'Сохранить диагностику', quit: 'Закрыть CabinPlay', ok: 'Готово',
+    language: 'Язык', diagnostics: 'Создать отчёт об ошибке',
+    diagnosticsHint: 'Сохраняет zip-файл на рабочем столе. Отправьте его в Discord, когда просите о помощи.', quit: 'Закрыть CabinPlay', ok: 'Готово',
     dragTitle: 'Перетащите, чтобы переместить окно',
   },
 };
