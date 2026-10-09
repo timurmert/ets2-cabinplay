@@ -2,7 +2,7 @@
  * telemetry callbacks, DirectInput reads) and the companion app's part (frames in shared
  * memory), and checks what the plugin does with them.
  *
- * Usage: test_host.exe <path to ets2_carplay.dll>
+ * Usage: test_host.exe <path to cabinplay.dll>
  */
 #define COBJMACROS
 #define WIN32_LEAN_AND_MEAN
@@ -101,8 +101,8 @@ static ID3D11Texture2D *make_nav_target(int flipped)
 {
     D3D11_TEXTURE2D_DESC d;
     memset(&d, 0, sizeof(d));
-    d.Width = CARPLAY_WIDTH;
-    d.Height = CARPLAY_HEIGHT;
+    d.Width = CABINPLAY_WIDTH;
+    d.Height = CABINPLAY_HEIGHT;
     d.MipLevels = 1;
     d.ArraySize = 1;
     d.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -111,13 +111,13 @@ static ID3D11Texture2D *make_nav_target(int flipped)
     d.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
     ID3D11Texture2D *tex = NULL;
     ID3D11Device_CreateTexture2D(dev, &d, NULL, &tex);
-    uint8_t *px = (uint8_t *)malloc(CARPLAY_FRAME_BYTES);
-    for (UINT row = 0; row < CARPLAY_HEIGHT; row++) {
-        UINT y = flipped ? CARPLAY_HEIGHT - 1 - row : row; /* y = position on screen, top = 0 */
-        for (UINT x = 0; x < CARPLAY_WIDTH; x++) {
-            uint8_t *p = px + (row * CARPLAY_WIDTH + x) * 4;
-            if (x >= CARPLAY_WIDTH - CARPLAY_DOCK_WIDTH) {
-                int upper = y < CARPLAY_HEIGHT / 2;
+    uint8_t *px = (uint8_t *)malloc(CABINPLAY_FRAME_BYTES);
+    for (UINT row = 0; row < CABINPLAY_HEIGHT; row++) {
+        UINT y = flipped ? CABINPLAY_HEIGHT - 1 - row : row; /* y = position on screen, top = 0 */
+        for (UINT x = 0; x < CABINPLAY_WIDTH; x++) {
+            uint8_t *p = px + (row * CABINPLAY_WIDTH + x) * 4;
+            if (x >= CABINPLAY_WIDTH - CABINPLAY_DOCK_WIDTH) {
+                int upper = y < CABINPLAY_HEIGHT / 2;
                 p[0] = upper ? 0x10 : 0xC0;
                 p[1] = upper ? 0xC0 : 0x10;
                 p[2] = upper ? 0x10 : 0xC0;
@@ -129,7 +129,7 @@ static ID3D11Texture2D *make_nav_target(int flipped)
             p[3] = 0xFF;
         }
     }
-    ID3D11DeviceContext_UpdateSubresource(ctx, (ID3D11Resource *)tex, 0, NULL, px, CARPLAY_WIDTH * 4, 0);
+    ID3D11DeviceContext_UpdateSubresource(ctx, (ID3D11Resource *)tex, 0, NULL, px, CABINPLAY_WIDTH * 4, 0);
     free(px);
     return tex;
 }
@@ -189,7 +189,7 @@ static void send_float(const char *name, float value)
             g_channels[i].cb(name, 0xFFFFFFFFu, &v, g_channels[i].context);
 }
 
-static void present(carplay_frame_header_t *hdr, int frames)
+static void present(cabinplay_frame_header_t *hdr, int frames)
 {
     for (int i = 0; i < frames; i++) {
         hdr->heartbeat_ms = GetTickCount64();
@@ -204,7 +204,7 @@ int main(int argc, char **argv)
         return 2;
     }
     /* Private mapping names: a game or companion app may be running on this machine. */
-    SetEnvironmentVariableW(L"CARPLAY_TEST_NAMESPACE", L"selftest");
+    SetEnvironmentVariableW(L"CABINPLAY_TEST_NAMESPACE", L"selftest");
     HMODULE plugin = LoadLibraryA(argv[1]);
     if (!plugin) {
         printf("cannot load %s (%lu)\n", argv[1], GetLastError());
@@ -215,7 +215,7 @@ int main(int argc, char **argv)
     typedef void (*control_fn)(int);
     init_fn init = (init_fn)(void *)GetProcAddress(plugin, "scs_telemetry_init");
     shutdown_fn shutdown = (shutdown_fn)(void *)GetProcAddress(plugin, "scs_telemetry_shutdown");
-    control_fn control = (control_fn)(void *)GetProcAddress(plugin, "carplay_debug_control");
+    control_fn control = (control_fn)(void *)GetProcAddress(plugin, "cabinplay_debug_control");
     if (!init || !shutdown || !control) {
         printf("plugin exports missing\n");
         return 2;
@@ -230,28 +230,28 @@ int main(int argc, char **argv)
     printf("scs_telemetry_init -> %d (%d channels registered)\n", result, g_channel_count);
 
     /* companion side: publish one frame whose pixels encode their own coordinates */
-    HANDLE map = CreateFileMappingW(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, CARPLAY_MAPPING_SIZE,
-                                    CARPLAY_MAPPING_NAME L".selftest");
-    carplay_frame_header_t *hdr = (carplay_frame_header_t *)MapViewOfFile(map, FILE_MAP_ALL_ACCESS, 0, 0, 0);
-    uint8_t *pixels = (uint8_t *)hdr + CARPLAY_HEADER_SIZE;
-    for (UINT y = 0; y < CARPLAY_HEIGHT; y++)
-        for (UINT x = 0; x < CARPLAY_WIDTH; x++) {
-            uint8_t *p = pixels + (y * CARPLAY_WIDTH + x) * 4;
+    HANDLE map = CreateFileMappingW(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, CABINPLAY_MAPPING_SIZE,
+                                    CABINPLAY_MAPPING_NAME L".selftest");
+    cabinplay_frame_header_t *hdr = (cabinplay_frame_header_t *)MapViewOfFile(map, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+    uint8_t *pixels = (uint8_t *)hdr + CABINPLAY_HEADER_SIZE;
+    for (UINT y = 0; y < CABINPLAY_HEIGHT; y++)
+        for (UINT x = 0; x < CABINPLAY_WIDTH; x++) {
+            uint8_t *p = pixels + (y * CABINPLAY_WIDTH + x) * 4;
             p[0] = (uint8_t)(x / 4);  /* B */
             p[1] = (uint8_t)(y / 2);  /* G */
             p[2] = 0x90;              /* R */
             p[3] = 0xFF;
         }
-    hdr->magic = CARPLAY_MAGIC;
-    hdr->version = CARPLAY_VERSION;
-    hdr->width = CARPLAY_WIDTH;
-    hdr->height = CARPLAY_HEIGHT;
+    hdr->magic = CABINPLAY_MAGIC;
+    hdr->version = CABINPLAY_VERSION;
+    hdr->width = CABINPLAY_WIDTH;
+    hdr->height = CABINPLAY_HEIGHT;
     hdr->app_flags = 0;
     hdr->heartbeat_ms = GetTickCount64();
     hdr->sequence = 2;
 
-    HANDLE state_map = OpenFileMappingW(FILE_MAP_READ, FALSE, CARPLAY_STATE_MAPPING_NAME L".selftest");
-    const carplay_state_t *state = state_map ? (const carplay_state_t *)MapViewOfFile(state_map, FILE_MAP_READ, 0, 0, 0)
+    HANDLE state_map = OpenFileMappingW(FILE_MAP_READ, FALSE, CABINPLAY_STATE_MAPPING_NAME L".selftest");
+    const cabinplay_state_t *state = state_map ? (const cabinplay_state_t *)MapViewOfFile(state_map, FILE_MAP_READ, 0, 0, 0)
                                              : NULL;
 
     WNDCLASSEXW wc;
@@ -259,7 +259,7 @@ int main(int argc, char **argv)
     wc.cbSize = sizeof(wc);
     wc.lpfnWndProc = DefWindowProcW;
     wc.hInstance = GetModuleHandleW(NULL);
-    wc.lpszClassName = L"CarPlayTestHost";
+    wc.lpszClassName = L"CabinPlayTestHost";
     RegisterClassExW(&wc);
     HWND wnd = CreateWindowExW(0, wc.lpszClassName, L"", WS_OVERLAPPED, 0, 0, 1280, 720, NULL, NULL, wc.hInstance, NULL);
     DXGI_SWAP_CHAIN_DESC scd;
@@ -279,8 +279,8 @@ int main(int argc, char **argv)
         return 2;
     }
 
-    const uint8_t marker_bgra[4] = {CARPLAY_MARKER_B, CARPLAY_MARKER_G, CARPLAY_MARKER_R, 0xFF};
-    const uint8_t marker_rgba[4] = {CARPLAY_MARKER_R, CARPLAY_MARKER_G, CARPLAY_MARKER_B, 0xFF};
+    const uint8_t marker_bgra[4] = {CABINPLAY_MARKER_B, CABINPLAY_MARKER_G, CABINPLAY_MARKER_R, 0xFF};
+    const uint8_t marker_rgba[4] = {CABINPLAY_MARKER_R, CABINPLAY_MARKER_G, CABINPLAY_MARKER_B, 0xFF};
     const uint8_t other[4] = {0x40, 0x41, 0x42, 0xFF};
 
     ID3D11Texture2D *a = make_texture(1024, 512, DXGI_FORMAT_B8G8R8A8_UNORM_SRGB, D3D11_USAGE_IMMUTABLE, marker_bgra, 1);
@@ -298,7 +298,7 @@ int main(int argc, char **argv)
     read_pixel(a, 0, 400, 200, px);
     check(px[0] == 100 && px[1] == 100 && px[2] == 0x90, "mip 0 holds the published frame");
     read_pixel(a, 3, 60, 30, px);
-    check(px[2] > 0x80 && !(px[0] == CARPLAY_MARKER_B && px[1] == CARPLAY_MARKER_G), "mip 3 was regenerated");
+    check(px[2] > 0x80 && !(px[0] == CABINPLAY_MARKER_B && px[1] == CABINPLAY_MARKER_G), "mip 3 was regenerated");
 
     printf("B: BGRA 512x256 filled after creation (reduced texture quality)\n");
     read_pixel(b, 0, 200, 100, px);
@@ -316,9 +316,9 @@ int main(int argc, char **argv)
     send_float("truck.speed", 25.0f);
     send_float("truck.navigation.distance", 12345.0f);
     present(hdr, 1);
-    check(state && state->magic == CARPLAY_STATE_MAGIC, "state mapping exists");
-    check(state && (state->flags & CARPLAY_STATE_TELEMETRY) && (state->flags & CARPLAY_STATE_ELECTRIC) &&
-              !(state->flags & CARPLAY_STATE_PAUSED) && (state->flags & CARPLAY_STATE_MOUNTED),
+    check(state && state->magic == CABINPLAY_STATE_MAGIC, "state mapping exists");
+    check(state && (state->flags & CABINPLAY_STATE_TELEMETRY) && (state->flags & CABINPLAY_STATE_ELECTRIC) &&
+              !(state->flags & CABINPLAY_STATE_PAUSED) && (state->flags & CABINPLAY_STATE_MOUNTED),
           "flags: telemetry, ignition on, running, screen mounted");
     check(state && near_((int)state->speed_kmh, 90, 1) && near_((int)state->nav_distance_m, 12345, 1),
           "speed and route distance passed on");
@@ -328,7 +328,7 @@ int main(int argc, char **argv)
     present(hdr, 2);
     read_pixel(a, 0, 400, 200, px);
     check(px[0] == 0 && px[1] == 0 && px[2] == 0, "screen is black with the ignition off");
-    check(state && !(state->flags & CARPLAY_STATE_ELECTRIC), "app is told the ignition is off");
+    check(state && !(state->flags & CABINPLAY_STATE_ELECTRIC), "app is told the ignition is off");
     send_bool("truck.electric.enabled", 1);
     present(hdr, 2);
     read_pixel(a, 0, 400, 200, px);
@@ -337,23 +337,23 @@ int main(int argc, char **argv)
     printf("pause\n");
     g_event_cb[3](3, NULL, NULL);
     present(hdr, 1);
-    check(state && (state->flags & CARPLAY_STATE_PAUSED), "app is told the game is paused");
+    check(state && (state->flags & CABINPLAY_STATE_PAUSED), "app is told the game is paused");
     g_event_cb[4](4, NULL, NULL);
     present(hdr, 1);
-    check(state && !(state->flags & CARPLAY_STATE_PAUSED), "and that it resumed");
+    check(state && !(state->flags & CABINPLAY_STATE_PAUSED), "and that it resumed");
 
     for (int flipped = 0; flipped < 2; flipped++) {
         printf(flipped ? "navigation map, render target stored bottom-up\n" : "navigation map\n");
         /* frame: key colour right of the dock, except a "card" block that must stay on top */
         hdr->sequence |= 1;
-        for (UINT y = 0; y < CARPLAY_HEIGHT; y++)
-            for (UINT x = 0; x < CARPLAY_WIDTH; x++) {
-                uint8_t *p = pixels + (y * CARPLAY_WIDTH + x) * 4;
+        for (UINT y = 0; y < CABINPLAY_HEIGHT; y++)
+            for (UINT x = 0; x < CABINPLAY_WIDTH; x++) {
+                uint8_t *p = pixels + (y * CABINPLAY_WIDTH + x) * 4;
                 int card = x >= 120 && x < 320 && y >= 300 && y < 480;
-                if (x >= CARPLAY_DOCK_WIDTH && !card) {
-                    p[0] = CARPLAY_KEY_B;
-                    p[1] = CARPLAY_KEY_G;
-                    p[2] = CARPLAY_KEY_R;
+                if (x >= CABINPLAY_DOCK_WIDTH && !card) {
+                    p[0] = CABINPLAY_KEY_B;
+                    p[1] = CABINPLAY_KEY_G;
+                    p[2] = CABINPLAY_KEY_R;
                 } else {
                     p[0] = 30;
                     p[1] = 60;
@@ -361,10 +361,10 @@ int main(int argc, char **argv)
                 }
             }
         hdr->sequence++;
-        hdr->app_flags = CARPLAY_APP_NAV_VISIBLE;
+        hdr->app_flags = CABINPLAY_APP_NAV_VISIBLE;
         ID3D11Texture2D *nav = make_nav_target(flipped);
         present(hdr, 40);
-        check(state && (state->flags & CARPLAY_STATE_NAV_READY), "map texture recognised");
+        check(state && (state->flags & CABINPLAY_STATE_NAV_READY), "map texture recognised");
         read_pixel(a, 0, 600, 100, px); /* BGRA target; map is R=200, G=row/4, B=40 */
         check(near_(px[2], 200, 2) && near_(px[1], 25, 2) && near_(px[0], 40, 2), "map shows through the key colour");
         read_pixel(a, 0, 600, 400, px);
@@ -378,13 +378,13 @@ int main(int argc, char **argv)
         hdr->app_flags = 0;
         present(hdr, 1);
         read_pixel(a, 0, 600, 100, px);
-        check(px[0] == CARPLAY_KEY_B && px[1] == CARPLAY_KEY_G && px[2] == CARPLAY_KEY_R, "map hidden when the app says so");
+        check(px[0] == CABINPLAY_KEY_B && px[1] == CABINPLAY_KEY_G && px[2] == CABINPLAY_KEY_R, "map hidden when the app says so");
         ID3D11Texture2D_Release(nav);
     }
 
     printf("control mode\n");
     hdr->sequence |= 1;
-    for (size_t i = 0; i < CARPLAY_FRAME_BYTES; i += 4) {
+    for (size_t i = 0; i < CABINPLAY_FRAME_BYTES; i += 4) {
         pixels[i] = 0x11;
         pixels[i + 1] = 0x22;
         pixels[i + 2] = 0x33;
@@ -413,7 +413,7 @@ int main(int argc, char **argv)
         check(SUCCEEDED(IDirectInputDevice8_GetDeviceState(kb, sizeof(keys), keys)), "keyboard read passes through");
         control(1);
         present(hdr, 2);
-        check(state && (state->flags & CARPLAY_STATE_CONTROL), "control mode switches on");
+        check(state && (state->flags & CABINPLAY_STATE_CONTROL), "control mode switches on");
         memset(keys, 0xEE, sizeof(keys));
         memset(&ms, 0xEE, sizeof(ms));
         HRESULT hk = IDirectInputDevice8_GetDeviceState(kb, sizeof(keys), keys);
@@ -448,11 +448,11 @@ int main(int argc, char **argv)
 
         control(0);
         present(hdr, 1);
-        check(state && !(state->flags & CARPLAY_STATE_CONTROL), "control mode switches off");
+        check(state && !(state->flags & CABINPLAY_STATE_CONTROL), "control mode switches off");
         control(1);
         g_event_cb[3](3, NULL, NULL);
         present(hdr, 1);
-        check(state && !(state->flags & CARPLAY_STATE_CONTROL), "pausing the game ends control mode");
+        check(state && !(state->flags & CABINPLAY_STATE_CONTROL), "pausing the game ends control mode");
         g_event_cb[4](4, NULL, NULL);
         IDirectInputDevice8_Release(kb);
         IDirectInputDevice8_Release(mouse);

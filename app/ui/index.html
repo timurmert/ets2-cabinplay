@@ -1,23 +1,26 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>CarPlay</title>
+<title>CabinPlay</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<!-- Texts are filled in by shell.js from i18n.js: data-i18n sets the content,
+     data-i18n-title the tooltip. -->
+
 <aside id="dock">
-  <div id="clock" title="Pencereyi taşımak için sürükle">
+  <div id="clock" data-i18n-title="dragTitle">
     <div id="clock-time">--:--</div>
     <div id="clock-date"></div>
   </div>
-  <div id="link" title="Oyun bağlantısı"><span id="link-dot"></span><span id="link-text">Oyun yok</span></div>
+  <div id="link"><span id="link-dot"></span><span id="link-text"></span></div>
   <div id="dock-apps"></div>
-  <button id="dock-fullscreen" class="dock-btn" title="Tam ekran (Ctrl+Alt+F)" hidden>
+  <button id="dock-fullscreen" class="dock-btn" title="Ctrl+Alt+F" hidden>
     <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
   </button>
-  <button id="dock-home" class="dock-btn" title="Ana ekran (Ctrl+Alt+H)">
+  <button id="dock-home" class="dock-btn" title="Ctrl+Alt+H">
     <svg viewBox="0 0 24 24" class="filled">
       <rect x="3" y="3" width="7.5" height="7.5" rx="2.2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2.2"/>
       <rect x="3" y="13.5" width="7.5" height="7.5" rx="2.2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2.2"/>
@@ -28,20 +31,20 @@
 <main id="home">
   <section id="widgets">
     <div id="now-playing" class="card">
-      <div class="card-label">Şu An Çalan</div>
+      <div class="card-label" data-i18n="nowPlaying"></div>
       <div class="np-body">
         <div id="np-art"><svg viewBox="0 0 24 24"><path d="M9 18V6l11-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg></div>
         <div class="np-text">
-          <div id="np-title">Çalan bir şey yok</div>
-          <div id="np-sub">Başlamak için bir uygulama aç</div>
+          <div id="np-title"></div>
+          <div id="np-sub"></div>
         </div>
       </div>
       <div class="np-progress"><div id="np-bar"></div></div>
       <div class="np-times"><span id="np-pos">0:00</span><span id="np-dur">0:00</span></div>
       <div class="np-controls">
-        <button data-media="prev" title="Önceki (Ctrl+Alt+Sol)"><svg viewBox="0 0 24 24" class="filled"><path d="M6 5h2.4v14H6zM20 5.5v13L9.5 12z"/></svg></button>
-        <button data-media="playpause" id="np-play" title="Oynat / Duraklat (Ctrl+Alt+Boşluk)"><svg viewBox="0 0 24 24" class="filled"><path id="np-play-icon" d="M7 4.5v15L20 12z"/></svg></button>
-        <button data-media="next" title="Sonraki (Ctrl+Alt+Sağ)"><svg viewBox="0 0 24 24" class="filled"><path d="M15.6 5H18v14h-2.4zM4 5.5v13L14.5 12z"/></svg></button>
+        <button data-media="prev" title="Ctrl+Alt+←"><svg viewBox="0 0 24 24" class="filled"><path d="M6 5h2.4v14H6zM20 5.5v13L9.5 12z"/></svg></button>
+        <button data-media="playpause" id="np-play" title="Ctrl+Alt+Space"><svg viewBox="0 0 24 24" class="filled"><path id="np-play-icon" d="M7 4.5v15L20 12z"/></svg></button>
+        <button data-media="next" title="Ctrl+Alt+→"><svg viewBox="0 0 24 24" class="filled"><path d="M15.6 5H18v14h-2.4zM4 5.5v13L14.5 12z"/></svg></button>
       </div>
     </div>
     <div id="day-card" class="card">
@@ -55,36 +58,40 @@
 
 <section id="maps" hidden>
   <div id="map-speed" class="map-card">
-    <div class="speed-now"><span id="map-speed-value">0</span><small>km/s</small></div>
+    <div class="speed-now"><span id="map-speed-value">0</span><small data-i18n="speedUnit"></small></div>
     <div id="map-limit" hidden>50</div>
   </div>
   <div id="map-route" class="map-card">
-    <div class="route-main"><span id="map-eta">--:--</span><small>varış</small></div>
-    <div class="route-rest"><span id="map-remaining">Rota yok</span><span id="map-distance"></span></div>
+    <div class="route-main"><span id="map-eta">--:--</span><small data-i18n="arrival"></small></div>
+    <div class="route-rest"><span id="map-remaining"></span><span id="map-distance"></span></div>
   </div>
   <div id="map-status"></div>
 </section>
 
 <div id="settings" hidden>
   <div class="sheet">
-    <h2>Ayarlar</h2>
+    <div class="sheet-head">
+      <h2 data-i18n="settings"></h2>
+      <label><span data-i18n="language"></span> <select id="settings-language"></select></label>
+    </div>
     <table>
-      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>Boşluk</kbd></td><td>Oynat / duraklat</td></tr>
-      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>→</kbd> <kbd>←</kbd></td><td>Sonraki / önceki</td></tr>
-      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>↑</kbd> <kbd>↓</kbd></td><td>10 sn ileri / geri</td></tr>
-      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>F</kbd></td><td>Videoyu tam ekran yap</td></tr>
-      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>H</kbd> <kbd>N</kbd></td><td>Ana ekran / navigasyon</td></tr>
-      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>C</kbd></td><td>Oyunun içinden kontrol (çıkış: <kbd>Esc</kbd>)</td></tr>
+      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd data-i18n="keySpace"></kbd></td><td data-i18n="scPlayPause"></td></tr>
+      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>→</kbd> <kbd>←</kbd></td><td data-i18n="scNextPrev"></td></tr>
+      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>↑</kbd> <kbd>↓</kbd></td><td data-i18n="scSeek"></td></tr>
+      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>F</kbd></td><td data-i18n="scFullscreen"></td></tr>
+      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>H</kbd> <kbd>N</kbd></td><td data-i18n="scHomeNav"></td></tr>
+      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>C</kbd></td><td data-i18n="scControl"></td></tr>
     </table>
-    <p>Kısayollar oyun açıkken de çalışır. Kontrol modunda ekran oyunun üstünde büyür; fare ve klavye
-       CarPlay'e gider. Pencereyi taşımak için soldaki saati sürükle.</p>
+    <p data-i18n="hint"></p>
     <div class="sheet-actions">
-      <button id="settings-quit" class="danger">CarPlay'i kapat</button>
-      <button id="settings-close">Tamam</button>
+      <button id="settings-quit" class="danger" data-i18n="quit"></button>
+      <button id="settings-diagnostics" class="quiet" data-i18n="diagnostics"></button>
+      <button id="settings-close" data-i18n="ok"></button>
     </div>
   </div>
 </div>
 
+<script src="i18n.js"></script>
 <script src="apps.js"></script>
 <script src="shell.js"></script>
 </body>

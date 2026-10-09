@@ -1,7 +1,7 @@
-# Installs (or with -Uninstall removes) the three parts of ETS2 CarPlay:
-#   mod      -> Documents\Euro Truck Simulator 2\mod\ets2_carplay.scs
-#   plugin   -> <game>\bin\win_x64\plugins\ets2_carplay.dll (+ .ini)
-#   app      -> desktop shortcut to dist\app\ETS2CarPlay.exe
+# Installs (or with -Uninstall removes) the three parts of CabinPlay:
+#   mod      -> Documents\Euro Truck Simulator 2\mod\cabinplay.scs
+#   plugin   -> <game>\bin\win_x64\plugins\cabinplay.dll (+ .ini)
+#   app      -> desktop shortcut to dist\app\CabinPlay.exe
 param(
     [string]$GameDir,
     [switch]$Uninstall
@@ -34,9 +34,9 @@ if (Get-Process eurotrucks2 -ErrorAction SilentlyContinue) {
 
 $modDir = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'Euro Truck Simulator 2\mod'
 $pluginDir = Join-Path $GameDir 'bin\win_x64\plugins'
-$shortcut = Join-Path ([Environment]::GetFolderPath('Desktop')) 'ETS2 CarPlay.lnk'
-$modFile = Join-Path $modDir 'ets2_carplay.scs'
-$pluginFiles = 'ets2_carplay.dll', 'ets2_carplay.ini', 'ets2_carplay.log' | ForEach-Object { Join-Path $pluginDir $_ }
+$shortcut = Join-Path ([Environment]::GetFolderPath('Desktop')) 'CabinPlay.lnk'
+$modFile = Join-Path $modDir 'cabinplay.scs'
+$pluginFiles = 'cabinplay.dll', 'cabinplay.ini', 'cabinplay.log' | ForEach-Object { Join-Path $pluginDir $_ }
 
 if ($Uninstall) {
     foreach ($f in @($modFile, $shortcut) + $pluginFiles) {
@@ -51,24 +51,41 @@ if ($Uninstall) {
 # build.ps1 leaves a fresh app build next to the live one, which may have been running.
 $staged = Join-Path $dist 'app.new'
 $live = Join-Path $dist 'app'
-if (Test-Path (Join-Path $staged 'ETS2CarPlay.exe')) {
-    if (Get-Process ETS2CarPlay -ErrorAction SilentlyContinue) {
-        throw 'Close the ETS2 CarPlay app first (tray icon > Çıkış): it is being updated.'
+if (Test-Path (Join-Path $staged 'CabinPlay.exe')) {
+    if (Get-Process CabinPlay -ErrorAction SilentlyContinue) {
+        throw 'Close the CabinPlay app first (tray icon > Exit): it is being updated.'
     }
     if (Test-Path $live) { Remove-Item $live -Recurse -Force }
     Rename-Item $staged 'app'
     Write-Host "app      $live (updated)"
 }
 
-foreach ($needed in 'ets2_carplay.scs', 'plugin\ets2_carplay.dll', 'app\ETS2CarPlay.exe') {
+foreach ($needed in 'cabinplay.scs', 'plugin\cabinplay.dll', 'app\CabinPlay.exe') {
     if (-not (Test-Path (Join-Path $dist $needed))) { throw "dist\$needed is missing. Run build.ps1 first." }
 }
 
 New-Item -ItemType Directory -Force $modDir, $pluginDir | Out-Null
-Copy-Item (Join-Path $dist 'ets2_carplay.scs') $modFile -Force
+
+# Before it was renamed the project installed these; two copies would both load.
+$oldIni = Join-Path $pluginDir 'ets2_carplay.ini'
+if ((Test-Path $oldIni) -and -not (Test-Path $pluginFiles[1])) {
+    (Get-Content $oldIni) -replace '^\[carplay\]', '[cabinplay]' | Set-Content -Path $pluginFiles[1] -Encoding ascii
+}
+$old = @(
+    (Join-Path $modDir 'ets2_carplay.scs'),
+    (Join-Path $pluginDir 'ets2_carplay.dll'),
+    (Join-Path $pluginDir 'ets2_carplay.log'),
+    $oldIni,
+    (Join-Path ([Environment]::GetFolderPath('Desktop')) 'ETS2 CarPlay.lnk')
+)
+foreach ($f in $old) {
+    if (Test-Path $f) { Remove-Item $f -Force; Write-Host "removed  $f (old name)" }
+}
+
+Copy-Item (Join-Path $dist 'cabinplay.scs') $modFile -Force
 Write-Host "mod      $modFile"
-Copy-Item (Join-Path $dist 'plugin\ets2_carplay.dll') $pluginFiles[0] -Force
-$defaultIni = Join-Path $dist 'plugin\ets2_carplay.ini'
+Copy-Item (Join-Path $dist 'plugin\cabinplay.dll') $pluginFiles[0] -Force
+$defaultIni = Join-Path $dist 'plugin\cabinplay.ini'
 if (-not (Test-Path $pluginFiles[1])) {
     Copy-Item $defaultIni $pluginFiles[1]
 } else {
@@ -83,12 +100,29 @@ if (-not (Test-Path $pluginFiles[1])) {
         $pending = @()
     }
 }
+
+# The plugin starts the app with the game; tell it where the app is.
+$appExe = Join-Path $dist 'app\CabinPlay.exe'
+$ansi = [Text.Encoding]::Default
+$lines = [IO.File]::ReadAllLines($pluginFiles[1], $ansi) | ForEach-Object {
+    if ($_ -match '^\s*app_path\s*=') { "app_path=$appExe" } else { $_ }
+}
+[IO.File]::WriteAllLines($pluginFiles[1], $lines, $ansi)
 Write-Host "plugin   $($pluginFiles[0])"
+
+# Lets the app find the plugin's log when it collects diagnostics.
+$dataDir = Join-Path $env:LOCALAPPDATA 'CabinPlay'
+$oldDataDir = Join-Path $env:LOCALAPPDATA 'ETS2CarPlay'
+if ((Test-Path $oldDataDir) -and -not (Test-Path $dataDir)) {
+    Rename-Item $oldDataDir 'CabinPlay'   # keeps site sign-ins and the window position
+}
+New-Item -ItemType Directory -Force $dataDir | Out-Null
+@{ gameDir = $GameDir } | ConvertTo-Json | Set-Content -Path (Join-Path $dataDir 'install.json') -Encoding utf8
 
 $shell = New-Object -ComObject WScript.Shell
 $link = $shell.CreateShortcut($shortcut)
-$link.TargetPath = Join-Path $dist 'app\ETS2CarPlay.exe'
+$link.TargetPath = Join-Path $dist 'app\CabinPlay.exe'
 $link.WorkingDirectory = Join-Path $dist 'app'
-$link.Description = 'ETS2 CarPlay'
+$link.Description = 'CabinPlay'
 $link.Save()
 Write-Host "shortcut $shortcut"

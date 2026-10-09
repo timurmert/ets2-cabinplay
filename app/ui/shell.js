@@ -1,11 +1,24 @@
-// CarPlay shell: dock, home screen and the map view. Opened apps are separate browser
+// CabinPlay shell: dock, home screen and the map view. Opened apps are separate browser
 // views the host layers over everything right of the dock; this page only tells the
 // host what to show.
 (() => {
-  const apps = window.CARPLAY_APPS || [];
+  const apps = window.CABINPLAY_APPS || [];
   const host = window.chrome && window.chrome.webview;
   const send = (msg) => host && host.postMessage(msg);
   const $ = (id) => document.getElementById(id);
+  const params = new URLSearchParams(location.search);
+
+  // ---- language: the saved choice, else the system language, else English
+  const I18N = window.CABINPLAY_I18N || {};
+  function pickLanguage() {
+    let saved = null;
+    try { saved = localStorage.getItem('cabinplay.language'); } catch (e) { /* storage unavailable */ }
+    const wanted = params.get('lang') || saved || (navigator.language || 'en').slice(0, 2).toLowerCase();
+    return I18N[wanted] ? wanted : 'en';
+  }
+  let language = pickLanguage();
+  const t = (key) => (I18N[language] && I18N[language][key]) || I18N.en[key] || key;
+  const appName = (app) => (app.nameKey ? t(app.nameKey) : app.name);
 
   // Eight-tooth gear outline around (50, 50).
   function gearPath(teeth, outer, inner) {
@@ -56,18 +69,27 @@
     el.className = 'app';
     el.dataset.id = app.id;
     el.innerHTML = `<div class="app-icon">${app.icon}</div><div class="app-name"></div>`;
-    el.querySelector('.app-name').textContent = app.name;
     el.addEventListener('click', () => open(app));
     grid.appendChild(el);
   }
   const settingsTile = document.createElement('button');
   settingsTile.className = 'app';
-  settingsTile.innerHTML = `<div class="app-icon">${SETTINGS_ICON}</div><div class="app-name">Ayarlar</div>`;
+  settingsTile.innerHTML = `<div class="app-icon">${SETTINGS_ICON}</div><div class="app-name"></div>`;
   settingsTile.addEventListener('click', () => { $('settings').hidden = false; });
   grid.appendChild(settingsTile);
 
   $('settings-close').addEventListener('click', () => { $('settings').hidden = true; });
   $('settings-quit').addEventListener('click', () => send({ type: 'quit' }));
+  $('settings-diagnostics').addEventListener('click', () => send({ type: 'diagnostics' }));
+  const languageSelect = $('settings-language');
+  for (const [code, texts] of Object.entries(I18N)) {
+    languageSelect.add(new Option(texts.name, code));
+  }
+  languageSelect.addEventListener('change', () => {
+    language = languageSelect.value;
+    try { localStorage.setItem('cabinplay.language', language); } catch (e) { /* storage unavailable */ }
+    applyLanguage();
+  });
   $('dock-home').addEventListener('click', () => showView('home'));
   $('dock-fullscreen').addEventListener('click', () => send({ type: 'media', action: 'fullscreen' }));
   for (const btn of document.querySelectorAll('[data-media]')) {
@@ -81,20 +103,37 @@
   });
 
   // ---- clock
-  const fmtTime = new Intl.DateTimeFormat('tr-TR', { hour: '2-digit', minute: '2-digit' });
-  const fmtShort = new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'short' });
-  const fmtDay = new Intl.DateTimeFormat('tr-TR', { weekday: 'long' });
-  const fmtLong = new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long' });
+  let fmtTime, fmtShort, fmtDay, fmtLong, fmtKm;
   function tick() {
     const now = new Date();
+    const locale = t('locale');
     $('clock-time').textContent = fmtTime.format(now);
     $('clock-date').textContent = fmtShort.format(now);
     const day = fmtDay.format(now);
-    $('day-name').textContent = day.charAt(0).toLocaleUpperCase('tr-TR') + day.slice(1);
+    $('day-name').textContent = day.charAt(0).toLocaleUpperCase(locale) + day.slice(1);
     $('day-date').textContent = fmtLong.format(now);
   }
-  tick();
-  setInterval(tick, 1000);
+
+  // Everything that depends on the language, redone whenever it changes.
+  function applyLanguage() {
+    const locale = t('locale');
+    document.documentElement.lang = language;
+    languageSelect.value = language;
+    fmtTime = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit', hour12: false });
+    fmtShort = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' });
+    fmtDay = new Intl.DateTimeFormat(locale, { weekday: 'long' });
+    fmtLong = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'long' });
+    fmtKm = new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    for (const el of document.querySelectorAll('[data-i18n]')) el.textContent = t(el.dataset.i18n);
+    for (const el of document.querySelectorAll('[data-i18n-title]')) el.title = t(el.dataset.i18nTitle);
+    for (const tile of grid.querySelectorAll('.app[data-id]')) {
+      tile.querySelector('.app-name').textContent = appName(apps.find((a) => a.id === tile.dataset.id));
+    }
+    settingsTile.querySelector('.app-name').textContent = t('settings');
+    send({ type: 'language', language });
+    tick();
+    render();
+  }
 
   const clock = (s) => {
     s = Math.max(0, Math.floor(s || 0));
@@ -120,19 +159,19 @@
       const eta = (game.gameTime + minutes) % 1440;
       $('map-eta').textContent = `${two(Math.floor(eta / 60))}:${two(eta % 60)}`;
       const h = Math.floor(minutes / 60);
-      $('map-remaining').textContent = h ? `${h} sa ${minutes % 60} dk` : `${minutes} dk`;
+      $('map-remaining').textContent = h ? `${h} ${t('hour')} ${minutes % 60} ${t('minute')}` : `${minutes} ${t('minute')}`;
       const km = game.navDistance / 1000;
-      $('map-distance').textContent = km >= 10 ? `${Math.round(km)} km` : `${km.toFixed(1).replace('.', ',')} km`;
+      $('map-distance').textContent = `${km >= 10 ? Math.round(km) : fmtKm.format(km)} km`;
     } else {
       $('map-eta').textContent = '--:--';
-      $('map-remaining').textContent = 'Rota yok';
+      $('map-remaining').textContent = t('noRoute');
       $('map-distance').textContent = '';
     }
 
     let status = '';
-    if (!game.connected) status = 'Harita, oyunda tırı kullanırken bu ekranda görünür.';
-    else if (!game.mounted) status = 'CarPlay ekranı tıra takılı değil.';
-    else if (!game.navReady) status = 'Harita bekleniyor…';
+    if (!game.connected) status = t('mapOffline');
+    else if (!game.mounted) status = t('mapNotMounted');
+    else if (!game.navReady) status = t('mapWaiting');
     $('map-status').textContent = status;
   }
 
@@ -154,7 +193,7 @@
     for (const app of shown) {
       const el = document.createElement('button');
       el.className = 'dock-app' + (app.id === front ? ' active' : '') + (playing && media.app === app.id ? ' playing' : '');
-      el.title = app.name;
+      el.title = appName(app);
       el.innerHTML = app.icon;
       el.addEventListener('click', () => open(app));
       dock.appendChild(el);
@@ -168,11 +207,11 @@
     // link to the game
     const held = game.telemetry && (game.paused || !game.electric);
     $('link').className = !game.connected ? '' : held ? 'held' : 'on';
-    $('link-text').textContent = !game.connected ? 'Oyun yok'
-      : !game.telemetry ? 'Oyun'
-      : !game.electric ? 'Kontak'
-      : game.paused ? 'Durdu'
-      : game.control ? 'Kontrol' : 'Oyun';
+    $('link-text').textContent = t(!game.connected ? 'linkNone'
+      : !game.telemetry ? 'linkGame'
+      : !game.electric ? 'linkIgnition'
+      : game.paused ? 'linkPaused'
+      : game.control ? 'linkControl' : 'linkGame');
 
     // now playing
     const card = $('now-playing');
@@ -180,14 +219,14 @@
     card.classList.toggle('idle', !has);
     const app = media && apps.find((a) => a.id === media.app);
     if (has) {
-      $('np-title').textContent = media.title.replace(/ - YouTube( Music)?$/, '').replace(/^\(\d+\)\s*/, '') || app.name;
-      $('np-sub').textContent = media.artist ? `${media.artist} · ${app.name}` : app.name;
+      $('np-title').textContent = media.title.replace(/ - YouTube( Music)?$/, '').replace(/^\(\d+\)\s*/, '') || appName(app);
+      $('np-sub').textContent = media.artist ? `${media.artist} · ${appName(app)}` : appName(app);
       $('np-bar').style.width = media.duration ? `${Math.min(100, (media.position / media.duration) * 100)}%` : '0';
       $('np-pos').textContent = clock(media.position);
-      $('np-dur').textContent = media.duration ? clock(media.duration) : 'CANLI';
+      $('np-dur').textContent = media.duration ? clock(media.duration) : t('live');
     } else {
-      $('np-title').textContent = app ? app.name : 'Çalan bir şey yok';
-      $('np-sub').textContent = app ? 'Bir şey seç ve oynat' : 'Başlamak için bir uygulama aç';
+      $('np-title').textContent = app ? appName(app) : t('nothingPlaying');
+      $('np-sub').textContent = app ? t('pickSomething') : t('openAnApp');
       $('np-bar').style.width = '0';
       $('np-pos').textContent = $('np-dur').textContent = '0:00';
     }
@@ -211,11 +250,11 @@
       }
     });
   }
-  render();
+  applyLanguage();
+  setInterval(tick, 1000);
 
   // "?open=<id>[&url=<address>]" starts straight in an app, optionally on a given page
   // (the host passes its --open and --url arguments through).
-  const params = new URLSearchParams(location.search);
   const startApp = apps.find((a) => a.id === params.get('open'));
   if (startApp) open({ ...startApp, url: params.get('url') || startApp.url });
 })();

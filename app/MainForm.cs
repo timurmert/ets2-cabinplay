@@ -5,17 +5,17 @@ using System.Text.Json.Nodes;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 
-namespace Ets2CarPlay;
+namespace CabinPlay;
 
 /// <summary>
-/// The CarPlay screen: a borderless window exactly the size of the in-cabin display.
+/// The CabinPlay screen: a borderless window exactly the size of the in-cabin display.
 /// The shell page (dock, home screen, maps) fills it; each opened app gets its own
 /// browser view layered over the area right of the dock.
 /// </summary>
 internal sealed class MainForm : Form
 {
     private const int DockWidth = 88; // keep in sync with --dock-w in ui/style.css
-    private const string ShellHost = "carplay.local";
+    private const string ShellHost = "cabinplay.local";
 
     // Chromium stops painting windows it believes are hidden; the game covers this one.
     // The colour profile is pinned so the map key colour reaches the plugin unchanged.
@@ -42,6 +42,14 @@ internal sealed class MainForm : Form
     private readonly string? _startApp;
     private readonly string? _startUrl;
     private readonly int _dumpDelayMs = 6000;
+    private readonly bool _background;  // started by the game plugin: stay out of sight, leave with the game
+    private readonly string? _startLanguage;
+    private bool _offscreen;
+    private Point _restoreLocation;
+    private bool _everConnected;
+    private long _lastConnectedTick = Environment.TickCount64;
+    private readonly ToolStripMenuItem _showItem = new(), _hideItem = new(), _topMostItem = new() { CheckOnClick = true },
+                                       _centerItem = new(), _exitItem = new();
     private readonly GameEvent[] _events = new GameEvent[256];
 
     private CoreWebView2Environment? _environment;
@@ -70,8 +78,10 @@ internal sealed class MainForm : Form
         _startUrl = Argument(args, "--url");
         if (int.TryParse(Argument(args, "--dump-delay"), out int ms))
             _dumpDelayMs = ms;
+        _background = args.Contains("--background");
+        _startLanguage = Argument(args, "--lang");
 
-        Text = "ETS2 CarPlay";
+        Text = "CabinPlay";
         FormBorderStyle = FormBorderStyle.None;
         AutoScaleMode = AutoScaleMode.None;
         StartPosition = FormStartPosition.Manual;
@@ -79,31 +89,67 @@ internal sealed class MainForm : Form
         ClientSize = new Size(FrameWriter.Width, FrameWriter.Height);
         Icon = CreateIcon();
         RestorePlacement();
+        _restoreLocation = Location;
+        if (_background)
+        {
+            // Decided once, before the window exists: changing it later would recreate the
+            // window and break the capture that is attached to it.
+            ShowInTaskbar = false;
+            MoveOffscreen();
+        }
 
         _shell.DefaultBackgroundColor = Color.Black;
         _shell.Bounds = ClientRectangle;
         Controls.Add(_shell);
 
         _tray.Icon = Icon;
-        _tray.Text = "ETS2 CarPlay";
+        _tray.Text = "CabinPlay";
         _tray.Visible = true;
         _tray.DoubleClick += (_, _) => BringToUser();
         var menu = new ContextMenuStrip();
-        menu.Items.Add("Göster", null, (_, _) => BringToUser());
-        var topMost = new ToolStripMenuItem("Her zaman üstte") { CheckOnClick = true, Checked = TopMost };
-        topMost.CheckedChanged += (_, _) => { TopMost = topMost.Checked; SavePlacement(); };
-        menu.Items.Add(topMost);
-        menu.Items.Add("Ekranın ortasına al", null, (_, _) => { CenterOnScreen(Screen.FromControl(this)); BringToUser(); });
-        menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add("Çıkış", null, (_, _) => Close());
+        _showItem.Click += (_, _) => BringToUser();
+        _hideItem.Click += (_, _) => MoveOffscreen();
+        _topMostItem.Checked = TopMost;
+        _topMostItem.CheckedChanged += (_, _) => { TopMost = _topMostItem.Checked; SavePlacement(); };
+        _centerItem.Click += (_, _) =>
+        {
+            Rectangle area = Screen.PrimaryScreen!.WorkingArea;
+            _restoreLocation = new Point(area.Left + (area.Width - Width) / 2, area.Top + (area.Height - Height) / 2);
+            BringToUser();
+        };
+        _exitItem.Click += (_, _) => Close();
+        menu.Items.AddRange(new ToolStripItem[] { _showItem, _hideItem, _topMostItem, _centerItem, new ToolStripSeparator(), _exitItem });
         _tray.ContextMenuStrip = menu;
+        ApplyLanguage(Strings.SystemLanguage);
 
         _stateTimer.Tick += async (_, _) => await OnStateTickAsync();
         _inputTimer.Tick += (_, _) => PumpGameInput();
     }
 
     /// <summary>A test run must not pull focus away from a game that is being played.</summary>
-    protected override bool ShowWithoutActivation => _dumpPath is not null;
+    protected override bool ShowWithoutActivation => _dumpPath is not null || _background;
+
+    /// <summary>
+    /// Parks the window beyond the edge of the desktop. It has to stay a real, shown window
+    /// to keep being captured, so "hidden" means out of sight rather than invisible.
+    /// </summary>
+    private void MoveOffscreen()
+    {
+        if (!_offscreen)
+            _restoreLocation = Location;
+        _offscreen = true;
+        Rectangle all = SystemInformation.VirtualScreen;
+        Location = new Point(all.Right + 64, all.Bottom + 64);
+    }
+
+    private void ApplyLanguage(string language)
+    {
+        _showItem.Text = Strings.Get(language, "show");
+        _hideItem.Text = Strings.Get(language, "hide");
+        _topMostItem.Text = Strings.Get(language, "topmost");
+        _centerItem.Text = Strings.Get(language, "center");
+        _exitItem.Text = Strings.Get(language, "exit");
+    }
 
     private static string? Argument(string[] args, string name)
     {
@@ -137,6 +183,8 @@ internal sealed class MainForm : Form
             string query = _startApp is null ? "" : "?open=" + Uri.EscapeDataString(_startApp);
             if (_startApp is not null && _startUrl is not null)
                 query += "&url=" + Uri.EscapeDataString(_startUrl);
+            if (_startLanguage is not null)
+                query += (query.Length == 0 ? "?" : "&") + "lang=" + Uri.EscapeDataString(_startLanguage);
             core.Navigate($"https://{ShellHost}/index.html{query}");
 
             _writer = new FrameWriter();
@@ -153,7 +201,7 @@ internal sealed class MainForm : Form
         catch (Exception ex)
         {
             Log.Write("startup failed: " + ex);
-            MessageBox.Show(this, "ETS2 CarPlay başlatılamadı:\n\n" + ex.Message, Text,
+            MessageBox.Show(this, Strings.Get(Strings.SystemLanguage, "startfail") + "\n\n" + ex.Message, Text,
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
             Close();
         }
@@ -211,6 +259,12 @@ internal sealed class MainForm : Form
                     break;
                 case "quit":
                     Close();
+                    break;
+                case "language":
+                    ApplyLanguage((string?)msg!["language"] ?? Strings.SystemLanguage);
+                    break;
+                case "diagnostics":
+                    Diagnostics.Export();
                     break;
             }
             await PushStateAsync(withMedia: true);
@@ -329,6 +383,8 @@ internal sealed class MainForm : Form
 
     private async Task OnStateTickAsync()
     {
+        if (LeaveWithGame())
+            return;
         await HoldMediaForGameAsync();
         // The game state (speed, route) is cheap and refreshed every tick; asking the
         // page about its player is not, so that happens once a second.
@@ -391,14 +447,37 @@ internal sealed class MainForm : Form
 
     // ------------------------------------------------------------------ following the game
 
+    /// <summary>
+    /// When the plugin started this app it should not outlive the game: close once the
+    /// game has gone, or if it never showed up at all.
+    /// </summary>
+    private bool LeaveWithGame()
+    {
+        if (!_background || _game is null)
+            return false;
+        long now = Environment.TickCount64;
+        if (_game.Read().Connected)
+        {
+            _everConnected = true;
+            _lastConnectedTick = now;
+            return false;
+        }
+        long patience = _everConnected ? 5_000 : 300_000;
+        if (now - _lastConnectedTick < patience)
+            return false;
+        Log.Write("game is gone: closing");
+        Close();
+        return true;
+    }
+
     private const string HoldMediaScript = """
         (() => { for (const m of document.querySelectorAll('video,audio'))
-                   if (!m.paused && !m.ended) { m.dataset.carplayHeld = '1'; m.pause(); } })()
+                   if (!m.paused && !m.ended) { m.dataset.cabinplayHeld = '1'; m.pause(); } })()
         """;
 
     private const string ReleaseMediaScript = """
         (() => { for (const m of document.querySelectorAll('video,audio'))
-                   if (m.dataset.carplayHeld) { delete m.dataset.carplayHeld; m.play(); } })()
+                   if (m.dataset.cabinplayHeld) { delete m.dataset.cabinplayHeld; m.play(); } })()
         """;
 
     /// <summary>
@@ -646,7 +725,7 @@ internal sealed class MainForm : Form
                     (() => {
                       const all = [...document.querySelectorAll('video,audio')];
                       const m = all.find(x => !x.paused && !x.ended) || all.find(x => x.currentTime > 0) || all[0];
-                      if (m) { delete m.dataset.carplayHeld; if (m.paused) m.play(); else m.pause(); }
+                      if (m) { delete m.dataset.cabinplayHeld; if (m.paused) m.play(); else m.pause(); }
                     })()
                     """);
                 break;
@@ -789,7 +868,8 @@ internal sealed class MainForm : Form
     {
         try
         {
-            var s = new JsonObject { ["x"] = Location.X, ["y"] = Location.Y, ["topMost"] = TopMost };
+            Point where = _offscreen ? _restoreLocation : Location;
+            var s = new JsonObject { ["x"] = where.X, ["y"] = where.Y, ["topMost"] = TopMost };
             File.WriteAllText(_settingsPath, s.ToJsonString());
         }
         catch (IOException ex)
@@ -802,6 +882,8 @@ internal sealed class MainForm : Form
     {
         if (WindowState == FormWindowState.Minimized)
             WindowState = FormWindowState.Normal;
+        _offscreen = false;
+        Location = _restoreLocation;
         Show();
         Activate();
     }

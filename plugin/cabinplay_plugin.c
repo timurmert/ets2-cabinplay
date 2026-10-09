@@ -1,8 +1,8 @@
-/* ETS2 CarPlay plugin.
+/* CabinPlay plugin.
  *
  * Loaded by the game from bin\win_x64\plugins through the SCS SDK entry point.
  *
- *  - Finds the Direct3D 11 texture the CarPlay accessory's screen uses (a flat fill of a
+ *  - Finds the Direct3D 11 texture the CabinPlay accessory's screen uses (a flat fill of a
  *    marker colour, shipped in the .scs) and keeps overwriting it with the frames the
  *    companion app publishes in shared memory.
  *  - Finds the texture the game renders the accessory's navigation map into and shows it
@@ -116,19 +116,19 @@ static int g_map_was_shown;
 static __thread int g_in_present;
 
 static HANDLE g_mapping;
-static const carplay_frame_header_t *g_shared;
+static const cabinplay_frame_header_t *g_shared;
 static unsigned g_last_map_try;
 static int32_t g_last_sequence = -1;
 static int g_have_frame;
 static int g_blanked;
 static int g_frame_tex_stale = 1;
-static uint8_t *g_frame;      /* BGRA, CARPLAY_FRAME_BYTES */
+static uint8_t *g_frame;      /* BGRA, CABINPLAY_FRAME_BYTES */
 static uint8_t *g_frame_rgba; /* same frame with R and B swapped, built on demand */
 static uint8_t *g_black;      /* what the screen shows with the ignition off */
 static int g_frame_rgba_valid;
 
 static HANDLE g_state_mapping;
-static carplay_state_t *g_state;
+static cabinplay_state_t *g_state;
 
 /* telemetry, written by the game's main thread */
 static volatile int g_telemetry_ok;
@@ -140,7 +140,7 @@ static volatile uint32_t g_game_time;
 /* control mode */
 static volatile int g_control;
 static int g_toggle_was_down;
-static float g_cursor_x = CARPLAY_WIDTH / 2.0f, g_cursor_y = CARPLAY_HEIGHT / 2.0f;
+static float g_cursor_x = CABINPLAY_WIDTH / 2.0f, g_cursor_y = CABINPLAY_HEIGHT / 2.0f;
 static uint8_t g_keys[256];      /* DirectInput key states seen while in control mode */
 static int g_keys_need_sync;
 static uint8_t g_buttons[3];
@@ -168,7 +168,9 @@ static int g_cfg_flip_v = 0;
 static int g_cfg_toggle_vk = 'C';
 static int g_cfg_cursor_speed = 100; /* percent */
 static int g_cfg_overlay_percent = 60;
-static int g_cfg_control_mouse = 1; /* 1: the mouse moves the CarPlay cursor, 0: the arrow keys do */
+static int g_cfg_control_mouse = 1; /* 1: the mouse moves the CabinPlay cursor, 0: the arrow keys do */
+static int g_cfg_autostart = 1;     /* start the companion app together with the game */
+static wchar_t g_cfg_app_path[MAX_PATH]; /* written by the installer */
 
 /* ------------------------------------------------------------------ logging */
 
@@ -198,12 +200,14 @@ static void open_log_and_config(void)
     if (!dot)
         return;
     wcscpy(dot, L".ini");
-    g_cfg_enabled = GetPrivateProfileIntW(L"carplay", L"enabled", 1, path);
-    g_cfg_flip_v = GetPrivateProfileIntW(L"carplay", L"flip_v", 0, path);
-    g_cfg_toggle_vk = GetPrivateProfileIntW(L"carplay", L"control_key", 'C', path) & 0xFF;
-    g_cfg_cursor_speed = GetPrivateProfileIntW(L"carplay", L"cursor_speed", 100, path);
-    g_cfg_overlay_percent = GetPrivateProfileIntW(L"carplay", L"overlay_size", 60, path);
-    g_cfg_control_mouse = GetPrivateProfileIntW(L"carplay", L"control_mouse", 1, path) != 0;
+    g_cfg_enabled = GetPrivateProfileIntW(L"cabinplay", L"enabled", 1, path);
+    g_cfg_flip_v = GetPrivateProfileIntW(L"cabinplay", L"flip_v", 0, path);
+    g_cfg_toggle_vk = GetPrivateProfileIntW(L"cabinplay", L"control_key", 'C', path) & 0xFF;
+    g_cfg_cursor_speed = GetPrivateProfileIntW(L"cabinplay", L"cursor_speed", 100, path);
+    g_cfg_overlay_percent = GetPrivateProfileIntW(L"cabinplay", L"overlay_size", 60, path);
+    g_cfg_control_mouse = GetPrivateProfileIntW(L"cabinplay", L"control_mouse", 1, path) != 0;
+    g_cfg_autostart = GetPrivateProfileIntW(L"cabinplay", L"autostart", 1, path) != 0;
+    GetPrivateProfileStringW(L"cabinplay", L"app_path", L"", g_cfg_app_path, MAX_PATH, path);
     if (g_cfg_overlay_percent < 20 || g_cfg_overlay_percent > 100)
         g_cfg_overlay_percent = 60;
     wcscpy(dot, L".log");
@@ -211,11 +215,11 @@ static void open_log_and_config(void)
         g_log = _wfopen(path, L"w");
 }
 
-/* The self-test sets CARPLAY_TEST_NAMESPACE so it never talks to a running game or app. */
+/* The self-test sets CABINPLAY_TEST_NAMESPACE so it never talks to a running game or app. */
 static const wchar_t *mapping_name(const wchar_t *base, wchar_t *buffer, size_t capacity)
 {
     wchar_t ns[48];
-    DWORD n = GetEnvironmentVariableW(L"CARPLAY_TEST_NAMESPACE", ns, 48);
+    DWORD n = GetEnvironmentVariableW(L"CABINPLAY_TEST_NAMESPACE", ns, 48);
     if (!n || n >= 48)
         return base;
     _snwprintf(buffer, capacity, L"%ls.%ls", base, ns);
@@ -276,7 +280,7 @@ static DXGI_FORMAT view_format(DXGI_FORMAT f)
 static int mip_offset_for(UINT w, UINT h)
 {
     for (int i = 0; i < 3; i++)
-        if (w == (CARPLAY_WIDTH >> i) && h == (CARPLAY_HEIGHT >> i))
+        if (w == (CABINPLAY_WIDTH >> i) && h == (CABINPLAY_HEIGHT >> i))
             return i;
     return -1;
 }
@@ -293,25 +297,25 @@ static int is_screen_desc(const D3D11_TEXTURE2D_DESC *d)
 static int is_nav_desc(const D3D11_TEXTURE2D_DESC *d)
 {
     return d->ArraySize == 1 && d->SampleDesc.Count == 1 && format_family(d->Format) != FAMILY_NONE &&
-           d->Width == CARPLAY_WIDTH && d->Height == CARPLAY_HEIGHT &&
+           d->Width == CABINPLAY_WIDTH && d->Height == CABINPLAY_HEIGHT &&
            (d->BindFlags & D3D11_BIND_SHADER_RESOURCE) && (d->BindFlags & D3D11_BIND_RENDER_TARGET);
 }
 
 static int pixels_have_marker(int family, const uint8_t *data, UINT pitch, UINT w, UINT h)
 {
-    const uint8_t c0 = family == FAMILY_BGRA ? CARPLAY_MARKER_B : CARPLAY_MARKER_R;
-    const uint8_t c2 = family == FAMILY_BGRA ? CARPLAY_MARKER_R : CARPLAY_MARKER_B;
+    const uint8_t c0 = family == FAMILY_BGRA ? CABINPLAY_MARKER_B : CABINPLAY_MARKER_R;
+    const uint8_t c2 = family == FAMILY_BGRA ? CABINPLAY_MARKER_R : CABINPLAY_MARKER_B;
     for (int sy = 0; sy < 5; sy++) {
         for (int sx = 0; sx < 5; sx++) {
             const uint8_t *p = data + (size_t)((h - 1) * sy / 4) * pitch + (size_t)((w - 1) * sx / 4) * 4;
-            if (p[0] != c0 || p[1] != CARPLAY_MARKER_G || p[2] != c2)
+            if (p[0] != c0 || p[1] != CABINPLAY_MARKER_G || p[2] != c2)
                 return 0;
         }
     }
     return 1;
 }
 
-/* The navigation UI (ui/dashboard/carplay_nav.sii in the .scs) paints a strip right of
+/* The navigation UI (ui/dashboard/cabinplay_nav.sii in the .scs) paints a strip right of
  * the map: green in its upper half, magenta in its lower half. Both colours read the
  * same in BGRA and RGBA, and the comparison survives gamma conversion.
  * Returns 0 if absent, 1 if the rows run top-down, 2 if bottom-up. */
@@ -319,10 +323,10 @@ static int nav_marker_orientation(const uint8_t *data, UINT pitch)
 {
     int upper_green = 1, upper_magenta = 1, lower_green = 1, lower_magenta = 1;
     for (int sx = 0; sx < 3; sx++) {
-        UINT x = CARPLAY_WIDTH - CARPLAY_DOCK_WIDTH + 20 + sx * 24;
+        UINT x = CABINPLAY_WIDTH - CABINPLAY_DOCK_WIDTH + 20 + sx * 24;
         for (int half = 0; half < 2; half++) {
             for (int sy = 0; sy < 3; sy++) {
-                UINT y = half * (CARPLAY_HEIGHT / 2) + 48 + sy * 80;
+                UINT y = half * (CABINPLAY_HEIGHT / 2) + 48 + sy * 80;
                 const uint8_t *p = data + (size_t)y * pitch + (size_t)x * 4;
                 int green = p[1] > p[0] + 60 && p[1] > p[2] + 60;
                 int magenta = p[0] > p[1] + 60 && p[2] > p[1] + 60;
@@ -467,11 +471,11 @@ static void try_open_mapping(void)
         return;
     g_last_map_try = g_frame_no ? g_frame_no : 1;
     wchar_t name[128];
-    HANDLE h = OpenFileMappingW(FILE_MAP_READ, FALSE, mapping_name(CARPLAY_MAPPING_NAME, name, 128));
+    HANDLE h = OpenFileMappingW(FILE_MAP_READ, FALSE, mapping_name(CABINPLAY_MAPPING_NAME, name, 128));
     if (!h)
         return;
-    const carplay_frame_header_t *p = (const carplay_frame_header_t *)MapViewOfFile(h, FILE_MAP_READ, 0, 0,
-                                                                                   CARPLAY_MAPPING_SIZE);
+    const cabinplay_frame_header_t *p = (const cabinplay_frame_header_t *)MapViewOfFile(h, FILE_MAP_READ, 0, 0,
+                                                                                   CABINPLAY_MAPPING_SIZE);
     if (!p) {
         CloseHandle(h);
         return;
@@ -483,8 +487,8 @@ static void try_open_mapping(void)
 
 static int shared_valid(void)
 {
-    return g_shared && g_shared->magic == CARPLAY_MAGIC && g_shared->version == CARPLAY_VERSION &&
-           g_shared->width == CARPLAY_WIDTH && g_shared->height == CARPLAY_HEIGHT;
+    return g_shared && g_shared->magic == CABINPLAY_MAGIC && g_shared->version == CABINPLAY_VERSION &&
+           g_shared->width == CABINPLAY_WIDTH && g_shared->height == CABINPLAY_HEIGHT;
 }
 
 /* Pulls the newest frame into g_frame. Returns 1 when g_frame changed. */
@@ -497,7 +501,7 @@ static int fetch_frame(void)
     if (GetTickCount64() - g_shared->heartbeat_ms > 3000) {
         /* Companion closed or hung: switch the screen off rather than freeze a frame. */
         if (g_have_frame && !g_blanked) {
-            memcpy(g_frame, g_black, CARPLAY_FRAME_BYTES);
+            memcpy(g_frame, g_black, CABINPLAY_FRAME_BYTES);
             g_blanked = 1;
             g_frame_rgba_valid = 0;
             g_frame_tex_stale = 1;
@@ -510,13 +514,13 @@ static int fetch_frame(void)
     int32_t seq = g_shared->sequence;
     if ((seq & 1) || seq == g_last_sequence || seq == 0)
         return 0;
-    const uint8_t *src = (const uint8_t *)g_shared + CARPLAY_HEADER_SIZE;
-    const size_t row = CARPLAY_WIDTH * 4;
+    const uint8_t *src = (const uint8_t *)g_shared + CABINPLAY_HEADER_SIZE;
+    const size_t row = CABINPLAY_WIDTH * 4;
     if (g_cfg_flip_v) {
-        for (UINT y = 0; y < CARPLAY_HEIGHT; y++)
-            memcpy(g_frame + y * row, src + (CARPLAY_HEIGHT - 1 - y) * row, row);
+        for (UINT y = 0; y < CABINPLAY_HEIGHT; y++)
+            memcpy(g_frame + y * row, src + (CABINPLAY_HEIGHT - 1 - y) * row, row);
     } else {
-        memcpy(g_frame, src, CARPLAY_FRAME_BYTES);
+        memcpy(g_frame, src, CABINPLAY_FRAME_BYTES);
     }
     if (g_shared->sequence != seq)
         return 0; /* writer overtook us; the next Present picks up a clean frame */
@@ -557,8 +561,8 @@ static int ensure_video(ID3D11Device *dev, int family)
             continue;
         D3D11_TEXTURE2D_DESC d;
         memset(&d, 0, sizeof(d));
-        d.Width = CARPLAY_WIDTH;
-        d.Height = CARPLAY_HEIGHT;
+        d.Width = CABINPLAY_WIDTH;
+        d.Height = CABINPLAY_HEIGHT;
         d.MipLevels = 0;
         d.ArraySize = 1;
         d.Format = choices[family][i];
@@ -589,7 +593,7 @@ static const uint8_t *frame_for_family(int family)
     if (family == FAMILY_BGRA)
         return g_frame;
     if (!g_frame_rgba_valid) {
-        for (size_t i = 0; i < CARPLAY_FRAME_BYTES; i += 4) {
+        for (size_t i = 0; i < CABINPLAY_FRAME_BYTES; i += 4) {
             g_frame_rgba[i] = g_frame[i + 2];
             g_frame_rgba[i + 1] = g_frame[i + 1];
             g_frame_rgba[i + 2] = g_frame[i];
@@ -676,14 +680,14 @@ static int ensure_gfx(ID3D11Device *dev)
         return 0;
     }
     ID3D10Blob *vs = NULL, *ps = NULL, *err = NULL;
-    HRESULT a = compile(SHADER_SOURCE, sizeof(SHADER_SOURCE) - 1, "carplay", NULL, NULL, "vs", "vs_4_0", 0, 0, &vs, &err);
+    HRESULT a = compile(SHADER_SOURCE, sizeof(SHADER_SOURCE) - 1, "cabinplay", NULL, NULL, "vs", "vs_4_0", 0, 0, &vs, &err);
     if (FAILED(a) && err)
         logf_("vertex shader: %s", (const char *)ID3D10Blob_GetBufferPointer(err));
     if (err) {
         ID3D10Blob_Release(err);
         err = NULL;
     }
-    HRESULT b = compile(SHADER_SOURCE, sizeof(SHADER_SOURCE) - 1, "carplay", NULL, NULL, "ps", "ps_4_0", 0, 0, &ps, &err);
+    HRESULT b = compile(SHADER_SOURCE, sizeof(SHADER_SOURCE) - 1, "cabinplay", NULL, NULL, "ps", "ps_4_0", 0, 0, &ps, &err);
     if (FAILED(b) && err)
         logf_("pixel shader: %s", (const char *)ID3D10Blob_GetBufferPointer(err));
     if (err)
@@ -743,8 +747,8 @@ static int ensure_gfx(ID3D11Device *dev)
     if (ok) {
         D3D11_TEXTURE2D_DESC td;
         memset(&td, 0, sizeof(td));
-        td.Width = CARPLAY_WIDTH;
-        td.Height = CARPLAY_HEIGHT;
+        td.Width = CABINPLAY_WIDTH;
+        td.Height = CABINPLAY_HEIGHT;
         td.MipLevels = 1;
         td.ArraySize = 1;
         td.Format = DXGI_FORMAT_B8G8R8A8_UNORM; /* not sRGB: the shader compares raw bytes */
@@ -886,27 +890,27 @@ static void composite_with_map(ID3D11DeviceContext *ctx, video_t *v, const entry
 {
     gfx_t *g = &g_gfx;
     if (g_frame_tex_stale) {
-        ID3D11DeviceContext_UpdateSubresource(ctx, (ID3D11Resource *)g->frame_tex, 0, NULL, g_frame, CARPLAY_WIDTH * 4,
+        ID3D11DeviceContext_UpdateSubresource(ctx, (ID3D11Resource *)g->frame_tex, 0, NULL, g_frame, CABINPLAY_WIDTH * 4,
                                               0);
         g_frame_tex_stale = 0;
     }
     shader_consts_t c;
     memset(&c, 0, sizeof(c));
     /* The map sits under everything right of the dock, one texel per screen pixel. */
-    c.nav_rect[0] = -(float)CARPLAY_DOCK_WIDTH / CARPLAY_WIDTH;
-    c.nav_rect[2] = (float)(CARPLAY_WIDTH - CARPLAY_DOCK_WIDTH) / CARPLAY_WIDTH;
+    c.nav_rect[0] = -(float)CABINPLAY_DOCK_WIDTH / CABINPLAY_WIDTH;
+    c.nav_rect[2] = (float)(CABINPLAY_WIDTH - CABINPLAY_DOCK_WIDTH) / CABINPLAY_WIDTH;
     c.nav_rect[1] = nav->flip_v ? 1.0f : 0.0f;
     c.nav_rect[3] = nav->flip_v ? 0.0f : 1.0f;
     c.mode[0] = 1.0f;
     c.mode[1] = (float)transfer_between(0, v->srgb);
     c.mode[2] = (float)transfer_between(format_is_srgb(view_format(nav->format)), v->srgb);
     c.mode[3] = 1.0f;
-    c.size[0] = CARPLAY_WIDTH;
-    c.size[1] = CARPLAY_HEIGHT;
-    c.key[0] = CARPLAY_KEY_R / 255.0f;
-    c.key[1] = CARPLAY_KEY_G / 255.0f;
-    c.key[2] = CARPLAY_KEY_B / 255.0f;
-    draw_rect(ctx, v->rtv, 0, 0, CARPLAY_WIDTH, CARPLAY_HEIGHT, g->frame_srv, nav->srv, &c, 0);
+    c.size[0] = CABINPLAY_WIDTH;
+    c.size[1] = CABINPLAY_HEIGHT;
+    c.key[0] = CABINPLAY_KEY_R / 255.0f;
+    c.key[1] = CABINPLAY_KEY_G / 255.0f;
+    c.key[2] = CABINPLAY_KEY_B / 255.0f;
+    draw_rect(ctx, v->rtv, 0, 0, CABINPLAY_WIDTH, CABINPLAY_HEIGHT, g->frame_srv, nav->srv, &c, 0);
 }
 
 /* Control mode: the screen, enlarged, in the middle of the game's picture. */
@@ -919,11 +923,11 @@ static void draw_overlay(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceCont
     ID3D11Texture2D_GetDesc(back, &bd);
     ID3D11RenderTargetView *rtv = NULL;
     if (SUCCEEDED(ID3D11Device_CreateRenderTargetView(dev, (ID3D11Resource *)back, NULL, &rtv)) && rtv) {
-        float scale = bd.Width * (g_cfg_overlay_percent / 100.0f) / CARPLAY_WIDTH;
-        float fit = bd.Height * 0.9f / CARPLAY_HEIGHT;
+        float scale = bd.Width * (g_cfg_overlay_percent / 100.0f) / CABINPLAY_WIDTH;
+        float fit = bd.Height * 0.9f / CABINPLAY_HEIGHT;
         if (scale > fit)
             scale = fit;
-        float w = CARPLAY_WIDTH * scale, h = CARPLAY_HEIGHT * scale;
+        float w = CABINPLAY_WIDTH * scale, h = CABINPLAY_HEIGHT * scale;
         float x = (float)(int)((bd.Width - w) / 2), y = (float)(int)((bd.Height - h) / 2);
 
         shader_consts_t c;
@@ -950,18 +954,18 @@ static void open_state_mapping(void)
     if (g_state)
         return;
     wchar_t name[128];
-    g_state_mapping = CreateFileMappingW(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, CARPLAY_STATE_MAPPING_SIZE,
-                                         mapping_name(CARPLAY_STATE_MAPPING_NAME, name, 128));
+    g_state_mapping = CreateFileMappingW(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, CABINPLAY_STATE_MAPPING_SIZE,
+                                         mapping_name(CABINPLAY_STATE_MAPPING_NAME, name, 128));
     if (!g_state_mapping)
         return;
-    g_state = (carplay_state_t *)MapViewOfFile(g_state_mapping, FILE_MAP_ALL_ACCESS, 0, 0, CARPLAY_STATE_MAPPING_SIZE);
+    g_state = (cabinplay_state_t *)MapViewOfFile(g_state_mapping, FILE_MAP_ALL_ACCESS, 0, 0, CABINPLAY_STATE_MAPPING_SIZE);
     if (!g_state) {
         CloseHandle(g_state_mapping);
         g_state_mapping = NULL;
         return;
     }
-    g_state->magic = CARPLAY_STATE_MAGIC;
-    g_state->version = CARPLAY_STATE_VERSION;
+    g_state->magic = CABINPLAY_STATE_MAGIC;
+    g_state->version = CABINPLAY_STATE_VERSION;
 }
 
 static void publish_state(int mounted, int nav_ready)
@@ -969,12 +973,12 @@ static void publish_state(int mounted, int nav_ready)
     if (!g_state)
         return;
     uint32_t flags = 0;
-    if (g_telemetry_ok) flags |= CARPLAY_STATE_TELEMETRY;
-    if (g_paused) flags |= CARPLAY_STATE_PAUSED;
-    if (g_electric) flags |= CARPLAY_STATE_ELECTRIC;
-    if (mounted) flags |= CARPLAY_STATE_MOUNTED;
-    if (g_control) flags |= CARPLAY_STATE_CONTROL;
-    if (nav_ready) flags |= CARPLAY_STATE_NAV_READY;
+    if (g_telemetry_ok) flags |= CABINPLAY_STATE_TELEMETRY;
+    if (g_paused) flags |= CABINPLAY_STATE_PAUSED;
+    if (g_electric) flags |= CABINPLAY_STATE_ELECTRIC;
+    if (mounted) flags |= CABINPLAY_STATE_MOUNTED;
+    if (g_control) flags |= CABINPLAY_STATE_CONTROL;
+    if (nav_ready) flags |= CABINPLAY_STATE_NAV_READY;
     g_state->flags = flags;
     float speed = g_speed_ms * 3.6f;
     g_state->speed_kmh = speed < 0 ? -speed : speed;
@@ -991,7 +995,7 @@ static void push_event(uint32_t type, int32_t x, int32_t y, int32_t data)
     if (!g_state)
         return;
     uint32_t n = g_state->event_write;
-    carplay_event_t *e = &g_state->events[n % CARPLAY_EVENT_CAPACITY];
+    cabinplay_event_t *e = &g_state->events[n % CABINPLAY_EVENT_CAPACITY];
     e->type = type;
     e->x = x;
     e->y = y;
@@ -1029,7 +1033,7 @@ static void set_control(int on)
                 real_set_cursor(g_frozen_cursor.x, g_frozen_cursor.y); /* no jump for the game */
             for (int b = 0; b < 3; b++) /* never leave a button stuck down in the page */
                 if (g_buttons[b])
-                    push_event(CARPLAY_EVENT_BUTTON, (int)g_cursor_x, (int)g_cursor_y, b);
+                    push_event(CABINPLAY_EVENT_BUTTON, (int)g_cursor_x, (int)g_cursor_y, b);
         }
         memset(g_buttons, 0, sizeof(g_buttons));
         g_repeat_dik = -1;
@@ -1042,9 +1046,9 @@ static void set_control(int on)
 static uint32_t current_modifiers(void)
 {
     uint32_t m = 0;
-    if (g_keys[DIK_LSHIFT] || g_keys[DIK_RSHIFT]) m |= CARPLAY_MOD_SHIFT;
-    if (g_keys[DIK_LCONTROL] || g_keys[DIK_RCONTROL]) m |= CARPLAY_MOD_CTRL;
-    if (g_keys[DIK_LMENU]) m |= CARPLAY_MOD_ALT;
+    if (g_keys[DIK_LSHIFT] || g_keys[DIK_RSHIFT]) m |= CABINPLAY_MOD_SHIFT;
+    if (g_keys[DIK_LCONTROL] || g_keys[DIK_RCONTROL]) m |= CABINPLAY_MOD_CTRL;
+    if (g_keys[DIK_LMENU]) m |= CABINPLAY_MOD_ALT;
     return m;
 }
 
@@ -1081,7 +1085,7 @@ static void emit_key(int dik, int down)
         if (n == 1 && buf[0] >= 0x20 && buf[0] != 0x7F)
             ch = buf[0];
     }
-    push_event(CARPLAY_EVENT_KEY, (int32_t)vk, (down ? 1 : 0) | (int32_t)(current_modifiers() << 8), ch);
+    push_event(CABINPLAY_EVENT_KEY, (int32_t)vk, (down ? 1 : 0) | (int32_t)(current_modifiers() << 8), ch);
 }
 
 /* Caller holds g_input_lock. */
@@ -1135,12 +1139,12 @@ static void on_mouse_move(long dx, long dy, long dz)
         g_cursor_y += dy * k;
         if (g_cursor_x < 0) g_cursor_x = 0;
         if (g_cursor_y < 0) g_cursor_y = 0;
-        if (g_cursor_x > CARPLAY_WIDTH - 1) g_cursor_x = CARPLAY_WIDTH - 1;
-        if (g_cursor_y > CARPLAY_HEIGHT - 1) g_cursor_y = CARPLAY_HEIGHT - 1;
-        push_event(CARPLAY_EVENT_MOVE, (int)g_cursor_x, (int)g_cursor_y, 0);
+        if (g_cursor_x > CABINPLAY_WIDTH - 1) g_cursor_x = CABINPLAY_WIDTH - 1;
+        if (g_cursor_y > CABINPLAY_HEIGHT - 1) g_cursor_y = CABINPLAY_HEIGHT - 1;
+        push_event(CABINPLAY_EVENT_MOVE, (int)g_cursor_x, (int)g_cursor_y, 0);
     }
     if (dz)
-        push_event(CARPLAY_EVENT_WHEEL, (int)g_cursor_x, (int)g_cursor_y, (int)dz);
+        push_event(CABINPLAY_EVENT_WHEEL, (int)g_cursor_x, (int)g_cursor_y, (int)dz);
 }
 
 /* Caller holds g_input_lock. */
@@ -1149,7 +1153,7 @@ static void on_mouse_button(int button, int down)
     if (button < 0 || button > 2 || down == g_buttons[button])
         return;
     g_buttons[button] = (uint8_t)down;
-    push_event(CARPLAY_EVENT_BUTTON, (int)g_cursor_x, (int)g_cursor_y, button | (down << 8));
+    push_event(CABINPLAY_EVENT_BUTTON, (int)g_cursor_x, (int)g_cursor_y, button | (down << 8));
 }
 
 /* 1 = mouse, 2 = keyboard, 0 = anything else (wheels and pads are never touched). */
@@ -1175,7 +1179,7 @@ static int device_kind(void *dev)
     return kind;
 }
 
-/* In control mode the game's keyboard and mouse reads are used for CarPlay and then
+/* In control mode the game's keyboard and mouse reads are used for CabinPlay and then
  * blanked, so the truck does not react to them. */
 static HRESULT di_state_common(di_state_fn original, void *dev, DWORD size, LPVOID data)
 {
@@ -1283,7 +1287,7 @@ static void poll_cursor(void)
     g_poll_valid = 1;
 }
 
-/* While the mouse belongs to CarPlay the game is told the cursor has not moved. */
+/* While the mouse belongs to CabinPlay the game is told the cursor has not moved. */
 static BOOL WINAPI hk_GetCursorPos(LPPOINT p)
 {
     if (g_control && g_cfg_control_mouse && p) {
@@ -1454,7 +1458,7 @@ static void pump(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx
                 if (e->state != STATE_TARGET || e->kind != KIND_SCREEN || e->dev != dev || !ensure_video(dev, e->family))
                     continue;
                 video_t *v = &g_video[e->family];
-                ID3D11DeviceContext_UpdateSubresource(ctx, (ID3D11Resource *)v->tex, 0, NULL, g_black, CARPLAY_WIDTH * 4, 0);
+                ID3D11DeviceContext_UpdateSubresource(ctx, (ID3D11Resource *)v->tex, 0, NULL, g_black, CABINPLAY_WIDTH * 4, 0);
                 ID3D11DeviceContext_GenerateMips(ctx, v->srv);
                 for (UINT m = 0; m < e->mips && m + e->mip_offset < VIDEO_MIPS; m++)
                     ID3D11DeviceContext_CopySubresourceRegion(ctx, (ID3D11Resource *)e->tex, m, 0, 0, 0,
@@ -1472,7 +1476,7 @@ static void pump(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx
     if (!g_have_frame)
         return;
 
-    int show_map = nav && !g_blanked && shared_valid() && (g_shared->app_flags & CARPLAY_APP_NAV_VISIBLE) &&
+    int show_map = nav && !g_blanked && shared_valid() && (g_shared->app_flags & CABINPLAY_APP_NAV_VISIBLE) &&
                    ensure_gfx(dev);
     /* Leaving the map needs one more upload to put the plain frame back. */
     if (fresh || g_targets_dirty || show_map || g_map_was_shown) {
@@ -1489,7 +1493,7 @@ static void pump(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx
                     composite_with_map(ctx, v, nav);
                 else
                     ID3D11DeviceContext_UpdateSubresource(ctx, (ID3D11Resource *)v->tex, 0, NULL,
-                                                          frame_for_family(e->family), CARPLAY_WIDTH * 4, 0);
+                                                          frame_for_family(e->family), CABINPLAY_WIDTH * 4, 0);
                 ID3D11DeviceContext_GenerateMips(ctx, v->srv);
                 uploaded[e->family] = 1;
             }
@@ -1549,7 +1553,7 @@ static HRESULT STDMETHODCALLTYPE hk_CreateTexture2D(ID3D11Device *dev, const D3D
     } else if (desc && out && is_nav_desc(desc)) {
         verdict = VERDICT_MAYBE;
         kind = KIND_NAV;
-    } else if (desc && desc->Width == CARPLAY_WIDTH && desc->Height == CARPLAY_HEIGHT &&
+    } else if (desc && desc->Width == CABINPLAY_WIDTH && desc->Height == CABINPLAY_HEIGHT &&
                (desc->BindFlags & D3D11_BIND_RENDER_TARGET)) {
         /* Right size for the map but not a kind this plugin can read: worth knowing about. */
         static int reported;
@@ -1597,7 +1601,7 @@ static int install_d3d_hooks(void)
     wc.cbSize = sizeof(wc);
     wc.lpfnWndProc = DefWindowProcW;
     wc.hInstance = g_module;
-    wc.lpszClassName = L"ETS2CarPlayProbe";
+    wc.lpszClassName = L"CabinPlayProbe";
     RegisterClassExW(&wc);
     HWND wnd = CreateWindowExW(0, wc.lpszClassName, L"", WS_OVERLAPPED, 0, 0, 64, 64, NULL, NULL, g_module, NULL);
 
@@ -1793,6 +1797,43 @@ static void register_telemetry(const scs_telemetry_init_params_t *p)
     logf_("telemetry: %s", ok ? "registered" : "not available, ignition and pause are ignored");
 }
 
+/* Starts the companion app in the background so the player never has to. The app closes
+ * itself when the game goes away. */
+static void start_companion(void)
+{
+    wchar_t ns[4];
+    if (!g_cfg_autostart || !g_cfg_app_path[0] || GetEnvironmentVariableW(L"CABINPLAY_TEST_NAMESPACE", ns, 4))
+        return;
+    HANDLE running = OpenMutexW(SYNCHRONIZE, FALSE, L"Local\\CabinPlayApp");
+    if (running) {
+        CloseHandle(running);
+        logf_("companion app is already running");
+        return;
+    }
+    wchar_t command[MAX_PATH + 32], folder[MAX_PATH];
+    _snwprintf(command, MAX_PATH + 32, L"\"%ls\" --background", g_cfg_app_path);
+    command[MAX_PATH + 31] = 0;
+    wcsncpy(folder, g_cfg_app_path, MAX_PATH);
+    folder[MAX_PATH - 1] = 0;
+    wchar_t *slash = wcsrchr(folder, L'\\');
+    if (slash)
+        *slash = 0;
+
+    STARTUPINFOW si;
+    PROCESS_INFORMATION pi;
+    memset(&si, 0, sizeof(si));
+    si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_SHOWNOACTIVATE; /* must not take focus from the game */
+    if (CreateProcessW(NULL, command, NULL, NULL, FALSE, 0, NULL, slash ? folder : NULL, &si, &pi)) {
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+        logf_("started the companion app");
+    } else {
+        logf_("could not start the companion app (error %lu): %ls", GetLastError(), g_cfg_app_path);
+    }
+}
+
 /* ------------------------------------------------------------------ SCS SDK entry points */
 
 __declspec(dllexport) int32_t scs_telemetry_init(uint32_t version, const scs_telemetry_init_params_t *params)
@@ -1806,30 +1847,31 @@ __declspec(dllexport) int32_t scs_telemetry_init(uint32_t version, const scs_tel
         g_locks_ready = 1;
     }
     open_log_and_config();
-    logf_("ETS2 CarPlay plugin starting (game: %s)", params && params->game_id ? params->game_id : "?");
+    logf_("CabinPlay plugin starting (game: %s)", params && params->game_id ? params->game_id : "?");
 
-    const char *status = "[carplay] plugin active";
+    const char *status = "[cabinplay] plugin active";
     if (!g_cfg_enabled) {
-        status = "[carplay] disabled in ets2_carplay.ini";
+        status = "[cabinplay] disabled in cabinplay.ini";
     } else {
         if (!g_frame)
-            g_frame = (uint8_t *)VirtualAlloc(NULL, CARPLAY_FRAME_BYTES * 3, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+            g_frame = (uint8_t *)VirtualAlloc(NULL, CABINPLAY_FRAME_BYTES * 3, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
         if (!g_frame) {
-            status = "[carplay] out of memory, plugin inactive";
+            status = "[cabinplay] out of memory, plugin inactive";
         } else {
-            g_frame_rgba = g_frame + CARPLAY_FRAME_BYTES;
-            g_black = g_frame_rgba + CARPLAY_FRAME_BYTES;
-            for (size_t i = 3; i < CARPLAY_FRAME_BYTES; i += 4)
+            g_frame_rgba = g_frame + CABINPLAY_FRAME_BYTES;
+            g_black = g_frame_rgba + CABINPLAY_FRAME_BYTES;
+            for (size_t i = 3; i < CABINPLAY_FRAME_BYTES; i += 4)
                 g_black[i] = 0xFF;
             if (MH_Initialize() == MH_OK && install_d3d_hooks()) {
                 install_input_hooks();
                 open_state_mapping();
                 register_telemetry(params);
+                start_companion();
                 if (MH_EnableHook(MH_ALL_HOOKS) == MH_OK)
                     g_hooked = 1;
             }
             if (!g_hooked)
-                status = "[carplay] could not hook Direct3D 11, plugin inactive";
+                status = "[cabinplay] could not hook Direct3D 11, plugin inactive";
         }
     }
     logf_("%s", status);
@@ -1885,7 +1927,7 @@ __declspec(dllexport) void scs_telemetry_shutdown(void)
 }
 
 /* Test aid for plugin/test_host.c: switches control mode without the keyboard. */
-__declspec(dllexport) void carplay_debug_control(int on)
+__declspec(dllexport) void cabinplay_debug_control(int on)
 {
     set_control(on);
 }

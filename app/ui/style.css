@@ -8,7 +8,7 @@
   --card-border: rgba(255, 255, 255, .14);
   --accent: #0a84ff;
   /* The game plugin shows its navigation map through pixels of exactly this colour.
-     Keep in sync with CARPLAY_KEY_* in plugin/frame_protocol.h. */
+     Keep in sync with CABINPLAY_KEY_* in plugin/frame_protocol.h. */
   --map-key: rgb(2, 0, 2);
 }
 
@@ -284,14 +284,25 @@ svg.filled, svg .filled { fill: currentColor; stroke: none; }
   backdrop-filter: blur(18px);
 }
 .sheet {
-  width: 600px;
-  padding: 22px 28px 20px;
+  width: 680px;
+  padding: 18px 28px 18px;
   border-radius: 26px;
   background: rgba(34, 34, 44, .94);
   border: 1px solid var(--card-border);
   box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
 }
-.sheet h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.sheet h2 { font-size: 24px; font-weight: 700; }
+.sheet-head label { font-size: 15px; font-weight: 600; color: var(--fg-dim); }
+.sheet-head select {
+  margin-left: 6px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  background: #2c2c38;
+  color: var(--fg);
+  font: 600 15px "Segoe UI", sans-serif;
+}
 .sheet table { width: 100%; border-collapse: collapse; font-size: 17px; }
 .sheet td { padding: 6px 0; border-bottom: 1px solid rgba(255, 255, 255, .08); }
 .sheet td:first-child { width: 250px; white-space: nowrap; }
@@ -307,6 +318,7 @@ kbd {
   text-align: center;
 }
 .sheet-actions { display: flex; justify-content: space-between; margin-top: 16px; }
-.sheet-actions button { padding: 10px 24px; border-radius: 14px; font-size: 17px; font-weight: 650; background: var(--accent); }
+.sheet-actions button { padding: 9px 20px; border-radius: 14px; font-size: 16px; font-weight: 650; background: var(--accent); }
 .sheet-actions button.danger { background: rgba(255, 69, 58, .22); color: #ff6961; }
+.sheet-actions button.quiet { background: rgba(255, 255, 255, .12); }
 .sheet-actions button:active { transform: scale(.96); }
