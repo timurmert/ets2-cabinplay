@@ -1,0 +1,312 @@
+/* The page is rendered 1:1 into a 1024x512 texture that is seen small inside the cabin,
+   so type is large and contrast is high. */
+:root {
+  --dock-w: 88px; /* keep in sync with DockWidth in MainForm.cs */
+  --fg: #fff;
+  --fg-dim: rgba(255, 255, 255, .62);
+  --card: rgba(255, 255, 255, .10);
+  --card-border: rgba(255, 255, 255, .14);
+  --accent: #0a84ff;
+  /* The game plugin shows its navigation map through pixels of exactly this colour.
+     Keep in sync with CARPLAY_KEY_* in plugin/frame_protocol.h. */
+  --map-key: rgb(2, 0, 2);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 1024px;
+  height: 512px;
+  overflow: hidden;
+  background: #000;
+  color: var(--fg);
+  font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: default;
+}
+
+body {
+  display: flex;
+  background:
+    radial-gradient(520px 380px at 78% 18%, rgba(94, 92, 230, .55), transparent 70%),
+    radial-gradient(460px 360px at 30% 92%, rgba(10, 132, 255, .42), transparent 70%),
+    radial-gradient(420px 300px at 96% 96%, rgba(191, 90, 242, .38), transparent 70%),
+    linear-gradient(140deg, #0b1026 0%, #141034 55%, #1d0f33 100%);
+}
+
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+svg { fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+svg.filled, svg .filled { fill: currentColor; stroke: none; }
+
+/* ---------------------------------------------------------------- dock */
+
+#dock {
+  width: var(--dock-w);
+  height: 100%;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0 14px;
+  background: rgba(8, 8, 14, .78);
+  border-right: 1px solid rgba(255, 255, 255, .08);
+  backdrop-filter: blur(30px);
+}
+
+#clock {
+  width: 100%;
+  text-align: center;
+  padding: 2px 0 6px;
+  app-region: drag;
+  cursor: grab;
+}
+#clock-time { font-size: 25px; font-weight: 650; letter-spacing: -.3px; line-height: 1.1; }
+#clock-date { font-size: 13px; font-weight: 600; color: var(--fg-dim); margin-top: 2px; }
+
+#link { display: flex; align-items: center; gap: 5px; margin-top: -6px; font-size: 11px; font-weight: 650; color: var(--fg-dim); white-space: nowrap; }
+#link-dot { width: 8px; height: 8px; border-radius: 50%; background: #636366; }
+#link.on #link-dot { background: #30d158; }
+#link.held #link-dot { background: #ff9f0a; }
+
+#dock-apps {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-top: 6px;
+}
+
+.dock-app {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .45);
+  transition: transform .12s ease;
+}
+.dock-app svg { width: 100%; height: 100%; stroke: none; display: block; }
+.dock-app:active { transform: scale(.93); }
+.dock-app.active { outline: 3px solid #fff; outline-offset: 2px; }
+.dock-app.playing::after {
+  content: "";
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #30d158;
+  border: 2px solid rgba(0, 0, 0, .55);
+}
+
+.dock-btn {
+  width: 56px;
+  height: 50px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, .9);
+  background: rgba(255, 255, 255, .10);
+  transition: background .12s ease, transform .12s ease;
+}
+.dock-btn svg { width: 26px; height: 26px; }
+.dock-btn:hover { background: rgba(255, 255, 255, .18); }
+.dock-btn:active { transform: scale(.93); }
+[hidden] { display: none !important; }
+
+/* ---------------------------------------------------------------- home */
+
+#home {
+  flex: 1;
+  display: flex;
+  gap: 22px;
+  padding: 22px 26px 22px 22px;
+  min-width: 0;
+}
+
+#widgets {
+  width: 388px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  backdrop-filter: blur(24px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .28);
+}
+
+#now-playing { flex: 1; padding: 16px 20px 14px; display: flex; flex-direction: column; min-height: 0; }
+.card-label { font-size: 13px; font-weight: 700; letter-spacing: .9px; text-transform: uppercase; color: var(--fg-dim); }
+
+.np-body { display: flex; align-items: center; gap: 16px; margin-top: 12px; }
+#np-art {
+  width: 92px;
+  height: 92px;
+  flex: none;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(140deg, #ff375f, #bf5af2) center / cover no-repeat;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .35);
+}
+#np-art svg { width: 44px; height: 44px; }
+#np-art.has-art svg { display: none; }
+.np-text { min-width: 0; }
+#np-title {
+  font-size: 21px;
+  font-weight: 650;
+  line-height: 1.22;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+#np-sub { font-size: 16px; color: var(--fg-dim); margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.np-progress { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .2); margin-top: auto; overflow: hidden; }
+#np-bar { height: 100%; width: 0; border-radius: 3px; background: #fff; transition: width .9s linear; }
+.np-times { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--fg-dim); margin-top: 5px; font-variant-numeric: tabular-nums; }
+
+.np-controls { display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 2px; }
+.np-controls button { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; transition: background .12s ease, transform .12s ease; }
+.np-controls button svg { width: 32px; height: 32px; }
+.np-controls button:hover { background: rgba(255, 255, 255, .14); }
+.np-controls button:active { transform: scale(.9); }
+#np-play svg { width: 40px; height: 40px; }
+#now-playing.idle .np-controls, #now-playing.idle .np-progress, #now-playing.idle .np-times { opacity: .35; pointer-events: none; }
+
+#day-card { padding: 14px 20px; display: flex; align-items: baseline; justify-content: space-between; }
+#day-name { font-size: 22px; font-weight: 650; }
+#day-date { font-size: 18px; font-weight: 600; color: var(--fg-dim); }
+
+#grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: min-content;
+  align-content: center;
+  justify-items: center;
+  gap: 26px 8px;
+  min-width: 0;
+}
+
+.app { display: flex; flex-direction: column; align-items: center; gap: 9px; width: 132px; }
+.app-icon {
+  width: 104px;
+  height: 104px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .42);
+  transition: transform .12s ease, filter .12s ease;
+}
+.app-icon svg { width: 100%; height: 100%; stroke: none; display: block; }
+.app:hover .app-icon { filter: brightness(1.08); }
+.app:active .app-icon { transform: scale(.93); filter: brightness(.85); }
+.app-name { font-size: 17px; font-weight: 600; text-shadow: 0 1px 6px rgba(0, 0, 0, .6); white-space: nowrap; }
+.app.open .app-name::after { content: " •"; color: #30d158; }
+
+/* ---------------------------------------------------------------- maps */
+
+/* The game draws its own map under this view. Anything placed here stays on top of the
+   map, but only fully opaque shapes read well: a soft shadow or a see-through panel would
+   blend with the key colour and show up as a dark smudge instead of revealing the map. */
+#maps {
+  position: fixed;
+  inset: 0 0 0 var(--dock-w);
+  background: var(--map-key);
+}
+
+.map-card {
+  position: absolute;
+  left: 18px;
+  background: #1c1c24;
+  border: 2px solid #3a3a46;
+  border-radius: 22px;
+}
+
+#map-speed { top: 18px; display: flex; align-items: center; gap: 14px; padding: 8px 14px 8px 18px; }
+.speed-now { display: flex; flex-direction: column; align-items: center; line-height: 1; }
+#map-speed-value { font-size: 46px; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 78px; text-align: center; }
+.speed-now small { font-size: 14px; font-weight: 650; color: var(--fg-dim); margin-top: 2px; }
+#map-speed.over #map-speed-value { color: #ff453a; }
+#map-limit {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  border: 7px solid #e02020;
+  color: #111;
+  font-size: 23px;
+  font-weight: 750;
+}
+
+#map-route { bottom: 18px; min-width: 250px; padding: 12px 20px 14px; }
+.route-main { display: flex; align-items: baseline; gap: 9px; }
+#map-eta { font-size: 40px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.05; }
+.route-main small { font-size: 16px; font-weight: 650; color: var(--fg-dim); }
+.route-rest { display: flex; justify-content: space-between; gap: 22px; margin-top: 4px; font-size: 19px; font-weight: 650; color: #30d158; }
+#map-route.idle #map-eta, #map-route.idle .route-main small { color: var(--fg-dim); }
+#map-route.idle .route-rest { color: var(--fg-dim); }
+
+#map-status {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0 120px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #8e8e93;
+}
+#map-status:empty { display: none; }
+
+/* ---------------------------------------------------------------- settings */
+
+#settings {
+  position: fixed;
+  inset: 0 0 0 var(--dock-w);
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, .55);
+  backdrop-filter: blur(18px);
+}
+.sheet {
+  width: 600px;
+  padding: 22px 28px 20px;
+  border-radius: 26px;
+  background: rgba(34, 34, 44, .94);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+}
+.sheet h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+.sheet table { width: 100%; border-collapse: collapse; font-size: 17px; }
+.sheet td { padding: 6px 0; border-bottom: 1px solid rgba(255, 255, 255, .08); }
+.sheet td:first-child { width: 250px; white-space: nowrap; }
+.sheet p { font-size: 15px; color: var(--fg-dim); margin-top: 12px; line-height: 1.4; }
+kbd {
+  display: inline-block;
+  min-width: 30px;
+  padding: 2px 8px;
+  margin-right: 4px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, .14);
+  font: 600 14px "Segoe UI", sans-serif;
+  text-align: center;
+}
+.sheet-actions { display: flex; justify-content: space-between; margin-top: 16px; }
+.sheet-actions button { padding: 10px 24px; border-radius: 14px; font-size: 17px; font-weight: 650; background: var(--accent); }
+.sheet-actions button.danger { background: rgba(255, 69, 58, .22); color: #ff6961; }
+.sheet-actions button:active { transform: scale(.96); }
