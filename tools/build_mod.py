@@ -18,7 +18,7 @@ TREE = os.path.join(ROOT, "build", "mod_tree")
 DIST = os.path.join(ROOT, "dist")
 STATIC = os.path.join(ROOT, "mod_static")
 
-MOD_VERSION = "1.2"
+MOD_VERSION = os.environ.get("CABINPLAY_VERSION", "0.0.0")  # set by build.ps1 from the VERSION file
 GAME_VERSION = "1.61.*"
 MODEL_DIR = "/vehicle/truck/upgrade/cabinplay"
 
