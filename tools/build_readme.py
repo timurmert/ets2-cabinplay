@@ -9,6 +9,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPO = "https://github.com/timurmert/ets2-cabinplay"
 DISCORD = "https://discord.gg/rhGEbsu3zy"
 EMAIL = "contact@hydrabon.com"
+MEDIA = "docs/media"
+VIDEO = REPO + "/raw/main/" + MEDIA + "/cabinplay-demo.mp4"
 
 # code -> (language name, file name)
 LANGUAGES = {
@@ -25,6 +27,7 @@ TEXT = {
     "en": dict(
         intro="A working media screen for your truck cabin in **Euro Truck Simulator 2**. Watch YouTube, listen to music and follow the game's GPS map on a tablet mounted at the windscreen, while you drive.",
         download="Download",
+        watch="Watch the full video with sound",
         release_download="Download **{zip}** below and unzip it.",
         download_body="**[Download the latest version]({repo}/releases/latest)** and get the file named `CabinPlay-x.y.z.zip`.",
         install="Install",
@@ -62,6 +65,7 @@ TEXT = {
     "tr": dict(
         intro="**Euro Truck Simulator 2** için tır kabininde gerçekten çalışan bir medya ekranı. Sürerken ön cama takılı tablette YouTube izle, müzik dinle ve oyunun GPS haritasını takip et.",
         download="İndir",
+        watch="Videonun tamamını sesli izle",
         release_download="Aşağıdaki **{zip}** dosyasını indir ve aç.",
         download_body="**[Son sürümü indir]({repo}/releases/latest)**; `CabinPlay-x.y.z.zip` adlı dosyayı al.",
         install="Kur",
@@ -99,6 +103,7 @@ TEXT = {
     "de": dict(
         intro="Ein funktionierender Medienbildschirm für deine Lkw-Kabine in **Euro Truck Simulator 2**. Schau YouTube, höre Musik und folge der GPS-Karte des Spiels auf einem Tablet an der Windschutzscheibe, während du fährst.",
         download="Download",
+        watch="Das ganze Video mit Ton ansehen",
         release_download="Lade unten **{zip}** herunter und entpacke die Datei.",
         download_body="**[Lade die neueste Version herunter]({repo}/releases/latest)** und nimm die Datei `CabinPlay-x.y.z.zip`.",
         install="Installation",
@@ -136,6 +141,7 @@ TEXT = {
     "pl": dict(
         intro="Działający ekran multimedialny w kabinie ciężarówki w **Euro Truck Simulator 2**. Oglądaj YouTube, słuchaj muzyki i śledź mapę GPS z gry na tablecie przy przedniej szybie, podczas jazdy.",
         download="Pobieranie",
+        watch="Obejrzyj cały film z dźwiękiem",
         release_download="Pobierz poniżej **{zip}** i rozpakuj plik.",
         download_body="**[Pobierz najnowszą wersję]({repo}/releases/latest)** i weź plik `CabinPlay-x.y.z.zip`.",
         install="Instalacja",
@@ -173,6 +179,7 @@ TEXT = {
     "fr": dict(
         intro="Un écran multimédia fonctionnel pour la cabine de votre camion dans **Euro Truck Simulator 2**. Regardez YouTube, écoutez de la musique et suivez la carte GPS du jeu sur une tablette fixée au pare-brise, tout en conduisant.",
         download="Téléchargement",
+        watch="Voir la vidéo complète avec le son",
         release_download="Téléchargez **{zip}** ci-dessous et décompressez-le.",
         download_body="**[Téléchargez la dernière version]({repo}/releases/latest)** et prenez le fichier `CabinPlay-x.y.z.zip`.",
         install="Installation",
@@ -210,6 +217,7 @@ TEXT = {
     "es": dict(
         intro="Una pantalla multimedia que funciona de verdad en la cabina de tu camión en **Euro Truck Simulator 2**. Mira YouTube, escucha música y sigue el mapa GPS del juego en una tableta fijada al parabrisas, mientras conduces.",
         download="Descarga",
+        watch="Ver el vídeo completo con sonido",
         release_download="Descarga **{zip}** más abajo y descomprímelo.",
         download_body="**[Descarga la última versión]({repo}/releases/latest)** y elige el archivo `CabinPlay-x.y.z.zip`.",
         install="Instalación",
@@ -247,6 +255,7 @@ TEXT = {
     "ru": dict(
         intro="Работающий медиаэкран в кабине грузовика в **Euro Truck Simulator 2**. Смотрите YouTube, слушайте музыку и следите за GPS-картой игры на планшете у лобового стекла прямо во время поездки.",
         download="Скачать",
+        watch="Смотреть полное видео со звуком",
         release_download="Скачайте **{zip}** ниже и распакуйте файл.",
         download_body="**[Скачайте последнюю версию]({repo}/releases/latest)** и возьмите файл `CabinPlay-x.y.z.zip`.",
         install="Установка",
@@ -305,6 +314,7 @@ TEMPLATE = """# CabinPlay
 
 {intro}
 
+{showcase}
 ## {download}
 
 {download_body}
@@ -368,6 +378,24 @@ TEMPLATE = """# CabinPlay
 """
 
 
+# The video preview and the screenshots, the same in every language but for one caption.
+SHOWCASE = """<p align="center">
+  <a href="{video}"><img src="{media}/preview.webp" width="100%" alt="CabinPlay"></a><br>
+  <sub>▶ <a href="{video}">{watch}</a></sub>
+</p>
+
+<p align="center">
+  <img src="{media}/driving-day.jpg" width="49%" alt="">
+  <img src="{media}/home-screen.jpg" width="49%" alt="">
+</p>
+<p align="center">
+  <img src="{media}/cabin-night.jpg" width="32.5%" alt="">
+  <img src="{media}/navigation.jpg" width="32.5%" alt="">
+  <img src="{media}/driving-night.jpg" width="32.5%" alt="">
+</p>
+"""
+
+
 RELEASE_SECTION = """{intro}
 
 {release_download} {install_intro_tail}
@@ -422,7 +450,9 @@ def main():
         values = {k: v.format(repo=REPO, discord=DISCORD, email=EMAIL, zip="") for k, v in TEXT[code].items()}
         missing = set(TEXT["en"]) - set(TEXT[code])
         assert not missing, "%s lacks: %s" % (code, ", ".join(sorted(missing)))
-        text = TEMPLATE.format(languages=bar, building=BUILDING if code == "en" else "", **values)
+        showcase = SHOWCASE.format(video=VIDEO, media=MEDIA, watch=values["watch"])
+        text = TEMPLATE.format(languages=bar, building=BUILDING if code == "en" else "",
+                               showcase=showcase, **values)
         with io.open(os.path.join(ROOT, filename), "w", encoding="utf-8", newline="\n") as f:
             f.write(text)
         print("wrote", filename)

@@ -4,6 +4,21 @@
 
 Ein funktionierender Medienbildschirm für deine Lkw-Kabine in **Euro Truck Simulator 2**. Schau YouTube, höre Musik und folge der GPS-Karte des Spiels auf einem Tablet an der Windschutzscheibe, während du fährst.
 
+<p align="center">
+  <a href="https://github.com/timurmert/ets2-cabinplay/raw/main/docs/media/cabinplay-demo.mp4"><img src="docs/media/preview.webp" width="100%" alt="CabinPlay"></a><br>
+  <sub>▶ <a href="https://github.com/timurmert/ets2-cabinplay/raw/main/docs/media/cabinplay-demo.mp4">Das ganze Video mit Ton ansehen</a></sub>
+</p>
+
+<p align="center">
+  <img src="docs/media/driving-day.jpg" width="49%" alt="">
+  <img src="docs/media/home-screen.jpg" width="49%" alt="">
+</p>
+<p align="center">
+  <img src="docs/media/cabin-night.jpg" width="32.5%" alt="">
+  <img src="docs/media/navigation.jpg" width="32.5%" alt="">
+  <img src="docs/media/driving-night.jpg" width="32.5%" alt="">
+</p>
+
 ## Download
 
 **[Lade die neueste Version herunter](https://github.com/timurmert/ets2-cabinplay/releases/latest)** und nimm die Datei `CabinPlay-x.y.z.zip`.

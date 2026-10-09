@@ -4,6 +4,21 @@
 
 **Euro Truck Simulator 2** için tır kabininde gerçekten çalışan bir medya ekranı. Sürerken ön cama takılı tablette YouTube izle, müzik dinle ve oyunun GPS haritasını takip et.
 
+<p align="center">
+  <a href="https://github.com/timurmert/ets2-cabinplay/raw/main/docs/media/cabinplay-demo.mp4"><img src="docs/media/preview.webp" width="100%" alt="CabinPlay"></a><br>
+  <sub>▶ <a href="https://github.com/timurmert/ets2-cabinplay/raw/main/docs/media/cabinplay-demo.mp4">Videonun tamamını sesli izle</a></sub>
+</p>
+
+<p align="center">
+  <img src="docs/media/driving-day.jpg" width="49%" alt="">
+  <img src="docs/media/home-screen.jpg" width="49%" alt="">
+</p>
+<p align="center">
+  <img src="docs/media/cabin-night.jpg" width="32.5%" alt="">
+  <img src="docs/media/navigation.jpg" width="32.5%" alt="">
+  <img src="docs/media/driving-night.jpg" width="32.5%" alt="">
+</p>
+
 ## İndir
 
 **[Son sürümü indir](https://github.com/timurmert/ets2-cabinplay/releases/latest)**; `CabinPlay-x.y.z.zip` adlı dosyayı al.

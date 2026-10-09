@@ -4,6 +4,21 @@
 
 Работающий медиаэкран в кабине грузовика в **Euro Truck Simulator 2**. Смотрите YouTube, слушайте музыку и следите за GPS-картой игры на планшете у лобового стекла прямо во время поездки.
 
+<p align="center">
+  <a href="https://github.com/timurmert/ets2-cabinplay/raw/main/docs/media/cabinplay-demo.mp4"><img src="docs/media/preview.webp" width="100%" alt="CabinPlay"></a><br>
+  <sub>▶ <a href="https://github.com/timurmert/ets2-cabinplay/raw/main/docs/media/cabinplay-demo.mp4">Смотреть полное видео со звуком</a></sub>
+</p>
+
+<p align="center">
+  <img src="docs/media/driving-day.jpg" width="49%" alt="">
+  <img src="docs/media/home-screen.jpg" width="49%" alt="">
+</p>
+<p align="center">
+  <img src="docs/media/cabin-night.jpg" width="32.5%" alt="">
+  <img src="docs/media/navigation.jpg" width="32.5%" alt="">
+  <img src="docs/media/driving-night.jpg" width="32.5%" alt="">
+</p>
+
 ## Скачать
 
 **[Скачайте последнюю версию](https://github.com/timurmert/ets2-cabinplay/releases/latest)** и возьмите файл `CabinPlay-x.y.z.zip`.

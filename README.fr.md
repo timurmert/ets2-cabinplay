@@ -4,6 +4,21 @@
 
 Un écran multimédia fonctionnel pour la cabine de votre camion dans **Euro Truck Simulator 2**. Regardez YouTube, écoutez de la musique et suivez la carte GPS du jeu sur une tablette fixée au pare-brise, tout en conduisant.
 
+<p align="center">
+  <a href="https://github.com/timurmert/ets2-cabinplay/raw/main/docs/media/cabinplay-demo.mp4"><img src="docs/media/preview.webp" width="100%" alt="CabinPlay"></a><br>
+  <sub>▶ <a href="https://github.com/timurmert/ets2-cabinplay/raw/main/docs/media/cabinplay-demo.mp4">Voir la vidéo complète avec le son</a></sub>
+</p>
+
+<p align="center">
+  <img src="docs/media/driving-day.jpg" width="49%" alt="">
+  <img src="docs/media/home-screen.jpg" width="49%" alt="">
+</p>
+<p align="center">
+  <img src="docs/media/cabin-night.jpg" width="32.5%" alt="">
+  <img src="docs/media/navigation.jpg" width="32.5%" alt="">
+  <img src="docs/media/driving-night.jpg" width="32.5%" alt="">
+</p>
+
 ## Téléchargement
 
 **[Téléchargez la dernière version](https://github.com/timurmert/ets2-cabinplay/releases/latest)** et prenez le fichier `CabinPlay-x.y.z.zip`.
