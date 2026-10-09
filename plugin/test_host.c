@@ -189,6 +189,46 @@ static void send_float(const char *name, float value)
             g_channels[i].cb(name, 0xFFFFFFFFu, &v, g_channels[i].context);
 }
 
+/* ---- the game's input API */
+
+typedef struct { uint32_t input_index; union { uint8_t b; float f; float sizing[6]; } value; } input_event_t;
+typedef int32_t(__stdcall *input_event_cb)(input_event_t *, uint32_t, void *);
+typedef void(__stdcall *input_active_cb)(uint8_t, void *);
+typedef struct {
+    const char *name, *display_name;
+    uint32_t type, input_count;
+    const void *inputs;
+    void *context;
+    input_active_cb active;
+    input_event_cb event;
+} input_device_t;
+
+static input_event_cb g_input_event;
+static input_active_cb g_input_active;
+static char g_input_name[32];
+
+static int32_t __stdcall register_input_device(const input_device_t *device)
+{
+    g_input_event = device->event;
+    g_input_active = device->active;
+    strncpy(g_input_name, *(const char *const *)device->inputs, 31); /* first input's name */
+    return device->type == 2 && device->input_count == 1 ? 0 : -1;
+}
+
+/* One frame of the game asking the plugin's device for events. Returns 1 if "pause" was pressed. */
+static int poll_input_api(void)
+{
+    int pressed = 0;
+    input_event_t e;
+    uint32_t flags = 1; /* first in frame */
+    while (g_input_event && g_input_event(&e, flags, NULL) == 0) {
+        if (e.input_index == 0 && e.value.b)
+            pressed = 1;
+        flags = 0;
+    }
+    return pressed;
+}
+
 static void present(cabinplay_frame_header_t *hdr, int frames)
 {
     for (int i = 0; i < frames; i++) {
@@ -226,6 +266,17 @@ int main(int argc, char **argv)
         void *log, *reg_event, *unreg_event, *reg_channel, *unreg_channel;
     } params = {"Euro Truck Simulator 2", "eut2", 0x00010012, 0, (void *)game_log, (void *)register_event,
                 (void *)unregister_event, (void *)register_channel, (void *)unregister_channel};
+    typedef int32_t (*input_init_fn)(uint32_t, const void *);
+    input_init_fn input_init = (input_init_fn)(void *)GetProcAddress(plugin, "scs_input_init");
+    struct {
+        const char *game_name, *game_id;
+        uint32_t game_version, padding;
+        void *log, *register_device;
+    } input_params = {"Euro Truck Simulator 2", "eut2", 0x00010012, 0, (void *)game_log, (void *)register_input_device};
+    if (input_init)
+        input_init(0x00010000, &input_params);
+    if (g_input_active)
+        g_input_active(1, NULL); /* the game activates the device once it is in use */
     int32_t result = init(0x00010001, &params);
     printf("scs_telemetry_init -> %d (%d channels registered)\n", result, g_channel_count);
 
@@ -461,15 +512,18 @@ int main(int argc, char **argv)
         }
         check(typed == 1 && arrow == 1, "typed keys reach the app, each once");
 
-        /* pausing: the plugin presses the game's pause key (here through DirectInput, since
-         * this window is not in front) and control mode survives the pause it asked for */
-        int pause_pressed = 0;
-        for (int i = 0; i < 120 && !pause_pressed; i++) {
+        /* pausing, first choice: the game's "pause" control through the input API */
+        check(g_input_event && !strcmp(g_input_name, "pause"), "a pause control is registered with the input API");
+        int pause_pressed = 0, released = 0;
+        for (int i = 0; i < 20 && !pause_pressed; i++) {
             present(hdr, 1);
-            if (SUCCEEDED(IDirectInputDevice8_GetDeviceState(kb, sizeof(keys), keys)) && (keys[DIK_PAUSE] & 0x80))
-                pause_pressed = 1;
+            pause_pressed = poll_input_api();
         }
-        check(pause_pressed, "the game's pause key is pressed when control mode opens");
+        check(pause_pressed, "pause is pressed through the input API when control mode opens");
+        input_event_t ev;
+        memset(&ev, 0xEE, sizeof(ev));
+        released = g_input_event(&ev, 1, NULL) == 0 && ev.input_index == 0 && ev.value.b == 0;
+        check(released, "and released in the next frame");
         g_event_cb[3](3, NULL, NULL); /* the game reports it is paused */
         for (int i = 0; i < 12; i++) {
             present(hdr, 1);
@@ -480,12 +534,11 @@ int main(int argc, char **argv)
 
         control(0);
         pause_pressed = 0;
-        for (int i = 0; i < 120 && !pause_pressed; i++) {
+        for (int i = 0; i < 20 && !pause_pressed; i++) {
             present(hdr, 1);
-            if (SUCCEEDED(IDirectInputDevice8_GetDeviceState(kb, sizeof(keys), keys)) && (keys[DIK_PAUSE] & 0x80))
-                pause_pressed = 1;
+            pause_pressed = poll_input_api();
         }
-        check(pause_pressed, "the pause key is pressed again when control mode closes");
+        check(pause_pressed, "pause is pressed again when control mode closes");
         check(state && (state->flags & CABINPLAY_STATE_CONTROL), "the app still sees control mode until the game resumes");
         g_event_cb[4](4, NULL, NULL); /* the game reports it is running again */
         for (int i = 0; i < 12; i++) {
@@ -495,14 +548,25 @@ int main(int argc, char **argv)
         check(state && !(state->flags & CABINPLAY_STATE_CONTROL) && !(state->flags & CABINPLAY_STATE_PAUSED),
               "control mode is fully closed afterwards");
 
-        /* a pause that did not come from control mode (a menu) closes it */
+        /* fallback: with the input API unavailable the pause key is pressed instead (here
+         * through DirectInput, since this window is not in front) */
+        g_input_active(0, NULL);
         control(1);
         g_event_cb[4](4, NULL, NULL);
-        for (int i = 0; i < 200; i++) {            /* let the pause attempt time out unanswered */
+        pause_pressed = 0;
+        for (int i = 0; i < 120 && !pause_pressed; i++) {
+            present(hdr, 1);
+            if (SUCCEEDED(IDirectInputDevice8_GetDeviceState(kb, sizeof(keys), keys)) && (keys[DIK_PAUSE] & 0x80))
+                pause_pressed = 1;
+        }
+        check(pause_pressed, "without the input API the pause key is pressed instead");
+        for (int i = 0; i < 200; i++) {            /* let the attempt time out unanswered */
             present(hdr, 1);
             IDirectInputDevice8_GetDeviceState(kb, sizeof(keys), keys);
         }
         check(state && (state->flags & CABINPLAY_STATE_CONTROL), "control mode works even if the game cannot be paused");
+
+        /* a pause that did not come from control mode (a menu) closes it */
         g_event_cb[3](3, NULL, NULL);
         present(hdr, 2);
         check(state && !(state->flags & CABINPLAY_STATE_CONTROL), "a pause from elsewhere ends control mode");

@@ -24,6 +24,8 @@
 #include <string.h>
 
 #include "MinHook.h"
+
+typedef unsigned __int64 QWORD; /* used by the NEXTRAWINPUTBLOCK macro, missing from these headers */
 #include "frame_protocol.h"
 
 /* Where the plugin and the app leave each other their locations. */
@@ -156,8 +158,6 @@ typedef BOOL(WINAPI *get_cursor_fn)(LPPOINT);
 typedef BOOL(WINAPI *set_cursor_fn)(int, int);
 static get_cursor_fn o_GetCursorPos;
 static set_cursor_fn o_SetCursorPos;
-static WNDPROC g_game_wndproc;
-static HWND g_subclassed;
 static POINT g_frozen_cursor;      /* what the game is told the cursor position is */
 static POINT g_poll_last;
 static int g_poll_valid;
@@ -1024,25 +1024,63 @@ static void push_event(uint32_t type, int32_t x, int32_t y, int32_t data)
  *
  *   keyboard   window messages (also the source of what is typed: they carry the right
  *              characters for any layout, and key repeat), GetAsyncKeyState / GetKeyState,
- *              DirectInput
- *   mouse      DirectInput, the system cursor, window messages
+ *              DirectInput, raw input
+ *   mouse      DirectInput, raw input, the system cursor, window messages
  *
- * The game's own pause key is the one thing let through, because control mode presses
+ * The game's own pause key is the one thing let through, because control mode may press
  * it to pause the game while the screen is being used. */
 
 typedef SHORT(WINAPI *key_state_fn)(int);
+typedef UINT(WINAPI *raw_data_fn)(HRAWINPUT, UINT, LPVOID, PUINT, UINT);
+typedef UINT(WINAPI *raw_buffer_fn)(PRAWINPUT, PUINT, UINT);
+typedef BOOL(WINAPI *cursor_info_fn)(PCURSORINFO);
 static key_state_fn o_GetAsyncKeyState, o_GetKeyState;
+static raw_data_fn o_GetRawInputData;
+static raw_buffer_fn o_GetRawInputBuffer;
+static get_cursor_fn o_GetPhysicalCursorPos;
+static cursor_info_fn o_GetCursorInfo;
+
+/* Windows whose messages are filtered in control mode: the game's own, and the one its
+ * raw input is delivered to if that is a different one. */
+#define MAX_SUBCLASSED 4
+static struct { HWND wnd; WNDPROC original; } g_windows[MAX_SUBCLASSED];
+static int g_raw_keyboard_only;       /* the game gets no key messages, only raw keyboard input */
+
+/* How often each route was used during one control session; written to the log when it
+ * ends, so a report from someone else's PC shows how their game reads its input. */
+static struct {
+    LONG di_mouse, di_keyboard, raw_message, raw_buffer, raw_data, cursor_pos, key_state, key_message,
+        mouse_message;
+} g_routes;
+
+typedef struct scs_input_event {
+    uint32_t input_index;
+    union {
+        uint8_t b;
+        float f;
+        float sizing[6];
+    } value;
+} scs_input_event_t; /* 28 bytes, as in scssdk_input_event.h */
+
+/* The game's "pause" control, reached through the input API (see scs_input_init). */
+static int g_semantic_registered;
+static volatile int g_semantic_active;
+static volatile LONG g_semantic_taps; /* presses of "pause" still to deliver */
+static int g_semantic_held;
 
 static uint8_t g_vk_down[256];        /* keys held, from window messages */
 static UINT g_pending_vk;             /* key whose character has not arrived yet */
 
 static int g_pause_want = -1;         /* 1: pause the game, 0: resume it, -1: nothing to do */
-static int g_pause_method;            /* 0: synthetic key press, 1: through DirectInput */
+static int g_pause_method;            /* PAUSE_BY_* */
 static int g_pause_method_worked;
 static int g_pause_stage;             /* frames into the current attempt */
 static int g_we_paused;               /* the game is paused because control mode asked for it */
 static int g_resume_on_exit;
 static volatile LONG g_di_pause_reads; /* keyboard reads left in which the pause key is reported */
+
+enum { PAUSE_BY_INPUT_API = 0, PAUSE_BY_KEY_PRESS, PAUSE_BY_DIRECTINPUT };
+static const char *const PAUSE_METHOD_NAME[] = {"input API", "key press", "DirectInput"};
 
 static void on_mouse_move(long dx, long dy, long dz);
 static void on_mouse_button(int button, int down);
@@ -1072,6 +1110,31 @@ static int is_pause_dik(DWORD dik)
     return dik == DIK_PAUSE || dik == DIK_NUMLOCK; /* the two share a scan code */
 }
 
+static void subclass_window(HWND wnd);
+
+/* Looks at what raw input the game asked Windows for, and makes sure the window it is
+ * delivered to is filtered too. */
+static void inspect_raw_input(void)
+{
+    RAWINPUTDEVICE devices[16];
+    UINT count = 16;
+    g_raw_keyboard_only = 0;
+    UINT n = GetRegisteredRawInputDevices(devices, &count, sizeof(RAWINPUTDEVICE));
+    if (n == (UINT)-1)
+        return;
+    for (UINT i = 0; i < n; i++) {
+        int mouse = devices[i].usUsagePage == 1 && devices[i].usUsage == 2;
+        int keyboard = devices[i].usUsagePage == 1 && devices[i].usUsage == 6;
+        if (!mouse && !keyboard)
+            continue;
+        logf_("raw input registered: %s, flags 0x%lx", mouse ? "mouse" : "keyboard", (unsigned long)devices[i].dwFlags);
+        if (keyboard && (devices[i].dwFlags & RIDEV_NOLEGACY))
+            g_raw_keyboard_only = 1;
+        if (devices[i].hwndTarget)
+            subclass_window(devices[i].hwndTarget);
+    }
+}
+
 static void set_control(int on)
 {
     EnterCriticalSection(&g_input_lock);
@@ -1083,10 +1146,12 @@ static void set_control(int on)
             g_poll_valid = 0;
             g_arrow_frames = 0;
             g_resume_on_exit = 0;
+            memset(&g_routes, 0, sizeof(g_routes));
+            inspect_raw_input();
             /* Pause the game so the truck does not drive on while someone types. */
-            if (g_cfg_pause_game && g_cfg_pause_vk && g_telemetry_ok && !g_paused && g_pause_want < 0) {
+            if (g_cfg_pause_game && g_telemetry_ok && !g_paused && g_pause_want < 0) {
                 g_pause_want = 1;
-                g_pause_method = 0;
+                g_pause_method = PAUSE_BY_INPUT_API;
                 g_pause_stage = 0;
             }
         } else {
@@ -1096,6 +1161,11 @@ static void set_control(int on)
                 if (g_buttons[b])
                     push_event(CABINPLAY_EVENT_BUTTON, (int)g_cursor_x, (int)g_cursor_y, b);
             g_resume_on_exit = 1;
+            logf_("input routes used: DirectInput mouse %ld keyboard %ld, raw message %ld buffer %ld data %ld, "
+                  "cursor %ld, key state %ld, key messages %ld, mouse messages %ld",
+                  g_routes.di_mouse, g_routes.di_keyboard, g_routes.raw_message, g_routes.raw_buffer,
+                  g_routes.raw_data, g_routes.cursor_pos, g_routes.key_state, g_routes.key_message,
+                  g_routes.mouse_message);
         }
         memset(g_buttons, 0, sizeof(g_buttons));
         g_control = on;
@@ -1117,8 +1187,11 @@ static void send_pause_key(int down)
     SendInput(1, &in, sizeof(in));
 }
 
-/* Once per frame. Presses the game's pause key and watches the telemetry to see whether
- * it worked; if a synthetic key press did not, the press is fed in through DirectInput. */
+/* Once per frame. Asks the game to pause (or resume) and watches the telemetry to see
+ * whether it did, moving on to the next way of asking if not:
+ *   1. the game's own "pause" control through the input API: no key binding involved
+ *   2. a synthetic press of the pause key
+ *   3. the same press fed in through DirectInput */
 static void drive_pause(void)
 {
     if (g_pause_want < 0) {
@@ -1138,7 +1211,7 @@ static void drive_pause(void)
         if (g_pause_want == 1) {
             g_we_paused = 1;
             g_pause_method_worked = g_pause_method;
-            logf_("game paused for control mode (%s)", g_pause_method ? "DirectInput" : "key press");
+            logf_("game paused for control mode (%s)", PAUSE_METHOD_NAME[g_pause_method]);
         } else {
             g_we_paused = 0;
         }
@@ -1146,31 +1219,62 @@ static void drive_pause(void)
         return;
     }
 
-    if (g_pause_method == 0) {
-        /* A synthetic key goes to whichever window has the keyboard: only ever the game. */
-        int foreground = g_game_window && GetForegroundWindow() == g_game_window;
-        if (!foreground || g_pause_stage > 45) {
-            g_pause_method = 1;
-            g_pause_stage = 0;
-        } else if (g_pause_stage == 0) {
-            send_pause_key(1);
-        } else if (g_pause_stage == 3) {
-            send_pause_key(0);
+    for (;;) {
+        int skip = 0;
+        if (g_pause_method == PAUSE_BY_INPUT_API) {
+            if (!g_semantic_registered || !g_semantic_active)
+                skip = 1;
+            else if (g_pause_stage == 0)
+                InterlockedExchange(&g_semantic_taps, 1);
+        } else if (g_pause_method == PAUSE_BY_KEY_PRESS) {
+            /* A synthetic key goes to whichever window has the keyboard: only ever the game. */
+            if (!g_cfg_pause_vk || !g_game_window || GetForegroundWindow() != g_game_window)
+                skip = 1;
+            else if (g_pause_stage == 0)
+                send_pause_key(1);
+            else if (g_pause_stage == 3)
+                send_pause_key(0);
+        } else {
+            if (g_pause_stage == 0)
+                InterlockedExchange(&g_di_pause_reads, 6);
         }
-    }
-    if (g_pause_method == 1) {
-        if (g_pause_stage == 0) {
-            InterlockedExchange(&g_di_pause_reads, 6);
-        } else if (g_pause_stage > 60) {
-            logf_("could not %s the game with the pause key (see pause_key in the ini)",
-                  g_pause_want == 1 ? "pause" : "resume");
+        if (!skip && g_pause_stage <= 45)
+            break;
+        if (g_pause_method == PAUSE_BY_DIRECTINPUT) {
+            logf_("could not %s the game (see pause_key in the ini)", g_pause_want == 1 ? "pause" : "resume");
             g_pause_want = -1;
             return;
         }
+        g_pause_method++;
+        g_pause_stage = 0;
     }
     g_pause_stage++;
 }
 
+/* The input API asks for events once or more per frame until there are none. */
+static int32_t __stdcall on_semantic_event(scs_input_event_t *event, uint32_t flags, void *context)
+{
+    (void)context;
+    if (!(flags & 1)) /* only at the start of a frame: one change per frame */
+        return -4;    /* SCS_RESULT_not_found */
+    memset(event, 0, sizeof(*event));
+    if (g_semantic_held) {
+        g_semantic_held = 0; /* release what was pressed in the previous frame */
+        return 0;
+    }
+    if (InterlockedCompareExchange(&g_semantic_taps, 0, 1) == 1) {
+        event->value.b = 1;
+        g_semantic_held = 1;
+        return 0;
+    }
+    return -4;
+}
+
+static void __stdcall on_semantic_active(uint8_t active, void *context)
+{
+    (void)context;
+    g_semantic_active = active != 0;
+}
 /* ---- mouse */
 
 /* Caller holds g_input_lock. */
@@ -1227,10 +1331,31 @@ static void poll_cursor(void)
 static BOOL WINAPI hk_GetCursorPos(LPPOINT p)
 {
     if (g_control && g_cfg_control_mouse && p) {
+        InterlockedIncrement(&g_routes.cursor_pos);
         *p = g_frozen_cursor;
         return TRUE;
     }
     return o_GetCursorPos(p);
+}
+
+static BOOL WINAPI hk_GetPhysicalCursorPos(LPPOINT p)
+{
+    if (g_control && g_cfg_control_mouse && p) {
+        InterlockedIncrement(&g_routes.cursor_pos);
+        *p = g_frozen_cursor;
+        return TRUE;
+    }
+    return o_GetPhysicalCursorPos(p);
+}
+
+static BOOL WINAPI hk_GetCursorInfo(PCURSORINFO info)
+{
+    BOOL ok = o_GetCursorInfo(info);
+    if (ok && info && g_control && g_cfg_control_mouse) {
+        InterlockedIncrement(&g_routes.cursor_pos);
+        info->ptScreenPos = g_frozen_cursor;
+    }
+    return ok;
 }
 
 static BOOL WINAPI hk_SetCursorPos(int x, int y)
@@ -1245,15 +1370,19 @@ static BOOL WINAPI hk_SetCursorPos(int x, int y)
 /* Polled key state: nothing is held as far as the game is concerned. */
 static SHORT WINAPI hk_GetAsyncKeyState(int vk)
 {
-    if (g_control && vk != g_cfg_pause_vk)
+    if (g_control && vk != g_cfg_pause_vk) {
+        InterlockedIncrement(&g_routes.key_state);
         return 0;
+    }
     return o_GetAsyncKeyState(vk);
 }
 
 static SHORT WINAPI hk_GetKeyState(int vk)
 {
-    if (g_control && vk != g_cfg_pause_vk)
+    if (g_control && vk != g_cfg_pause_vk) {
+        InterlockedIncrement(&g_routes.key_state);
         return 0;
+    }
     return o_GetKeyState(vk);
 }
 
@@ -1402,6 +1531,7 @@ static HRESULT di_state_common(di_state_fn original, void *dev, DWORD size, LPVO
     if (kind == 2 && size >= 256) {
         BYTE *k = (BYTE *)data;
         if (g_control) {
+            InterlockedIncrement(&g_routes.di_keyboard);
             BYTE pause = k[DIK_PAUSE], numlock = k[DIK_NUMLOCK];
             memset(data, 0, size);
             k[DIK_PAUSE] = pause;
@@ -1410,6 +1540,7 @@ static HRESULT di_state_common(di_state_fn original, void *dev, DWORD size, LPVO
         if (take_pause_read() > 1)
             k[DIK_PAUSE] = 0x80;
     } else if (kind == 1 && g_control && g_cfg_control_mouse) {
+        InterlockedIncrement(&g_routes.di_mouse);
         EnterCriticalSection(&g_input_lock);
         if (g_control && size >= sizeof(DIMOUSESTATE)) {
             const DIMOUSESTATE *m = (const DIMOUSESTATE *)data;
@@ -1438,6 +1569,7 @@ static HRESULT di_data_common(di_data_fn original, void *dev, DWORD size, DIDEVI
 
     DWORD kept = *count;
     if (kind == 1 && g_control && g_cfg_control_mouse) {
+        InterlockedIncrement(&g_routes.di_mouse);
         if (items && !(flags & DIGDD_PEEK)) {
             EnterCriticalSection(&g_input_lock);
             if (g_control) {
@@ -1457,6 +1589,7 @@ static HRESULT di_data_common(di_data_fn original, void *dev, DWORD size, DIDEVI
         kept = 0;
     } else if (kind == 2) {
         if (g_control) {
+            InterlockedIncrement(&g_routes.di_keyboard);
             /* Drop everything but the pause key. */
             kept = 0;
             if (items) {
@@ -1497,15 +1630,164 @@ static HRESULT STDMETHODCALLTYPE hk_di_data1(void *d, DWORD n, DIDEVICEOBJECTDAT
     return di_data_common(o_di_data[1], d, n, p, c, f);
 }
 
-/* ---- the game window */
+/* ---- raw input */
+
+static UINT real_raw_data(HRAWINPUT handle, UINT command, LPVOID data, PUINT size, UINT header)
+{
+    return o_GetRawInputData ? o_GetRawInputData(handle, command, data, size, header)
+                             : GetRawInputData(handle, command, data, size, header);
+}
+
+/* A key from raw input, for games that get no key messages at all. The character has
+ * to be worked out here. Caller holds g_input_lock. */
+static void raw_key(UINT vk, UINT scan, int down)
+{
+    vk &= 0xFF;
+    g_vk_down[vk] = (uint8_t)down;
+    int shift = g_vk_down[VK_SHIFT], ctrl = g_vk_down[VK_CONTROL], alt = g_vk_down[VK_MENU];
+    uint32_t mods = (shift ? CABINPLAY_MOD_SHIFT : 0) | (ctrl ? CABINPLAY_MOD_CTRL : 0) | (alt ? CABINPLAY_MOD_ALT : 0);
+    if (!down) {
+        if (vk != VK_ESCAPE && !is_modifier_vk(vk) && !keyboard_cursor_key(vk, 0))
+            push_event(CABINPLAY_EVENT_KEY, (int32_t)vk, (int32_t)(mods << 8), 0);
+        return;
+    }
+    if (vk == VK_ESCAPE) {
+        set_control(0);
+        return;
+    }
+    if ((ctrl && alt) || is_modifier_vk(vk) || keyboard_cursor_key(vk, 1))
+        return;
+    WCHAR ch = 0;
+    if (key_makes_character(vk) && !ctrl) {
+        BYTE state[256];
+        memset(state, 0, sizeof(state));
+        if (shift) state[VK_SHIFT] = 0x80;
+        if (real_key_state(VK_CAPITAL) & 1) state[VK_CAPITAL] = 1;
+        WCHAR buf[4];
+        HKL layout = GetKeyboardLayout(g_game_window ? GetWindowThreadProcessId(g_game_window, NULL) : 0);
+        if (ToUnicodeEx(vk, scan, state, buf, 4, 0, layout) == 1 && buf[0] >= 0x20 && buf[0] != 0x7F)
+            ch = buf[0];
+    }
+    push_event(CABINPLAY_EVENT_KEY, (int32_t)vk, 1 | (int32_t)((ch ? (mods & CABINPLAY_MOD_SHIFT) : mods) << 8), ch);
+}
+
+/* Uses one raw input record for CabinPlay. Caller holds g_input_lock. */
+static void consume_raw(const RAWINPUT *raw)
+{
+    if (raw->header.dwType == RIM_TYPEMOUSE && g_cfg_control_mouse) {
+        const RAWMOUSE *m = &raw->data.mouse;
+        if (!(m->usFlags & MOUSE_MOVE_ABSOLUTE) && (m->lLastX || m->lLastY)) {
+            g_di_mouse_tick = GetTickCount64(); /* relative movement seen: do not also use the cursor */
+            on_mouse_move(m->lLastX, m->lLastY, 0);
+        }
+        USHORT f = m->usButtonFlags;
+        if (f & RI_MOUSE_LEFT_BUTTON_DOWN) on_mouse_button(0, 1);
+        if (f & RI_MOUSE_LEFT_BUTTON_UP) on_mouse_button(0, 0);
+        if (f & RI_MOUSE_RIGHT_BUTTON_DOWN) on_mouse_button(1, 1);
+        if (f & RI_MOUSE_RIGHT_BUTTON_UP) on_mouse_button(1, 0);
+        if (f & RI_MOUSE_MIDDLE_BUTTON_DOWN) on_mouse_button(2, 1);
+        if (f & RI_MOUSE_MIDDLE_BUTTON_UP) on_mouse_button(2, 0);
+        if (f & RI_MOUSE_WHEEL) {
+            g_di_mouse_tick = GetTickCount64();
+            on_mouse_move(0, 0, (short)m->usButtonData);
+        }
+    } else if (raw->header.dwType == RIM_TYPEKEYBOARD && g_raw_keyboard_only) {
+        const RAWKEYBOARD *k = &raw->data.keyboard;
+        if (k->VKey && k->VKey < 255)
+            raw_key(k->VKey, k->MakeCode, !(k->Flags & RI_KEY_BREAK));
+    }
+}
+
+static int raw_is_for_game(const RAWINPUT *raw)
+{
+    if (raw->header.dwType == RIM_TYPEKEYBOARD)
+        return (int)raw->data.keyboard.VKey == g_cfg_pause_vk; /* the pause key stays with the game */
+    return raw->header.dwType != RIM_TYPEMOUSE || !g_cfg_control_mouse; /* wheels and pads always do */
+}
+
+/* Makes a record the game is about to read say that nothing happened. */
+static void blank_raw(RAWINPUT *raw)
+{
+    if (raw->header.dwType == RIM_TYPEMOUSE) {
+        raw->data.mouse.lLastX = raw->data.mouse.lLastY = 0;
+        raw->data.mouse.usButtonFlags = 0;
+        raw->data.mouse.usButtonData = 0;
+    } else if (raw->header.dwType == RIM_TYPEKEYBOARD) {
+        raw->data.keyboard.VKey = 0xFF;
+        raw->data.keyboard.MakeCode = 0;
+        raw->data.keyboard.Message = WM_NULL;
+    }
+}
+
+/* Reached only if the game reads raw input somewhere other than a filtered window. */
+static UINT WINAPI hk_GetRawInputData(HRAWINPUT handle, UINT command, LPVOID data, PUINT size, UINT header)
+{
+    UINT result = o_GetRawInputData(handle, command, data, size, header);
+    if (g_control && command == RID_INPUT && data && result != (UINT)-1 && result >= sizeof(RAWINPUTHEADER)) {
+        RAWINPUT *raw = (RAWINPUT *)data;
+        if (!raw_is_for_game(raw)) {
+            InterlockedIncrement(&g_routes.raw_data);
+            EnterCriticalSection(&g_input_lock);
+            if (g_control)
+                consume_raw(raw);
+            LeaveCriticalSection(&g_input_lock);
+            blank_raw(raw);
+        }
+    }
+    return result;
+}
+
+static UINT WINAPI hk_GetRawInputBuffer(PRAWINPUT data, PUINT size, UINT header)
+{
+    UINT result = o_GetRawInputBuffer(data, size, header);
+    if (g_control && data && result != (UINT)-1 && result > 0) {
+        InterlockedIncrement(&g_routes.raw_buffer);
+        EnterCriticalSection(&g_input_lock);
+        PRAWINPUT raw = data;
+        for (UINT i = 0; i < result; i++) {
+            if (!raw_is_for_game(raw)) {
+                if (g_control)
+                    consume_raw(raw);
+                blank_raw(raw);
+            }
+            raw = NEXTRAWINPUTBLOCK(raw);
+        }
+        LeaveCriticalSection(&g_input_lock);
+    }
+    return result;
+}
+
+/* ---- the game's windows */
+
+static WNDPROC original_proc(HWND wnd)
+{
+    for (int i = 0; i < MAX_SUBCLASSED; i++)
+        if (g_windows[i].wnd == wnd)
+            return g_windows[i].original;
+    return NULL;
+}
 
 static LRESULT CALLBACK hk_wndproc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp)
 {
     if (g_control) {
-        if (msg >= WM_KEYFIRST && msg <= WM_KEYLAST) {
+        if (msg == WM_INPUT) {
+            RAWINPUT raw;
+            UINT size = sizeof(raw);
+            if (real_raw_data((HRAWINPUT)lp, RID_INPUT, &raw, &size, sizeof(RAWINPUTHEADER)) != (UINT)-1 &&
+                !raw_is_for_game(&raw)) {
+                InterlockedIncrement(&g_routes.raw_message);
+                EnterCriticalSection(&g_input_lock);
+                if (g_control)
+                    consume_raw(&raw);
+                LeaveCriticalSection(&g_input_lock);
+                return DefWindowProcW(wnd, msg, wp, lp); /* Windows still needs to clean up */
+            }
+        } else if (msg >= WM_KEYFIRST && msg <= WM_KEYLAST) {
+            InterlockedIncrement(&g_routes.key_message);
             if (handle_key_message(msg, wp))
                 return 0;
         } else if (g_cfg_control_mouse && msg >= WM_MOUSEFIRST && msg <= WM_MOUSELAST) {
+            InterlockedIncrement(&g_routes.mouse_message);
             int button = -1, down = 0;
             switch (msg) {
             case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK: button = 0; down = 1; break;
@@ -1526,37 +1808,60 @@ static LRESULT CALLBACK hk_wndproc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp)
             return 0;
         }
     }
-    return IsWindowUnicode(wnd) ? CallWindowProcW(g_game_wndproc, wnd, msg, wp, lp)
-                                : CallWindowProcA(g_game_wndproc, wnd, msg, wp, lp);
+    WNDPROC original = original_proc(wnd);
+    if (!original)
+        return DefWindowProcW(wnd, msg, wp, lp);
+    return IsWindowUnicode(wnd) ? CallWindowProcW(original, wnd, msg, wp, lp)
+                                : CallWindowProcA(original, wnd, msg, wp, lp);
+}
+
+static void subclass_window(HWND wnd)
+{
+    DWORD process = 0;
+    if (!wnd || !GetWindowThreadProcessId(wnd, &process) || process != GetCurrentProcessId())
+        return;
+    int slot = -1;
+    for (int i = 0; i < MAX_SUBCLASSED; i++) {
+        if (g_windows[i].wnd == wnd)
+            return;
+        if (!g_windows[i].wnd && slot < 0)
+            slot = i;
+    }
+    if (slot < 0)
+        return;
+    /* The table entry must exist before the window procedure can be called. */
+    g_windows[slot].wnd = wnd;
+    g_windows[slot].original = (WNDPROC)(IsWindowUnicode(wnd) ? GetWindowLongPtrW(wnd, GWLP_WNDPROC)
+                                                               : GetWindowLongPtrA(wnd, GWLP_WNDPROC));
+    LONG_PTR previous = IsWindowUnicode(wnd) ? SetWindowLongPtrW(wnd, GWLP_WNDPROC, (LONG_PTR)hk_wndproc)
+                                             : SetWindowLongPtrA(wnd, GWLP_WNDPROC, (LONG_PTR)hk_wndproc);
+    if (previous)
+        g_windows[slot].original = (WNDPROC)previous;
+    else
+        g_windows[slot].wnd = NULL;
 }
 
 static void subclass_game_window(void)
 {
-    if (!g_game_window || g_subclassed == g_game_window)
-        return;
-    LONG_PTR previous = IsWindowUnicode(g_game_window)
-                            ? SetWindowLongPtrW(g_game_window, GWLP_WNDPROC, (LONG_PTR)hk_wndproc)
-                            : SetWindowLongPtrA(g_game_window, GWLP_WNDPROC, (LONG_PTR)hk_wndproc);
-    if (previous) {
-        g_game_wndproc = (WNDPROC)previous;
-        g_subclassed = g_game_window;
-    }
+    subclass_window(g_game_window);
 }
 
 static void unsubclass_game_window(void)
 {
-    if (!g_subclassed || !IsWindow(g_subclassed))
-        return;
-    /* Only undo it if nobody subclassed the window after this plugin did. */
-    if ((WNDPROC)GetWindowLongPtrW(g_subclassed, GWLP_WNDPROC) == hk_wndproc) {
-        if (IsWindowUnicode(g_subclassed))
-            SetWindowLongPtrW(g_subclassed, GWLP_WNDPROC, (LONG_PTR)g_game_wndproc);
-        else
-            SetWindowLongPtrA(g_subclassed, GWLP_WNDPROC, (LONG_PTR)g_game_wndproc);
-        g_subclassed = NULL;
+    for (int i = 0; i < MAX_SUBCLASSED; i++) {
+        HWND wnd = g_windows[i].wnd;
+        if (!wnd)
+            continue;
+        /* Only undo it if nobody subclassed the window after this plugin did. */
+        if (IsWindow(wnd) && (WNDPROC)GetWindowLongPtrW(wnd, GWLP_WNDPROC) == hk_wndproc) {
+            if (IsWindowUnicode(wnd))
+                SetWindowLongPtrW(wnd, GWLP_WNDPROC, (LONG_PTR)g_windows[i].original);
+            else
+                SetWindowLongPtrA(wnd, GWLP_WNDPROC, (LONG_PTR)g_windows[i].original);
+            g_windows[i].wnd = NULL;
+        }
     }
 }
-
 /* Once per frame: the Ctrl+Alt+<key> toggle, the cursor, and pausing the game. */
 static void update_control(int allowed)
 {
@@ -1905,6 +2210,18 @@ static void install_input_hooks(void)
             hooked++;
         if (state && MH_CreateHook(state, (LPVOID)hk_GetKeyState, (LPVOID *)&o_GetKeyState) == MH_OK)
             hooked++;
+        void *raw_data = (void *)GetProcAddress(user32, "GetRawInputData");
+        void *raw_buffer = (void *)GetProcAddress(user32, "GetRawInputBuffer");
+        void *physical = (void *)GetProcAddress(user32, "GetPhysicalCursorPos");
+        void *info = (void *)GetProcAddress(user32, "GetCursorInfo");
+        if (raw_data && MH_CreateHook(raw_data, (LPVOID)hk_GetRawInputData, (LPVOID *)&o_GetRawInputData) == MH_OK)
+            hooked++;
+        if (raw_buffer && MH_CreateHook(raw_buffer, (LPVOID)hk_GetRawInputBuffer, (LPVOID *)&o_GetRawInputBuffer) == MH_OK)
+            hooked++;
+        if (physical && MH_CreateHook(physical, (LPVOID)hk_GetPhysicalCursorPos, (LPVOID *)&o_GetPhysicalCursorPos) == MH_OK)
+            hooked++;
+        if (info && MH_CreateHook(info, (LPVOID)hk_GetCursorInfo, (LPVOID *)&o_GetCursorInfo) == MH_OK)
+            hooked++;
         void *get = (void *)GetProcAddress(user32, "GetCursorPos"), *set = (void *)GetProcAddress(user32, "SetCursorPos");
         if (get && MH_CreateHook(get, (LPVOID)hk_GetCursorPos, (LPVOID *)&o_GetCursorPos) == MH_OK)
             hooked++;
@@ -2085,6 +2402,7 @@ __declspec(dllexport) int32_t scs_telemetry_init(uint32_t version, const scs_tel
                 open_state_mapping();
                 register_telemetry(params);
                 start_companion();
+                logf_("pause control: %s", g_semantic_registered ? "input API" : "pause key only");
                 if (MH_EnableHook(MH_ALL_HOOKS) == MH_OK)
                     g_hooked = 1;
             }
@@ -2109,6 +2427,10 @@ __declspec(dllexport) void scs_telemetry_shutdown(void)
         o_GetCursorPos = NULL;
         o_GetAsyncKeyState = NULL;
         o_GetKeyState = NULL;
+        o_GetRawInputData = NULL;
+        o_GetRawInputBuffer = NULL;
+        o_GetPhysicalCursorPos = NULL;
+        o_GetCursorInfo = NULL;
         g_pause_want = -1;
         g_we_paused = 0;
         g_resume_on_exit = 0;
@@ -2147,6 +2469,62 @@ __declspec(dllexport) void scs_telemetry_shutdown(void)
         fclose(g_log);
         g_log = NULL;
     }
+}
+
+/* The input API. Registers a "semantical" device: its inputs are tied to the game's own
+ * controls by name, with nothing for the player to bind. The one input, "pause", is how
+ * control mode pauses and resumes the game. */
+
+typedef struct scs_input_device_input {
+    const char *name;
+    const char *display_name;
+    uint32_t value_type;
+    uint32_t padding;
+} scs_input_device_input_t; /* 24 bytes */
+
+typedef struct scs_input_device {
+    const char *name;
+    const char *display_name;
+    uint32_t type;
+    uint32_t input_count;
+    const scs_input_device_input_t *inputs;
+    void *callback_context;
+    void(__stdcall *input_active_callback)(uint8_t active, void *context);
+    int32_t(__stdcall *input_event_callback)(scs_input_event_t *event, uint32_t flags, void *context);
+} scs_input_device_t; /* 56 bytes */
+
+typedef struct scs_input_init_params {
+    const char *game_name;
+    const char *game_id;
+    uint32_t game_version;
+    uint32_t padding;
+    void(__stdcall *log)(int32_t type, const char *message);
+    int32_t(__stdcall *register_device)(const scs_input_device_t *device);
+} scs_input_init_params_t; /* 40 bytes: scs_input_init_params_v100_t */
+
+__declspec(dllexport) int32_t scs_input_init(uint32_t version, const scs_input_init_params_t *params)
+{
+    (void)version;
+    static const scs_input_device_input_t inputs[] = {{"pause", "Pause", SCS_TYPE_BOOL, 0}};
+    scs_input_device_t device;
+    memset(&device, 0, sizeof(device));
+    device.name = "cabinplay";
+    device.display_name = "CabinPlay";
+    device.type = 2; /* SCS_INPUT_DEVICE_TYPE_semantical */
+    device.input_count = 1;
+    device.inputs = inputs;
+    device.input_active_callback = on_semantic_active;
+    device.input_event_callback = on_semantic_event;
+    g_semantic_registered = params && params->register_device && params->register_device(&device) == 0;
+    g_semantic_active = 0;
+    logf_("input API: pause control %s", g_semantic_registered ? "registered" : "not available");
+    return 0; /* SCS_RESULT_ok either way: the key press remains as a fallback */
+}
+
+__declspec(dllexport) void scs_input_shutdown(void)
+{
+    g_semantic_registered = 0;
+    g_semantic_active = 0;
 }
 
 /* Test aid for plugin/test_host.c: switches control mode without the keyboard. */
