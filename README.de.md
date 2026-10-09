@@ -32,7 +32,7 @@ Das war's. Der Bildschirm schaltet sich mit der Zündung ein. Zum Entfernen dopp
 
 | Tastenkürzel | Funktion |
 |---|---|
-| `Ctrl+Alt+C` | Den Bildschirm im Spiel mit Maus und Tastatur bedienen (verlassen mit `Esc`) |
+| `Ctrl+Alt+C` | Den Bildschirm im Spiel mit Maus und Tastatur bedienen; das Spiel pausiert solange (verlassen mit `Esc`) |
 | `Ctrl+Alt+N` | Navigationskarte |
 | `Ctrl+Alt+H` | Startbildschirm |
 | `Ctrl+Alt+Leertaste` | Wiedergabe / Pause |
@@ -41,8 +41,6 @@ Das war's. Der Bildschirm schaltet sich mit der Zündung ein. Zum Entfernen dopp
 | `Ctrl+Alt+F` | Video im Vollbild |
 
 Die Wiedergabe pausiert, wenn du das Spiel pausierst oder die Zündung ausschaltest. Die Sprache findest du unter **Einstellungen** auf dem Bildschirm.
-
-Wenn du mit der Maus lenkst, setze `control_mouse=0` in `cabinplay.ini` (im Ordner `bin\win_x64\plugins` des Spiels): Die Maus bleibt dann beim Lkw und die Pfeiltasten bewegen den Zeiger auf dem Bildschirm.
 
 ## Voraussetzungen
 

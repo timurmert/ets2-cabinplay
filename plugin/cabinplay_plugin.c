@@ -145,11 +145,8 @@ static volatile uint32_t g_game_time;
 static volatile int g_control;
 static int g_toggle_was_down;
 static float g_cursor_x = CABINPLAY_WIDTH / 2.0f, g_cursor_y = CABINPLAY_HEIGHT / 2.0f;
-static uint8_t g_keys[256];      /* DirectInput key states seen while in control mode */
-static int g_keys_need_sync;
+static int g_control_reported;   /* control mode as the app should see it (see pump) */
 static uint8_t g_buttons[3];
-static int g_repeat_dik = -1;
-static ULONGLONG g_repeat_at;
 static HWND g_game_window;
 
 /* How the mouse is taken over in control mode. The game reads it through DirectInput,
@@ -174,6 +171,8 @@ static int g_cfg_cursor_speed = 100; /* percent */
 static int g_cfg_overlay_percent = 60;
 static int g_cfg_control_mouse = 1; /* 1: the mouse moves the CabinPlay cursor, 0: the arrow keys do */
 static int g_cfg_autostart = 1;     /* start the companion app together with the game */
+static int g_cfg_pause_game = 1;    /* pause the game while control mode is open */
+static int g_cfg_pause_vk = VK_PAUSE; /* the key the game's "pause" control is bound to */
 static wchar_t g_cfg_app_path[MAX_PATH]; /* written by the installer */
 
 /* ------------------------------------------------------------------ logging */
@@ -211,6 +210,8 @@ static void open_log_and_config(void)
     g_cfg_overlay_percent = GetPrivateProfileIntW(L"cabinplay", L"overlay_size", 60, path);
     g_cfg_control_mouse = GetPrivateProfileIntW(L"cabinplay", L"control_mouse", 1, path) != 0;
     g_cfg_autostart = GetPrivateProfileIntW(L"cabinplay", L"autostart", 1, path) != 0;
+    g_cfg_pause_game = GetPrivateProfileIntW(L"cabinplay", L"pause_game", 1, path) != 0;
+    g_cfg_pause_vk = GetPrivateProfileIntW(L"cabinplay", L"pause_key", VK_PAUSE, path) & 0xFF;
     GetPrivateProfileStringW(L"cabinplay", L"app_path", L"", g_cfg_app_path, MAX_PATH, path);
     if (g_cfg_overlay_percent < 20 || g_cfg_overlay_percent > 100)
         g_cfg_overlay_percent = 60;
@@ -990,7 +991,7 @@ static void publish_state(int mounted, int nav_ready)
     if (g_paused) flags |= CABINPLAY_STATE_PAUSED;
     if (g_electric) flags |= CABINPLAY_STATE_ELECTRIC;
     if (mounted) flags |= CABINPLAY_STATE_MOUNTED;
-    if (g_control) flags |= CABINPLAY_STATE_CONTROL;
+    if (g_control_reported) flags |= CABINPLAY_STATE_CONTROL;
     if (nav_ready) flags |= CABINPLAY_STATE_NAV_READY;
     g_state->flags = flags;
     float speed = g_speed_ms * 3.6f;
@@ -1018,8 +1019,43 @@ static void push_event(uint32_t type, int32_t x, int32_t y, int32_t data)
 
 /* ------------------------------------------------------------------ control mode input */
 
+/* Control mode hands the mouse and keyboard to CabinPlay. Games read them in different
+ * ways depending on their settings, so every route is covered:
+ *
+ *   keyboard   window messages (also the source of what is typed: they carry the right
+ *              characters for any layout, and key repeat), GetAsyncKeyState / GetKeyState,
+ *              DirectInput
+ *   mouse      DirectInput, the system cursor, window messages
+ *
+ * The game's own pause key is the one thing let through, because control mode presses
+ * it to pause the game while the screen is being used. */
+
+typedef SHORT(WINAPI *key_state_fn)(int);
+static key_state_fn o_GetAsyncKeyState, o_GetKeyState;
+
+static uint8_t g_vk_down[256];        /* keys held, from window messages */
+static UINT g_pending_vk;             /* key whose character has not arrived yet */
+
+static int g_pause_want = -1;         /* 1: pause the game, 0: resume it, -1: nothing to do */
+static int g_pause_method;            /* 0: synthetic key press, 1: through DirectInput */
+static int g_pause_method_worked;
+static int g_pause_stage;             /* frames into the current attempt */
+static int g_we_paused;               /* the game is paused because control mode asked for it */
+static int g_resume_on_exit;
+static volatile LONG g_di_pause_reads; /* keyboard reads left in which the pause key is reported */
+
 static void on_mouse_move(long dx, long dy, long dz);
 static void on_mouse_button(int button, int down);
+
+static SHORT real_async_key(int vk)
+{
+    return o_GetAsyncKeyState ? o_GetAsyncKeyState(vk) : GetAsyncKeyState(vk);
+}
+
+static SHORT real_key_state(int vk)
+{
+    return o_GetKeyState ? o_GetKeyState(vk) : GetKeyState(vk);
+}
 
 static BOOL real_get_cursor(POINT *p)
 {
@@ -1031,117 +1067,111 @@ static BOOL real_set_cursor(int x, int y)
     return o_SetCursorPos ? o_SetCursorPos(x, y) : SetCursorPos(x, y);
 }
 
+static int is_pause_dik(DWORD dik)
+{
+    return dik == DIK_PAUSE || dik == DIK_NUMLOCK; /* the two share a scan code */
+}
+
 static void set_control(int on)
 {
     EnterCriticalSection(&g_input_lock);
     if (on != g_control) {
         if (on) {
-            g_keys_need_sync = 1; /* keys held while switching must not be typed */
-            memset(g_keys, 0, sizeof(g_keys));
+            memset(g_vk_down, 0, sizeof(g_vk_down));
+            g_pending_vk = 0;
             real_get_cursor(&g_frozen_cursor);
             g_poll_valid = 0;
             g_arrow_frames = 0;
+            g_resume_on_exit = 0;
+            /* Pause the game so the truck does not drive on while someone types. */
+            if (g_cfg_pause_game && g_cfg_pause_vk && g_telemetry_ok && !g_paused && g_pause_want < 0) {
+                g_pause_want = 1;
+                g_pause_method = 0;
+                g_pause_stage = 0;
+            }
         } else {
             if (g_cfg_control_mouse && g_poll_valid)
                 real_set_cursor(g_frozen_cursor.x, g_frozen_cursor.y); /* no jump for the game */
             for (int b = 0; b < 3; b++) /* never leave a button stuck down in the page */
                 if (g_buttons[b])
                     push_event(CABINPLAY_EVENT_BUTTON, (int)g_cursor_x, (int)g_cursor_y, b);
+            g_resume_on_exit = 1;
         }
         memset(g_buttons, 0, sizeof(g_buttons));
-        g_repeat_dik = -1;
         g_control = on;
         logf_("control mode %s", on ? "on" : "off");
     }
     LeaveCriticalSection(&g_input_lock);
 }
 
-static uint32_t current_modifiers(void)
+/* ---- pausing the game */
+
+static void send_pause_key(int down)
 {
-    uint32_t m = 0;
-    if (g_keys[DIK_LSHIFT] || g_keys[DIK_RSHIFT]) m |= CABINPLAY_MOD_SHIFT;
-    if (g_keys[DIK_LCONTROL] || g_keys[DIK_RCONTROL]) m |= CABINPLAY_MOD_CTRL;
-    if (g_keys[DIK_LMENU]) m |= CABINPLAY_MOD_ALT;
-    return m;
+    INPUT in;
+    memset(&in, 0, sizeof(in));
+    in.type = INPUT_KEYBOARD;
+    in.ki.wVk = (WORD)g_cfg_pause_vk;
+    in.ki.wScan = (WORD)MapVirtualKeyW((UINT)g_cfg_pause_vk, MAPVK_VK_TO_VSC);
+    in.ki.dwFlags = down ? 0 : KEYEVENTF_KEYUP;
+    SendInput(1, &in, sizeof(in));
 }
 
-static int is_modifier_dik(int dik)
+/* Once per frame. Presses the game's pause key and watches the telemetry to see whether
+ * it worked; if a synthetic key press did not, the press is fed in through DirectInput. */
+static void drive_pause(void)
 {
-    return dik == DIK_LSHIFT || dik == DIK_RSHIFT || dik == DIK_LCONTROL || dik == DIK_RCONTROL ||
-           dik == DIK_LMENU || dik == DIK_RMENU || dik == DIK_LWIN || dik == DIK_RWIN || dik == DIK_CAPITAL;
-}
-
-/* Caller holds g_input_lock. DirectInput key codes are set 1 scan codes, with bit 7
- * marking the extended (E0) keys. */
-static void emit_key(int dik, int down)
-{
-    UINT scan = (UINT)(dik & 0x7F);
-    UINT vk = MapVirtualKeyW(scan | ((dik & 0x80) ? 0xE000 : 0), MAPVK_VSC_TO_VK_EX);
-    if (!vk)
-        return;
-    if (vk == VK_LSHIFT || vk == VK_RSHIFT) vk = VK_SHIFT;
-    if (vk == VK_LCONTROL || vk == VK_RCONTROL) vk = VK_CONTROL;
-    if (vk == VK_LMENU || vk == VK_RMENU) vk = VK_MENU;
-
-    int32_t ch = 0;
-    if (down) {
-        BYTE state[256];
-        memset(state, 0, sizeof(state));
-        if (g_keys[DIK_LSHIFT] || g_keys[DIK_RSHIFT]) state[VK_SHIFT] = 0x80;
-        /* AltGr is reported to Windows as Ctrl+Alt; layouts rely on it for symbols. */
-        if (g_keys[DIK_LCONTROL] || g_keys[DIK_RCONTROL] || g_keys[DIK_RMENU]) state[VK_CONTROL] = 0x80;
-        if (g_keys[DIK_LMENU] || g_keys[DIK_RMENU]) state[VK_MENU] = 0x80;
-        if (GetKeyState(VK_CAPITAL) & 1) state[VK_CAPITAL] = 1;
-        WCHAR buf[4];
-        HKL layout = GetKeyboardLayout(g_game_window ? GetWindowThreadProcessId(g_game_window, NULL) : 0);
-        int n = ToUnicodeEx(vk, scan, state, buf, 4, 0, layout);
-        if (n == 1 && buf[0] >= 0x20 && buf[0] != 0x7F)
-            ch = buf[0];
-    }
-    push_event(CABINPLAY_EVENT_KEY, (int32_t)vk, (down ? 1 : 0) | (int32_t)(current_modifiers() << 8), ch);
-}
-
-/* Caller holds g_input_lock. */
-static void on_key(int dik, int down)
-{
-    dik &= 0xFF;
-    if (down == (g_keys[dik] != 0))
-        return;
-    g_keys[dik] = down ? 0x80 : 0;
-    if (dik == DIK_ESCAPE) {
-        if (down)
-            set_control(0); /* Esc always hands the keyboard back to the game */
-        return;
-    }
-    /* Ctrl+Alt chords are the companion app's global hotkeys, not typing. */
-    if ((g_keys[DIK_LCONTROL] || g_keys[DIK_RCONTROL]) && g_keys[DIK_LMENU])
-        return;
-    if (!g_cfg_control_mouse) {
-        /* Keyboard cursor: the mouse stays with the game (mouse steering). The arrows move
-         * the cursor (see update_control), Enter clicks, Page Up / Down scroll.
-         * Shift+Enter still types a real Enter. */
-        if (dik == DIK_UP || dik == DIK_DOWN || dik == DIK_LEFT || dik == DIK_RIGHT)
-            return;
-        if (dik == DIK_RETURN && !g_keys[DIK_LSHIFT] && !g_keys[DIK_RSHIFT]) {
-            on_mouse_button(0, down);
-            return;
+    if (g_pause_want < 0) {
+        if (g_resume_on_exit && !g_control) {
+            g_resume_on_exit = 0;
+            if (g_we_paused && g_paused) {
+                g_pause_want = 0;
+                g_pause_method = g_pause_method_worked;
+                g_pause_stage = 0;
+            } else {
+                g_we_paused = 0;
+            }
         }
-        if (dik == DIK_PRIOR || dik == DIK_NEXT) {
-            if (down)
-                on_mouse_move(0, 0, dik == DIK_PRIOR ? 240 : -240);
+        return;
+    }
+    if ((g_paused != 0) == (g_pause_want == 1)) {
+        if (g_pause_want == 1) {
+            g_we_paused = 1;
+            g_pause_method_worked = g_pause_method;
+            logf_("game paused for control mode (%s)", g_pause_method ? "DirectInput" : "key press");
+        } else {
+            g_we_paused = 0;
+        }
+        g_pause_want = -1;
+        return;
+    }
+
+    if (g_pause_method == 0) {
+        /* A synthetic key goes to whichever window has the keyboard: only ever the game. */
+        int foreground = g_game_window && GetForegroundWindow() == g_game_window;
+        if (!foreground || g_pause_stage > 45) {
+            g_pause_method = 1;
+            g_pause_stage = 0;
+        } else if (g_pause_stage == 0) {
+            send_pause_key(1);
+        } else if (g_pause_stage == 3) {
+            send_pause_key(0);
+        }
+    }
+    if (g_pause_method == 1) {
+        if (g_pause_stage == 0) {
+            InterlockedExchange(&g_di_pause_reads, 6);
+        } else if (g_pause_stage > 60) {
+            logf_("could not %s the game with the pause key (see pause_key in the ini)",
+                  g_pause_want == 1 ? "pause" : "resume");
+            g_pause_want = -1;
             return;
         }
     }
-    if (is_modifier_dik(dik))
-        return;
-    emit_key(dik, down);
-    if (down) {
-        g_repeat_dik = dik;
-        g_repeat_at = GetTickCount64() + 450;
-    } else if (g_repeat_dik == dik) {
-        g_repeat_dik = -1;
-    }
+    g_pause_stage++;
 }
+
+/* ---- mouse */
 
 /* Caller holds g_input_lock. */
 static void on_mouse_move(long dx, long dy, long dz)
@@ -1167,113 +1197,6 @@ static void on_mouse_button(int button, int down)
         return;
     g_buttons[button] = (uint8_t)down;
     push_event(CABINPLAY_EVENT_BUTTON, (int)g_cursor_x, (int)g_cursor_y, button | (down << 8));
-}
-
-/* 1 = mouse, 2 = keyboard, 0 = anything else (wheels and pads are never touched). */
-static int device_kind(void *dev)
-{
-    static struct { void *dev; int kind; } cache[16];
-    static int next;
-    for (int i = 0; i < 16; i++)
-        if (cache[i].dev == dev)
-            return cache[i].kind;
-    DIDEVCAPS caps;
-    memset(&caps, 0, sizeof(caps));
-    caps.dwSize = sizeof(caps);
-    int kind = 0;
-    /* The capability call has the same slot and layout in the ANSI and Unicode interfaces. */
-    if (SUCCEEDED(IDirectInputDevice8_GetCapabilities((IDirectInputDevice8W *)dev, &caps))) {
-        BYTE type = (BYTE)(caps.dwDevType & 0xFF);
-        kind = type == DI8DEVTYPE_MOUSE ? 1 : type == DI8DEVTYPE_KEYBOARD ? 2 : 0;
-    }
-    cache[next].dev = dev;
-    cache[next].kind = kind;
-    next = (next + 1) % 16;
-    return kind;
-}
-
-/* In control mode the game's keyboard and mouse reads are used for CabinPlay and then
- * blanked, so the truck does not react to them. */
-static HRESULT di_state_common(di_state_fn original, void *dev, DWORD size, LPVOID data)
-{
-    HRESULT hr = original(dev, size, data);
-    if (!g_control || FAILED(hr) || !data)
-        return hr;
-    int kind = device_kind(dev);
-    if (!kind || (kind == 1 && !g_cfg_control_mouse))
-        return hr;
-
-    EnterCriticalSection(&g_input_lock);
-    if (g_control) {
-        if (kind == 1 && size >= sizeof(DIMOUSESTATE)) {
-            const DIMOUSESTATE *m = (const DIMOUSESTATE *)data;
-            if (m->lX || m->lY || m->lZ)
-                g_di_mouse_tick = GetTickCount64();
-            on_mouse_move(m->lX, m->lY, m->lZ);
-            for (int b = 0; b < 3; b++)
-                on_mouse_button(b, (m->rgbButtons[b] & 0x80) != 0);
-        } else if (kind == 2 && size >= 256) {
-            const BYTE *k = (const BYTE *)data;
-            if (g_keys_need_sync) {
-                for (int i = 0; i < 256; i++)
-                    g_keys[i] = k[i] & 0x80;
-                g_keys_need_sync = 0;
-            } else {
-                for (int i = 0; i < 256; i++)
-                    if ((k[i] & 0x80) != g_keys[i])
-                        on_key(i, (k[i] & 0x80) != 0);
-            }
-        }
-    }
-    LeaveCriticalSection(&g_input_lock);
-    memset(data, 0, size);
-    return hr;
-}
-
-static HRESULT di_data_common(di_data_fn original, void *dev, DWORD size, DIDEVICEOBJECTDATA *items, DWORD *count,
-                              DWORD flags)
-{
-    HRESULT hr = original(dev, size, items, count, flags);
-    if (!g_control || FAILED(hr) || !count)
-        return hr;
-    int kind = device_kind(dev);
-    if (!kind || (kind == 1 && !g_cfg_control_mouse))
-        return hr;
-
-    if (items && !(flags & DIGDD_PEEK) && size >= sizeof(DIDEVICEOBJECTDATA) - sizeof(UINT_PTR)) {
-        EnterCriticalSection(&g_input_lock);
-        if (g_control) {
-            g_keys_need_sync = 0;
-            for (DWORD i = 0; i < *count; i++) {
-                const DIDEVICEOBJECTDATA *d = (const DIDEVICEOBJECTDATA *)((const BYTE *)items + (size_t)i * size);
-                if (kind == 1) {
-                    if (d->dwOfs <= DIMOFS_Z && d->dwData)
-                        g_di_mouse_tick = GetTickCount64();
-                    if (d->dwOfs == DIMOFS_X) on_mouse_move((long)d->dwData, 0, 0);
-                    else if (d->dwOfs == DIMOFS_Y) on_mouse_move(0, (long)d->dwData, 0);
-                    else if (d->dwOfs == DIMOFS_Z) on_mouse_move(0, 0, (long)d->dwData);
-                    else if (d->dwOfs >= DIMOFS_BUTTON0 && d->dwOfs <= DIMOFS_BUTTON2)
-                        on_mouse_button((int)(d->dwOfs - DIMOFS_BUTTON0), (d->dwData & 0x80) != 0);
-                } else if (d->dwOfs < 256) {
-                    on_key((int)d->dwOfs, (d->dwData & 0x80) != 0);
-                }
-            }
-        }
-        LeaveCriticalSection(&g_input_lock);
-    }
-    *count = 0;
-    return hr == DI_BUFFEROVERFLOW ? DI_OK : hr;
-}
-
-static HRESULT STDMETHODCALLTYPE hk_di_state0(void *d, DWORD n, LPVOID p) { return di_state_common(o_di_state[0], d, n, p); }
-static HRESULT STDMETHODCALLTYPE hk_di_state1(void *d, DWORD n, LPVOID p) { return di_state_common(o_di_state[1], d, n, p); }
-static HRESULT STDMETHODCALLTYPE hk_di_data0(void *d, DWORD n, DIDEVICEOBJECTDATA *p, DWORD *c, DWORD f)
-{
-    return di_data_common(o_di_data[0], d, n, p, c, f);
-}
-static HRESULT STDMETHODCALLTYPE hk_di_data1(void *d, DWORD n, DIDEVICEOBJECTDATA *p, DWORD *c, DWORD f)
-{
-    return di_data_common(o_di_data[1], d, n, p, c, f);
 }
 
 /* The system cursor, for games that steer or look with it instead of DirectInput:
@@ -1317,28 +1240,291 @@ static BOOL WINAPI hk_SetCursorPos(int x, int y)
     return o_SetCursorPos(x, y);
 }
 
-/* Mouse buttons and the wheel reach the game as window messages. */
-static LRESULT CALLBACK hk_wndproc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp)
+/* ---- keyboard */
+
+/* Polled key state: nothing is held as far as the game is concerned. */
+static SHORT WINAPI hk_GetAsyncKeyState(int vk)
 {
-    if (g_control && g_cfg_control_mouse && msg >= WM_MOUSEFIRST && msg <= WM_MOUSELAST) {
-        int button = -1, down = 0;
-        switch (msg) {
-        case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK: button = 0; down = 1; break;
-        case WM_LBUTTONUP: button = 0; break;
-        case WM_RBUTTONDOWN: case WM_RBUTTONDBLCLK: button = 1; down = 1; break;
-        case WM_RBUTTONUP: button = 1; break;
-        case WM_MBUTTONDOWN: case WM_MBUTTONDBLCLK: button = 2; down = 1; break;
-        case WM_MBUTTONUP: button = 2; break;
+    if (g_control && vk != g_cfg_pause_vk)
+        return 0;
+    return o_GetAsyncKeyState(vk);
+}
+
+static SHORT WINAPI hk_GetKeyState(int vk)
+{
+    if (g_control && vk != g_cfg_pause_vk)
+        return 0;
+    return o_GetKeyState(vk);
+}
+
+static uint32_t current_modifiers(void)
+{
+    uint32_t m = 0;
+    if (real_key_state(VK_SHIFT) & 0x8000) m |= CABINPLAY_MOD_SHIFT;
+    if (real_key_state(VK_CONTROL) & 0x8000) m |= CABINPLAY_MOD_CTRL;
+    if (real_key_state(VK_LMENU) & 0x8000) m |= CABINPLAY_MOD_ALT;
+    return m;
+}
+
+static int is_modifier_vk(UINT vk)
+{
+    return vk == VK_SHIFT || vk == VK_CONTROL || vk == VK_MENU || vk == VK_LWIN || vk == VK_RWIN ||
+           vk == VK_CAPITAL || vk == VK_NUMLOCK || vk == VK_SCROLL;
+}
+
+/* Keys whose key-down is followed by a character message that carries what was typed. */
+static int key_makes_character(UINT vk)
+{
+    if (vk == VK_BACK || vk == VK_TAB || vk == VK_RETURN || vk == VK_ESCAPE)
+        return 0;
+    return MapVirtualKeyW(vk, MAPVK_VK_TO_CHAR) != 0;
+}
+
+/* Keyboard cursor (control_mouse=0): the mouse stays with the game. The arrows move the
+ * cursor (see update_control), Enter clicks, Page Up / Down scroll, Shift+Enter still
+ * types a real Enter. Returns 1 when the key was used for that. Caller holds g_input_lock. */
+static int keyboard_cursor_key(UINT vk, int down)
+{
+    if (g_cfg_control_mouse)
+        return 0;
+    if (vk == VK_UP || vk == VK_DOWN || vk == VK_LEFT || vk == VK_RIGHT)
+        return 1;
+    if (vk == VK_RETURN && !(real_key_state(VK_SHIFT) & 0x8000)) {
+        on_mouse_button(0, down);
+        return 1;
+    }
+    if (vk == VK_PRIOR || vk == VK_NEXT) {
+        if (down)
+            on_mouse_move(0, 0, vk == VK_PRIOR ? 240 : -240);
+        return 1;
+    }
+    return 0;
+}
+
+/* Returns 1 when the message was taken for CabinPlay and must not reach the game. */
+static int handle_key_message(UINT msg, WPARAM wp)
+{
+    UINT vk = (UINT)wp & 0xFF;
+    int down = msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN;
+    int up = msg == WM_KEYUP || msg == WM_SYSKEYUP;
+    int character = msg == WM_CHAR || msg == WM_SYSCHAR;
+    if ((down || up) && (int)vk == g_cfg_pause_vk)
+        return 0; /* the game's pause key stays with the game */
+    if (msg == WM_SYSKEYDOWN && vk == VK_F4)
+        return 0; /* Alt+F4 still closes the game */
+
+    int taken = 0;
+    EnterCriticalSection(&g_input_lock);
+    if (g_control) {
+        taken = 1;
+        /* Ctrl+Alt chords are the companion app's global hotkeys, not typing. AltGr, which
+         * Windows reports as Ctrl + right Alt, is typing. */
+        int chord = (real_key_state(VK_CONTROL) & 0x8000) && (real_key_state(VK_LMENU) & 0x8000) &&
+                    !(real_key_state(VK_RMENU) & 0x8000);
+        if (down) {
+            g_vk_down[vk] = 1;
+            if (vk == VK_ESCAPE)
+                set_control(0); /* Esc always hands the keyboard back to the game */
+            else if (chord || is_modifier_vk(vk) || keyboard_cursor_key(vk, 1))
+                ;
+            else if (key_makes_character(vk))
+                g_pending_vk = vk;
+            else
+                push_event(CABINPLAY_EVENT_KEY, (int32_t)vk, 1 | (int32_t)(current_modifiers() << 8), 0);
+        } else if (up) {
+            g_vk_down[vk] = 0;
+            if (vk != VK_ESCAPE && !is_modifier_vk(vk) && !keyboard_cursor_key(vk, 0))
+                push_event(CABINPLAY_EVENT_KEY, (int32_t)vk, (int32_t)(current_modifiers() << 8), 0);
+        } else if (character && !chord) {
+            WCHAR ch = (WCHAR)wp;
+            UINT key = g_pending_vk;
+            if (ch >= 0x20 && ch != 0x7F) {
+                /* A typed character: Ctrl and Alt were part of producing it (AltGr), so
+                 * only Shift is passed on. */
+                push_event(CABINPLAY_EVENT_KEY, (int32_t)key,
+                           1 | (int32_t)((current_modifiers() & CABINPLAY_MOD_SHIFT) << 8), ch);
+            } else if (key) {
+                /* Ctrl+letter and the like arrive as control characters: send the key. */
+                push_event(CABINPLAY_EVENT_KEY, (int32_t)key, 1 | (int32_t)(current_modifiers() << 8), 0);
+            }
         }
-        EnterCriticalSection(&g_input_lock);
+    }
+    LeaveCriticalSection(&g_input_lock);
+    return taken;
+}
+
+/* ---- DirectInput */
+
+/* 1 = mouse, 2 = keyboard, 0 = anything else (wheels and pads are never touched). */
+static int device_kind(void *dev)
+{
+    static struct { void *dev; int kind; } cache[16];
+    static int next;
+    for (int i = 0; i < 16; i++)
+        if (cache[i].dev == dev)
+            return cache[i].kind;
+    DIDEVCAPS caps;
+    memset(&caps, 0, sizeof(caps));
+    caps.dwSize = sizeof(caps);
+    int kind = 0;
+    /* The capability call has the same slot and layout in the ANSI and Unicode interfaces. */
+    if (SUCCEEDED(IDirectInputDevice8_GetCapabilities((IDirectInputDevice8W *)dev, &caps))) {
+        BYTE type = (BYTE)(caps.dwDevType & 0xFF);
+        kind = type == DI8DEVTYPE_MOUSE ? 1 : type == DI8DEVTYPE_KEYBOARD ? 2 : 0;
+    }
+    cache[next].dev = dev;
+    cache[next].kind = kind;
+    next = (next + 1) % 16;
+    return kind;
+}
+
+/* Takes one of the keyboard reads in which the pause key is reported. Returns how many
+ * were left before this one, 0 if none. */
+static LONG take_pause_read(void)
+{
+    for (;;) {
+        LONG left = g_di_pause_reads;
+        if (left <= 0)
+            return 0;
+        if (InterlockedCompareExchange(&g_di_pause_reads, left - 1, left) == left)
+            return left;
+    }
+}
+
+/* In control mode the game's keyboard and mouse reads are blanked, so the truck does not
+ * react; the mouse data is used for CabinPlay first. */
+static HRESULT di_state_common(di_state_fn original, void *dev, DWORD size, LPVOID data)
+{
+    HRESULT hr = original(dev, size, data);
+    if ((!g_control && g_di_pause_reads <= 0) || FAILED(hr) || !data)
+        return hr;
+    int kind = device_kind(dev);
+    if (kind == 2 && size >= 256) {
+        BYTE *k = (BYTE *)data;
         if (g_control) {
-            if (button >= 0)
-                on_mouse_button(button, down);
-            else if (msg == WM_MOUSEWHEEL && GetTickCount64() - g_di_mouse_tick > 500)
-                on_mouse_move(0, 0, GET_WHEEL_DELTA_WPARAM(wp));
+            BYTE pause = k[DIK_PAUSE], numlock = k[DIK_NUMLOCK];
+            memset(data, 0, size);
+            k[DIK_PAUSE] = pause;
+            k[DIK_NUMLOCK] = numlock;
+        }
+        if (take_pause_read() > 1)
+            k[DIK_PAUSE] = 0x80;
+    } else if (kind == 1 && g_control && g_cfg_control_mouse) {
+        EnterCriticalSection(&g_input_lock);
+        if (g_control && size >= sizeof(DIMOUSESTATE)) {
+            const DIMOUSESTATE *m = (const DIMOUSESTATE *)data;
+            if (m->lX || m->lY || m->lZ)
+                g_di_mouse_tick = GetTickCount64();
+            on_mouse_move(m->lX, m->lY, m->lZ);
+            for (int b = 0; b < 3; b++)
+                on_mouse_button(b, (m->rgbButtons[b] & 0x80) != 0);
         }
         LeaveCriticalSection(&g_input_lock);
-        return 0;
+        memset(data, 0, size);
+    }
+    return hr;
+}
+
+static HRESULT di_data_common(di_data_fn original, void *dev, DWORD size, DIDEVICEOBJECTDATA *items, DWORD *count,
+                              DWORD flags)
+{
+    DWORD capacity = count ? *count : 0;
+    HRESULT hr = original(dev, size, items, count, flags);
+    if ((!g_control && g_di_pause_reads <= 0) || FAILED(hr) || !count)
+        return hr;
+    int kind = device_kind(dev);
+    if (!kind || size < sizeof(DIDEVICEOBJECTDATA) - sizeof(UINT_PTR))
+        return hr;
+
+    DWORD kept = *count;
+    if (kind == 1 && g_control && g_cfg_control_mouse) {
+        if (items && !(flags & DIGDD_PEEK)) {
+            EnterCriticalSection(&g_input_lock);
+            if (g_control) {
+                for (DWORD i = 0; i < *count; i++) {
+                    const DIDEVICEOBJECTDATA *d = (const DIDEVICEOBJECTDATA *)((const BYTE *)items + (size_t)i * size);
+                    if (d->dwOfs <= DIMOFS_Z && d->dwData)
+                        g_di_mouse_tick = GetTickCount64();
+                    if (d->dwOfs == DIMOFS_X) on_mouse_move((long)d->dwData, 0, 0);
+                    else if (d->dwOfs == DIMOFS_Y) on_mouse_move(0, (long)d->dwData, 0);
+                    else if (d->dwOfs == DIMOFS_Z) on_mouse_move(0, 0, (long)d->dwData);
+                    else if (d->dwOfs >= DIMOFS_BUTTON0 && d->dwOfs <= DIMOFS_BUTTON2)
+                        on_mouse_button((int)(d->dwOfs - DIMOFS_BUTTON0), (d->dwData & 0x80) != 0);
+                }
+            }
+            LeaveCriticalSection(&g_input_lock);
+        }
+        kept = 0;
+    } else if (kind == 2) {
+        if (g_control) {
+            /* Drop everything but the pause key. */
+            kept = 0;
+            if (items) {
+                for (DWORD i = 0; i < *count; i++) {
+                    BYTE *d = (BYTE *)items + (size_t)i * size;
+                    if (is_pause_dik(((DIDEVICEOBJECTDATA *)d)->dwOfs)) {
+                        if (kept != i)
+                            memmove((BYTE *)items + (size_t)kept * size, d, size);
+                        kept++;
+                    }
+                }
+            }
+        }
+        LONG left = (items && !(flags & DIGDD_PEEK)) ? take_pause_read() : 0;
+        if ((left == 6 || left == 1) && kept < capacity) {
+            DIDEVICEOBJECTDATA *d = (DIDEVICEOBJECTDATA *)((BYTE *)items + (size_t)kept * size);
+            memset(d, 0, size);
+            d->dwOfs = DIK_PAUSE;
+            d->dwData = left == 6 ? 0x80 : 0; /* pressed on the first read, released on the last */
+            d->dwTimeStamp = GetTickCount();
+            kept++;
+        }
+    } else {
+        return hr;
+    }
+    *count = kept;
+    return hr == DI_BUFFEROVERFLOW ? DI_OK : hr;
+}
+
+static HRESULT STDMETHODCALLTYPE hk_di_state0(void *d, DWORD n, LPVOID p) { return di_state_common(o_di_state[0], d, n, p); }
+static HRESULT STDMETHODCALLTYPE hk_di_state1(void *d, DWORD n, LPVOID p) { return di_state_common(o_di_state[1], d, n, p); }
+static HRESULT STDMETHODCALLTYPE hk_di_data0(void *d, DWORD n, DIDEVICEOBJECTDATA *p, DWORD *c, DWORD f)
+{
+    return di_data_common(o_di_data[0], d, n, p, c, f);
+}
+static HRESULT STDMETHODCALLTYPE hk_di_data1(void *d, DWORD n, DIDEVICEOBJECTDATA *p, DWORD *c, DWORD f)
+{
+    return di_data_common(o_di_data[1], d, n, p, c, f);
+}
+
+/* ---- the game window */
+
+static LRESULT CALLBACK hk_wndproc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp)
+{
+    if (g_control) {
+        if (msg >= WM_KEYFIRST && msg <= WM_KEYLAST) {
+            if (handle_key_message(msg, wp))
+                return 0;
+        } else if (g_cfg_control_mouse && msg >= WM_MOUSEFIRST && msg <= WM_MOUSELAST) {
+            int button = -1, down = 0;
+            switch (msg) {
+            case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK: button = 0; down = 1; break;
+            case WM_LBUTTONUP: button = 0; break;
+            case WM_RBUTTONDOWN: case WM_RBUTTONDBLCLK: button = 1; down = 1; break;
+            case WM_RBUTTONUP: button = 1; break;
+            case WM_MBUTTONDOWN: case WM_MBUTTONDBLCLK: button = 2; down = 1; break;
+            case WM_MBUTTONUP: button = 2; break;
+            }
+            EnterCriticalSection(&g_input_lock);
+            if (g_control) {
+                if (button >= 0)
+                    on_mouse_button(button, down);
+                else if (msg == WM_MOUSEWHEEL && GetTickCount64() - g_di_mouse_tick > 500)
+                    on_mouse_move(0, 0, GET_WHEEL_DELTA_WPARAM(wp));
+            }
+            LeaveCriticalSection(&g_input_lock);
+            return 0;
+        }
     }
     return IsWindowUnicode(wnd) ? CallWindowProcW(g_game_wndproc, wnd, msg, wp, lp)
                                 : CallWindowProcA(g_game_wndproc, wnd, msg, wp, lp);
@@ -1371,41 +1557,38 @@ static void unsubclass_game_window(void)
     }
 }
 
-/* Once per frame: the Ctrl+Alt+<key> toggle and key repeat. */
+/* Once per frame: the Ctrl+Alt+<key> toggle, the cursor, and pausing the game. */
 static void update_control(int allowed)
 {
-    int down = (GetAsyncKeyState(VK_CONTROL) & 0x8000) && (GetAsyncKeyState(VK_MENU) & 0x8000) &&
-               (GetAsyncKeyState(g_cfg_toggle_vk) & 0x8000);
-    if (down && !g_toggle_was_down && o_di_state[0])
+    int down = (real_async_key(VK_CONTROL) & 0x8000) && (real_async_key(VK_MENU) & 0x8000) &&
+               (real_async_key(g_cfg_toggle_vk) & 0x8000);
+    if (down && !g_toggle_was_down)
         set_control(!g_control && allowed);
     g_toggle_was_down = down;
     if (g_control && !allowed)
         set_control(0);
-    if (!g_control)
-        return;
 
-    EnterCriticalSection(&g_input_lock);
-    if (g_cfg_control_mouse) {
-        poll_cursor();
-    } else {
-        int dx = (g_keys[DIK_RIGHT] ? 1 : 0) - (g_keys[DIK_LEFT] ? 1 : 0);
-        int dy = (g_keys[DIK_DOWN] ? 1 : 0) - (g_keys[DIK_UP] ? 1 : 0);
-        if (dx || dy) {
-            /* starts slow for precision, speeds up while the key is held */
-            float step = 1.5f + g_arrow_frames * 0.3f;
-            if (step > 14.0f)
-                step = 14.0f;
-            g_arrow_frames++;
-            on_mouse_move((long)(dx * step), (long)(dy * step), 0);
+    if (g_control) {
+        EnterCriticalSection(&g_input_lock);
+        if (g_cfg_control_mouse) {
+            poll_cursor();
         } else {
-            g_arrow_frames = 0;
+            int dx = (g_vk_down[VK_RIGHT] ? 1 : 0) - (g_vk_down[VK_LEFT] ? 1 : 0);
+            int dy = (g_vk_down[VK_DOWN] ? 1 : 0) - (g_vk_down[VK_UP] ? 1 : 0);
+            if (dx || dy) {
+                /* starts slow for precision, speeds up while the key is held */
+                float step = 1.5f + g_arrow_frames * 0.3f;
+                if (step > 14.0f)
+                    step = 14.0f;
+                g_arrow_frames++;
+                on_mouse_move((long)(dx * step), (long)(dy * step), 0);
+            } else {
+                g_arrow_frames = 0;
+            }
         }
+        LeaveCriticalSection(&g_input_lock);
     }
-    if (g_repeat_dik >= 0 && g_keys[g_repeat_dik] && GetTickCount64() >= g_repeat_at) {
-        emit_key(g_repeat_dik, 1);
-        g_repeat_at = GetTickCount64() + 45;
-    }
-    LeaveCriticalSection(&g_input_lock);
+    drive_pause();
 }
 
 /* ------------------------------------------------------------------ per-frame work */
@@ -1453,15 +1636,22 @@ static void pump(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx
     }
 
     int screen_on = g_electric || !g_telemetry_ok;
-    int usable = first_screen && screen_on && !(g_telemetry_ok && g_paused);
+    /* A pause that control mode asked for must not end control mode; any other pause
+     * (a menu, the pause key) does, so the game is never left without its keyboard. */
+    int our_pause = g_we_paused || g_pause_want == 1;
+    int usable = first_screen && screen_on && !(g_telemetry_ok && g_paused && !our_pause);
     if (!first_screen) {
         update_control(0);
+        g_control_reported = g_control || g_pause_want == 0 || (g_resume_on_exit && g_we_paused);
         publish_state(0, nav != NULL);
         return;
     }
 
     int fresh = fetch_frame();
     update_control(usable && g_have_frame && !g_blanked);
+    /* Still "in control" for the app until the game is running again, so it does not
+     * take the last moment of our own pause for a real one and stop the video. */
+    g_control_reported = g_control || g_pause_want == 0 || (g_resume_on_exit && g_we_paused);
     publish_state(1, nav != NULL);
 
     if (!screen_on) {
@@ -1710,6 +1900,11 @@ static void install_input_hooks(void)
     }
     HMODULE user32 = GetModuleHandleW(L"user32.dll");
     if (user32) {
+        void *async = (void *)GetProcAddress(user32, "GetAsyncKeyState"), *state = (void *)GetProcAddress(user32, "GetKeyState");
+        if (async && MH_CreateHook(async, (LPVOID)hk_GetAsyncKeyState, (LPVOID *)&o_GetAsyncKeyState) == MH_OK)
+            hooked++;
+        if (state && MH_CreateHook(state, (LPVOID)hk_GetKeyState, (LPVOID *)&o_GetKeyState) == MH_OK)
+            hooked++;
         void *get = (void *)GetProcAddress(user32, "GetCursorPos"), *set = (void *)GetProcAddress(user32, "SetCursorPos");
         if (get && MH_CreateHook(get, (LPVOID)hk_GetCursorPos, (LPVOID *)&o_GetCursorPos) == MH_OK)
             hooked++;
@@ -1717,8 +1912,7 @@ static void install_input_hooks(void)
             hooked++;
     }
     logf_("input hooks: %d installed, control with the %s", hooked, g_cfg_control_mouse ? "mouse" : "keyboard");
-    if (!o_di_state[0])
-        logf_("control mode is disabled");
+
 }
 
 /* ------------------------------------------------------------------ SCS telemetry */
@@ -1913,6 +2107,11 @@ __declspec(dllexport) void scs_telemetry_shutdown(void)
         MH_Uninitialize();
         g_hooked = 0;
         o_GetCursorPos = NULL;
+        o_GetAsyncKeyState = NULL;
+        o_GetKeyState = NULL;
+        g_pause_want = -1;
+        g_we_paused = 0;
+        g_resume_on_exit = 0;
         o_SetCursorPos = NULL;
         memset(o_di_state, 0, sizeof(o_di_state));
         memset(o_di_data, 0, sizeof(o_di_data));

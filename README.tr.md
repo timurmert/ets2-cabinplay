@@ -32,7 +32,7 @@ Bu kadar. Ekran tırın kontağıyla birlikte açılır. Kaldırmak için **Unin
 
 | Kısayol | Ne yapar |
 |---|---|
-| `Ctrl+Alt+C` | Ekranı oyunun içinden fare ve klavyeyle kullan (çıkış: `Esc`) |
+| `Ctrl+Alt+C` | Ekranı oyunun içinden fare ve klavyeyle kullan; bu sırada oyun duraklar (çıkış: `Esc`) |
 | `Ctrl+Alt+N` | Navigasyon haritası |
 | `Ctrl+Alt+H` | Ana ekran |
 | `Ctrl+Alt+Boşluk` | Oynat / duraklat |
@@ -41,8 +41,6 @@ Bu kadar. Ekran tırın kontağıyla birlikte açılır. Kaldırmak için **Unin
 | `Ctrl+Alt+F` | Videoyu tam ekran yap |
 
 Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, ekrandaki **Ayarlar**'dan değişir.
-
-Tırı fareyle sürüyorsan oyunun `bin\win_x64\plugins` klasöründeki `cabinplay.ini` içinde `control_mouse=0` yap: fare tırda kalır, ekrandaki imleci ok tuşları oynatır.
 
 ## Gerekenler
 

@@ -32,7 +32,7 @@ That's it. The screen switches on with the truck's ignition. To remove it, doubl
 
 | Shortcut | What it does |
 |---|---|
-| `Ctrl+Alt+C` | Use the screen from inside the game with mouse and keyboard (`Esc` to leave) |
+| `Ctrl+Alt+C` | Use the screen from inside the game with mouse and keyboard; the game pauses meanwhile (`Esc` to leave) |
 | `Ctrl+Alt+N` | Navigation map |
 | `Ctrl+Alt+H` | Home screen |
 | `Ctrl+Alt+Space` | Play / pause |
@@ -41,8 +41,6 @@ That's it. The screen switches on with the truck's ignition. To remove it, doubl
 | `Ctrl+Alt+F` | Video fullscreen |
 
 Playback pauses when you pause the game or switch the ignition off. The language is under **Settings** on the screen.
-
-If you steer with the mouse, set `control_mouse=0` in `cabinplay.ini` (in the game's `bin\win_x64\plugins` folder): the mouse then stays with the truck and the arrow keys move the screen's cursor.
 
 ## What you need
 

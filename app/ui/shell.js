@@ -205,13 +205,13 @@
     }
 
     // link to the game
-    const held = game.telemetry && (game.paused || !game.electric);
+    const held = game.telemetry && ((game.paused && !game.control) || !game.electric);
     $('link').className = !game.connected ? '' : held ? 'held' : 'on';
     $('link-text').textContent = t(!game.connected ? 'linkNone'
       : !game.telemetry ? 'linkGame'
       : !game.electric ? 'linkIgnition'
-      : game.paused ? 'linkPaused'
-      : game.control ? 'linkControl' : 'linkGame');
+      : game.control ? 'linkControl'
+      : game.paused ? 'linkPaused' : 'linkGame');
 
     // now playing
     const card = $('now-playing');

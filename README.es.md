@@ -32,7 +32,7 @@ Eso es todo. La pantalla se enciende con el contacto del camión. Para quitarlo,
 
 | Atajo | Qué hace |
 |---|---|
-| `Ctrl+Alt+C` | Usar la pantalla desde el juego con ratón y teclado (`Esc` para salir) |
+| `Ctrl+Alt+C` | Usar la pantalla desde el juego con ratón y teclado; el juego se pausa mientras tanto (`Esc` para salir) |
 | `Ctrl+Alt+N` | Mapa de navegación |
 | `Ctrl+Alt+H` | Pantalla de inicio |
 | `Ctrl+Alt+Espacio` | Reproducir / pausar |
@@ -41,8 +41,6 @@ Eso es todo. La pantalla se enciende con el contacto del camión. Para quitarlo,
 | `Ctrl+Alt+F` | Vídeo a pantalla completa |
 
 La reproducción se pausa cuando pausas el juego o quitas el contacto. El idioma está en **Ajustes**, en la pantalla.
-
-Si conduces con el ratón, pon `control_mouse=0` en `cabinplay.ini` (en la carpeta `bin\win_x64\plugins` del juego): el ratón se queda con el camión y las flechas mueven el cursor de la pantalla.
 
 ## Requisitos
 

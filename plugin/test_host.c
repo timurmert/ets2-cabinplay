@@ -420,7 +420,8 @@ int main(int argc, char **argv)
         HRESULT hm = IDirectInputDevice8_GetDeviceState(mouse, sizeof(ms), &ms);
         int blank = SUCCEEDED(hk) && SUCCEEDED(hm) && ms.lX == 0 && ms.lY == 0 && ms.rgbButtons[0] == 0;
         for (int i = 0; i < 256; i++)
-            blank &= keys[i] == 0;
+            if (i != DIK_PAUSE) /* that one the plugin presses itself, to pause the game */
+                blank &= keys[i] == 0;
         check(blank, "game sees no keys or mouse movement meanwhile");
 
         /* overlay: the screen, enlarged, in the middle of the back buffer */
@@ -446,15 +447,67 @@ int main(int argc, char **argv)
         ID3D11RenderTargetView_Release(rtv);
         ID3D11Texture2D_Release(back);
 
+        /* typing: key and character messages to the game window go to the app instead */
+        uint32_t before = state->event_write;
+        SendMessageW(wnd, WM_KEYDOWN, 'A', 0);
+        SendMessageW(wnd, WM_CHAR, L'a', 0);
+        SendMessageW(wnd, WM_KEYUP, 'A', 0);
+        SendMessageW(wnd, WM_KEYDOWN, VK_LEFT, 0);
+        int typed = 0, arrow = 0;
+        for (uint32_t i = before; i < state->event_write; i++) {
+            const cabinplay_event_t *e = &state->events[i % CABINPLAY_EVENT_CAPACITY];
+            if (e->type == CABINPLAY_EVENT_KEY && e->x == 'A' && (e->y & 1) && e->data == 'a') typed++;
+            if (e->type == CABINPLAY_EVENT_KEY && e->x == VK_LEFT && (e->y & 1) && e->data == 0) arrow++;
+        }
+        check(typed == 1 && arrow == 1, "typed keys reach the app, each once");
+
+        /* pausing: the plugin presses the game's pause key (here through DirectInput, since
+         * this window is not in front) and control mode survives the pause it asked for */
+        int pause_pressed = 0;
+        for (int i = 0; i < 120 && !pause_pressed; i++) {
+            present(hdr, 1);
+            if (SUCCEEDED(IDirectInputDevice8_GetDeviceState(kb, sizeof(keys), keys)) && (keys[DIK_PAUSE] & 0x80))
+                pause_pressed = 1;
+        }
+        check(pause_pressed, "the game's pause key is pressed when control mode opens");
+        g_event_cb[3](3, NULL, NULL); /* the game reports it is paused */
+        for (int i = 0; i < 12; i++) {
+            present(hdr, 1);
+            IDirectInputDevice8_GetDeviceState(kb, sizeof(keys), keys);
+        }
+        check(state && (state->flags & CABINPLAY_STATE_CONTROL) && (state->flags & CABINPLAY_STATE_PAUSED),
+              "control mode stays open while the game is paused for it");
+
         control(0);
-        present(hdr, 1);
-        check(state && !(state->flags & CABINPLAY_STATE_CONTROL), "control mode switches off");
+        pause_pressed = 0;
+        for (int i = 0; i < 120 && !pause_pressed; i++) {
+            present(hdr, 1);
+            if (SUCCEEDED(IDirectInputDevice8_GetDeviceState(kb, sizeof(keys), keys)) && (keys[DIK_PAUSE] & 0x80))
+                pause_pressed = 1;
+        }
+        check(pause_pressed, "the pause key is pressed again when control mode closes");
+        check(state && (state->flags & CABINPLAY_STATE_CONTROL), "the app still sees control mode until the game resumes");
+        g_event_cb[4](4, NULL, NULL); /* the game reports it is running again */
+        for (int i = 0; i < 12; i++) {
+            present(hdr, 1);
+            IDirectInputDevice8_GetDeviceState(kb, sizeof(keys), keys);
+        }
+        check(state && !(state->flags & CABINPLAY_STATE_CONTROL) && !(state->flags & CABINPLAY_STATE_PAUSED),
+              "control mode is fully closed afterwards");
+
+        /* a pause that did not come from control mode (a menu) closes it */
         control(1);
-        g_event_cb[3](3, NULL, NULL);
-        present(hdr, 1);
-        check(state && !(state->flags & CABINPLAY_STATE_CONTROL), "pausing the game ends control mode");
         g_event_cb[4](4, NULL, NULL);
-        IDirectInputDevice8_Release(kb);
+        for (int i = 0; i < 200; i++) {            /* let the pause attempt time out unanswered */
+            present(hdr, 1);
+            IDirectInputDevice8_GetDeviceState(kb, sizeof(keys), keys);
+        }
+        check(state && (state->flags & CABINPLAY_STATE_CONTROL), "control mode works even if the game cannot be paused");
+        g_event_cb[3](3, NULL, NULL);
+        present(hdr, 2);
+        check(state && !(state->flags & CABINPLAY_STATE_CONTROL), "a pause from elsewhere ends control mode");
+        g_event_cb[4](4, NULL, NULL);
+        present(hdr, 2);        IDirectInputDevice8_Release(kb);
         IDirectInputDevice8_Release(mouse);
     } else {
         check(0, "DirectInput devices available for the test");

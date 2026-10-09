@@ -32,7 +32,7 @@ C'est tout. L'écran s'allume avec le contact du camion. Pour le retirer, double
 
 | Raccourci | Action |
 |---|---|
-| `Ctrl+Alt+C` | Utiliser l'écran depuis le jeu avec la souris et le clavier (`Échap` pour quitter) |
+| `Ctrl+Alt+C` | Utiliser l'écran depuis le jeu avec la souris et le clavier ; le jeu est en pause pendant ce temps (`Échap` pour quitter) |
 | `Ctrl+Alt+N` | Carte de navigation |
 | `Ctrl+Alt+H` | Écran d'accueil |
 | `Ctrl+Alt+Espace` | Lecture / pause |
@@ -41,8 +41,6 @@ C'est tout. L'écran s'allume avec le contact du camion. Pour le retirer, double
 | `Ctrl+Alt+F` | Vidéo en plein écran |
 
 La lecture se met en pause quand vous mettez le jeu en pause ou coupez le contact. La langue se règle dans **Réglages**, à l'écran.
-
-Si vous dirigez à la souris, mettez `control_mouse=0` dans `cabinplay.ini` (dans le dossier `bin\win_x64\plugins` du jeu) : la souris reste alors au camion et les flèches déplacent le curseur de l'écran.
 
 ## Prérequis
 

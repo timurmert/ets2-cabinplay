@@ -32,7 +32,7 @@ To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Aby usunąć, 
 
 | Skrót | Co robi |
 |---|---|
-| `Ctrl+Alt+C` | Obsługa ekranu z poziomu gry myszą i klawiaturą (wyjście: `Esc`) |
+| `Ctrl+Alt+C` | Obsługa ekranu z poziomu gry myszą i klawiaturą; gra jest w tym czasie wstrzymana (wyjście: `Esc`) |
 | `Ctrl+Alt+N` | Mapa nawigacji |
 | `Ctrl+Alt+H` | Ekran główny |
 | `Ctrl+Alt+Spacja` | Odtwarzaj / wstrzymaj |
@@ -41,8 +41,6 @@ To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Aby usunąć, 
 | `Ctrl+Alt+F` | Wideo na pełnym ekranie |
 
 Odtwarzanie wstrzymuje się, gdy zatrzymasz grę lub wyłączysz zapłon. Język zmienisz w **Ustawieniach** na ekranie.
-
-Jeśli kierujesz myszą, ustaw `control_mouse=0` w `cabinplay.ini` (w folderze gry `bin\win_x64\plugins`): mysz zostaje wtedy przy ciężarówce, a kursor na ekranie przesuwają klawisze strzałek.
 
 ## Wymagania
 

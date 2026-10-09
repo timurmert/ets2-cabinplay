@@ -488,7 +488,9 @@ internal sealed class MainForm : Form
     private async Task HoldMediaForGameAsync()
     {
         GameState g = _game?.Read() ?? default;
-        bool hold = g.Telemetry && (g.Paused || !g.Electric);
+        // Control mode pauses the game itself so the screen can be used in peace: that pause
+        // must not stop what is playing.
+        bool hold = g.Telemetry && ((g.Paused && !g.Control) || !g.Electric);
         if (hold == _holdingMedia)
             return;
         _holdingMedia = hold;
