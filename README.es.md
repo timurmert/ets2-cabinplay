@@ -55,6 +55,8 @@ Preguntas, problemas y novedades: **[únete a nuestro Discord](https://discord.g
 
 Para informar de un problema, abre **Ajustes** en la pantalla, pulsa **Crear informe de error** y publica el zip que guarda en el escritorio.
 
+**¿El vídeo va a tirones o se congela?** El juego está usando toda tu tarjeta gráfica. En los ajustes gráficos del juego, baja el **Escalado** al 200 % o menos (el 400 % suele ser la causa).
+
 ## Contacto
 
 **Colaboración y patrocinio:** escribe a **[contact@hydrabon.com](mailto:contact@hydrabon.com)** o contáctanos en [Discord](https://discord.gg/rhGEbsu3zy).

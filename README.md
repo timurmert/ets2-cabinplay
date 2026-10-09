@@ -55,6 +55,8 @@ Questions, problems and news: **[join our Discord](https://discord.gg/rhGEbsu3zy
 
 To report a problem, open **Settings** on the screen, press **Create error report** and post the zip it saves to your desktop.
 
+**Video stutters or freezes?** The game is using all of your graphics card. In the game's graphics settings, lower **Scaling** to 200% or less (400% is the usual cause).
+
 ## Contact
 
 **Collaboration and sponsorship:** write to **[contact@hydrabon.com](mailto:contact@hydrabon.com)** or reach us on [Discord](https://discord.gg/rhGEbsu3zy).

@@ -52,6 +52,7 @@ TEXT = {
         need_4="Fits 25 trucks; not the Renault E-Tech T",
         help="Help and community",
         help_body="Questions, problems and news: **[join our Discord]({discord})**.\n\nTo report a problem, open **Settings** on the screen, press **Create error report** and post the zip it saves to your desktop.",
+        stutter="**Video stutters or freezes?** The game is using all of your graphics card. In the game's graphics settings, lower **Scaling** to 200% or less (400% is the usual cause).",
         business="Contact",
         business_body="**Collaboration and sponsorship:** write to **[{email}](mailto:{email})** or reach us on [Discord]({discord}).\n\n**Complaints and suggestions:** write to the same address or tell us on [Discord]({discord}).",
         credits="Credits and licence",
@@ -88,6 +89,7 @@ TEXT = {
         need_4="25 tıra uyar; Renault E-Tech T'ye uymaz",
         help="Yardım ve topluluk",
         help_body="Sorular, sorunlar ve duyurular için **[Discord sunucumuza katıl]({discord})**.\n\nSorun bildirmek için ekrandaki **Ayarlar**'ı aç, **Hata raporu oluştur**'a bas ve masaüstüne kaydettiği zip'i paylaş.",
+        stutter="**Video takılıyor ya da donuyor mu?** Oyun ekran kartının tamamını kullanıyordur. Oyunun grafik ayarlarında **Ölçekleme**'yi %200'e ya da altına indir (genelde neden %400'dür).",
         business="İletişim",
         business_body="**İş birliği ve sponsorluk için:** **[{email}](mailto:{email})** adresine yaz ya da bize [Discord]({discord}) üzerinden ulaş.\n\n**Şikayet ve önerilerin için:** aynı adrese yaz ya da [Discord]({discord}) sunucumuzda bize ilet.",
         credits="Emeği geçenler ve lisans",
@@ -124,6 +126,7 @@ TEXT = {
         need_4="Passt in 25 Lkw; nicht in den Renault E-Tech T",
         help="Hilfe und Community",
         help_body="Fragen, Probleme und Neuigkeiten: **[tritt unserem Discord bei]({discord})**.\n\nUm ein Problem zu melden, öffne **Einstellungen** auf dem Bildschirm, drücke **Fehlerbericht erstellen** und poste die Zip-Datei, die auf dem Desktop gespeichert wird.",
+        stutter="**Das Video ruckelt oder friert ein?** Das Spiel lastet deine Grafikkarte voll aus. Stelle in den Grafikeinstellungen des Spiels die **Skalierung** auf 200 % oder weniger (meist ist 400 % die Ursache).",
         business="Kontakt",
         business_body="**Zusammenarbeit und Sponsoring:** schreib an **[{email}](mailto:{email})** oder erreiche uns auf [Discord]({discord}).\n\n**Beschwerden und Vorschläge:** schreib an dieselbe Adresse oder melde dich auf [Discord]({discord}).",
         credits="Mitwirkende und Lizenz",
@@ -160,6 +163,7 @@ TEXT = {
         need_4="Pasuje do 25 ciężarówek; nie do Renault E-Tech T",
         help="Pomoc i społeczność",
         help_body="Pytania, problemy i nowości: **[dołącz do naszego Discorda]({discord})**.\n\nAby zgłosić problem, otwórz **Ustawienia** na ekranie, naciśnij **Utwórz raport o błędzie** i wyślij plik zip zapisany na pulpicie.",
+        stutter="**Wideo się zacina lub zamiera?** Gra zajmuje całą kartę graficzną. W ustawieniach grafiki gry zmniejsz **Skalowanie** do 200% lub mniej (najczęstszą przyczyną jest 400%).",
         business="Kontakt",
         business_body="**Współpraca i sponsoring:** napisz na **[{email}](mailto:{email})** albo odezwij się na [Discordzie]({discord}).\n\n**Skargi i sugestie:** napisz na ten sam adres albo daj nam znać na [Discordzie]({discord}).",
         credits="Autorzy i licencja",
@@ -196,6 +200,7 @@ TEXT = {
         need_4="Compatible avec 25 camions ; pas avec le Renault E-Tech T",
         help="Aide et communauté",
         help_body="Questions, problèmes et nouveautés : **[rejoignez notre Discord]({discord})**.\n\nPour signaler un problème, ouvrez **Réglages** à l'écran, appuyez sur **Créer un rapport d'erreur** et publiez le fichier zip enregistré sur le bureau.",
+        stutter="**La vidéo saccade ou se fige ?** Le jeu utilise toute votre carte graphique. Dans les paramètres graphiques du jeu, baissez la **Mise à l'échelle** à 200 % ou moins (400 % en est la cause habituelle).",
         business="Contact",
         business_body="**Collaboration et sponsoring :** écrivez à **[{email}](mailto:{email})** ou contactez-nous sur [Discord]({discord}).\n\n**Réclamations et suggestions :** écrivez à la même adresse ou dites-le-nous sur [Discord]({discord}).",
         credits="Crédits et licence",
@@ -232,6 +237,7 @@ TEXT = {
         need_4="Compatible con 25 camiones; no con el Renault E-Tech T",
         help="Ayuda y comunidad",
         help_body="Preguntas, problemas y novedades: **[únete a nuestro Discord]({discord})**.\n\nPara informar de un problema, abre **Ajustes** en la pantalla, pulsa **Crear informe de error** y publica el zip que guarda en el escritorio.",
+        stutter="**¿El vídeo va a tirones o se congela?** El juego está usando toda tu tarjeta gráfica. En los ajustes gráficos del juego, baja el **Escalado** al 200 % o menos (el 400 % suele ser la causa).",
         business="Contacto",
         business_body="**Colaboración y patrocinio:** escribe a **[{email}](mailto:{email})** o contáctanos en [Discord]({discord}).\n\n**Quejas y sugerencias:** escribe a la misma dirección o cuéntanoslo en [Discord]({discord}).",
         credits="Créditos y licencia",
@@ -268,6 +274,7 @@ TEXT = {
         need_4="Подходит для 25 грузовиков; не подходит для Renault E-Tech T",
         help="Помощь и сообщество",
         help_body="Вопросы, проблемы и новости: **[присоединяйтесь к нашему Discord]({discord})**.\n\nЧтобы сообщить о проблеме, откройте **Настройки** на экране, нажмите **Создать отчёт об ошибке** и отправьте zip-файл, сохранённый на рабочем столе.",
+        stutter="**Видео тормозит или зависает?** Игра полностью загружает видеокарту. В настройках графики игры уменьшите **Масштабирование** до 200% или ниже (обычно причина — 400%).",
         business="Контакты",
         business_body="**Сотрудничество и спонсорство:** пишите на **[{email}](mailto:{email})** или свяжитесь с нами в [Discord]({discord}).\n\n**Жалобы и предложения:** пишите на тот же адрес или расскажите нам в [Discord]({discord}).",
         credits="Авторы и лицензия",
@@ -347,6 +354,8 @@ TEMPLATE = """# CabinPlay
 
 {help_body}
 
+{stutter}
+
 ## {business}
 
 {business_body}
@@ -380,6 +389,8 @@ RELEASE_SECTION = """{intro}
 **{needs}:** {need_1}. {need_2}. {need_3}.
 
 **{help}:** {help_line}
+
+{stutter}
 
 {business_body}
 """
