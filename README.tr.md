@@ -12,18 +12,32 @@ takılı tablette YouTube izle, müzik dinle ve oyunun GPS haritasını takip et
 
 ## Kur
 
-1. Oyunu kapat.
-2. Zip'i aç ve **Install.cmd** dosyasına çift tıkla.
-   Windows "kişisel bilgisayarınızı korudu" derse *Ek bilgi*, sonra *Yine de çalıştır* de
-   (dosyalar imzalı değil).
-3. Oyunu başlat ve bir kez çıkan "SDK özellikleri" uyarısını onayla.
-4. **Mod Yöneticisi**'nde **CabinPlay Screen**'i etkinleştir.
-5. Serviste, sol ön cam aksesuar yuvasına **CabinPlay Screen**'i tak. İki sürüm var:
+Oyunu kapat ve zip'i aç. Sonra birini seç:
+
+**A) Otomatik.** **Install.cmd** dosyasına çift tıkla.
+Windows "kişisel bilgisayarınızı korudu" derse *Ek bilgi*, sonra *Yine de çalıştır* de (dosyalar
+imzalı değil). `Install.cmd` yalnızca `data\install.ps1` dosyasını çalıştırır; bu, açıp
+okuyabileceğin düz metin bir betiktir.
+
+**B) Elle.** Hiçbir betik çalışmaz; `data` klasöründen üç şeyi kopyalarsın:
+
+1. `cabinplay.scs` dosyasını `Belgeler\Euro Truck Simulator 2\mod` klasörüne
+2. `plugin\cabinplay.dll` ve `plugin\cabinplay.ini` dosyalarını oyunun `bin\win_x64\plugins`
+   klasörüne (`plugins` yoksa oluştur). Oyun klasörünü bulmak için: Steam'de oyuna sağ tıkla >
+   *Yönet* > *Yerel dosyalara göz at*.
+3. `app` klasörünü istediğin bir yere; sonra içindeki `CabinPlay.exe` dosyasını bir kez
+   çalıştır. Sonrasında oyunla birlikte kendiliğinden açılır.
+
+**Sonra, oyunda:**
+
+1. Oyunu başlat ve bir kez çıkan "SDK özellikleri" uyarısını onayla.
+2. **Mod Yöneticisi**'nde **CabinPlay Screen**'i etkinleştir.
+3. Serviste, sol ön cam aksesuar yuvasına **CabinPlay Screen**'i tak. İki sürüm var:
    *Large* (11", kolda) ve *Compact* (10", camın dibinde).
 
 Bu kadar. Ekran tırın kontağıyla birlikte açılır.
 
-Kaldırmak için **Uninstall.cmd** dosyasına çift tıkla.
+Kaldırmak için **Uninstall.cmd** dosyasına çift tıkla ya da elle kopyaladığın dosyaları sil.
 
 ## Kullan
 
@@ -55,7 +69,11 @@ Tırı fareyle sürüyorsan oyunun `bin\win_x64\plugins` klasöründeki `cabinpl
 Ekrandaki **Ayarlar**'ı aç ve **Hata raporu oluştur**'a bas. Masaüstüne bir zip kaydeder; yardım
 isterken o dosyayı paylaş.
 
----
+## Emeği geçenler ve lisans
+
+Topluluk sunucumuz ve yazılım ekibimiz **HydRaboN** tarafından yapıldı. CabinPlay ücretsiz ve
+açık kaynaklıdır; [MIT lisansı](LICENSE) ile yayınlanır. İçinde
+[MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause) kullanılır.
 
 CabinPlay resmi olmayan bir hayran projesidir. SCS Software, Google/YouTube, Twitch veya Apple ile
 bağlantılı değildir ve onlar tarafından desteklenmez.

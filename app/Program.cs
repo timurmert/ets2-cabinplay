@@ -36,6 +36,27 @@ internal static class Program
         }
     }
 
+    public const string RegistryKey = @"Software\CabinPlay";
+
+    /// <summary>
+    /// Notes where the app runs from, so the game plugin can start it by itself next time
+    /// even when everything was copied into place by hand.
+    /// </summary>
+    private static void RememberLocation()
+    {
+        if (Namespace.Length > 0 || Environment.ProcessPath is null)
+            return;
+        try
+        {
+            using var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(RegistryKey);
+            key.SetValue("AppPath", Environment.ProcessPath);
+        }
+        catch (Exception)
+        {
+            // Only costs the automatic start.
+        }
+    }
+
     [STAThread]
     private static void Main(string[] args)
     {
@@ -45,6 +66,7 @@ internal static class Program
         if (!first)
             return; // already running; two writers would fight over the screen
 
+        RememberLocation();
         ApplicationConfiguration.Initialize();
         Application.ThreadException += (_, e) => Log.Write("UI error: " + e.Exception);
         AppDomain.CurrentDomain.UnhandledException += (_, e) => Log.Write("Fatal: " + e.ExceptionObject);

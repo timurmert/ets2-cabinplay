@@ -16,7 +16,7 @@ $sources = @(
 )
 $dll = Join-Path $out 'cabinplay.dll'
 & gcc -O2 -Wall -Wextra -Wno-unused-parameter -shared -static -s `
-    -I (Join-Path $mh 'include') -o $dll @sources -ld3d11 -ldxgi -ldxguid -luuid
+    -I (Join-Path $mh 'include') -o $dll @sources -ld3d11 -ldxgi -ldxguid -luuid -ladvapi32
 if ($LASTEXITCODE -ne 0) { throw 'plugin build failed' }
 
 $ini = Join-Path $out 'cabinplay.ini'
@@ -40,7 +40,8 @@ if (-not (Test-Path $ini)) {
         'control_mouse=1',
         '; start the CabinPlay app together with the game (it closes again with the game)',
         'autostart=1',
-        '; where the app is; filled in by the installer',
+        '; where the app is; filled in by the installer. If empty, the place the app was last',
+        '; started from is used.',
         'app_path='
     )
 }

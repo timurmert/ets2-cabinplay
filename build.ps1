@@ -32,6 +32,9 @@ if (Test-Path $zip) { Remove-Item $zip -Force }
 $data = Join-Path $stage 'data'
 New-Item -ItemType Directory -Force $data | Out-Null
 Copy-Item (Join-Path $root 'packaging\*') $stage
+Copy-Item (Join-Path $root 'LICENSE') (Join-Path $stage 'LICENSE.txt')
+# The plugin contains MinHook, whose licence asks for its notice to travel with binaries.
+Copy-Item (Join-Path $root 'plugin\minhook\LICENSE.txt') (Join-Path $stage 'THIRD-PARTY-LICENSES.txt')
 Copy-Item (Join-Path $root 'install.ps1') $data
 Copy-Item (Join-Path $dist 'cabinplay.scs') $data
 Copy-Item (Join-Path $dist 'plugin') $data -Recurse

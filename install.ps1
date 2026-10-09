@@ -81,6 +81,7 @@ if ($Uninstall) {
         if (Test-Path $f) { Remove-Item $f -Force }
     }
     if (Test-Path $appDir) { Remove-Item $appDir -Recurse -Force }
+    if (Test-Path 'HKCU:\Software\CabinPlay') { Remove-Item 'HKCU:\Software\CabinPlay' -Recurse -Force }
     # Leave the plugins folder alone if other plugins live there.
     if ((Test-Path $pluginDir) -and -not (Get-ChildItem $pluginDir -Force)) { Remove-Item $pluginDir }
     Write-Host '  CabinPlay was removed.' -ForegroundColor Green
