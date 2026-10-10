@@ -28,6 +28,7 @@ USE
   Ctrl+Alt+C      use the screen from inside the game with mouse and keyboard (Esc to leave)
   Ctrl+Alt+N      navigation map          Ctrl+Alt+H   home screen
   Ctrl+Alt+Space  play / pause            Ctrl+Alt+F   video fullscreen
+  Closed CabinPlay from its settings? Ctrl+Alt+C starts it again.
   The language and all shortcuts are under Settings on the screen.
 
 NEEDS

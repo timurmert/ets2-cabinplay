@@ -59,7 +59,7 @@ Eso es todo. La pantalla se enciende con el contacto del camión. Para quitarlo,
 | `Ctrl+Alt+↑` `↓` | 10 segundos adelante / atrás |
 | `Ctrl+Alt+F` | Vídeo a pantalla completa |
 
-La reproducción se pausa cuando pausas el juego o quitas el contacto. El idioma está en **Ajustes**, en la pantalla.
+La reproducción se pausa cuando pausas el juego o quitas el contacto. El idioma está en **Ajustes**, en la pantalla. Si cerraste CabinPlay desde sus ajustes, `Ctrl+Alt+C` lo vuelve a iniciar.
 
 ## Requisitos
 

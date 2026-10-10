@@ -59,7 +59,7 @@ That's it. The screen switches on with the truck's ignition. To remove it, doubl
 | `Ctrl+Alt+↑` `↓` | 10 seconds forward / back |
 | `Ctrl+Alt+F` | Video fullscreen |
 
-Playback pauses when you pause the game or switch the ignition off. The language is under **Settings** on the screen.
+Playback pauses when you pause the game or switch the ignition off. The language is under **Settings** on the screen. If you closed CabinPlay from its settings, `Ctrl+Alt+C` starts it again.
 
 ## What you need
 

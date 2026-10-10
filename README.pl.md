@@ -59,7 +59,7 @@ To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Aby usunąć, 
 | `Ctrl+Alt+↑` `↓` | 10 sekund do przodu / do tyłu |
 | `Ctrl+Alt+F` | Wideo na pełnym ekranie |
 
-Odtwarzanie wstrzymuje się, gdy zatrzymasz grę lub wyłączysz zapłon. Język zmienisz w **Ustawieniach** na ekranie.
+Odtwarzanie wstrzymuje się, gdy zatrzymasz grę lub wyłączysz zapłon. Język zmienisz w **Ustawieniach** na ekranie. Jeśli zamkniesz CabinPlay w ustawieniach, `Ctrl+Alt+C` uruchomi go ponownie.
 
 ## Wymagania
 

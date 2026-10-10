@@ -59,7 +59,7 @@ Das war's. Der Bildschirm schaltet sich mit der Zündung ein. Zum Entfernen dopp
 | `Ctrl+Alt+↑` `↓` | 10 Sekunden vor / zurück |
 | `Ctrl+Alt+F` | Video im Vollbild |
 
-Die Wiedergabe pausiert, wenn du das Spiel pausierst oder die Zündung ausschaltest. Die Sprache findest du unter **Einstellungen** auf dem Bildschirm.
+Die Wiedergabe pausiert, wenn du das Spiel pausierst oder die Zündung ausschaltest. Die Sprache findest du unter **Einstellungen** auf dem Bildschirm. Hast du CabinPlay in den Einstellungen beendet, startet `Ctrl+Alt+C` es wieder.
 
 ## Voraussetzungen
 

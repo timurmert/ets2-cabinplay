@@ -59,7 +59,7 @@ Bu kadar. Ekran tırın kontağıyla birlikte açılır. Kaldırmak için **Unin
 | `Ctrl+Alt+↑` `↓` | 10 saniye ileri / geri |
 | `Ctrl+Alt+F` | Videoyu tam ekran yap |
 
-Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, ekrandaki **Ayarlar**'dan değişir.
+Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, ekrandaki **Ayarlar**'dan değişir. CabinPlay'i ayarlardan kapattıysan `Ctrl+Alt+C` onu yeniden başlatır.
 
 ## Gerekenler
 

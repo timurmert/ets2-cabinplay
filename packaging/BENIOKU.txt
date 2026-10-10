@@ -29,6 +29,7 @@ KULLANIM
   Ctrl+Alt+C       ekranı oyunun içinden fare ve klavyeyle kullan (çıkış: Esc)
   Ctrl+Alt+N       navigasyon haritası     Ctrl+Alt+H   ana ekran
   Ctrl+Alt+Boşluk  oynat / duraklat        Ctrl+Alt+F   videoyu tam ekran yap
+  CabinPlay'i ayarlardan kapattıysan Ctrl+Alt+C onu yeniden başlatır.
   Dil ve tüm kısayollar ekrandaki Ayarlar bölümünde.
 
 GEREKENLER

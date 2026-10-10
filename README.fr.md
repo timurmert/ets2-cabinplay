@@ -59,7 +59,7 @@ C'est tout. L'écran s'allume avec le contact du camion. Pour le retirer, double
 | `Ctrl+Alt+↑` `↓` | Avancer / reculer de 10 secondes |
 | `Ctrl+Alt+F` | Vidéo en plein écran |
 
-La lecture se met en pause quand vous mettez le jeu en pause ou coupez le contact. La langue se règle dans **Réglages**, à l'écran.
+La lecture se met en pause quand vous mettez le jeu en pause ou coupez le contact. La langue se règle dans **Réglages**, à l'écran. Si vous avez fermé CabinPlay depuis ses réglages, `Ctrl+Alt+C` le relance.
 
 ## Prérequis
 
