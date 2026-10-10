@@ -1862,12 +1862,15 @@ static void unsubclass_game_window(void)
         }
     }
 }
+static int start_companion(int asked);
+
 /* Once per frame: the Ctrl+Alt+<key> toggle, the cursor, and pausing the game. */
 static void update_control(int allowed)
 {
     int down = (real_async_key(VK_CONTROL) & 0x8000) && (real_async_key(VK_MENU) & 0x8000) &&
                (real_async_key(g_cfg_toggle_vk) & 0x8000);
-    if (down && !g_toggle_was_down)
+    /* If the player closed the app from its settings, the same key brings it back. */
+    if (down && !g_toggle_was_down && !start_companion(1))
         set_control(!g_control && allowed);
     g_toggle_was_down = down;
     if (g_control && !allowed)
@@ -2322,12 +2325,24 @@ static void register_telemetry(const scs_telemetry_init_params_t *p)
 }
 
 /* Starts the companion app in the background so the player never has to. The app closes
- * itself when the game goes away. */
-static void start_companion(void)
+ * itself when the game goes away. "asked" is the player pressing the control key, which
+ * starts the app even with autostart off. Returns nonzero if the app is being started. */
+static int start_companion(int asked)
 {
+    static ULONGLONG started_ms;
     wchar_t ns[4];
-    if (!g_cfg_autostart || GetEnvironmentVariableW(L"CABINPLAY_TEST_NAMESPACE", ns, 4))
-        return;
+    if ((!asked && !g_cfg_autostart) || GetEnvironmentVariableW(L"CABINPLAY_TEST_NAMESPACE", ns, 4))
+        return 0;
+    HANDLE running = OpenMutexW(SYNCHRONIZE, FALSE, L"Local\\CabinPlayApp");
+    if (running) {
+        CloseHandle(running);
+        if (!asked)
+            logf_("companion app is already running");
+        return 0;
+    }
+    /* The app takes a moment to come up: a second press must not start another one. */
+    if (started_ms && GetTickCount64() - started_ms < 10000)
+        return 1;
     if (!g_cfg_app_path[0]) {
         /* Installed by hand: the app notes where it is every time it runs. */
         DWORD bytes = sizeof(g_cfg_app_path);
@@ -2337,13 +2352,7 @@ static void start_companion(void)
     }
     if (!g_cfg_app_path[0]) {
         logf_("the companion app's location is not known yet: start CabinPlay once by hand");
-        return;
-    }
-    HANDLE running = OpenMutexW(SYNCHRONIZE, FALSE, L"Local\\CabinPlayApp");
-    if (running) {
-        CloseHandle(running);
-        logf_("companion app is already running");
-        return;
+        return 0;
     }
     wchar_t command[MAX_PATH + 32], folder[MAX_PATH];
     _snwprintf(command, MAX_PATH + 32, L"\"%ls\" --background", g_cfg_app_path);
@@ -2363,10 +2372,12 @@ static void start_companion(void)
     if (CreateProcessW(NULL, command, NULL, NULL, FALSE, 0, NULL, slash ? folder : NULL, &si, &pi)) {
         CloseHandle(pi.hThread);
         CloseHandle(pi.hProcess);
-        logf_("started the companion app");
-    } else {
-        logf_("could not start the companion app (error %lu): %ls", GetLastError(), g_cfg_app_path);
+        started_ms = GetTickCount64();
+        logf_(asked ? "started the companion app again" : "started the companion app");
+        return 1;
     }
+    logf_("could not start the companion app (error %lu): %ls", GetLastError(), g_cfg_app_path);
+    return 0;
 }
 
 /* ------------------------------------------------------------------ SCS SDK entry points */
@@ -2401,7 +2412,7 @@ __declspec(dllexport) int32_t scs_telemetry_init(uint32_t version, const scs_tel
                 install_input_hooks();
                 open_state_mapping();
                 register_telemetry(params);
-                start_companion();
+                start_companion(0);
                 logf_("pause control: %s", g_semantic_registered ? "input API" : "pause key only");
                 if (MH_EnableHook(MH_ALL_HOOKS) == MH_OK)
                     g_hooked = 1;
