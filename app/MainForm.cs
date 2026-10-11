@@ -59,7 +59,7 @@ internal sealed class MainForm : Form
     private string? _activeId;          // app shown right now, null while the shell is in front
     private string? _mediaId;           // app the media controls act on
     private string _shellView = "home"; // what the shell shows behind the apps: "home", "maps", "mirrors" or "truck"
-    private ushort[]? _navSource, _navTarget; // the mirror views' rectangles, from the shell
+    private List<(ushort[] Source, ushort[] Target)>? _navTiles; // the mirror views, from the shell
     private bool _stateBusy;
     private int _stateTick;
     private bool _holdingMedia;         // media was paused because the game paused or the ignition is off
@@ -256,9 +256,12 @@ internal sealed class MainForm : Form
                         "maps" => "maps", "mirrors" => "mirrors", "truck" => "truck", _ => "home",
                     });
                     break;
-                case "nav-rects":
-                    _navSource = Rect(msg!["source"]);
-                    _navTarget = Rect(msg!["target"]);
+                case "nav-tiles":
+                    _navTiles = msg!["tiles"] is JsonArray list
+                        ? list.Select(t => (Rect(t?["source"]), Rect(t?["target"])))
+                              .Where(t => t.Item1 is not null && t.Item2 is not null)
+                              .Select(t => (t.Item1!, t.Item2!)).ToList()
+                        : null;
                     LayoutViews();
                     break;
                 case "browser":
@@ -393,8 +396,7 @@ internal sealed class MainForm : Form
         if (_writer is not null)
         {
             bool mirrors = _activeId is null && _shellView == "mirrors";
-            _writer.SetNav(_activeId is null && (_shellView == "maps" || mirrors),
-                           mirrors ? _navSource : null, mirrors ? _navTarget : null);
+            _writer.SetNav(_activeId is null && (_shellView == "maps" || mirrors), mirrors ? _navTiles : null);
         }
     }
 
@@ -509,6 +511,7 @@ internal sealed class MainForm : Form
                     ["navDistance"] = Math.Round(g.NavDistanceM),
                     ["navTime"] = Math.Round(g.NavTimeS),
                     ["gameTime"] = g.GameTimeMin,
+                    ["liveViews"] = g.LiveViews,
                 },
             };
             _shell.CoreWebView2.PostWebMessageAsJson(state.ToJsonString());
@@ -1129,7 +1132,7 @@ internal sealed class MainForm : Form
         using var capture = new Bitmap(FrameWriter.Width, FrameWriter.Height);
         long frames = _capture?.FramesCaptured ?? 0;
         using (var reader = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(FrameWriter.MappingName))
-        using (var view = reader.CreateViewStream(64, FrameWriter.Width * FrameWriter.Height * 4))
+        using (var view = reader.CreateViewStream(FrameWriter.HeaderSize, FrameWriter.Width * FrameWriter.Height * 4))
         {
             var data = capture.LockBits(new Rectangle(Point.Empty, capture.Size),
                 System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppRgb);

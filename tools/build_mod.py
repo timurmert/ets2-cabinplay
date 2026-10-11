@@ -42,23 +42,38 @@ MARKER_BGRA = (0x06, 0x02, 0x04, 0xFF)
 SCREEN_TEX_W, SCREEN_TEX_H = 1024, 512
 
 # The game draws the accessory's UI into a texture of this size (ui_drawable_size): its
-# GPS map in the upper half, as wide as the part of the screen right of the CabinPlay
-# dock, the truck's mirror views in the lower half, and down the right edge a strip in
-# the colours the plugin recognises the texture by. Keep in sync with
+# GPS map at the top left, as wide as the part of the screen right of the CabinPlay dock;
+# beside it, down the whole height, a strip in the colours the plugin recognises the
+# texture by; and the truck's mirror views in the rest. Keep in sync with
 # plugin/frame_protocol.h.
-NAV_W, NAV_H = 1024, 1024
+NAV_W, NAV_H = 2048, 1024
 MAP_H = 512
 DOCK_W = 88
+MARK_X = 1024 - DOCK_W
 
-# The mirror views, as the game renders them for camera mirrors: name in the UI,
-# reflection material, part of the picture shown (bottom, top), and where it goes in the
-# texture (x, y, width, height, y from the top). Keep in sync with CAMERAS in
-# app/ui/shell.js. The passenger side's mirrors (far_mirror, far_s_mirror) are left out:
-# the game never fills them in for this UI.
-MIRRORS = [
-    ("cam_close", "close_mirror", (0.08, 0.92), (8, 520, 296, 496)),
-    ("cam_front", "front_mirror", (0.0, 1.0), (316, 520, 612, 306)),
-    ("cam_close_s", "close_s_mirror", (0.0898, 0.910), (316, 836, 220, 180)),
+# Every texture the game may draw a mirror into. Each mirror has several and the game
+# fills one of them, depending on the truck's mirror part; the plugin finds out which.
+# Name in the UI, material, part of the picture shown (left, right, bottom, top), and
+# place in the texture (x, y, width, height, y from the top). The order is the plugin's
+# and the app's: keep in sync with CABINPLAY_VIEW_RECTS in plugin/frame_protocol.h and
+# VIEWS in app/ui/shell.js.
+ENV = "/material/environment/"
+MIRROR_VIEWS = [
+    ("cv_close", ENV + "close_mirror_reflection.mat", (0, 1, 0.08, 0.92), (1024, 0, 200, 400)),
+    ("cv_close12", ENV + "mirror/close_1x2_ui.mat", (0, 1, 0, 1), (1224, 0, 200, 400)),
+    ("cv_far", ENV + "far_mirror_reflection.mat", (0, 1, 0.08, 0.92), (1424, 0, 200, 400)),
+    ("cv_far12", ENV + "mirror/far_1x2_ui.mat", (0, 1, 0, 1), (1624, 0, 200, 400)),
+    ("cv_park360", ENV + "mirror/park_360_1x2_ui.mat", (0, 1, 0, 1), (1824, 0, 200, 400)),
+    ("cv_close_s", ENV + "close_s_mirror_reflection.mat", (0, 1, 0.0898, 0.910), (1024, 400, 256, 256)),
+    ("cv_close_s11", ENV + "mirror/close_s_1x1_ui.mat", (0, 1, 0, 1), (1280, 400, 256, 256)),
+    ("cv_far_s", ENV + "far_s_mirror_reflection.mat", (0, 1, 0.0898, 0.910), (1536, 400, 256, 256)),
+    ("cv_far_s11", ENV + "mirror/far_s_1x1_ui.mat", (0, 1, 0, 1), (1792, 400, 256, 256)),
+    ("cv_park", ENV + "mirror/park_1x1_ui.mat", (0, 1, 0, 1), (1024, 656, 256, 256)),
+    ("cv_close_s21", ENV + "mirror/close_s_2x1_ui.mat", (0, 1, 0, 1), (0, 512, 400, 200)),
+    ("cv_far_s21", ENV + "mirror/far_s_2x1_ui.mat", (0, 1, 0, 1), (400, 512, 400, 200)),
+    ("cv_front", ENV + "front_mirror_reflection.mat", (0, 1, 0, 1), (0, 712, 400, 200)),
+    ("cv_front21", ENV + "mirror/front_2x1_ui.mat", (0, 1, 0, 1), (400, 712, 400, 200)),
+    ("cv_front41", ENV + "mirror/front_4x1_ui.mat", (0, 1, 0, 1), (0, 912, 400, 100)),
 ]
 
 # ---- Device dimensions (metres). Frame: origin = mount point on the glass,
@@ -484,17 +499,17 @@ def main():
                 ' area_l: 1\n area_r: 0\n area_t: 0\n area_b: 1\n'
                 ' id: 0\n layer: %d\n tab: -1\n pointer: -1\n my_parent: _nameless.wnd\n}\n\n') % (
                     name, text, l, r, t, b, layer)
-    map_w = NAV_W - DOCK_W
+    map_w = MARK_X
     # bare_map.mat is square; show a centred slice with the screen's aspect ratio.
     u_span = 0.84
     v_span = u_span * MAP_H / map_w
     fill = "<img src=/material/ui/white.mat color=%s xscale=stretch yscale=stretch>"
     mirrors = ""
-    for name, material, (bottom, top), (x, y, w, h) in MIRRORS:
+    for name, material, (left, right, bottom, top), (x, y, w, h) in MIRROR_VIEWS:
         mirrors += ui_fill(name, 1, x, x + w, NAV_H - y, NAV_H - y - h,
-                           "<img src=/material/environment/%s_reflection.mat xscale=stretch yscale=stretch "
-                           "bottom=%.4f top=%.4f color=FFFFFFFF>" % (material, bottom, top))
-    parts = ["map", "mark_top", "mark_bottom", "background"] + [m[0] for m in MIRRORS]
+                           "<img src=%s xscale=stretch yscale=stretch left=%.4f right=%.4f "
+                           "bottom=%.4f top=%.4f color=FFFFFFFF>" % (material, left, right, bottom, top))
+    parts = ["map", "mark_top", "mark_bottom", "background"] + [m[0] for m in MIRROR_VIEWS]
     write("/ui/dashboard/cabinplay_nav.sii",
           'SiiNunit\n{\n'
           'ui::window : _nameless.wnd {\n'
@@ -511,8 +526,8 @@ def main():
                         0.5 - u_span / 2, 0.5 + u_span / 2, 0.5 - v_span / 2, 0.5 + v_span / 2))
           # The plugin tells the texture apart, and which way up it is stored, by this strip:
           # green over magenta. Both read the same whichever way the colour bytes are ordered.
-          + ui_fill("mark_top", 2, map_w, NAV_W, NAV_H, NAV_H // 2, fill % "ff10c010")
-          + ui_fill("mark_bottom", 2, map_w, NAV_W, NAV_H // 2, 0, fill % "ffc010c0")
+          + ui_fill("mark_top", 2, MARK_X, MARK_X + DOCK_W, NAV_H, NAV_H // 2, fill % "ff10c010")
+          + ui_fill("mark_bottom", 2, MARK_X, MARK_X + DOCK_W, NAV_H // 2, 0, fill % "ffc010c0")
           + ui_fill("background", 0, 0, NAV_W, NAV_H, 0, fill % "ff191919")
           + mirrors
           + '}\n')

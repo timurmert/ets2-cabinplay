@@ -64,7 +64,7 @@ La reproducción se pausa cuando pausas el juego o quitas el contacto. El idioma
 
 La app **Camión** muestra los daños del camión y del remolque, la carga, el combustible y los indicadores. Los atajos Ctrl+Alt también funcionan con el juego en primer plano, y sus teclas nunca llegan al juego: un atajo no hace sonar la bocina ni acciona nada del camión.
 
-La app **Retrovisores** muestra en la pantalla los retrovisores del camión: el izquierdo, su gran angular y, si lo tiene, el frontal. Toca uno para ampliarlo.
+La app **Retrovisores** muestra en la pantalla los retrovisores del camión: izquierdo y derecho, los dos gran angulares y, si los tiene, el frontal y las cámaras de aparcamiento. Toca uno para ampliarlo. El juego dibuja cada retrovisor en una de varias imágenes según la pieza montada; CabinPlay encuentra la correcta solo unos segundos después de arrancar.
 
 ## Requisitos
 

@@ -64,7 +64,7 @@ Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, 
 
 **Tır** uygulaması tırın ve dorsenin hasarını, yükü, yakıtı ve göstergeleri gösterir. Ctrl+Alt kısayolları oyun öndeyken de çalışır ve tuşları oyuna gitmez; bu yüzden kısayollar korna çalmaz, tırda hiçbir şeyi açıp kapatmaz.
 
-**Aynalar** uygulaması tırın kendi aynalarını ekrana getirir: sol ayna, sol geniş açı aynası ve tırda varsa ön ayna. Büyütmek için birine dokun.
+**Aynalar** uygulaması tırın kendi aynalarını ekrana getirir: sol ve sağ ayna, iki geniş açı aynası ve tırda varsa ön ayna ile park kameraları. Büyütmek için birine dokun. Oyun her aynayı, tırın ayna parçasına göre birkaç görüntüden birine çizer; CabinPlay doğru olanı yola çıktıktan birkaç saniye sonra kendisi bulur.
 
 ## Gerekenler
 

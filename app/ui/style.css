@@ -477,7 +477,7 @@ kbd {
   font-weight: 700;
   white-space: nowrap;
 }
-#mirror-info { left: 548px; top: 324px; width: 380px; height: 180px; padding: 16px 20px; }
+#mirror-info { left: 276px; top: 208px; width: 384px; height: 296px; padding: 16px 20px; }
 #mirror-title { font-size: 22px; font-weight: 700; }
 #mirror-hint { font-size: 15px; font-weight: 600; color: var(--fg-dim); margin-top: 6px; }
 #mirror-note { font-size: 13px; font-weight: 600; color: #8e8e93; margin-top: 14px; line-height: 1.35; }

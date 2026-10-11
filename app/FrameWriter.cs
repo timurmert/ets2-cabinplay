@@ -13,13 +13,13 @@ internal sealed unsafe class FrameWriter : IDisposable
 
     public static readonly string MappingName = Program.SharedName("CabinPlayFrame");
     private const uint Magic = 0x594C5043; // "CPLY"
-    private const uint Version = 1;
-    private const int HeaderSize = 64;
+    private const uint Version = 2;
+    public const int HeaderSize = 256;
     private const int SequenceOffset = 16;
     private const int AppFlagsOffset = 20;
-    private const uint AppNavVisible = 0x1, AppNavRects = 0x2;
+    private const uint AppNavVisible = 0x1;
     private const int HeartbeatOffset = 24;
-    private const int NavSourceOffset = 32; // 4 x ushort, then the target's 4 x ushort
+    private const int TileSequenceOffset = 32, TileCountOffset = 36, TilesOffset = 40, MaxTiles = 8;
 
     private readonly MemoryMappedFile _file;
     private readonly MemoryMappedViewAccessor _view;
@@ -58,26 +58,31 @@ internal sealed unsafe class FrameWriter : IDisposable
     /// <summary>
     /// While visible, the plugin shows the game's UI texture through every pixel that has
     /// the map key colour (see --map-key in ui/style.css): by default its map, or with
-    /// rectangles (x, y, width, height) the given part of it, such as the mirror views,
-    /// stretched over the given part of the screen.
+    /// tiles the given parts of it, such as the mirror views, each stretched over its part
+    /// of the screen. Rectangles are x, y, width, height in pixels.
     /// </summary>
-    public void SetNav(bool visible, ushort[]? source = null, ushort[]? target = null)
+    public void SetNav(bool visible, IReadOnlyList<(ushort[] Source, ushort[] Target)>? tiles = null)
     {
         lock (_gate)
         {
             if (_disposed)
                 return;
-            bool rects = visible && source is { Length: 4 } && target is { Length: 4 };
-            if (rects)
+            int count = visible && tiles is not null ? Math.Min(tiles.Count, MaxTiles) : 0;
+            // Odd while writing, so the plugin keeps its last complete set meanwhile.
+            ref int sequence = ref *(int*)(_base + TileSequenceOffset);
+            Interlocked.Increment(ref sequence);
+            *(uint*)(_base + TileCountOffset) = (uint)count;
+            for (int t = 0; t < count; t++)
             {
-                // Written before the flag, so the plugin never uses half of them.
+                byte* tile = _base + TilesOffset + t * 16;
                 for (int i = 0; i < 4; i++)
                 {
-                    *(ushort*)(_base + NavSourceOffset + i * 2) = source![i];
-                    *(ushort*)(_base + NavSourceOffset + 8 + i * 2) = target![i];
+                    *(ushort*)(tile + i * 2) = tiles![t].Source[i];
+                    *(ushort*)(tile + 8 + i * 2) = tiles[t].Target[i];
                 }
             }
-            *(uint*)(_base + AppFlagsOffset) = (visible ? AppNavVisible : 0) | (rects ? AppNavRects : 0);
+            Interlocked.Increment(ref sequence);
+            *(uint*)(_base + AppFlagsOffset) = visible ? AppNavVisible : 0;
         }
     }
 
