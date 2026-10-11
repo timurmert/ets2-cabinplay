@@ -64,7 +64,7 @@ Die Wiedergabe pausiert, wenn du das Spiel pausierst oder die Zündung ausschalt
 
 Die App **Lkw** zeigt die Schäden an Lkw und Auflieger, die Ladung, den Kraftstoff und die Anzeigen. Die Ctrl+Alt-Tastenkürzel funktionieren auch, wenn das Spiel im Vordergrund ist, und ihre Tasten erreichen das Spiel nicht: Ein Tastenkürzel hupt nicht und schaltet nichts am Lkw.
 
-Die App **Spiegel** zeigt die Spiegel des Lkw auf dem Bildschirm: links und rechts, die Weitwinkelspiegel und, falls vorhanden, den Frontspiegel. Tippe auf einen, um ihn zu vergrößern. Das Spiel zeichnet nur Spiegel, die es gerade sieht; einer bleibt leer, solange du woandershin schaust, etwa auf den Bildschirm.
+Die App **Spiegel** zeigt die Spiegel des Lkw auf dem Bildschirm: den linken Spiegel, seinen Weitwinkelspiegel und, falls vorhanden, den Frontspiegel. Tippe auf einen, um ihn zu vergrößern.
 
 ## Voraussetzungen
 

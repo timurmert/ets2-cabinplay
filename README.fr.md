@@ -64,7 +64,7 @@ La lecture se met en pause quand vous mettez le jeu en pause ou coupez le contac
 
 L'app **Camion** affiche les dégâts du camion et de la remorque, la cargaison, le carburant et les indicateurs. Les raccourcis Ctrl+Alt fonctionnent aussi quand le jeu est au premier plan, et leurs touches n'atteignent jamais le jeu : un raccourci ne déclenche ni le klaxon ni rien d'autre sur le camion.
 
-L'app **Rétroviseurs** affiche les rétroviseurs du camion à l'écran : gauche et droit, les grands angles et, s'il y en a un, le rétro avant. Touchez-en un pour l'agrandir. Le jeu ne dessine que les rétros qu'il voit : un rétro reste vide tant que vous regardez ailleurs, par exemple l'écran.
+L'app **Rétroviseurs** affiche les rétroviseurs du camion à l'écran : le rétro gauche, son grand angle et, s'il y en a un, le rétro avant. Touchez-en un pour l'agrandir.
 
 ## Prérequis
 

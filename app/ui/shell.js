@@ -246,11 +246,9 @@
   // where they are in the texture's lower half, so the plugin shows that half 1:1.
   const DOCK = 88, AREA_W = 1024 - DOCK, AREA_H = 512, LOWER = 512;
   const CAMERAS = [
-    { id: 'close', key: 'camLeft', src: [8, 520, 260, 330] },
-    { id: 'close_s', key: 'camLeftWide', src: [8, 858, 260, 158] },
-    { id: 'far', key: 'camRight', src: [668, 520, 260, 330] },
-    { id: 'far_s', key: 'camRightWide', src: [668, 858, 260, 158] },
-    { id: 'front', key: 'camFront', src: [276, 520, 384, 192] },
+    { id: 'close', key: 'camLeft', src: [8, 520, 296, 496] },
+    { id: 'front', key: 'camFront', src: [316, 520, 612, 306] },
+    { id: 'close_s', key: 'camLeftWide', src: [316, 836, 220, 180] },
   ];
   let mirror = null; // the one enlarged, or null for all of them
 

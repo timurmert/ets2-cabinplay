@@ -64,7 +64,7 @@ Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, 
 
 **Tır** uygulaması tırın ve dorsenin hasarını, yükü, yakıtı ve göstergeleri gösterir. Ctrl+Alt kısayolları oyun öndeyken de çalışır ve tuşları oyuna gitmez; bu yüzden kısayollar korna çalmaz, tırda hiçbir şeyi açıp kapatmaz.
 
-**Aynalar** uygulaması tırın kendi aynalarını ekrana getirir: sol ve sağ ayna, geniş açı aynaları ve tırda varsa ön ayna. Büyütmek için birine dokun. Oyun yalnızca o an gördüğü aynaları çizer; bu yüzden başka yere, örneğin ekrana bakarken bir ayna boş kalabilir.
+**Aynalar** uygulaması tırın kendi aynalarını ekrana getirir: sol ayna, sol geniş açı aynası ve tırda varsa ön ayna. Büyütmek için birine dokun.
 
 ## Gerekenler
 

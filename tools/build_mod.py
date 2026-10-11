@@ -53,13 +53,12 @@ DOCK_W = 88
 # The mirror views, as the game renders them for camera mirrors: name in the UI,
 # reflection material, part of the picture shown (bottom, top), and where it goes in the
 # texture (x, y, width, height, y from the top). Keep in sync with CAMERAS in
-# app/ui/shell.js.
+# app/ui/shell.js. The passenger side's mirrors (far_mirror, far_s_mirror) are left out:
+# the game never fills them in for this UI.
 MIRRORS = [
-    ("cam_close", "close_mirror", (0.08, 0.92), (8, 520, 260, 330)),
-    ("cam_close_s", "close_s_mirror", (0.0898, 0.910), (8, 858, 260, 158)),
-    ("cam_far", "far_mirror", (0.08, 0.92), (668, 520, 260, 330)),
-    ("cam_far_s", "far_s_mirror", (0.0898, 0.910), (668, 858, 260, 158)),
-    ("cam_front", "front_mirror", (0.0, 1.0), (276, 520, 384, 192)),
+    ("cam_close", "close_mirror", (0.08, 0.92), (8, 520, 296, 496)),
+    ("cam_front", "front_mirror", (0.0, 1.0), (316, 520, 612, 306)),
+    ("cam_close_s", "close_s_mirror", (0.0898, 0.910), (316, 836, 220, 180)),
 ]
 
 # ---- Device dimensions (metres). Frame: origin = mount point on the glass,

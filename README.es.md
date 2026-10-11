@@ -64,7 +64,7 @@ La reproducción se pausa cuando pausas el juego o quitas el contacto. El idioma
 
 La app **Camión** muestra los daños del camión y del remolque, la carga, el combustible y los indicadores. Los atajos Ctrl+Alt también funcionan con el juego en primer plano, y sus teclas nunca llegan al juego: un atajo no hace sonar la bocina ni acciona nada del camión.
 
-La app **Retrovisores** muestra en la pantalla los retrovisores del camión: izquierdo y derecho, los gran angulares y, si lo tiene, el frontal. Toca uno para ampliarlo. El juego solo dibuja los que ve en ese momento, así que uno queda vacío mientras miras a otro lado, por ejemplo a la pantalla.
+La app **Retrovisores** muestra en la pantalla los retrovisores del camión: el izquierdo, su gran angular y, si lo tiene, el frontal. Toca uno para ampliarlo.
 
 ## Requisitos
 
