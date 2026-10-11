@@ -18,6 +18,20 @@ window.CABINPLAY_APPS = [
       <circle cx="62" cy="58" r="13" fill="#fff"/><path d="M62 49 L69.5 65 L62 61.5 L54.5 65 Z" fill="#0a84ff"/></svg>`,
   },
   {
+    id: 'mirrors',
+    nameKey: 'mirrors',
+    builtin: true,
+    icon: `<svg viewBox="0 0 100 100"><defs><linearGradient id="g-mi" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#5ac8fa"/><stop offset="1" stop-color="#0a6fd6"/></linearGradient>
+        <linearGradient id="g-mg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#e9f4ff"/><stop offset="1" stop-color="#9fc4ec"/></linearGradient></defs>
+      <rect width="100" height="100" fill="url(#g-mi)"/>
+      <path d="M58 30h8v9h-8z" fill="#1d2a3c"/>
+      <rect x="26" y="20" width="34" height="58" rx="9" fill="#1d2a3c"/>
+      <rect x="30" y="24" width="26" height="50" rx="6" fill="url(#g-mg)"/>
+      <path d="M33 66l20-34M33 54l14-24" stroke="#fff" stroke-width="3.5" stroke-linecap="round" opacity=".8"/></svg>`,
+  },
+  {
     id: 'youtube',
     name: 'YouTube',
     url: 'https://www.youtube.com/',

@@ -30,7 +30,7 @@ KULLANIM
   Ctrl+Alt+N       navigasyon haritası     Ctrl+Alt+H   ana ekran
   Ctrl+Alt+Boşluk  oynat / duraklat        Ctrl+Alt+F   videoyu tam ekran yap
   Ctrl+Alt+PgUp / PgDn  önceki / sonraki açık uygulama
-  Haritalar'daki Aynalar düğmesi tırın aynalarını ekrana getirir.
+  Aynalar uygulaması tırın kendi aynalarını ekrana getirir.
   CabinPlay'i ayarlardan kapattıysan Ctrl+Alt+C onu yeniden başlatır.
   Tır uygulaması tırın ve dorsenin hasarını, yükü ve yakıtı gösterir.
   Kısayollar oyun öndeyken de çalışır; tuşları oyuna gitmez.

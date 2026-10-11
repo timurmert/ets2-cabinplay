@@ -94,8 +94,6 @@
   });
   $('dock-home').addEventListener('click', () => showView('home'));
   $('dock-fullscreen').addEventListener('click', () => send({ type: 'media', action: 'fullscreen' }));
-  $('map-mirrors').addEventListener('click', () => showView('mirrors'));
-  $('mirror-map').addEventListener('click', () => showView('maps'));
   $('mirror-all').addEventListener('click', () => pickMirror(null));
   $('dock-back').addEventListener('click', () => send({ type: 'browser', action: 'back' }));
   $('dock-forward').addEventListener('click', () => send({ type: 'browser', action: 'forward' }));
@@ -410,15 +408,14 @@
     $('gauge-battery').textContent = live && v.battery ? `${fmtKm.format(v.battery)} V` : dash;
   }
 
-  // The mirror views belong to the Maps app.
-  const frontId = () => state.active || (state.view === 'mirrors' ? 'maps' : state.view !== 'home' ? state.view : null);
+  const frontId = () => state.active || (state.view !== 'home' ? state.view : null);
   const dockApps = () => apps.filter((a) => (a.builtin ? usedViews.has(a.id) : state.open.includes(a.id)));
 
   function render() {
     const media = state.media;
     const game = state.game || {};
     const playing = !!(media && media.playing);
-    if (state.view !== 'home') usedViews.add(state.view === 'mirrors' ? 'maps' : state.view);
+    if (state.view !== 'home') usedViews.add(state.view);
 
     $('home').hidden = state.view !== 'home';
     $('maps').hidden = state.view !== 'maps';
@@ -436,7 +433,8 @@
     const front = frontId();
     const dock = $('dock-apps');
     dock.classList.toggle('many', shown.length === 4);
-    dock.classList.toggle('lots', shown.length >= 5);
+    dock.classList.toggle('lots', shown.length === 5);
+    dock.classList.toggle('crowded', shown.length >= 6);
     dock.replaceChildren();
     for (const app of shown) {
       const el = document.createElement('button');

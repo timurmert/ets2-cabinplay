@@ -64,7 +64,7 @@ Odtwarzanie wstrzymuje się, gdy zatrzymasz grę lub wyłączysz zapłon. Język
 
 Aplikacja **Ciężarówka** pokazuje uszkodzenia ciężarówki i naczepy, ładunek, paliwo i wskaźniki. Skróty Ctrl+Alt działają także wtedy, gdy gra jest na pierwszym planie, a ich klawisze nie trafiają do gry, więc skrót nie włączy klaksonu ani niczego w ciężarówce.
 
-W **Mapach** przycisk **Lusterka** pokazuje na ekranie lusterka ciężarówki: lewe i prawe, szerokokątne oraz, jeśli jest, przednie. Dotknij jednego, aby je powiększyć.
+Aplikacja **Lusterka** pokazuje na ekranie lusterka ciężarówki: lewe i prawe, szerokokątne oraz, jeśli jest, przednie. Dotknij jednego, aby je powiększyć. Gra rysuje tylko lusterka, które akurat widać, więc jedno zostaje puste, gdy patrzysz gdzie indziej, na przykład na ekran.
 
 ## Wymagania
 

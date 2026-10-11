@@ -32,7 +32,7 @@ window.CABINPLAY_I18N = {
     condOk: 'Intact', condLight: 'Light', condMedium: 'Moderate', condHeavy: 'Heavy', mirrors: 'Mirrors',
     camLeft: 'Left mirror', camLeftWide: 'Left wide-angle', camRight: 'Right mirror',
     camRightWide: 'Right wide-angle', camFront: 'Front mirror', camHint: 'Tap a view to enlarge it.',
-    camFrontNote: 'The views come from the truck\'s own mirrors. The front mirror only shows if the truck has one fitted.',
+    camFrontNote: 'The views come from the truck\'s own mirrors. The game only draws the mirrors it can see: one stays empty while you look away from it, for example at this screen, and fills again when you look ahead. The front mirror only shows if the truck has one.',
     allMirrors: 'All mirrors', scSwitchApp: 'Previous / next app',
   },
   tr: {
@@ -65,7 +65,7 @@ window.CABINPLAY_I18N = {
     condOk: 'Sağlam', condLight: 'Hafif', condMedium: 'Orta', condHeavy: 'Ağır', mirrors: 'Aynalar',
     camLeft: 'Sol ayna', camLeftWide: 'Sol geniş açı', camRight: 'Sağ ayna', camRightWide: 'Sağ geniş açı',
     camFront: 'Ön ayna', camHint: 'Büyütmek için bir görüntüye dokun.',
-    camFrontNote: 'Görüntüler tırın kendi aynalarından gelir. Ön ayna yalnızca tırda takılıysa görünür.',
+    camFrontNote: 'Görüntüler tırın kendi aynalarından gelir. Oyun yalnızca o an gördüğü aynaları çizer: sen başka yere, örneğin bu ekrana bakarken bir ayna boş kalır, öne baktığında yeniden dolar. Ön ayna yalnızca tırda takılıysa görünür.',
     allMirrors: 'Tüm aynalar', scSwitchApp: 'Önceki / sonraki uygulama',
   },
   de: {
@@ -99,7 +99,7 @@ window.CABINPLAY_I18N = {
     condOk: 'Intakt', condLight: 'Leicht', condMedium: 'Mittel', condHeavy: 'Schwer', mirrors: 'Spiegel',
     camLeft: 'Linker Spiegel', camLeftWide: 'Links Weitwinkel', camRight: 'Rechter Spiegel',
     camRightWide: 'Rechts Weitwinkel', camFront: 'Frontspiegel', camHint: 'Tippe auf ein Bild, um es zu vergrößern.',
-    camFrontNote: 'Die Bilder kommen aus den Spiegeln des Lkw. Der Frontspiegel erscheint nur, wenn er verbaut ist.',
+    camFrontNote: 'Die Bilder kommen aus den Spiegeln des Lkw. Das Spiel zeichnet nur Spiegel, die es gerade sieht: Einer bleibt leer, solange du woandershin schaust, etwa auf diesen Bildschirm, und füllt sich wieder, wenn du nach vorn schaust. Der Frontspiegel erscheint nur, wenn er verbaut ist.',
     allMirrors: 'Alle Spiegel', scSwitchApp: 'Vorherige / nächste App',
   },
   pl: {
@@ -133,7 +133,7 @@ window.CABINPLAY_I18N = {
     condOk: 'Sprawne', condLight: 'Lekkie', condMedium: 'Średnie', condHeavy: 'Poważne', mirrors: 'Lusterka',
     camLeft: 'Lewe lusterko', camLeftWide: 'Lewe szerokokątne', camRight: 'Prawe lusterko',
     camRightWide: 'Prawe szerokokątne', camFront: 'Lusterko przednie', camHint: 'Dotknij widoku, aby go powiększyć.',
-    camFrontNote: 'Obraz pochodzi z lusterek ciężarówki. Lusterko przednie widać tylko, jeśli jest zamontowane.',
+    camFrontNote: 'Obraz pochodzi z lusterek ciężarówki. Gra rysuje tylko lusterka, które akurat widać: jedno zostaje puste, gdy patrzysz gdzie indziej, na przykład na ten ekran, i wraca, gdy spojrzysz przed siebie. Lusterko przednie widać tylko, jeśli jest zamontowane.',
     allMirrors: 'Wszystkie lusterka', scSwitchApp: 'Poprzednia / następna aplikacja',
   },
   fr: {
@@ -168,7 +168,7 @@ window.CABINPLAY_I18N = {
     condOk: 'Intact', condLight: 'Léger', condMedium: 'Moyen', condHeavy: 'Grave', mirrors: 'Rétroviseurs',
     camLeft: 'Rétro gauche', camLeftWide: 'Grand angle gauche', camRight: 'Rétro droit',
     camRightWide: 'Grand angle droit', camFront: 'Rétro avant', camHint: 'Touchez une vue pour l\'agrandir.',
-    camFrontNote: 'Les images viennent des rétroviseurs du camion. Le rétro avant n\'apparaît que s\'il est monté.',
+    camFrontNote: 'Les images viennent des rétroviseurs du camion. Le jeu ne dessine que ceux qu\'il voit : un rétro reste vide tant que vous regardez ailleurs, par exemple cet écran, et revient quand vous regardez devant. Le rétro avant n\'apparaît que s\'il est monté.',
     allMirrors: 'Tous les rétros', scSwitchApp: 'App précédente / suivante',
   },
   es: {
@@ -203,7 +203,7 @@ window.CABINPLAY_I18N = {
     condOk: 'Intacto', condLight: 'Leve', condMedium: 'Moderado', condHeavy: 'Grave', mirrors: 'Retrovisores',
     camLeft: 'Retrovisor izquierdo', camLeftWide: 'Gran angular izquierdo', camRight: 'Retrovisor derecho',
     camRightWide: 'Gran angular derecho', camFront: 'Retrovisor frontal', camHint: 'Toca una vista para ampliarla.',
-    camFrontNote: 'Las imágenes vienen de los retrovisores del camión. El frontal solo aparece si está montado.',
+    camFrontNote: 'Las imágenes vienen de los retrovisores del camión. El juego solo dibuja los que ve en ese momento: uno queda vacío mientras miras a otro lado, por ejemplo a esta pantalla, y vuelve cuando miras al frente. El frontal solo aparece si está montado.',
     allMirrors: 'Todos los retrovisores', scSwitchApp: 'App anterior / siguiente',
   },
   ru: {
@@ -237,7 +237,7 @@ window.CABINPLAY_I18N = {
     condOk: 'Целое', condLight: 'Лёгкие', condMedium: 'Средние', condHeavy: 'Тяжёлые', mirrors: 'Зеркала',
     camLeft: 'Левое зеркало', camLeftWide: 'Левое широкоугольное', camRight: 'Правое зеркало',
     camRightWide: 'Правое широкоугольное', camFront: 'Переднее зеркало', camHint: 'Коснитесь вида, чтобы увеличить.',
-    camFrontNote: 'Изображение берётся из зеркал грузовика. Переднее зеркало видно, только если оно установлено.',
+    camFrontNote: 'Изображение берётся из зеркал грузовика. Игра рисует только те зеркала, которые сейчас видны: зеркало остаётся пустым, пока вы смотрите в другую сторону, например на этот экран, и снова появляется, когда вы смотрите вперёд. Переднее зеркало видно, только если оно установлено.',
     allMirrors: 'Все зеркала', scSwitchApp: 'Предыдущее / следующее приложение',
   },
 };

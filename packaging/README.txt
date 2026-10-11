@@ -29,7 +29,7 @@ USE
   Ctrl+Alt+N      navigation map          Ctrl+Alt+H   home screen
   Ctrl+Alt+Space  play / pause            Ctrl+Alt+F   video fullscreen
   Ctrl+Alt+PgUp / PgDn  previous / next open app
-  In Maps, the Mirrors button shows the truck's mirrors on the screen.
+  The Mirrors app shows the truck's own mirrors on the screen.
   Closed CabinPlay from its settings? Ctrl+Alt+C starts it again.
   The Truck app shows the damage to the truck and trailer, the cargo and the fuel.
   The shortcuts also work while the game is in front; their keys never reach the game.
