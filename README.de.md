@@ -58,10 +58,13 @@ Das war's. Der Bildschirm schaltet sich mit der Zündung ein. Zum Entfernen dopp
 | `Ctrl+Alt+→` `←` | Weiter / zurück |
 | `Ctrl+Alt+↑` `↓` | 10 Sekunden vor / zurück |
 | `Ctrl+Alt+F` | Video im Vollbild |
+| `Ctrl+Alt+PgUp` `PgDn` | Vorherige / nächste offene App |
 
 Die Wiedergabe pausiert, wenn du das Spiel pausierst oder die Zündung ausschaltest. Die Sprache findest du unter **Einstellungen** auf dem Bildschirm. Hast du CabinPlay in den Einstellungen beendet, startet `Ctrl+Alt+C` es wieder.
 
 Die App **Lkw** zeigt die Schäden an Lkw und Auflieger, die Ladung, den Kraftstoff und die Anzeigen. Die Ctrl+Alt-Tastenkürzel funktionieren auch, wenn das Spiel im Vordergrund ist, und ihre Tasten erreichen das Spiel nicht: Ein Tastenkürzel hupt nicht und schaltet nichts am Lkw.
+
+In **Karten** zeigt die Schaltfläche **Spiegel** die Spiegel des Lkw auf dem Bildschirm: links und rechts, die Weitwinkelspiegel und, falls vorhanden, den Frontspiegel. Tippe auf einen, um ihn zu vergrößern.
 
 ## Voraussetzungen
 

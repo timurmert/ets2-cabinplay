@@ -58,7 +58,8 @@ internal sealed class MainForm : Form
     private GameLink? _game;
     private string? _activeId;          // app shown right now, null while the shell is in front
     private string? _mediaId;           // app the media controls act on
-    private string _shellView = "home"; // what the shell shows behind the apps: "home", "maps" or "truck"
+    private string _shellView = "home"; // what the shell shows behind the apps: "home", "maps", "mirrors" or "truck"
+    private ushort[]? _navSource, _navTarget; // the mirror views' rectangles, from the shell
     private bool _stateBusy;
     private int _stateTick;
     private bool _holdingMedia;         // media was paused because the game paused or the ignition is off
@@ -250,7 +251,15 @@ internal sealed class MainForm : Form
                     await OpenAppAsync(msg!);
                     break;
                 case "view":
-                    ShowShell((string?)msg!["view"] switch { "maps" => "maps", "truck" => "truck", _ => "home" });
+                    ShowShell((string?)msg!["view"] switch
+                    {
+                        "maps" => "maps", "mirrors" => "mirrors", "truck" => "truck", _ => "home",
+                    });
+                    break;
+                case "nav-rects":
+                    _navSource = Rect(msg!["source"]);
+                    _navTarget = Rect(msg!["target"]);
+                    LayoutViews();
                     break;
                 case "browser":
                     BrowserCommand((string?)msg!["action"]);
@@ -323,6 +332,9 @@ internal sealed class MainForm : Form
         LayoutViews();
     }
 
+    private static ushort[]? Rect(JsonNode? node) =>
+        node is JsonArray { Count: 4 } a ? a.Select(v => (ushort)Math.Clamp((int?)v ?? 0, 0, 4096)).ToArray() : null;
+
     /// <summary>The dock's back and forward buttons, for the app in front.</summary>
     private void BrowserCommand(string? action)
     {
@@ -376,9 +388,14 @@ internal sealed class MainForm : Form
                 app.View.Visible = false;
             }
         }
-        // The plugin lays the game's map under the shell only while the map view is in front.
+        // The plugin lays the game's map, or its mirror views, under the shell only while
+        // that view is in front.
         if (_writer is not null)
-            _writer.NavVisible = _activeId is null && _shellView == "maps";
+        {
+            bool mirrors = _activeId is null && _shellView == "mirrors";
+            _writer.SetNav(_activeId is null && (_shellView == "maps" || mirrors),
+                           mirrors ? _navSource : null, mirrors ? _navTarget : null);
+        }
     }
 
     private const string MediaStateScript = """
@@ -928,6 +945,8 @@ internal sealed class MainForm : Form
         (Keys.F, "fullscreen"),
         (Keys.H, "home"),
         (Keys.N, "maps"),
+        (Keys.PageUp, "app-prev"),
+        (Keys.PageDown, "app-next"),
     };
 
     protected override void OnHandleCreated(EventArgs e)
@@ -973,6 +992,10 @@ internal sealed class MainForm : Form
         {
             if (action == "home" || action == "maps")
                 ShowShell(action);
+            else if (action is "app-prev" or "app-next")
+                // The order is the dock's, which only the shell knows.
+                _shell.CoreWebView2?.PostWebMessageAsJson(
+                    new JsonObject { ["type"] = "cycle", ["step"] = action == "app-next" ? 1 : -1 }.ToJsonString());
             else
                 await MediaCommandAsync(action);
             await PushStateAsync(withMedia: true);

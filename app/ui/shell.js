@@ -44,7 +44,7 @@
   // active: id of the web app in front, or null. view: what this page shows behind it.
   let state = { active: null, view: 'home', open: [], media: null, game: {}, browser: {}, vehicle: null };
   const usedViews = new Set(); // built-in views keep their dock shortcut once opened
-  const VIEWS = ['home', 'maps', 'truck'];
+  const VIEWS = ['home', 'maps', 'mirrors', 'truck'];
 
   function open(app) {
     $('settings').hidden = true;
@@ -59,6 +59,7 @@
     $('settings').hidden = true;
     // Applied at once so the screen does not wait for the host's next state message.
     state = { ...state, active: null, view };
+    if (view === 'mirrors') layoutMirrors(); // before the view, so the plugin has the rectangles
     render();
     send({ type: 'view', view });
   }
@@ -93,6 +94,9 @@
   });
   $('dock-home').addEventListener('click', () => showView('home'));
   $('dock-fullscreen').addEventListener('click', () => send({ type: 'media', action: 'fullscreen' }));
+  $('map-mirrors').addEventListener('click', () => showView('mirrors'));
+  $('mirror-map').addEventListener('click', () => showView('maps'));
+  $('mirror-all').addEventListener('click', () => pickMirror(null));
   $('dock-back').addEventListener('click', () => send({ type: 'browser', action: 'back' }));
   $('dock-forward').addEventListener('click', () => send({ type: 'browser', action: 'forward' }));
   for (const btn of document.querySelectorAll('[data-media]')) {
@@ -156,6 +160,7 @@
       tile.querySelector('.app-name').textContent = appName(apps.find((a) => a.id === tile.dataset.id));
     }
     settingsTile.querySelector('.app-name').textContent = t('settings');
+    if (state.view === 'mirrors') layoutMirrors(); // the tiles' labels
     send({ type: 'language', language });
     tick();
     render();
@@ -203,17 +208,17 @@
 
   // ---- truck page: figures from the game's telemetry
   const dash = '–';
-  // Green while as good as new, then yellow, orange and red as the part wears.
+  // Conditions, as on a car listing's damage chart: intact, light, moderate, heavy.
+  // Keep the colours in sync with .legend in style.css.
+  const CONDITION = [[5, '#d5d8df'], [20, '#ffd60a'], [40, '#ff9f0a'], [Infinity, '#ff453a']];
   function wearColor(p) {
     if (p == null) return '';
-    return p < 8 ? '#30d158' : p < 25 ? '#ffd60a' : p < 50 ? '#ff9f0a' : '#ff453a';
+    return CONDITION.find(([limit]) => p < limit)[1];
   }
-  // The drawing only speaks up once a part is badly worn; the list has every figure.
   function setPart(part, percent) {
-    const level = percent >= 50 ? 'bad' : percent >= 25 ? 'warn' : '';
     for (const el of $('rig').querySelectorAll(`[data-part="${part}"]`)) {
-      if (level) el.dataset.level = level;
-      else delete el.dataset.level;
+      if (percent == null) el.style.removeProperty('--c');
+      else el.style.setProperty('--c', wearColor(percent));
     }
   }
   function setRow(row, percent) {
@@ -236,6 +241,83 @@
     const country = PLACES.countries[city[0]];
     const cityName = inLanguage(city[1], name);
     return country ? `${cityName}, ${inLanguage(country, '')}` : cityName;
+  }
+
+  // ---- mirror views: where the game's mirrors are in its UI texture (x, y, width, height,
+  // top row first); keep in sync with MIRRORS in tools/build_mod.py. In the grid they sit
+  // where they are in the texture's lower half, so the plugin shows that half 1:1.
+  const DOCK = 88, AREA_W = 1024 - DOCK, AREA_H = 512, LOWER = 512;
+  const CAMERAS = [
+    { id: 'close', key: 'camLeft', src: [8, 520, 260, 330] },
+    { id: 'close_s', key: 'camLeftWide', src: [8, 858, 260, 158] },
+    { id: 'far', key: 'camRight', src: [668, 520, 260, 330] },
+    { id: 'far_s', key: 'camRightWide', src: [668, 858, 260, 158] },
+    { id: 'front', key: 'camFront', src: [276, 520, 384, 192] },
+  ];
+  let mirror = null; // the one enlarged, or null for all of them
+
+  function pickMirror(id) {
+    mirror = CAMERAS.find((c) => c.id === id) || null;
+    layoutMirrors();
+  }
+
+  function layoutMirrors() {
+    const tiles = $('mirror-tiles');
+    tiles.replaceChildren();
+    const place = (el, [x, y, w, h]) => Object.assign(el.style, { left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px` });
+    let source, target;
+    if (!mirror) {
+      for (const cam of CAMERAS) {
+        const tile = document.createElement('div');
+        tile.className = 'mirror-tile';
+        tile.innerHTML = '<span></span>';
+        tile.querySelector('span').textContent = t(cam.key);
+        place(tile, [cam.src[0], cam.src[1] - LOWER, cam.src[2], cam.src[3]]);
+        tile.addEventListener('click', () => pickMirror(cam.id));
+        tiles.appendChild(tile);
+      }
+      source = [0, LOWER, AREA_W, AREA_H];
+      target = [DOCK, 0, AREA_W, AREA_H];
+    } else {
+      // as large as fits below the bar, same shape as in the game
+      const [, , w, h] = mirror.src;
+      const box = [16, 58, AREA_W - 32, AREA_H - 74];
+      const scale = Math.min(box[2] / w, box[3] / h);
+      const fit = [Math.round(box[0] + (box[2] - w * scale) / 2), Math.round(box[1] + (box[3] - h * scale) / 2),
+                   Math.round(w * scale), Math.round(h * scale)];
+      const tile = document.createElement('div');
+      tile.className = 'mirror-tile';
+      place(tile, fit);
+      tile.addEventListener('click', () => pickMirror(null));
+      tiles.appendChild(tile);
+      $('mirror-name').textContent = t(mirror.key);
+      source = mirror.src;
+      target = [DOCK + fit[0], fit[1], fit[2], fit[3]];
+    }
+    $('mirrors').classList.toggle('grid', !mirror);
+    $('mirrors').classList.toggle('single', !!mirror);
+    $('mirror-info').hidden = !!mirror;
+    $('mirror-bar').hidden = !mirror;
+    $('mirror-all').hidden = !mirror;
+    send({ type: 'nav-rects', source, target });
+  }
+
+  function renderMirrors(game) {
+    let status = '';
+    if (!game.connected) status = t('mapOffline');
+    else if (!game.mounted) status = t('mapNotMounted');
+    else if (!game.navReady) status = t('mapWaiting');
+    $('mirror-status').textContent = status;
+  }
+
+  // Ctrl+Alt+PgUp / PgDn: the previous or next app, in the dock's order.
+  function cycle(step) {
+    const shown = dockApps();
+    if (!shown.length) return;
+    const index = shown.findIndex((a) => a.id === frontId());
+    // From the home screen, Next starts at the first app and Previous at the last.
+    const next = index < 0 ? (step > 0 ? 0 : shown.length - 1) : (index + step + shown.length) % shown.length;
+    open(shown[next]);
   }
 
   function renderTruck(game, v) {
@@ -268,9 +350,12 @@
     const coupled = !!(trailer && trailer.coupled);
     $('rig-trailer').classList.toggle('absent', !trailer);
     $('rig-trailer').classList.toggle('detached', !!trailer && !coupled);
+    // the cargo box inside the trailer only while something is loaded
+    const loaded = !!(trailer && v.job && v.job.loaded);
+    $('rig').querySelector('.cargo').toggleAttribute('hidden', !loaded);
     for (const [id] of TRAILER_PARTS) {
       const percent = trailer ? trailer.wear[id] : null;
-      if (id !== 'cargo') setPart(`trailer-${id}`, percent);
+      setPart(`trailer-${id}`, percent);
       const row = trailerRows.rows[id];
       // cargo damage only means something while cargo is on board
       row.hidden = !trailer || (id === 'cargo' && !(v.job && v.job.loaded));
@@ -325,21 +410,30 @@
     $('gauge-battery').textContent = live && v.battery ? `${fmtKm.format(v.battery)} V` : dash;
   }
 
+  // The mirror views belong to the Maps app.
+  const frontId = () => state.active || (state.view === 'mirrors' ? 'maps' : state.view !== 'home' ? state.view : null);
+  const dockApps = () => apps.filter((a) => (a.builtin ? usedViews.has(a.id) : state.open.includes(a.id)));
+
   function render() {
     const media = state.media;
     const game = state.game || {};
     const playing = !!(media && media.playing);
-    if (state.view !== 'home') usedViews.add(state.view);
+    if (state.view !== 'home') usedViews.add(state.view === 'mirrors' ? 'maps' : state.view);
 
     $('home').hidden = state.view !== 'home';
     $('maps').hidden = state.view !== 'maps';
+    $('mirrors').hidden = state.view !== 'mirrors';
     $('truck').hidden = state.view !== 'truck';
     if (state.view === 'maps') renderMaps(game);
+    if (state.view === 'mirrors') {
+      if (!$('mirror-tiles').children.length) layoutMirrors(); // the host put us here
+      renderMirrors(game);
+    }
     if (state.view === 'truck') renderTruck(game, state.vehicle);
 
     // dock: one shortcut per open app
-    const shown = apps.filter((a) => (a.builtin ? usedViews.has(a.id) : state.open.includes(a.id)));
-    const front = state.active || (state.view !== 'home' ? state.view : null);
+    const shown = dockApps();
+    const front = frontId();
     const dock = $('dock-apps');
     dock.classList.toggle('many', shown.length === 4);
     dock.classList.toggle('lots', shown.length >= 5);
@@ -397,6 +491,7 @@
 
   if (host) {
     host.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'cycle') cycle(e.data.step);
       if (e.data && e.data.type === 'state') {
         state = {
           active: e.data.active || null,

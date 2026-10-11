@@ -58,10 +58,13 @@ Bu kadar. Ekran tırın kontağıyla birlikte açılır. Kaldırmak için **Unin
 | `Ctrl+Alt+→` `←` | Sonraki / önceki |
 | `Ctrl+Alt+↑` `↓` | 10 saniye ileri / geri |
 | `Ctrl+Alt+F` | Videoyu tam ekran yap |
+| `Ctrl+Alt+PgUp` `PgDn` | Önceki / sonraki açık uygulama |
 
 Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, ekrandaki **Ayarlar**'dan değişir. CabinPlay'i ayarlardan kapattıysan `Ctrl+Alt+C` onu yeniden başlatır.
 
 **Tır** uygulaması tırın ve dorsenin hasarını, yükü, yakıtı ve göstergeleri gösterir. Ctrl+Alt kısayolları oyun öndeyken de çalışır ve tuşları oyuna gitmez; bu yüzden kısayollar korna çalmaz, tırda hiçbir şeyi açıp kapatmaz.
+
+**Haritalar**'daki **Aynalar** düğmesi tırın kendi aynalarını ekrana getirir: sol ve sağ ayna, geniş açı aynaları ve tırda varsa ön ayna. Büyütmek için birine dokun.
 
 ## Gerekenler
 

@@ -371,45 +371,27 @@ kbd {
 .chip.on { color: #30d158; background: rgba(48, 209, 88, .14); }
 .chip.warn { color: #ff9f0a; background: rgba(255, 159, 10, .14); }
 
-/* The rig: a white truck as it stands; a badly worn part glows orange (from 25 %) or red
-   (from 50 %), engine and gearbox show through the cab only then. */
-#rig { width: 100%; height: auto; margin: 12px 0 2px; overflow: visible; fill: none; stroke: none; }
-#rig .shadow { fill: rgba(0, 0, 0, .45); }
-#rig .cab { fill: url(#rig-cab); stroke: rgba(0, 0, 0, .35); stroke-width: 1; }
-#rig .box { fill: url(#rig-box); stroke: rgba(0, 0, 0, .35); stroke-width: 1; }
-#rig .rail { fill: #c4c8d0; }
-#rig .rail.low { fill: #9ca1ac; }
-#rig .rib { stroke: rgba(30, 35, 45, .11); stroke-width: 1.5; }
-#rig .contour { stroke: #e8473d; stroke-width: 3; stroke-dasharray: 14 9; }
-#rig .frame { fill: #2a2d34; }
-#rig .fender, #rig .skirt, #rig .visor, #rig .grille, #rig .mirror { fill: #2c2f37; }
-#rig .well { fill: #141519; }
-#rig .bumper { fill: #3a3d46; }
-#rig .glass { fill: url(#rig-glass); stroke: rgba(0, 0, 0, .3); stroke-width: 1; }
-#rig .seam { stroke: rgba(0, 0, 0, .2); stroke-width: 1.4; }
-#rig .slats { stroke: #4a4e58; stroke-width: 1.4; }
-#rig .mirror-arm { stroke: #2c2f37; stroke-width: 2.5; }
-#rig .steel { fill: #8d929d; }
-#rig .tank { fill: url(#rig-tank); stroke: #7a7f8a; stroke-width: 1; }
-#rig .strap { stroke: #6b707b; stroke-width: 2; }
-#rig .flap { fill: #1c1e23; }
-#rig .lamp { fill: #fff6d6; }
-#rig .lamp.red { fill: #ff4a3d; }
-#rig .lamp.amber, #rig .beacon { fill: #ffb340; }
-#rig .tire { fill: #17181c; stroke: #2e3037; stroke-width: 1.5; }
-#rig .rim { fill: url(#rig-rim); stroke: #4a4d57; stroke-width: 1; }
-#rig .rim-in { fill: #a3a7b3; stroke: #6d717d; stroke-width: 1; }
-#rig .hub { fill: #3a3d45; }
-#rig .xray { display: none; stroke-width: 2; stroke-dasharray: 4 3; }
-#rig [data-level="warn"] { stroke: #ff9f0a; stroke-width: 3; filter: url(#rig-warn); }
-#rig [data-level="bad"] { stroke: #ff453a; stroke-width: 3; filter: url(#rig-bad); }
-#rig .xray[data-level] { display: inline; stroke-width: 2; }
-#rig .xray[data-level="warn"] { fill: rgba(255, 159, 10, .2); }
-#rig .xray[data-level="bad"] { fill: rgba(255, 69, 58, .22); }
-#rig-trailer { transition: opacity .3s ease; }
-#rig-trailer.detached { opacity: .5; }
-#rig-trailer.absent { opacity: .14; }
-#truck.offline #rig { opacity: .45; filter: grayscale(1); }
+/* The plan view: each part filled with its condition, like a car listing's damage chart.
+   Colours match the legend and the bars below (CONDITION in shell.js). */
+#rig { width: 100%; height: auto; margin: 14px 0 4px; overflow: visible; fill: none; stroke: none; }
+#rig [data-part] { fill: var(--c, #3a3d48); stroke: #11131a; stroke-width: 2.5; stroke-linejoin: round; transition: fill .4s ease; }
+#rig .detail { stroke-width: 3; }
+#rig .cargo { stroke-dasharray: 6 4; stroke: rgba(17, 19, 26, .7); }
+#rig .cargo[hidden] { display: none; }
+#rig .mirror { fill: #6b707c; }
+#rig-trailer { transition: opacity .3s ease, transform .3s ease; }
+#rig-trailer.detached { opacity: .55; transform: translateX(-14px); }
+#rig-trailer.absent [data-part] { fill: none; stroke: rgba(255, 255, 255, .22); stroke-dasharray: 7 6; }
+#truck.offline #rig [data-part] { fill: #3a3d48; }
+
+.legend { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; font-weight: 650; color: var(--fg-dim); }
+.legend span { display: flex; align-items: center; gap: 7px; }
+.legend i { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid #11131a; }
+.legend .ok { background: #d5d8df; }
+.legend .light { background: #ffd60a; }
+.legend .medium { background: #ff9f0a; }
+.legend .heavy { background: #ff453a; }
+.legend b { font-weight: 650; }
 
 .damage { display: grid; grid-template-columns: 1fr 1fr; gap: 0 30px; margin-top: auto; }
 .damage h3 { font-size: 13px; font-weight: 700; letter-spacing: .9px; text-transform: uppercase; color: var(--fg-dim); margin-bottom: 4px; }
@@ -464,3 +446,46 @@ kbd {
 
 #gauge-card { flex: 1; }
 #gauge-card .stats { margin: auto 0; }
+
+/* ---------------------------------------------------------------- maps: mirror switch */
+
+.map-switch { display: flex; align-items: center; gap: 9px; padding: 10px 16px; font-size: 16px; font-weight: 650; }
+.map-switch svg { width: 22px; height: 22px; }
+.map-switch:active { transform: scale(.96); }
+#map-mirrors { left: auto; right: 18px; top: 18px; }
+
+/* ---------------------------------------------------------------- mirrors */
+
+#mirrors {
+  position: fixed;
+  inset: 0 0 0 var(--dock-w);
+  background: #0c0d12;
+}
+#mirror-tiles { position: absolute; inset: 0; }
+/* The plugin swaps the key colour for the game's mirror view; the label on it is opaque so
+   it stays on top. */
+.mirror-tile { position: absolute; background: var(--map-key); border-radius: 0; cursor: pointer; }
+.mirror-tile span {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 4px 10px;
+  border-radius: 9px;
+  background: #1c1c24;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+#mirror-info { left: 276px; top: 208px; width: 384px; height: 220px; padding: 16px 20px; }
+#mirror-title { font-size: 22px; font-weight: 700; }
+#mirror-hint { font-size: 15px; font-weight: 600; color: var(--fg-dim); margin-top: 6px; }
+#mirror-note { font-size: 13px; font-weight: 600; color: #8e8e93; margin-top: 14px; line-height: 1.35; }
+#mirror-bar { position: absolute; left: 16px; top: 12px; height: 36px; display: flex; align-items: center; }
+#mirror-name { padding: 6px 14px; border-radius: 11px; background: #1c1c24; border: 2px solid #3a3a46; font-size: 16px; font-weight: 700; }
+.mirror-actions { position: absolute; right: 16px; display: flex; gap: 10px; }
+#mirrors.grid .mirror-actions { left: 276px; right: auto; top: 438px; width: 384px; justify-content: flex-end; }
+#mirrors.single .mirror-actions { top: 8px; }
+.mirror-actions .map-card { position: static; }
+#mirror-status { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 0 120px;
+  font-size: 22px; font-weight: 600; line-height: 1.35; color: #8e8e93; background: #0c0d12; }
+#mirror-status:empty { display: none; }

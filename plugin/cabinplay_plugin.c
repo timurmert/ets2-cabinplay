@@ -33,6 +33,7 @@ typedef unsigned __int64 QWORD; /* used by the NEXTRAWINPUTBLOCK macro, missing 
 #include "frame_protocol.h"
 
 /* app/GameLink.cs and app/FrameWriter.cs read these at fixed offsets. */
+_Static_assert(offsetof(cabinplay_frame_header_t, nav_source) == 32, "frame header layout");
 _Static_assert(sizeof(cabinplay_frame_header_t) == CABINPLAY_HEADER_SIZE, "frame header size");
 _Static_assert(sizeof(cabinplay_state_t) == 4160, "state layout");
 _Static_assert(offsetof(cabinplay_vehicle_t, income) == 96, "vehicle layout");
@@ -330,11 +331,11 @@ static int is_screen_desc(const D3D11_TEXTURE2D_DESC *d)
            d->Usage != D3D11_USAGE_STAGING;
 }
 
-/* The accessory asks the game for a 1024x512 UI render target (ui_drawable_size). */
+/* The accessory asks the game for a UI render target of this size (ui_drawable_size). */
 static int is_nav_desc(const D3D11_TEXTURE2D_DESC *d)
 {
     return d->ArraySize == 1 && d->SampleDesc.Count == 1 && format_family(d->Format) != FAMILY_NONE &&
-           d->Width == CABINPLAY_WIDTH && d->Height == CABINPLAY_HEIGHT &&
+           d->Width == CABINPLAY_NAV_WIDTH && d->Height == CABINPLAY_NAV_HEIGHT &&
            (d->BindFlags & D3D11_BIND_SHADER_RESOURCE) && (d->BindFlags & D3D11_BIND_RENDER_TARGET);
 }
 
@@ -352,18 +353,18 @@ static int pixels_have_marker(int family, const uint8_t *data, UINT pitch, UINT 
     return 1;
 }
 
-/* The navigation UI (ui/dashboard/cabinplay_nav.sii in the .scs) paints a strip right of
- * the map: green in its upper half, magenta in its lower half. Both colours read the
+/* The navigation UI (ui/dashboard/cabinplay_nav.sii in the .scs) paints a strip down its
+ * right edge: green in the upper half, magenta in the lower half. Both colours read the
  * same in BGRA and RGBA, and the comparison survives gamma conversion.
  * Returns 0 if absent, 1 if the rows run top-down, 2 if bottom-up. */
 static int nav_marker_orientation(const uint8_t *data, UINT pitch)
 {
     int upper_green = 1, upper_magenta = 1, lower_green = 1, lower_magenta = 1;
     for (int sx = 0; sx < 3; sx++) {
-        UINT x = CABINPLAY_WIDTH - CABINPLAY_DOCK_WIDTH + 20 + sx * 24;
+        UINT x = CABINPLAY_NAV_WIDTH - CABINPLAY_DOCK_WIDTH + 20 + sx * 24;
         for (int half = 0; half < 2; half++) {
             for (int sy = 0; sy < 3; sy++) {
-                UINT y = half * (CABINPLAY_HEIGHT / 2) + 48 + sy * 80;
+                UINT y = half * (CABINPLAY_NAV_HEIGHT / 2) + 96 + sy * (CABINPLAY_NAV_HEIGHT / 6);
                 const uint8_t *p = data + (size_t)y * pitch + (size_t)x * 4;
                 int green = p[1] > p[0] + 60 && p[1] > p[2] + 60;
                 int magenta = p[0] > p[1] + 60 && p[2] > p[1] + 60;
@@ -924,6 +925,26 @@ static int transfer_between(int source_linear, int target_wants_linear)
     return source_linear ? XF_ENCODE : XF_DECODE;
 }
 
+/* Which part of the UI texture shows through the key colour, and where: the app picks the
+ * map or one or all of the mirror views. Pixels, top row first. */
+static void nav_rects(float src[4], float dst[4])
+{
+    static const float map_src[4] = {0, 0, CABINPLAY_WIDTH - CABINPLAY_DOCK_WIDTH, CABINPLAY_HEIGHT};
+    static const float map_dst[4] = {CABINPLAY_DOCK_WIDTH, 0, CABINPLAY_WIDTH - CABINPLAY_DOCK_WIDTH, CABINPLAY_HEIGHT};
+    memcpy(src, map_src, sizeof(map_src));
+    memcpy(dst, map_dst, sizeof(map_dst));
+    if (!(g_shared->app_flags & CABINPLAY_APP_NAV_RECTS))
+        return;
+    const uint16_t *s = g_shared->nav_source, *d = g_shared->nav_target;
+    if (!s[2] || !s[3] || !d[2] || !d[3] || s[0] + s[2] > CABINPLAY_NAV_WIDTH || s[1] + s[3] > CABINPLAY_NAV_HEIGHT ||
+        d[0] + d[2] > CABINPLAY_WIDTH || d[1] + d[3] > CABINPLAY_HEIGHT)
+        return; /* torn or nonsensical: keep the map */
+    for (int i = 0; i < 4; i++) {
+        src[i] = s[i];
+        dst[i] = d[i];
+    }
+}
+
 /* Rebuilds the video texture from the app's frame with the map showing through. */
 static void composite_with_map(ID3D11DeviceContext *ctx, video_t *v, const entry_t *nav)
 {
@@ -935,11 +956,18 @@ static void composite_with_map(ID3D11DeviceContext *ctx, video_t *v, const entry
     }
     shader_consts_t c;
     memset(&c, 0, sizeof(c));
-    /* The map sits under everything right of the dock, one texel per screen pixel. */
-    c.nav_rect[0] = -(float)CABINPLAY_DOCK_WIDTH / CABINPLAY_WIDTH;
-    c.nav_rect[2] = (float)(CABINPLAY_WIDTH - CABINPLAY_DOCK_WIDTH) / CABINPLAY_WIDTH;
-    c.nav_rect[1] = nav->flip_v ? 1.0f : 0.0f;
-    c.nav_rect[3] = nav->flip_v ? 0.0f : 1.0f;
+    /* Texture 1 across the whole screen, so that the source rectangle lands on the target. */
+    float src[4], dst[4];
+    nav_rects(src, dst);
+    float kx = src[2] / dst[2], ky = src[3] / dst[3];
+    float u0 = (src[0] - dst[0] * kx) / CABINPLAY_NAV_WIDTH;
+    float u1 = (src[0] + (CABINPLAY_WIDTH - dst[0]) * kx) / CABINPLAY_NAV_WIDTH;
+    float v0 = (src[1] - dst[1] * ky) / CABINPLAY_NAV_HEIGHT;
+    float v1 = (src[1] + (CABINPLAY_HEIGHT - dst[1]) * ky) / CABINPLAY_NAV_HEIGHT;
+    c.nav_rect[0] = u0;
+    c.nav_rect[2] = u1;
+    c.nav_rect[1] = nav->flip_v ? 1.0f - v0 : v0;
+    c.nav_rect[3] = nav->flip_v ? 1.0f - v1 : v1;
     c.mode[0] = 1.0f;
     c.mode[1] = (float)transfer_between(0, v->srgb);
     c.mode[2] = (float)transfer_between(format_is_srgb(view_format(nav->format)), v->srgb);
@@ -2391,7 +2419,7 @@ static HRESULT STDMETHODCALLTYPE hk_CreateTexture2D(ID3D11Device *dev, const D3D
     } else if (desc && out && is_nav_desc(desc)) {
         verdict = VERDICT_MAYBE;
         kind = KIND_NAV;
-    } else if (desc && desc->Width == CABINPLAY_WIDTH && desc->Height == CABINPLAY_HEIGHT &&
+    } else if (desc && desc->Width == CABINPLAY_NAV_WIDTH && desc->Height == CABINPLAY_NAV_HEIGHT &&
                (desc->BindFlags & D3D11_BIND_RENDER_TARGET)) {
         /* Right size for the map but not a kind this plugin can read: worth knowing about. */
         static int reported;

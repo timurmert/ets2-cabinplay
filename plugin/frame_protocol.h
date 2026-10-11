@@ -22,6 +22,13 @@
 
 /* app_flags */
 #define CABINPLAY_APP_NAV_VISIBLE 0x1u /* replace key-coloured pixels with the game's map */
+#define CABINPLAY_APP_NAV_RECTS 0x2u   /* nav_source / nav_target say which part goes where */
+
+/* The texture the game draws the accessory's UI into (see tools/build_mod.py): the map in
+ * the upper half, the truck's mirror views in the lower half, and down the right edge a
+ * strip the plugin recognises it by. */
+#define CABINPLAY_NAV_WIDTH 1024u
+#define CABINPLAY_NAV_HEIGHT 1024u
 
 /* Colour the screen texture in the .scs is filled with (see tools/build_mod.py). */
 #define CABINPLAY_MARKER_B 0x06
@@ -34,7 +41,7 @@
 #define CABINPLAY_KEY_G 0x00
 #define CABINPLAY_KEY_B 0x02
 
-/* Width of the dock; the map lies under everything to the right of it. */
+/* Width of the dock; by default the map lies under everything to the right of it. */
 #define CABINPLAY_DOCK_WIDTH 88u
 
 #pragma pack(push, 1)
@@ -46,7 +53,9 @@ typedef struct cabinplay_frame_header {
     volatile int32_t sequence; /* odd while a frame is being written, bumped to even after */
     uint32_t app_flags;        /* CABINPLAY_APP_* */
     uint64_t heartbeat_ms;     /* writer's GetTickCount64, refreshed even with no new frame */
-    uint8_t reserved1[32];
+    uint16_t nav_source[4];    /* x, y, width, height in the UI texture, top row first */
+    uint16_t nav_target[4];    /* x, y, width, height on the screen it is stretched over */
+    uint8_t reserved1[16];
 } cabinplay_frame_header_t;      /* followed by width * height BGRA pixels, top row first */
 #pragma pack(pop)
 

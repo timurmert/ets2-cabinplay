@@ -41,12 +41,26 @@ SLOT = "set_lglass"
 MARKER_BGRA = (0x06, 0x02, 0x04, 0xFF)
 SCREEN_TEX_W, SCREEN_TEX_H = 1024, 512
 
-# The game draws its navigation map into a texture of this size for the accessory
-# (ui_drawable_size). The map takes the part right of the CabinPlay dock; the strip that
-# is left over carries the colours the plugin recognises the texture by.
-# Keep in sync with plugin/frame_protocol.h.
-NAV_W, NAV_H = 1024, 512
+# The game draws the accessory's UI into a texture of this size (ui_drawable_size): its
+# GPS map in the upper half, as wide as the part of the screen right of the CabinPlay
+# dock, the truck's mirror views in the lower half, and down the right edge a strip in
+# the colours the plugin recognises the texture by. Keep in sync with
+# plugin/frame_protocol.h.
+NAV_W, NAV_H = 1024, 1024
+MAP_H = 512
 DOCK_W = 88
+
+# The mirror views, as the game renders them for camera mirrors: name in the UI,
+# reflection material, part of the picture shown (bottom, top), and where it goes in the
+# texture (x, y, width, height, y from the top). Keep in sync with CAMERAS in
+# app/ui/shell.js.
+MIRRORS = [
+    ("cam_close", "close_mirror", (0.08, 0.92), (8, 520, 260, 330)),
+    ("cam_close_s", "close_s_mirror", (0.0898, 0.910), (8, 858, 260, 158)),
+    ("cam_far", "far_mirror", (0.08, 0.92), (668, 520, 260, 330)),
+    ("cam_far_s", "far_s_mirror", (0.0898, 0.910), (668, 858, 260, 158)),
+    ("cam_front", "front_mirror", (0.0, 1.0), (276, 520, 384, 192)),
+]
 
 # ---- Device dimensions (metres). Frame: origin = mount point on the glass,
 # +x right, +y up, +z towards the driver. The mount point is low in the left corner of
@@ -462,7 +476,7 @@ def main():
     write(MODEL_DIR + "/nav.mat", lit_screen("nav_ui.tobj"))
 
     # Navigation screen the game renders for the accessory: its own GPS map, laid out
-    # like the stock navigator's UI. UI coordinates have y pointing up.
+    # like the stock navigator's UI, and the mirror views. UI coordinates have y pointing up.
     def ui_fill(name, layer, l, r, t, b, text):
         assert len(name) <= 12, "the game limits each part of a unit name to 12 characters"
         return ('ui::text : _nameless._.%s {\n'
@@ -474,22 +488,25 @@ def main():
     map_w = NAV_W - DOCK_W
     # bare_map.mat is square; show a centred slice with the screen's aspect ratio.
     u_span = 0.84
-    v_span = u_span * NAV_H / map_w
+    v_span = u_span * MAP_H / map_w
     fill = "<img src=/material/ui/white.mat color=%s xscale=stretch yscale=stretch>"
+    mirrors = ""
+    for name, material, (bottom, top), (x, y, w, h) in MIRRORS:
+        mirrors += ui_fill(name, 1, x, x + w, NAV_H - y, NAV_H - y - h,
+                           "<img src=/material/environment/%s_reflection.mat xscale=stretch yscale=stretch "
+                           "bottom=%.4f top=%.4f color=FFFFFFFF>" % (material, bottom, top))
+    parts = ["map", "mark_top", "mark_bottom", "background"] + [m[0] for m in MIRRORS]
     write("/ui/dashboard/cabinplay_nav.sii",
           'SiiNunit\n{\n'
           'ui::window : _nameless.wnd {\n'
           ' window_handler: null\n clip_children: true\n keep_aspect: none\n user_string_data: ""\n'
           ' first_direction_focus_id: 0\n fitting: false\n'
-          ' my_children: 4\n'
-          ' my_children[0]: _nameless._.map\n'
-          ' my_children[1]: _nameless._.mark_top\n'
-          ' my_children[2]: _nameless._.mark_bottom\n'
-          ' my_children[3]: _nameless._.background\n'
-          ' coords_l: 0\n coords_r: %d\n coords_t: %d\n coords_b: 0\n'
+          ' my_children: %d\n' % len(parts)
+          + "".join(' my_children[%d]: _nameless._.%s\n' % (i, p) for i, p in enumerate(parts))
+          + ' coords_l: 0\n coords_r: %d\n coords_t: %d\n coords_b: 0\n'
           ' area_l: 0\n area_r: %d\n area_t: %d\n area_b: 0\n'
           ' id: 0\n layer: 0\n tab: -1\n pointer: -1\n my_parent: null\n}\n\n' % (NAV_W, NAV_H, NAV_W, NAV_H)
-          + ui_fill("map", 1, 0, map_w, NAV_H, 0,
+          + ui_fill("map", 1, 0, map_w, NAV_H, NAV_H - MAP_H,
                     "<img src=/material/ui/dashboard/bare_map.mat xscale=stretch yscale=stretch "
                     "left=%.4f right=%.4f bottom=%.4f top=%.4f>" % (
                         0.5 - u_span / 2, 0.5 + u_span / 2, 0.5 - v_span / 2, 0.5 + v_span / 2))
@@ -498,6 +515,7 @@ def main():
           + ui_fill("mark_top", 2, map_w, NAV_W, NAV_H, NAV_H // 2, fill % "ff10c010")
           + ui_fill("mark_bottom", 2, map_w, NAV_W, NAV_H // 2, 0, fill % "ffc010c0")
           + ui_fill("background", 0, 0, NAV_W, NAV_H, 0, fill % "ff191919")
+          + mirrors
           + '}\n')
 
     # accessory icon
