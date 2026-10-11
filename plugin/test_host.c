@@ -541,25 +541,25 @@ int main(int argc, char **argv)
 
         /* mirror views instead: two tiles, each its own part of the UI texture */
         static const cabinplay_tile_t two[2] = {
-            {{1024, 0, 200, 400}, {300, 10, 300, 500}}, /* enlarged 1.5 times */
-            {{0, 512, 400, 200}, {650, 10, 200, 200}},  /* halved */
+            {{0, 512, 120, 240}, {300, 10, 300, 500}},  /* enlarged 2.5 times */
+            {{600, 512, 240, 120}, {650, 10, 200, 200}}, /* squeezed */
         };
         hdr->tile_sequence++;
         memcpy(hdr->tiles, two, sizeof(two));
         hdr->tile_count = 2;
         hdr->tile_sequence++;
         present(hdr, 1);
-        read_pixel(a, 0, 450, 260, px); /* tile 1's middle: UI (1124, 200), G = 50 */
-        check(near_(px[2], 30, 2) && near_(px[1], 50, 2) && near_(px[0], 220, 2), "a mirror view is stretched over its tile");
-        read_pixel(a, 0, 750, 110, px); /* tile 2's middle: UI (200, 612), G = 153 */
-        check(near_(px[2], 30, 2) && near_(px[1], 153, 2) && near_(px[0], 220, 2), "and a second one over another");
+        read_pixel(a, 0, 450, 260, px); /* tile 1's middle: UI (60, 632), G = 158 */
+        check(near_(px[2], 30, 2) && near_(px[1], 158, 2) && near_(px[0], 220, 2), "a mirror view is stretched over its tile");
+        read_pixel(a, 0, 750, 110, px); /* tile 2's middle: UI (720, 572), G = 143 */
+        check(near_(px[2], 30, 2) && near_(px[1], 143, 2) && near_(px[0], 220, 2), "and a second one over another");
         read_pixel(a, 0, 200, 100, px); /* key colour outside any tile stays as it is */
         check(px[0] == CABINPLAY_KEY_B && px[1] == CABINPLAY_KEY_G && px[2] == CABINPLAY_KEY_R, "outside the tiles the frame is kept");
         hdr->tile_sequence++; /* half written: the last complete set stays */
         hdr->tile_count = 1;
         present(hdr, 1);
         read_pixel(a, 0, 750, 110, px);
-        check(near_(px[1], 153, 2), "tiles being written are not used");
+        check(near_(px[1], 143, 2), "tiles being written are not used");
         hdr->tiles[0].target[3] = 600; /* off the screen */
         hdr->tile_sequence++;
         present(hdr, 1);

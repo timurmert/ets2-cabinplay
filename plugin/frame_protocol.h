@@ -24,8 +24,9 @@
 #define CABINPLAY_APP_NAV_VISIBLE 0x1u /* replace key-coloured pixels with the game's UI texture */
 
 /* The texture the game draws the accessory's UI into (see tools/build_mod.py): its map at
- * the top left, a strip the plugin recognises the texture by, and the mirror views. */
-#define CABINPLAY_NAV_WIDTH 2048u
+ * the top left, a strip the plugin recognises the texture by, and the mirror views below
+ * the map. */
+#define CABINPLAY_NAV_WIDTH 1024u /* the game takes no more than 1024 either way */
 #define CABINPLAY_NAV_HEIGHT 1024u
 #define CABINPLAY_NAV_MARK_X 936u /* the strip: from here to x 1024, full height */
 #define CABINPLAY_MAX_TILES 8u
@@ -36,21 +37,21 @@
  * in app/ui/shell.js. */
 #define CABINPLAY_VIEW_COUNT 15u
 static const uint16_t CABINPLAY_VIEW_RECTS[CABINPLAY_VIEW_COUNT][4] = {
-    {1024, 0, 200, 400},
-    {1224, 0, 200, 400},
-    {1424, 0, 200, 400},
-    {1624, 0, 200, 400},
-    {1824, 0, 200, 400},
-    {1024, 400, 256, 256},
-    {1280, 400, 256, 256},
-    {1536, 400, 256, 256},
-    {1792, 400, 256, 256},
-    {1024, 656, 256, 256},
-    {0, 512, 400, 200},
-    {400, 512, 400, 200},
-    {0, 712, 400, 200},
-    {400, 712, 400, 200},
-    {0, 912, 400, 100},
+    {0, 512, 120, 240},
+    {120, 512, 120, 240},
+    {240, 512, 120, 240},
+    {360, 512, 120, 240},
+    {480, 512, 120, 240},
+    {0, 752, 150, 150},
+    {150, 752, 150, 150},
+    {300, 752, 150, 150},
+    {450, 752, 150, 150},
+    {600, 752, 150, 150},
+    {600, 512, 240, 120},
+    {600, 632, 240, 120},
+    {0, 902, 240, 120},
+    {240, 902, 240, 120},
+    {480, 902, 240, 60},
 };
 
 /* Colour the screen texture in the .scs is filled with (see tools/build_mod.py). */
