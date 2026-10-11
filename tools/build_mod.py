@@ -44,9 +44,9 @@ SCREEN_TEX_W, SCREEN_TEX_H = 1024, 512
 # The game draws the accessory's UI into a texture of this size (ui_drawable_size): its
 # GPS map at the top left, as wide as the part of the screen right of the CabinPlay dock;
 # beside it, down the whole height, a strip in the colours the plugin recognises the
-# texture by; and the truck's mirror views below the map. Keep in sync with
+# texture by; and the truck's mirror views in the rest. Keep in sync with
 # plugin/frame_protocol.h.
-NAV_W, NAV_H = 1024, 1024  # the game refuses more than 1024 either way
+NAV_W, NAV_H = 2048, 1024
 MAP_H = 512
 DOCK_W = 88
 MARK_X = 1024 - DOCK_W
@@ -59,21 +59,21 @@ MARK_X = 1024 - DOCK_W
 # VIEWS in app/ui/shell.js.
 ENV = "/material/environment/"
 MIRROR_VIEWS = [
-    ("cv_close", ENV + "close_mirror_reflection.mat", (0, 1, 0.08, 0.92), (0, 512, 120, 240)),
-    ("cv_close12", ENV + "mirror/close_1x2_ui.mat", (0, 1, 0, 1), (120, 512, 120, 240)),
-    ("cv_far", ENV + "far_mirror_reflection.mat", (0, 1, 0.08, 0.92), (240, 512, 120, 240)),
-    ("cv_far12", ENV + "mirror/far_1x2_ui.mat", (0, 1, 0, 1), (360, 512, 120, 240)),
-    ("cv_park360", ENV + "mirror/park_360_1x2_ui.mat", (0, 1, 0, 1), (480, 512, 120, 240)),
-    ("cv_close_s", ENV + "close_s_mirror_reflection.mat", (0, 1, 0.0898, 0.910), (0, 752, 150, 150)),
-    ("cv_close_s11", ENV + "mirror/close_s_1x1_ui.mat", (0, 1, 0, 1), (150, 752, 150, 150)),
-    ("cv_far_s", ENV + "far_s_mirror_reflection.mat", (0, 1, 0.0898, 0.910), (300, 752, 150, 150)),
-    ("cv_far_s11", ENV + "mirror/far_s_1x1_ui.mat", (0, 1, 0, 1), (450, 752, 150, 150)),
-    ("cv_park", ENV + "mirror/park_1x1_ui.mat", (0, 1, 0, 1), (600, 752, 150, 150)),
-    ("cv_close_s21", ENV + "mirror/close_s_2x1_ui.mat", (0, 1, 0, 1), (600, 512, 240, 120)),
-    ("cv_far_s21", ENV + "mirror/far_s_2x1_ui.mat", (0, 1, 0, 1), (600, 632, 240, 120)),
-    ("cv_front", ENV + "front_mirror_reflection.mat", (0, 1, 0, 1), (0, 902, 240, 120)),
-    ("cv_front21", ENV + "mirror/front_2x1_ui.mat", (0, 1, 0, 1), (240, 902, 240, 120)),
-    ("cv_front41", ENV + "mirror/front_4x1_ui.mat", (0, 1, 0, 1), (480, 902, 240, 60)),
+    ("cv_close", ENV + "close_mirror_reflection.mat", (0, 1, 0.08, 0.92), (1024, 0, 200, 400)),
+    ("cv_close12", ENV + "mirror/close_1x2_ui.mat", (0, 1, 0, 1), (1224, 0, 200, 400)),
+    ("cv_far", ENV + "far_mirror_reflection.mat", (0, 1, 0.08, 0.92), (1424, 0, 200, 400)),
+    ("cv_far12", ENV + "mirror/far_1x2_ui.mat", (0, 1, 0, 1), (1624, 0, 200, 400)),
+    ("cv_park360", ENV + "mirror/park_360_1x2_ui.mat", (0, 1, 0, 1), (1824, 0, 200, 400)),
+    ("cv_close_s", ENV + "close_s_mirror_reflection.mat", (0, 1, 0.0898, 0.910), (1024, 400, 256, 256)),
+    ("cv_close_s11", ENV + "mirror/close_s_1x1_ui.mat", (0, 1, 0, 1), (1280, 400, 256, 256)),
+    ("cv_far_s", ENV + "far_s_mirror_reflection.mat", (0, 1, 0.0898, 0.910), (1536, 400, 256, 256)),
+    ("cv_far_s11", ENV + "mirror/far_s_1x1_ui.mat", (0, 1, 0, 1), (1792, 400, 256, 256)),
+    ("cv_park", ENV + "mirror/park_1x1_ui.mat", (0, 1, 0, 1), (1024, 656, 256, 256)),
+    ("cv_close_s21", ENV + "mirror/close_s_2x1_ui.mat", (0, 1, 0, 1), (0, 512, 400, 200)),
+    ("cv_far_s21", ENV + "mirror/far_s_2x1_ui.mat", (0, 1, 0, 1), (400, 512, 400, 200)),
+    ("cv_front", ENV + "front_mirror_reflection.mat", (0, 1, 0, 1), (0, 712, 400, 200)),
+    ("cv_front21", ENV + "mirror/front_2x1_ui.mat", (0, 1, 0, 1), (400, 712, 400, 200)),
+    ("cv_front41", ENV + "mirror/front_4x1_ui.mat", (0, 1, 0, 1), (0, 912, 400, 100)),
 ]
 
 # ---- Device dimensions (metres). Frame: origin = mount point on the glass,
