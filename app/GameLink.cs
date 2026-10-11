@@ -41,8 +41,7 @@ internal readonly record struct GameState(
     float SpeedLimitKmh,
     float NavDistanceM,
     float NavTimeS,
-    uint GameTimeMin,
-    uint LiveViews);  // bit per mirror view the game draws into (CABINPLAY_VIEW_RECTS)
+    uint GameTimeMin);
 
 /// <summary>
 /// Reads what the game plugin publishes: game state and the input it captures in
@@ -101,8 +100,7 @@ internal sealed unsafe class GameLink : IDisposable
             *(float*)(_base + 28),
             *(float*)(_base + 32),
             *(float*)(_base + 36),
-            *(uint*)(_base + 40),
-            *(uint*)(_base + 44));
+            *(uint*)(_base + 40));
     }
 
     /// <summary>

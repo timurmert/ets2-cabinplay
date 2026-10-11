@@ -94,10 +94,10 @@ static ID3D11Texture2D *make_texture(UINT w, UINT h, DXGI_FORMAT fmt, D3D11_USAG
     return tex;
 }
 
-/* The game's UI render target, as the .scs lays it out: map at the top left, marker strip
- * at x 936..1024, mirror views elsewhere. Stored bottom-up when `flipped`. The map is
- * R=200, B=40 and the rest R=30, B=220; green encodes the row (y / 4, wrapping) so the
- * orientation and the placement can be checked. */
+/* The game's navigation render target, as the UI in the .scs lays it out: map in the upper
+ * half, mirror views in the lower half, marker strip down the right edge. Stored bottom-up
+ * when `flipped`. The green channel encodes the row within each half so the orientation
+ * and the placement can be checked; the halves differ in red and blue. */
 static ID3D11Texture2D *make_nav_target(int flipped)
 {
     D3D11_TEXTURE2D_DESC d;
@@ -118,15 +118,14 @@ static ID3D11Texture2D *make_nav_target(int flipped)
         int upper = y < CABINPLAY_NAV_HEIGHT / 2;
         for (UINT x = 0; x < CABINPLAY_NAV_WIDTH; x++) {
             uint8_t *p = px + ((size_t)row * CABINPLAY_NAV_WIDTH + x) * 4;
-            int map = upper && x < CABINPLAY_NAV_MARK_X;
-            if (x >= CABINPLAY_NAV_MARK_X && x < CABINPLAY_NAV_MARK_X + CABINPLAY_DOCK_WIDTH) {
+            if (x >= CABINPLAY_NAV_WIDTH - CABINPLAY_DOCK_WIDTH) {
                 p[0] = upper ? 0x10 : 0xC0;
                 p[1] = upper ? 0xC0 : 0x10;
                 p[2] = upper ? 0x10 : 0xC0;
             } else {
-                p[0] = map ? 200 : 30;         /* R */
-                p[1] = (uint8_t)((y / 4) & 0xFF); /* G */
-                p[2] = map ? 40 : 220;         /* B */
+                p[0] = upper ? 200 : 30;                   /* R: map 200, mirrors 30 */
+                p[1] = (uint8_t)((y % (CABINPLAY_NAV_HEIGHT / 2)) / 4); /* G */
+                p[2] = upper ? 40 : 220;                   /* B */
             }
             p[3] = 0xFF;
         }
@@ -539,52 +538,24 @@ int main(int argc, char **argv)
         read_pixel(c, 0, 600, 100, px); /* RGBA target */
         check(near_(px[0], 200, 2) && near_(px[1], 25, 2) && near_(px[2], 40, 2), "same on the RGBA texture");
 
-        /* mirror views instead: two tiles, each its own part of the UI texture */
-        static const cabinplay_tile_t two[2] = {
-            {{1024, 0, 200, 400}, {300, 10, 300, 500}}, /* enlarged 1.5 times */
-            {{0, 512, 400, 200}, {650, 10, 200, 200}},  /* halved */
-        };
-        hdr->tile_sequence++;
-        memcpy(hdr->tiles, two, sizeof(two));
-        hdr->tile_count = 2;
-        hdr->tile_sequence++;
+        /* the mirror views instead: the lower half of the UI, in the same place */
+        hdr->nav_source[0] = 0; hdr->nav_source[1] = 512; hdr->nav_source[2] = 936; hdr->nav_source[3] = 512;
+        hdr->nav_target[0] = 88; hdr->nav_target[1] = 0; hdr->nav_target[2] = 936; hdr->nav_target[3] = 512;
+        hdr->app_flags = CABINPLAY_APP_NAV_VISIBLE | CABINPLAY_APP_NAV_RECTS;
         present(hdr, 1);
-        read_pixel(a, 0, 450, 260, px); /* tile 1's middle: UI (1124, 200), G = 50 */
-        check(near_(px[2], 30, 2) && near_(px[1], 50, 2) && near_(px[0], 220, 2), "a mirror view is stretched over its tile");
-        read_pixel(a, 0, 750, 110, px); /* tile 2's middle: UI (200, 612), G = 153 */
-        check(near_(px[2], 30, 2) && near_(px[1], 153, 2) && near_(px[0], 220, 2), "and a second one over another");
-        read_pixel(a, 0, 200, 100, px); /* key colour outside any tile stays as it is */
-        check(px[0] == CABINPLAY_KEY_B && px[1] == CABINPLAY_KEY_G && px[2] == CABINPLAY_KEY_R, "outside the tiles the frame is kept");
-        hdr->tile_sequence++; /* half written: the last complete set stays */
-        hdr->tile_count = 1;
+        read_pixel(a, 0, 600, 100, px); /* BGRA: mirrors are R=30, G=row/4, B=220 */
+        check(near_(px[2], 30, 2) && near_(px[1], 25, 2) && near_(px[0], 220, 2), "the mirror half can be shown instead");
+        /* one mirror, enlarged 1.5 times: (8, 520, 260, 330) onto (300, 10, 390, 495) */
+        hdr->nav_source[0] = 8; hdr->nav_source[1] = 520; hdr->nav_source[2] = 260; hdr->nav_source[3] = 330;
+        hdr->nav_target[0] = 300; hdr->nav_target[1] = 10; hdr->nav_target[2] = 390; hdr->nav_target[3] = 495;
         present(hdr, 1);
-        read_pixel(a, 0, 750, 110, px);
-        check(near_(px[1], 153, 2), "tiles being written are not used");
-        hdr->tiles[0].target[3] = 600; /* off the screen */
-        hdr->tile_sequence++;
+        read_pixel(a, 0, 495, 257, px); /* lands on UI row 520 + 247 / 1.5 = 684.7 */
+        check(near_(px[2], 30, 2) && near_(px[1], 43, 2) && near_(px[0], 220, 2), "and a single one stretched over the screen");
+        hdr->nav_target[3] = 600; /* off the screen: ignored */
         present(hdr, 1);
         read_pixel(a, 0, 600, 100, px);
-        check(near_(px[2], 200, 2) && near_(px[1], 25, 2), "a tile off the screen falls back to the map");
-        hdr->tile_sequence++;
-        hdr->tile_count = 0;
-        hdr->tile_sequence++;
-
-        /* which mirror views the game draws: only one that changes counts */
-        present(hdr, 70);
-        check(state && state->live_views == 0, "a mirror view that never changes is not counted");
-        const uint16_t *r3 = CABINPLAY_VIEW_RECTS[3];
-        uint8_t *fresh = (uint8_t *)malloc((size_t)r3[2] * r3[3] * 4);
-        memset(fresh, 0x77, (size_t)r3[2] * r3[3] * 4);
-        D3D11_BOX box3 = {r3[0], flipped ? CABINPLAY_NAV_HEIGHT - r3[1] - r3[3] : r3[1], 0, r3[0] + r3[2],
-                          flipped ? CABINPLAY_NAV_HEIGHT - r3[1] : r3[1] + r3[3], 1};
-        ID3D11DeviceContext_UpdateSubresource(ctx, (ID3D11Resource *)nav, 0, &box3, fresh, r3[2] * 4, 0);
-        free(fresh);
-        /* frames at a game's pace, so the plugin's copies are done when it reads them */
-        for (int i = 0; i < 400 && state && !(state->live_views & (1u << 3)); i++) {
-            present(hdr, 1);
-            Sleep(2);
-        }
-        check(state && state->live_views == (1u << 3), "one the game draws into is");
+        check(near_(px[2], 200, 2) && near_(px[1], 25, 2), "a rectangle off the screen falls back to the map");
+        hdr->app_flags = CABINPLAY_APP_NAV_VISIBLE;
         hdr->app_flags = 0;
         present(hdr, 1);
         read_pixel(a, 0, 600, 100, px);

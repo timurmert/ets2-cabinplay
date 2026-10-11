@@ -13,45 +13,22 @@
 
 #define CABINPLAY_MAPPING_NAME L"Local\\CabinPlayFrame"
 #define CABINPLAY_MAGIC 0x594C5043u /* "CPLY" */
-#define CABINPLAY_VERSION 2u
+#define CABINPLAY_VERSION 1u
 #define CABINPLAY_WIDTH 1024u
 #define CABINPLAY_HEIGHT 512u
-#define CABINPLAY_HEADER_SIZE 256u
+#define CABINPLAY_HEADER_SIZE 64u
 #define CABINPLAY_FRAME_BYTES (CABINPLAY_WIDTH * CABINPLAY_HEIGHT * 4u)
 #define CABINPLAY_MAPPING_SIZE (CABINPLAY_HEADER_SIZE + CABINPLAY_FRAME_BYTES)
 
 /* app_flags */
-#define CABINPLAY_APP_NAV_VISIBLE 0x1u /* replace key-coloured pixels with the game's UI texture */
+#define CABINPLAY_APP_NAV_VISIBLE 0x1u /* replace key-coloured pixels with the game's map */
+#define CABINPLAY_APP_NAV_RECTS 0x2u   /* nav_source / nav_target say which part goes where */
 
-/* The texture the game draws the accessory's UI into (see tools/build_mod.py): its map at
- * the top left, a strip the plugin recognises the texture by, and the mirror views. */
-#define CABINPLAY_NAV_WIDTH 2048u
+/* The texture the game draws the accessory's UI into (see tools/build_mod.py): the map in
+ * the upper half, the truck's mirror views in the lower half, and down the right edge a
+ * strip the plugin recognises it by. */
+#define CABINPLAY_NAV_WIDTH 1024u
 #define CABINPLAY_NAV_HEIGHT 1024u
-#define CABINPLAY_NAV_MARK_X 936u /* the strip: from here to x 1024, full height */
-#define CABINPLAY_MAX_TILES 8u
-
-/* Every texture the game may draw a mirror into: each mirror has several, and which one
- * the game fills depends on the truck's mirror part. x, y, width, height in the UI
- * texture, top row first. Keep in sync with MIRROR_VIEWS in tools/build_mod.py and VIEWS
- * in app/ui/shell.js. */
-#define CABINPLAY_VIEW_COUNT 15u
-static const uint16_t CABINPLAY_VIEW_RECTS[CABINPLAY_VIEW_COUNT][4] = {
-    {1024, 0, 200, 400},
-    {1224, 0, 200, 400},
-    {1424, 0, 200, 400},
-    {1624, 0, 200, 400},
-    {1824, 0, 200, 400},
-    {1024, 400, 256, 256},
-    {1280, 400, 256, 256},
-    {1536, 400, 256, 256},
-    {1792, 400, 256, 256},
-    {1024, 656, 256, 256},
-    {0, 512, 400, 200},
-    {400, 512, 400, 200},
-    {0, 712, 400, 200},
-    {400, 712, 400, 200},
-    {0, 912, 400, 100},
-};
 
 /* Colour the screen texture in the .scs is filled with (see tools/build_mod.py). */
 #define CABINPLAY_MARKER_B 0x06
@@ -68,12 +45,6 @@ static const uint16_t CABINPLAY_VIEW_RECTS[CABINPLAY_VIEW_COUNT][4] = {
 #define CABINPLAY_DOCK_WIDTH 88u
 
 #pragma pack(push, 1)
-/* One part of the UI texture, stretched over one part of the screen. Pixels. */
-typedef struct cabinplay_tile {
-    uint16_t source[4]; /* x, y, width, height in the UI texture, top row first */
-    uint16_t target[4]; /* x, y, width, height on the screen */
-} cabinplay_tile_t;
-
 typedef struct cabinplay_frame_header {
     uint32_t magic;
     uint32_t version;
@@ -82,11 +53,10 @@ typedef struct cabinplay_frame_header {
     volatile int32_t sequence; /* odd while a frame is being written, bumped to even after */
     uint32_t app_flags;        /* CABINPLAY_APP_* */
     uint64_t heartbeat_ms;     /* writer's GetTickCount64, refreshed even with no new frame */
-    volatile uint32_t tile_sequence; /* odd while the tiles are being written */
-    uint32_t tile_count;       /* 0: the map, right of the dock */
-    cabinplay_tile_t tiles[CABINPLAY_MAX_TILES];
-    uint8_t reserved1[88];
-} cabinplay_frame_header_t;      /* 256 bytes, followed by width * height BGRA pixels, top row first */
+    uint16_t nav_source[4];    /* x, y, width, height in the UI texture, top row first */
+    uint16_t nav_target[4];    /* x, y, width, height on the screen it is stretched over */
+    uint8_t reserved1[16];
+} cabinplay_frame_header_t;      /* followed by width * height BGRA pixels, top row first */
 #pragma pack(pop)
 
 /* ------------------------------------------------------------------ state mapping */
@@ -146,8 +116,7 @@ typedef struct cabinplay_state {
     float nav_distance_m;          /* 0 when no route is set */
     float nav_time_s;              /* remaining, in game time */
     uint32_t game_time_min;        /* in-game clock, minutes since the game's epoch */
-    uint32_t live_views;           /* bit per CABINPLAY_VIEW_RECTS entry: the game draws into it */
-    uint32_t reserved[4];
+    uint32_t reserved[5];
     cabinplay_event_t events[CABINPLAY_EVENT_CAPACITY];
 } cabinplay_state_t;
 

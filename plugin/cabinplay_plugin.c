@@ -33,9 +33,7 @@ typedef unsigned __int64 QWORD; /* used by the NEXTRAWINPUTBLOCK macro, missing 
 #include "frame_protocol.h"
 
 /* app/GameLink.cs and app/FrameWriter.cs read these at fixed offsets. */
-_Static_assert(offsetof(cabinplay_frame_header_t, tile_sequence) == 32, "frame header layout");
-_Static_assert(offsetof(cabinplay_frame_header_t, tiles) == 40, "frame header layout");
-_Static_assert(offsetof(cabinplay_state_t, live_views) == 44, "state layout");
+_Static_assert(offsetof(cabinplay_frame_header_t, nav_source) == 32, "frame header layout");
 _Static_assert(sizeof(cabinplay_frame_header_t) == CABINPLAY_HEADER_SIZE, "frame header size");
 _Static_assert(sizeof(cabinplay_state_t) == 4160, "state layout");
 _Static_assert(offsetof(cabinplay_vehicle_t, income) == 96, "vehicle layout");
@@ -100,13 +98,11 @@ typedef struct gfx {
 
 typedef struct shader_consts {
     float uv_rect[4];  /* texture 0 across the viewport: u0, v0, u1, v1 */
-    float tile_info[4]; /* composite: tile count, texture 1 bottom-up, its width and height */
+    float nav_rect[4]; /* texture 1 across the viewport */
     float mode[4];     /* 0 draw, 1 composite, 2 dim; transfer for texture 0 and 1; alpha */
     float cursor[4];   /* x, y in viewport pixels, visible, corner radius in pixels */
     float size[4];     /* viewport width, height */
     float key[4];
-    float tile_target[CABINPLAY_MAX_TILES][4]; /* screen pixels */
-    float tile_source[CABINPLAY_MAX_TILES][4]; /* texture 1 pixels, top row first */
 } shader_consts_t;
 
 typedef HRESULT(STDMETHODCALLTYPE *create_texture2d_fn)(ID3D11Device *, const D3D11_TEXTURE2D_DESC *,
@@ -140,7 +136,6 @@ static unsigned g_serial;
 static int g_targets_dirty;
 static int g_screen_off_applied;
 static int g_map_was_shown;
-static uint32_t g_live_views; /* see sample_views */
 static __thread int g_in_present;
 
 static HANDLE g_mapping;
@@ -366,7 +361,7 @@ static int nav_marker_orientation(const uint8_t *data, UINT pitch)
 {
     int upper_green = 1, upper_magenta = 1, lower_green = 1, lower_magenta = 1;
     for (int sx = 0; sx < 3; sx++) {
-        UINT x = CABINPLAY_NAV_MARK_X + 20 + sx * 24;
+        UINT x = CABINPLAY_NAV_WIDTH - CABINPLAY_DOCK_WIDTH + 20 + sx * 24;
         for (int half = 0; half < 2; half++) {
             for (int sy = 0; sy < 3; sy++) {
                 UINT y = half * (CABINPLAY_NAV_HEIGHT / 2) + 96 + sy * (CABINPLAY_NAV_HEIGHT / 6);
@@ -650,8 +645,7 @@ static const uint8_t *frame_for_family(int family)
 /* ------------------------------------------------------------------ drawing */
 
 static const char SHADER_SOURCE[] =
-    "cbuffer C : register(b0) { float4 uvRect; float4 tileInfo; float4 mode; float4 cursor; float4 size; float4 key;\n"
-    "  float4 tileTarget[8]; float4 tileSource[8]; };\n"
+    "cbuffer C : register(b0) { float4 uvRect; float4 navRect; float4 mode; float4 cursor; float4 size; float4 key; };\n"
     "Texture2D t0 : register(t0);\n"
     "Texture2D t1 : register(t1);\n"
     "SamplerState s0 : register(s0);\n"
@@ -667,23 +661,13 @@ static const char SHADER_SOURCE[] =
     "  if (mode.x > 1.5) return float4(0, 0, 0, mode.w);\n"
     "  float3 c;\n"
     "  if (mode.x > 0.5) {\n"
-    /* composite: texture 0 holds the app's frame byte for byte, texture 1 the game's UI;
-     * key-coloured pixels inside a tile show its part of texture 1 */
+    /* composite: texture 0 holds the app's frame byte for byte, texture 1 the game's map */
     "    float3 f = t0.Load(int3(i.pos.xy, 0)).rgb;\n"
     "    float3 d = abs(f - key.rgb);\n"
-    "    c = xf(f, mode.y);\n"
     "    if (max(d.r, max(d.g, d.b)) < 0.0059) {\n"
-    "      float2 sp = i.pos.xy;\n"
-    "      [unroll] for (int t = 0; t < 8; t++) {\n"
-    "        float4 r = tileTarget[t];\n"
-    "        if (t < tileInfo.x && sp.x >= r.x && sp.y >= r.y && sp.x < r.x + r.z && sp.y < r.y + r.w) {\n"
-    "          float4 s = tileSource[t];\n"
-    "          float2 nuv = (s.xy + (sp - r.xy) / r.zw * s.zw) / tileInfo.zw;\n"
-    "          if (tileInfo.y > 0.5) nuv.y = 1 - nuv.y;\n"
-    "          c = xf(t1.SampleLevel(s0, nuv, 0).rgb, mode.z);\n"
-    "        }\n"
-    "      }\n"
-    "    }\n"
+    "      float2 nuv = lerp(navRect.xy, navRect.zw, i.uv);\n"
+    "      c = xf(t1.SampleLevel(s0, nuv, 0).rgb, mode.z);\n"
+    "    } else c = xf(f, mode.y);\n"
     "  } else {\n"
     "    c = xf(t0.SampleLevel(s0, lerp(uvRect.xy, uvRect.zw, i.uv), 0).rgb, mode.y);\n"
     "  }\n"
@@ -941,35 +925,24 @@ static int transfer_between(int source_linear, int target_wants_linear)
     return source_linear ? XF_ENCODE : XF_DECODE;
 }
 
-/* Which parts of the UI texture show through the key colour, and where: the app picks the
- * map or the mirror views. The last complete set the app wrote is kept. */
-static cabinplay_tile_t g_tiles[CABINPLAY_MAX_TILES];
-static uint32_t g_tile_count;
-
-static int tile_ok(const cabinplay_tile_t *t)
+/* Which part of the UI texture shows through the key colour, and where: the app picks the
+ * map or one or all of the mirror views. Pixels, top row first. */
+static void nav_rects(float src[4], float dst[4])
 {
-    const uint16_t *s = t->source, *d = t->target;
-    return s[2] && s[3] && d[2] && d[3] && s[0] + s[2] <= CABINPLAY_NAV_WIDTH && s[1] + s[3] <= CABINPLAY_NAV_HEIGHT &&
-           d[0] + d[2] <= CABINPLAY_WIDTH && d[1] + d[3] <= CABINPLAY_HEIGHT;
-}
-
-static void read_tiles(void)
-{
-    uint32_t before = g_shared->tile_sequence;
-    if (before & 1)
-        return; /* being written: keep the last set */
-    MemoryBarrier();
-    uint32_t count = g_shared->tile_count;
-    cabinplay_tile_t tiles[CABINPLAY_MAX_TILES];
-    memcpy(tiles, (const void *)g_shared->tiles, sizeof(tiles));
-    MemoryBarrier();
-    if (g_shared->tile_sequence != before || count > CABINPLAY_MAX_TILES)
+    static const float map_src[4] = {0, 0, CABINPLAY_WIDTH - CABINPLAY_DOCK_WIDTH, CABINPLAY_HEIGHT};
+    static const float map_dst[4] = {CABINPLAY_DOCK_WIDTH, 0, CABINPLAY_WIDTH - CABINPLAY_DOCK_WIDTH, CABINPLAY_HEIGHT};
+    memcpy(src, map_src, sizeof(map_src));
+    memcpy(dst, map_dst, sizeof(map_dst));
+    if (!(g_shared->app_flags & CABINPLAY_APP_NAV_RECTS))
         return;
-    for (uint32_t i = 0; i < count; i++)
-        if (!tile_ok(&tiles[i]))
-            count = 0; /* nonsensical: show the map */
-    memcpy(g_tiles, tiles, sizeof(tiles));
-    g_tile_count = count;
+    const uint16_t *s = g_shared->nav_source, *d = g_shared->nav_target;
+    if (!s[2] || !s[3] || !d[2] || !d[3] || s[0] + s[2] > CABINPLAY_NAV_WIDTH || s[1] + s[3] > CABINPLAY_NAV_HEIGHT ||
+        d[0] + d[2] > CABINPLAY_WIDTH || d[1] + d[3] > CABINPLAY_HEIGHT)
+        return; /* torn or nonsensical: keep the map */
+    for (int i = 0; i < 4; i++) {
+        src[i] = s[i];
+        dst[i] = d[i];
+    }
 }
 
 /* Rebuilds the video texture from the app's frame with the map showing through. */
@@ -983,26 +956,18 @@ static void composite_with_map(ID3D11DeviceContext *ctx, video_t *v, const entry
     }
     shader_consts_t c;
     memset(&c, 0, sizeof(c));
-    read_tiles();
-    if (g_tile_count) {
-        for (uint32_t t = 0; t < g_tile_count; t++) {
-            for (int k = 0; k < 4; k++) {
-                c.tile_target[t][k] = g_tiles[t].target[k];
-                c.tile_source[t][k] = g_tiles[t].source[k];
-            }
-        }
-        c.tile_info[0] = (float)g_tile_count;
-    } else {
-        /* the map, one texel per screen pixel, right of the dock */
-        const float w = CABINPLAY_WIDTH - CABINPLAY_DOCK_WIDTH, h = CABINPLAY_HEIGHT;
-        const float target[4] = {CABINPLAY_DOCK_WIDTH, 0, w, h}, source[4] = {0, 0, w, h};
-        memcpy(c.tile_target[0], target, sizeof(target));
-        memcpy(c.tile_source[0], source, sizeof(source));
-        c.tile_info[0] = 1;
-    }
-    c.tile_info[1] = nav->flip_v ? 1.0f : 0.0f;
-    c.tile_info[2] = CABINPLAY_NAV_WIDTH;
-    c.tile_info[3] = CABINPLAY_NAV_HEIGHT;
+    /* Texture 1 across the whole screen, so that the source rectangle lands on the target. */
+    float src[4], dst[4];
+    nav_rects(src, dst);
+    float kx = src[2] / dst[2], ky = src[3] / dst[3];
+    float u0 = (src[0] - dst[0] * kx) / CABINPLAY_NAV_WIDTH;
+    float u1 = (src[0] + (CABINPLAY_WIDTH - dst[0]) * kx) / CABINPLAY_NAV_WIDTH;
+    float v0 = (src[1] - dst[1] * ky) / CABINPLAY_NAV_HEIGHT;
+    float v1 = (src[1] + (CABINPLAY_HEIGHT - dst[1]) * ky) / CABINPLAY_NAV_HEIGHT;
+    c.nav_rect[0] = u0;
+    c.nav_rect[2] = u1;
+    c.nav_rect[1] = nav->flip_v ? 1.0f - v0 : v0;
+    c.nav_rect[3] = nav->flip_v ? 1.0f - v1 : v1;
     c.mode[0] = 1.0f;
     c.mode[1] = (float)transfer_between(0, v->srgb);
     c.mode[2] = (float)transfer_between(format_is_srgb(view_format(nav->format)), v->srgb);
@@ -1118,7 +1083,6 @@ static void publish_state(int mounted, int nav_ready)
     if (g_control_reported) flags |= CABINPLAY_STATE_CONTROL;
     if (nav_ready) flags |= CABINPLAY_STATE_NAV_READY;
     if (game_in_front()) flags |= CABINPLAY_STATE_FOREGROUND;
-    g_state->live_views = g_live_views;
     g_state->flags = flags;
     float speed = g_speed_ms * 3.6f;
     g_state->speed_kmh = speed < 0 ? -speed : speed;
@@ -2290,102 +2254,6 @@ static void update_control(int allowed)
     drive_pause();
 }
 
-/* ---- which mirror views the game draws
- *
- * Each mirror has several textures and the game fills only one, depending on the truck's
- * mirror part; the rest keep a placeholder. Every half second a few 8x8 blocks of each
- * view are copied out, and read back the next time, so the game never waits: a view
- * whose blocks change is one the game draws into. */
-
-#define VIEW_SAMPLE_FRAMES 30
-static ID3D11Texture2D *g_view_staging; /* 32 x 8 per view: four blocks side by side */
-static ID3D11Device *g_view_dev;
-static DXGI_FORMAT g_view_format;
-static int g_view_pending;
-static int g_view_hashed;
-static uint32_t g_view_hash[CABINPLAY_VIEW_COUNT];
-static unsigned g_view_serial;  /* the UI texture the bits are about */
-static unsigned g_view_next;
-
-static void release_view_sampler(void)
-{
-    if (g_view_staging)
-        ID3D11Texture2D_Release(g_view_staging);
-    g_view_staging = NULL;
-    g_view_dev = NULL;
-    g_view_pending = 0;
-}
-
-static void sample_views(ID3D11Device *dev, ID3D11DeviceContext *ctx, const entry_t *nav)
-{
-    if (nav->serial != g_view_serial) {
-        /* another truck, another set of mirror parts */
-        g_view_serial = nav->serial;
-        g_live_views = 0;
-        g_view_hashed = 0;
-        g_view_pending = 0;
-        logf_("mirror views: watching a new UI texture");
-    }
-    if ((int)(g_frame_no - g_view_next) < 0)
-        return;
-    g_view_next = g_frame_no + VIEW_SAMPLE_FRAMES;
-    if (!g_view_staging || g_view_dev != dev || g_view_format != nav->format) {
-        release_view_sampler();
-        D3D11_TEXTURE2D_DESC d;
-        memset(&d, 0, sizeof(d));
-        d.Width = 32;
-        d.Height = 8 * CABINPLAY_VIEW_COUNT;
-        d.MipLevels = 1;
-        d.ArraySize = 1;
-        d.Format = nav->format;
-        d.SampleDesc.Count = 1;
-        d.Usage = D3D11_USAGE_STAGING;
-        d.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-        if (FAILED(o_CreateTexture2D(dev, &d, NULL, &g_view_staging)))
-            g_view_staging = NULL;
-        if (!g_view_staging)
-            return;
-        g_view_dev = dev;
-        g_view_format = nav->format;
-    }
-    if (g_view_pending) {
-        D3D11_MAPPED_SUBRESOURCE m;
-        if (FAILED(ID3D11DeviceContext_Map(ctx, (ID3D11Resource *)g_view_staging, 0, D3D11_MAP_READ,
-                                           D3D11_MAP_FLAG_DO_NOT_WAIT, &m)))
-            return; /* not copied yet: look again next time */
-        uint32_t before = g_live_views;
-        for (UINT v = 0; v < CABINPLAY_VIEW_COUNT; v++) {
-            uint32_t h = 2166136261u; /* FNV-1a */
-            for (UINT y = 0; y < 8; y++) {
-                const uint8_t *row = (const uint8_t *)m.pData + (size_t)(v * 8 + y) * m.RowPitch;
-                for (UINT i = 0; i < 32 * 4; i++)
-                    h = (h ^ row[i]) * 16777619u;
-            }
-            if (g_view_hashed && h != g_view_hash[v])
-                g_live_views |= 1u << v;
-            g_view_hash[v] = h;
-        }
-        ID3D11DeviceContext_Unmap(ctx, (ID3D11Resource *)g_view_staging, 0);
-        g_view_hashed = 1;
-        g_view_pending = 0;
-        if (g_live_views != before)
-            logf_("mirror views the game draws: 0x%04x", g_live_views);
-    }
-    for (UINT v = 0; v < CABINPLAY_VIEW_COUNT; v++) {
-        const uint16_t *r = CABINPLAY_VIEW_RECTS[v];
-        for (UINT k = 0; k < 4; k++) {
-            UINT x = r[0] + r[2] * ((k & 1) ? 3 : 1) / 4 - 4;
-            UINT y = r[1] + r[3] * ((k & 2) ? 3 : 1) / 4 - 4;
-            if (nav->flip_v)
-                y = CABINPLAY_NAV_HEIGHT - 8 - y;
-            D3D11_BOX box = {x, y, 0, x + 8, y + 8, 1};
-            ID3D11DeviceContext_CopySubresourceRegion(ctx, (ID3D11Resource *)g_view_staging, 0, k * 8, v * 8, 0,
-                                                      (ID3D11Resource *)nav->tex, 0, &box);
-        }
-    }
-    g_view_pending = 1;
-}
-
 /* ------------------------------------------------------------------ per-frame work */
 
 /* Runs once per presented frame on the render thread, with g_lock held. */
@@ -2474,8 +2342,6 @@ static void pump(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx
     if (!g_have_frame)
         return;
 
-    if (nav)
-        sample_views(dev, ctx, nav);
     int show_map = nav && !g_blanked && shared_valid() && (g_shared->app_flags & CABINPLAY_APP_NAV_VISIBLE) &&
                    ensure_gfx(dev);
     /* Leaving the map needs one more upload to put the plain frame back. */
@@ -3115,9 +2981,6 @@ __declspec(dllexport) void scs_telemetry_shutdown(void)
         for (int i = 0; i < FAMILY_COUNT; i++)
             release_video(&g_video[i]);
         release_gfx();
-        release_view_sampler();
-        g_live_views = 0;
-        g_view_serial = 0;
         LeaveCriticalSection(&g_lock);
     }
     if (g_shared) {

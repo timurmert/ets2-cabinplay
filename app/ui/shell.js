@@ -241,90 +241,42 @@
     return country ? `${cityName}, ${inLanguage(country, '')}` : cityName;
   }
 
-  // ---- mirror views
-  // Every texture the game may draw a mirror into, x, y, width, height in its UI texture
-  // (top row first). Keep in sync with CABINPLAY_VIEW_RECTS in plugin/frame_protocol.h and
-  // MIRROR_VIEWS in tools/build_mod.py.
-  const MIRROR_VIEWS = [
-    [1024, 0, 200, 400], [1224, 0, 200, 400], [1424, 0, 200, 400], [1624, 0, 200, 400], [1824, 0, 200, 400],
-    [1024, 400, 256, 256], [1280, 400, 256, 256], [1536, 400, 256, 256], [1792, 400, 256, 256],
-    [1024, 656, 256, 256], [0, 512, 400, 200], [400, 512, 400, 200], [0, 712, 400, 200], [400, 712, 400, 200],
-    [0, 912, 400, 100],
-  ];
-  // Each mirror with the views the game may use for it (which one depends on the truck's
-  // mirror part; the plugin reports the ones it draws into), and its place on the screen.
-  // The parking cameras only show once the game draws them.
-  const DOCK = 88, AREA_W = 1024 - DOCK, AREA_H = 512;
+  // ---- mirror views: where the game's mirrors are in its UI texture (x, y, width, height,
+  // top row first); keep in sync with MIRRORS in tools/build_mod.py. In the grid they sit
+  // where they are in the texture's lower half, so the plugin shows that half 1:1.
+  const DOCK = 88, AREA_W = 1024 - DOCK, AREA_H = 512, LOWER = 512;
   const CAMERAS = [
-    { id: 'close', key: 'camLeft', views: [0, 1], slot: [8, 8, 260, 330] },
-    { id: 'close_s', key: 'camLeftWide', views: [5, 6, 10], slot: [8, 346, 260, 158] },
-    { id: 'front', key: 'camFront', views: [12, 13, 14], slot: [276, 8, 384, 192] },
-    { id: 'far', key: 'camRight', views: [2, 3], slot: [668, 8, 260, 330] },
-    { id: 'far_s', key: 'camRightWide', views: [7, 8, 11], slot: [668, 346, 260, 158] },
-    { id: 'park', key: 'camPark', views: [9], optional: true, slot: [276, 208, 188, 296] },
-    { id: 'park360', key: 'cam360', views: [4], optional: true, slot: [472, 208, 188, 296] },
+    { id: 'close', key: 'camLeft', src: [8, 520, 296, 496] },
+    { id: 'front', key: 'camFront', src: [316, 520, 612, 306] },
+    { id: 'close_s', key: 'camLeftWide', src: [316, 836, 220, 180] },
   ];
   let mirror = null; // the one enlarged, or null for all of them
-  let mirrorLayout = '';
-
-  // The view each mirror is shown from: one the game draws into, else the one it used on
-  // this truck before, else the most likely one.
-  const truckKey = () => { const v = state.vehicle; return v ? `${v.brand} ${v.name}` : ''; };
-  function viewFor(cam) {
-    const live = state.game.liveViews || 0;
-    const key = `cabinplay.mirror.${truckKey()}.${cam.id}`;
-    const seen = cam.views.find((v) => live & (1 << v));
-    if (seen != null) {
-      try { if (truckKey()) localStorage.setItem(key, String(seen)); } catch (e) { /* storage unavailable */ }
-      return seen;
-    }
-    let stored = null;
-    try { stored = truckKey() ? localStorage.getItem(key) : null; } catch (e) { /* storage unavailable */ }
-    if (stored != null && cam.views.includes(Number(stored))) return Number(stored);
-    return cam.optional ? null : cam.views[0];
-  }
 
   function pickMirror(id) {
     mirror = CAMERAS.find((c) => c.id === id) || null;
     layoutMirrors();
   }
 
-  // the middle of a view, cut to the shape of its slot
-  function cover([x, y, w, h], slotW, slotH) {
-    const k = Math.min(w / slotW, h / slotH), cw = slotW * k, ch = slotH * k;
-    return [Math.round(x + (w - cw) / 2), Math.round(y + (h - ch) / 2), Math.round(cw), Math.round(ch)];
-  }
-
   function layoutMirrors() {
-    const shown = CAMERAS.map((cam) => ({ cam, view: viewFor(cam) })).filter((m) => m.view != null);
-    if (mirror && !shown.some((m) => m.cam === mirror)) mirror = null;
     const tiles = $('mirror-tiles');
     tiles.replaceChildren();
     const place = (el, [x, y, w, h]) => Object.assign(el.style, { left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px` });
-    const label = (el, text) => {
-      const span = document.createElement('span');
-      span.textContent = text;
-      el.appendChild(span);
-    };
-    const nav = [];
-    // the parking cameras share the middle; one alone takes all of it
-    const optional = shown.filter((m) => m.cam.optional);
-    const slotOf = (cam) => (cam.optional && optional.length === 1 ? [276, 208, 384, 296] : cam.slot);
+    let source, target;
     if (!mirror) {
-      for (const { cam, view } of shown) {
+      for (const cam of CAMERAS) {
         const tile = document.createElement('div');
         tile.className = 'mirror-tile';
-        label(tile, t(cam.key));
-        place(tile, slotOf(cam));
+        tile.innerHTML = '<span></span>';
+        tile.querySelector('span').textContent = t(cam.key);
+        place(tile, [cam.src[0], cam.src[1] - LOWER, cam.src[2], cam.src[3]]);
         tile.addEventListener('click', () => pickMirror(cam.id));
         tiles.appendChild(tile);
-        const [x, y, w, h] = slotOf(cam);
-        nav.push({ source: cover(MIRROR_VIEWS[view], w, h), target: [DOCK + x, y, w, h] });
       }
+      source = [0, LOWER, AREA_W, AREA_H];
+      target = [DOCK, 0, AREA_W, AREA_H];
     } else {
-      // as large as fits below the bar, the whole view in its own shape
-      const view = shown.find((m) => m.cam === mirror).view;
-      const [, , w, h] = MIRROR_VIEWS[view];
+      // as large as fits below the bar, same shape as in the game
+      const [, , w, h] = mirror.src;
       const box = [16, 58, AREA_W - 32, AREA_H - 74];
       const scale = Math.min(box[2] / w, box[3] / h);
       const fit = [Math.round(box[0] + (box[2] - w * scale) / 2), Math.round(box[1] + (box[3] - h * scale) / 2),
@@ -335,16 +287,15 @@
       tile.addEventListener('click', () => pickMirror(null));
       tiles.appendChild(tile);
       $('mirror-name').textContent = t(mirror.key);
-      nav.push({ source: MIRROR_VIEWS[view], target: [DOCK + fit[0], fit[1], fit[2], fit[3]] });
+      source = mirror.src;
+      target = [DOCK + fit[0], fit[1], fit[2], fit[3]];
     }
-    const parking = shown.some((m) => m.cam.optional);
     $('mirrors').classList.toggle('grid', !mirror);
     $('mirrors').classList.toggle('single', !!mirror);
-    $('mirror-info').hidden = !!mirror || parking; // the parking cameras take its place
+    $('mirror-info').hidden = !!mirror;
     $('mirror-bar').hidden = !mirror;
     $('mirror-all').hidden = !mirror;
-    mirrorLayout = JSON.stringify([mirror && mirror.id, shown.map((m) => m.view), language]);
-    send({ type: 'nav-tiles', tiles: nav });
+    send({ type: 'nav-rects', source, target });
   }
 
   function renderMirrors(game) {
@@ -470,9 +421,7 @@
     $('truck').hidden = state.view !== 'truck';
     if (state.view === 'maps') renderMaps(game);
     if (state.view === 'mirrors') {
-      // again whenever the views to show change (the plugin finds out which the game draws)
-      const views = CAMERAS.map((cam) => viewFor(cam)).filter((v) => v != null);
-      if (!$('mirror-tiles').children.length || !mirrorLayout.includes(JSON.stringify(views))) layoutMirrors();
+      if (!$('mirror-tiles').children.length) layoutMirrors(); // the host put us here
       renderMirrors(game);
     }
     if (state.view === 'truck') renderTruck(game, state.vehicle);

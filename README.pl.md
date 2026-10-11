@@ -64,7 +64,7 @@ Odtwarzanie wstrzymuje się, gdy zatrzymasz grę lub wyłączysz zapłon. Język
 
 Aplikacja **Ciężarówka** pokazuje uszkodzenia ciężarówki i naczepy, ładunek, paliwo i wskaźniki. Skróty Ctrl+Alt działają także wtedy, gdy gra jest na pierwszym planie, a ich klawisze nie trafiają do gry, więc skrót nie włączy klaksonu ani niczego w ciężarówce.
 
-Aplikacja **Lusterka** pokazuje na ekranie lusterka ciężarówki: lewe i prawe, oba szerokokątne oraz, jeśli są, przednie i kamery parkowania. Dotknij jednego, aby je powiększyć. Gra rysuje każde lusterko w jednym z kilku obrazów, zależnie od lusterka w ciężarówce; CabinPlay sam znajduje właściwy kilka sekund po ruszeniu.
+Aplikacja **Lusterka** pokazuje na ekranie lusterka ciężarówki: lewe, lewe szerokokątne oraz, jeśli jest, przednie. Dotknij jednego, aby je powiększyć.
 
 ## Wymagania
 

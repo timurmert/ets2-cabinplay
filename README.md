@@ -64,7 +64,7 @@ Playback pauses when you pause the game or switch the ignition off. The language
 
 The **Truck** app shows the damage to the truck and trailer, the cargo, the fuel and the gauges. The Ctrl+Alt shortcuts also work while the game is in front, and their keys never reach the game, so a shortcut does not sound the horn or switch anything on the truck.
 
-The **Mirrors** app puts the truck's own mirrors on the screen: left and right, both wide-angle mirrors and, if the truck has them, the front mirror and the parking cameras. Tap one to enlarge it. The game draws each mirror into one of several pictures depending on the truck's mirror part; CabinPlay finds the right one by itself within seconds of driving off.
+The **Mirrors** app puts the truck's own mirrors on the screen: the left mirror, its wide-angle mirror and, if the truck has one, the front mirror. Tap one to enlarge it.
 
 ## What you need
 
