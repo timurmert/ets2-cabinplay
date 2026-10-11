@@ -191,7 +191,7 @@ svg.filled, svg .filled { fill: currentColor; stroke: none; }
 #grid {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   grid-auto-rows: min-content;
   align-content: center;
   justify-items: center;
@@ -199,11 +199,11 @@ svg.filled, svg .filled { fill: currentColor; stroke: none; }
   min-width: 0;
 }
 
-.app { display: flex; flex-direction: column; align-items: center; gap: 9px; width: 132px; }
+.app { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 114px; }
 .app-icon {
-  width: 104px;
-  height: 104px;
-  border-radius: 24px;
+  width: 92px;
+  height: 92px;
+  border-radius: 21px;
   overflow: hidden;
   box-shadow: 0 10px 24px rgba(0, 0, 0, .42);
   transition: transform .12s ease, filter .12s ease;
@@ -211,7 +211,7 @@ svg.filled, svg .filled { fill: currentColor; stroke: none; }
 .app-icon svg { width: 100%; height: 100%; stroke: none; display: block; }
 .app:hover .app-icon { filter: brightness(1.08); }
 .app:active .app-icon { transform: scale(.93); filter: brightness(.85); }
-.app-name { font-size: 17px; font-weight: 600; text-shadow: 0 1px 6px rgba(0, 0, 0, .6); white-space: nowrap; }
+.app-name { font-size: 15px; font-weight: 600; text-shadow: 0 1px 6px rgba(0, 0, 0, .6); white-space: nowrap; }
 .app.open .app-name::after { content: " •"; color: #30d158; }
 
 /* ---------------------------------------------------------------- maps */
@@ -323,3 +323,169 @@ kbd {
 .sheet-actions button.quiet { background: rgba(255, 255, 255, .12); }
 .sheet p.sheet-note { margin-top: 8px; font-size: 13px; text-align: center; }
 .sheet-actions button:active { transform: scale(.96); }
+
+/* ---------------------------------------------------------------- dock: back / forward */
+
+/* One button the width of the others, split in two. */
+#dock-nav {
+  width: 56px;
+  height: 46px;
+  flex: none;
+  display: flex;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, .10);
+}
+#dock-nav button { flex: 1; display: grid; place-items: center; color: rgba(255, 255, 255, .92); transition: background .12s ease; }
+#dock-nav button:hover { background: rgba(255, 255, 255, .10); }
+#dock-nav button:active { background: rgba(255, 255, 255, .18); }
+#dock-nav button:disabled { color: rgba(255, 255, 255, .25); pointer-events: none; }
+#dock-nav svg { width: 21px; height: 21px; stroke-width: 2.8; }
+.seg-line { width: 1px; margin: 10px 0; background: rgba(255, 255, 255, .16); }
+
+/* Room for every open app even with the browser buttons showing. */
+#dock-apps { min-height: 0; overflow: hidden; align-self: stretch; } /* full width: room for the active ring */
+#dock-apps.many { gap: 8px; }
+#dock-apps.many .dock-app { width: 46px; height: 46px; border-radius: 12px; }
+#dock-apps.lots { gap: 6px; }
+#dock-apps.lots .dock-app { width: 38px; height: 38px; border-radius: 10px; }
+#dock-apps.crowded { gap: 5px; }
+#dock-apps.crowded .dock-app { width: 32px; height: 32px; border-radius: 9px; }
+
+/* ---------------------------------------------------------------- truck */
+
+#truck {
+  position: fixed;
+  inset: 0 0 0 var(--dock-w);
+  display: flex;
+  gap: 16px;
+  padding: 18px;
+}
+
+#rig-card { flex: 1; min-width: 0; padding: 16px 20px 14px; display: flex; flex-direction: column; }
+.rig-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.rig-title-box { min-width: 0; }
+#rig-title { font-size: 24px; font-weight: 700; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#rig-sub { font-size: 15px; font-weight: 600; color: var(--fg-dim); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#rig-chips { display: flex; gap: 6px; flex: none; }
+.chip { display: flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; font-size: 13px; font-weight: 700; background: rgba(255, 255, 255, .10); color: var(--fg-dim); }
+.chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.chip.on { color: #30d158; background: rgba(48, 209, 88, .14); }
+.chip.warn { color: #ff9f0a; background: rgba(255, 159, 10, .14); }
+
+/* The plan view: each part filled with its condition, like a car listing's damage chart.
+   Colours match the legend and the bars below (CONDITION in shell.js). */
+#rig { width: 100%; height: auto; margin: 14px 0 4px; overflow: visible; fill: none; stroke: none; }
+#rig [data-part] { fill: var(--c, #3a3d48); stroke: #11131a; stroke-width: 2.5; stroke-linejoin: round; transition: fill .4s ease; }
+#rig .detail { stroke-width: 3; }
+#rig .cargo { stroke-dasharray: 6 4; stroke: rgba(17, 19, 26, .7); }
+#rig .cargo[hidden] { display: none; }
+#rig .mirror { fill: #6b707c; }
+#rig-trailer { transition: opacity .3s ease, transform .3s ease; }
+#rig-trailer.detached { opacity: .55; transform: translateX(-14px); }
+#rig-trailer.absent [data-part] { fill: none; stroke: rgba(255, 255, 255, .22); stroke-dasharray: 7 6; }
+#truck.offline #rig [data-part] { fill: #3a3d48; }
+
+.legend { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; font-weight: 650; color: var(--fg-dim); }
+.legend span { display: flex; align-items: center; gap: 7px; }
+.legend i { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid #11131a; }
+.legend .ok { background: #d5d8df; }
+.legend .light { background: #ffd60a; }
+.legend .medium { background: #ff9f0a; }
+.legend .heavy { background: #ff453a; }
+.legend b { font-weight: 650; }
+
+.damage { display: grid; grid-template-columns: 1fr 1fr; gap: 0 30px; margin-top: auto; }
+.damage h3 { font-size: 13px; font-weight: 700; letter-spacing: .9px; text-transform: uppercase; color: var(--fg-dim); margin-bottom: 4px; }
+.damage ul { list-style: none; }
+.damage li {
+  display: grid;
+  grid-template-columns: 116px 1fr 40px;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.damage .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.damage .bar { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .10); overflow: hidden; }
+.damage .bar i { display: block; height: 100%; width: 0; border-radius: 3px; transition: width .5s ease, background .3s ease; }
+.damage .val { text-align: right; font-variant-numeric: tabular-nums; color: var(--fg-dim); }
+.damage li.note { display: block; padding: 5px 0; font-size: 15px; color: var(--fg-dim); }
+
+#truck-side { width: 340px; flex: none; display: flex; flex-direction: column; gap: 16px; }
+#truck-side .card { padding: 14px 18px; display: flex; flex-direction: column; }
+.stats { display: flex; justify-content: space-between; gap: 8px; margin-top: auto; }
+.stats div { display: flex; flex-direction: column; min-width: 0; }
+.stats div:nth-child(2) { align-items: center; }
+.stats div:last-child { align-items: flex-end; }
+.stats small { font-size: 12px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--fg-dim); white-space: nowrap; }
+.stats span { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+#job-card { height: 232px; }
+#job-cargo { font-size: 21px; font-weight: 700; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#job-sub { font-size: 14px; font-weight: 600; color: var(--fg-dim); margin-top: 1px; min-height: 19px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.job-route { position: relative; margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+/* dotted line from the first pin to the second */
+.job-route::before { content: ""; position: absolute; left: 4px; top: 15px; height: 30px; border-left: 2px dotted rgba(255, 255, 255, .3); }
+.stop { display: flex; align-items: flex-start; gap: 10px; min-width: 0; }
+.place { display: flex; flex-direction: column; min-width: 0; }
+.place b { font-size: 15px; font-weight: 650; line-height: 19px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.place small { font-size: 12.5px; font-weight: 600; line-height: 16px; color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pin { position: relative; width: 10px; height: 10px; margin-top: 4.5px; border-radius: 50%; border: 2.5px solid #8e8e93; background: #1c1c26; flex: none; }
+.pin.to { border-color: #30d158; background: #30d158; }
+#job-left.late { color: #ff453a; }
+#job-card.idle #job-cargo { color: var(--fg-dim); }
+#job-card.idle .job-route, #job-card.idle .stats { visibility: hidden; }
+
+#fuel-card { height: 110px; }
+.fuel-head { display: flex; justify-content: space-between; align-items: baseline; }
+#fuel-amount { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.fuel-bar { height: 10px; border-radius: 5px; background: rgba(255, 255, 255, .12); margin-top: 8px; overflow: hidden; }
+#fuel-level { height: 100%; width: 0; border-radius: 5px; background: linear-gradient(90deg, #22b04b, #30d158); transition: width .6s ease; }
+#fuel-level.low { background: linear-gradient(90deg, #e08600, #ff9f0a); }
+#fuel-level.empty { background: linear-gradient(90deg, #d93025, #ff453a); }
+
+#gauge-card { flex: 1; }
+#gauge-card .stats { margin: auto 0; }
+
+/* ---------------------------------------------------------------- maps: mirror switch */
+
+.map-switch { display: flex; align-items: center; gap: 9px; padding: 10px 16px; font-size: 16px; font-weight: 650; }
+.map-switch svg { width: 22px; height: 22px; }
+.map-switch:active { transform: scale(.96); }
+
+/* ---------------------------------------------------------------- mirrors */
+
+#mirrors {
+  position: fixed;
+  inset: 0 0 0 var(--dock-w);
+  background: #0c0d12;
+}
+#mirror-tiles { position: absolute; inset: 0; }
+/* The plugin swaps the key colour for the game's mirror view; the label on it is opaque so
+   it stays on top. */
+.mirror-tile { position: absolute; background: var(--map-key); border-radius: 0; cursor: pointer; }
+.mirror-tile span {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 4px 10px;
+  border-radius: 9px;
+  background: #1c1c24;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+#mirror-info { left: 548px; top: 324px; width: 380px; height: 180px; padding: 16px 20px; }
+#mirror-title { font-size: 22px; font-weight: 700; }
+#mirror-hint { font-size: 15px; font-weight: 600; color: var(--fg-dim); margin-top: 6px; }
+#mirror-note { font-size: 13px; font-weight: 600; color: #8e8e93; margin-top: 14px; line-height: 1.35; }
+#mirror-bar { position: absolute; left: 16px; top: 12px; height: 36px; display: flex; align-items: center; }
+#mirror-name { padding: 6px 14px; border-radius: 11px; background: #1c1c24; border: 2px solid #3a3a46; font-size: 16px; font-weight: 700; }
+.mirror-actions { position: absolute; right: 16px; display: flex; gap: 10px; }
+#mirrors.single .mirror-actions { top: 8px; }
+.mirror-actions .map-card { position: static; }
+#mirror-status { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 0 120px;
+  font-size: 22px; font-weight: 600; line-height: 1.35; color: #8e8e93; background: #0c0d12; }
+#mirror-status:empty { display: none; }

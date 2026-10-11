@@ -1,6 +1,6 @@
-// CabinPlay shell: dock, home screen and the map view. Opened apps are separate browser
-// views the host layers over everything right of the dock; this page only tells the
-// host what to show.
+// CabinPlay shell: dock, home screen, the map view and the truck page. Opened apps are
+// separate browser views the host layers over everything right of the dock; this page
+// only tells the host what to show.
 (() => {
   const apps = window.CABINPLAY_APPS || [];
   const host = window.chrome && window.chrome.webview;
@@ -42,8 +42,9 @@
   const PAUSE = 'M6 4.5h4.4v15H6zM13.6 4.5H18v15h-4.4z';
 
   // active: id of the web app in front, or null. view: what this page shows behind it.
-  let state = { active: null, view: 'home', open: [], media: null, game: {} };
-  let mapsUsed = false; // keeps the Maps shortcut in the dock once it has been opened
+  let state = { active: null, view: 'home', open: [], media: null, game: {}, browser: {}, vehicle: null };
+  const usedViews = new Set(); // built-in views keep their dock shortcut once opened
+  const VIEWS = ['home', 'maps', 'mirrors', 'truck'];
 
   function open(app) {
     $('settings').hidden = true;
@@ -58,6 +59,7 @@
     $('settings').hidden = true;
     // Applied at once so the screen does not wait for the host's next state message.
     state = { ...state, active: null, view };
+    if (view === 'mirrors') layoutMirrors(); // before the view, so the plugin has the rectangles
     render();
     send({ type: 'view', view });
   }
@@ -92,6 +94,9 @@
   });
   $('dock-home').addEventListener('click', () => showView('home'));
   $('dock-fullscreen').addEventListener('click', () => send({ type: 'media', action: 'fullscreen' }));
+  $('mirror-all').addEventListener('click', () => pickMirror(null));
+  $('dock-back').addEventListener('click', () => send({ type: 'browser', action: 'back' }));
+  $('dock-forward').addEventListener('click', () => send({ type: 'browser', action: 'forward' }));
   for (const btn of document.querySelectorAll('[data-media]')) {
     btn.addEventListener('click', () => send({ type: 'media', action: btn.dataset.media }));
   }
@@ -102,8 +107,30 @@
     if (app) open(app);
   });
 
+  // ---- truck page: damage lists, one row per part
+  const TRUCK_PARTS = [['cabin', 'partCabin'], ['chassis', 'partChassis'], ['engine', 'partEngine'],
+    ['transmission', 'partTransmission'], ['wheels', 'partWheels']];
+  const TRAILER_PARTS = [['body', 'partBody'], ['chassis', 'partChassis'], ['wheels', 'partWheels'], ['cargo', 'partCargo']];
+  function damageRows(list, parts) {
+    const rows = {};
+    for (const [id, key] of parts) {
+      const li = document.createElement('li');
+      li.innerHTML = '<span class="name"></span><span class="bar"><i></i></span><span class="val"></span>';
+      li.querySelector('.name').dataset.i18n = key;
+      list.appendChild(li);
+      rows[id] = li;
+    }
+    const note = document.createElement('li');
+    note.className = 'note';
+    note.hidden = true;
+    list.appendChild(note);
+    return { rows, note };
+  }
+  const truckRows = damageRows($('damage-truck'), TRUCK_PARTS);
+  const trailerRows = damageRows($('damage-trailer'), TRAILER_PARTS);
+
   // ---- clock
-  let fmtTime, fmtShort, fmtDay, fmtLong, fmtKm;
+  let fmtTime, fmtShort, fmtDay, fmtLong, fmtKm, fmtInt;
   function tick() {
     const now = new Date();
     const locale = t('locale');
@@ -124,12 +151,14 @@
     fmtDay = new Intl.DateTimeFormat(locale, { weekday: 'long' });
     fmtLong = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'long' });
     fmtKm = new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    fmtInt = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 });
     for (const el of document.querySelectorAll('[data-i18n]')) el.textContent = t(el.dataset.i18n);
     for (const el of document.querySelectorAll('[data-i18n-title]')) el.title = t(el.dataset.i18nTitle);
     for (const tile of grid.querySelectorAll('.app[data-id]')) {
       tile.querySelector('.app-name').textContent = appName(apps.find((a) => a.id === tile.dataset.id));
     }
     settingsTile.querySelector('.app-name').textContent = t('settings');
+    if (state.view === 'mirrors') layoutMirrors(); // the tiles' labels
     send({ type: 'language', language });
     tick();
     render();
@@ -175,20 +204,235 @@
     $('map-status').textContent = status;
   }
 
+  // ---- truck page: figures from the game's telemetry
+  const dash = '–';
+  // Conditions, as on a car listing's damage chart: intact, light, moderate, heavy.
+  // Keep the colours in sync with .legend in style.css.
+  const CONDITION = [[5, '#d5d8df'], [20, '#ffd60a'], [40, '#ff9f0a'], [Infinity, '#ff453a']];
+  function wearColor(p) {
+    if (p == null) return '';
+    return CONDITION.find(([limit]) => p < limit)[1];
+  }
+  function setPart(part, percent) {
+    for (const el of $('rig').querySelectorAll(`[data-part="${part}"]`)) {
+      if (percent == null) el.style.removeProperty('--c');
+      else el.style.setProperty('--c', wearColor(percent));
+    }
+  }
+  function setRow(row, percent) {
+    const bar = row.querySelector('.bar i');
+    bar.style.background = wearColor(percent);
+    // a sliver even at 0%, so the colour still reads
+    bar.style.width = percent == null ? '0' : `${Math.max(4, Math.min(100, percent))}%`;
+    row.querySelector('.val').textContent = percent == null ? dash : `${percent}%`;
+  }
+  const duration = (minutes) => {
+    const h = Math.floor(minutes / 60);
+    return h ? `${h} ${t('hour')} ${minutes % 60} ${t('minute')}` : `${minutes} ${t('minute')}`;
+  };
+  // The game names cities in their own language and script; places.js has them in ours.
+  const PLACES = window.CABINPLAY_PLACES || { cities: {}, countries: {} };
+  const inLanguage = (names, fallback) => (names && (names[language] || names.en)) || fallback;
+  function cityLine(id, name) {
+    const city = id && PLACES.cities[id.toLowerCase()];
+    if (!city) return name || dash;
+    const country = PLACES.countries[city[0]];
+    const cityName = inLanguage(city[1], name);
+    return country ? `${cityName}, ${inLanguage(country, '')}` : cityName;
+  }
+
+  // ---- mirror views: where the game's mirrors are in its UI texture (x, y, width, height,
+  // top row first); keep in sync with MIRRORS in tools/build_mod.py. In the grid they sit
+  // where they are in the texture's lower half, so the plugin shows that half 1:1.
+  const DOCK = 88, AREA_W = 1024 - DOCK, AREA_H = 512, LOWER = 512;
+  const CAMERAS = [
+    { id: 'close', key: 'camLeft', src: [8, 520, 296, 496] },
+    { id: 'front', key: 'camFront', src: [316, 520, 612, 306] },
+    { id: 'close_s', key: 'camLeftWide', src: [316, 836, 220, 180] },
+  ];
+  let mirror = null; // the one enlarged, or null for all of them
+
+  function pickMirror(id) {
+    mirror = CAMERAS.find((c) => c.id === id) || null;
+    layoutMirrors();
+  }
+
+  function layoutMirrors() {
+    const tiles = $('mirror-tiles');
+    tiles.replaceChildren();
+    const place = (el, [x, y, w, h]) => Object.assign(el.style, { left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px` });
+    let source, target;
+    if (!mirror) {
+      for (const cam of CAMERAS) {
+        const tile = document.createElement('div');
+        tile.className = 'mirror-tile';
+        tile.innerHTML = '<span></span>';
+        tile.querySelector('span').textContent = t(cam.key);
+        place(tile, [cam.src[0], cam.src[1] - LOWER, cam.src[2], cam.src[3]]);
+        tile.addEventListener('click', () => pickMirror(cam.id));
+        tiles.appendChild(tile);
+      }
+      source = [0, LOWER, AREA_W, AREA_H];
+      target = [DOCK, 0, AREA_W, AREA_H];
+    } else {
+      // as large as fits below the bar, same shape as in the game
+      const [, , w, h] = mirror.src;
+      const box = [16, 58, AREA_W - 32, AREA_H - 74];
+      const scale = Math.min(box[2] / w, box[3] / h);
+      const fit = [Math.round(box[0] + (box[2] - w * scale) / 2), Math.round(box[1] + (box[3] - h * scale) / 2),
+                   Math.round(w * scale), Math.round(h * scale)];
+      const tile = document.createElement('div');
+      tile.className = 'mirror-tile';
+      place(tile, fit);
+      tile.addEventListener('click', () => pickMirror(null));
+      tiles.appendChild(tile);
+      $('mirror-name').textContent = t(mirror.key);
+      source = mirror.src;
+      target = [DOCK + fit[0], fit[1], fit[2], fit[3]];
+    }
+    $('mirrors').classList.toggle('grid', !mirror);
+    $('mirrors').classList.toggle('single', !!mirror);
+    $('mirror-info').hidden = !!mirror;
+    $('mirror-bar').hidden = !mirror;
+    $('mirror-all').hidden = !mirror;
+    send({ type: 'nav-rects', source, target });
+  }
+
+  function renderMirrors(game) {
+    let status = '';
+    if (!game.connected) status = t('mapOffline');
+    else if (!game.mounted) status = t('mapNotMounted');
+    else if (!game.navReady) status = t('mapWaiting');
+    $('mirror-status').textContent = status;
+  }
+
+  // Ctrl+Alt+PgUp / PgDn: the previous or next app, in the dock's order.
+  function cycle(step) {
+    const shown = dockApps();
+    if (!shown.length) return;
+    const index = shown.findIndex((a) => a.id === frontId());
+    // From the home screen, Next starts at the first app and Previous at the last.
+    const next = index < 0 ? (step > 0 ? 0 : shown.length - 1) : (index + step + shown.length) % shown.length;
+    open(shown[next]);
+  }
+
+  function renderTruck(game, v) {
+    const live = !!(game.connected && v);
+    $('truck').classList.toggle('offline', !live);
+    $('rig-title').textContent = live ? [v.brand, v.name].filter(Boolean).join(' ') || t('truck') : t('truck');
+    $('rig-sub').textContent = live
+      ? [v.plate, v.odometer ? `${fmtInt.format(v.odometer)} km` : ''].filter(Boolean).join(' · ')
+      : t('truckOffline');
+    const chips = $('rig-chips');
+    chips.replaceChildren();
+    if (live) {
+      const chip = (text, cls) => {
+        const el = document.createElement('span');
+        el.className = `chip ${cls}`;
+        el.textContent = text;
+        chips.appendChild(el);
+      };
+      chip(t(v.engine ? 'engineOn' : 'engineOff'), v.engine ? 'on' : '');
+      if (v.parkingBrake) chip(t('parkingBrake'), 'warn');
+    }
+
+    // the truck and what each part has taken
+    const wear = live ? v.wear : {};
+    for (const [id] of TRUCK_PARTS) {
+      setPart(`truck-${id}`, live ? wear[id] : null);
+      setRow(truckRows.rows[id], live ? wear[id] : null);
+    }
+    const trailer = live ? v.trailer : null;
+    const coupled = !!(trailer && trailer.coupled);
+    $('rig-trailer').classList.toggle('absent', !trailer);
+    $('rig-trailer').classList.toggle('detached', !!trailer && !coupled);
+    // the cargo box inside the trailer only while something is loaded
+    const loaded = !!(trailer && v.job && v.job.loaded);
+    $('rig').querySelector('.cargo').toggleAttribute('hidden', !loaded);
+    for (const [id] of TRAILER_PARTS) {
+      const percent = trailer ? trailer.wear[id] : null;
+      setPart(`trailer-${id}`, percent);
+      const row = trailerRows.rows[id];
+      // cargo damage only means something while cargo is on board
+      row.hidden = !trailer || (id === 'cargo' && !(v.job && v.job.loaded));
+      setRow(row, percent);
+    }
+    const note = trailerRows.note;
+    note.hidden = !!trailer && coupled;
+    note.textContent = t(!live ? 'truckWaiting' : !trailer ? 'noTrailer' : 'trailerDetached');
+
+    // job
+    const job = live ? v.job : null;
+    $('job-card').classList.toggle('idle', !job);
+    if (job) {
+      $('job-cargo').textContent = job.cargo || dash;
+      const sub = [];
+      if (job.mass) sub.push(`${fmtKm.format(job.mass / 1000)} t`);
+      if (job.special) sub.push(t('special'));
+      if (!job.loaded) sub.push(t('notLoaded'));
+      $('job-sub').textContent = sub.join(' · ');
+      $('job-from').textContent = cityLine(job.fromId, job.from);
+      $('job-from-company').textContent = job.fromCompany || '';
+      $('job-to').textContent = cityLine(job.toId, job.to);
+      $('job-to-company').textContent = job.toCompany || '';
+      // delivery time and the clock are both game time, in minutes
+      const left = job.delivery && game.gameTime ? job.delivery - game.gameTime : null;
+      $('job-left').textContent = left == null ? dash : left < 0 ? t('late') : duration(left);
+      $('job-left').classList.toggle('late', left != null && left < 0);
+      $('job-distance').textContent = job.distance ? `${fmtInt.format(job.distance)} km` : dash;
+      $('job-pay').textContent = job.income
+        ? new Intl.NumberFormat(t('locale'), { style: 'currency', currency: v.currency || 'EUR', maximumFractionDigits: 0 }).format(job.income)
+        : dash;
+    } else {
+      $('job-cargo').textContent = live ? t('noJob') : dash;
+      $('job-sub').textContent = '';
+    }
+
+    // fuel
+    const share = live && v.fuelCapacity ? Math.max(0, Math.min(1, v.fuel / v.fuelCapacity)) : 0;
+    $('fuel-amount').textContent = !live ? dash
+      : v.fuelCapacity ? `${fmtInt.format(v.fuel)} / ${fmtInt.format(v.fuelCapacity)} L` : `${fmtInt.format(v.fuel)} L`;
+    const level = $('fuel-level');
+    level.style.width = `${share * 100}%`;
+    level.classList.toggle('low', share < 0.25 && share >= 0.1);
+    level.classList.toggle('empty', share < 0.1);
+    $('fuel-range').textContent = live && v.range ? `${fmtInt.format(v.range)} km` : dash;
+    $('fuel-average').textContent = live && v.average ? `${fmtKm.format(v.average)} L/100` : dash;
+    $('fuel-adblue').textContent = live && v.adblueCapacity ? `${fmtInt.format(v.adblue)} L` : dash;
+
+    // gauges
+    $('gauge-oil').textContent = live && v.oilTemperature ? `${fmtInt.format(v.oilTemperature)} °C` : dash;
+    $('gauge-water').textContent = live && v.waterTemperature ? `${fmtInt.format(v.waterTemperature)} °C` : dash;
+    $('gauge-battery').textContent = live && v.battery ? `${fmtKm.format(v.battery)} V` : dash;
+  }
+
+  const frontId = () => state.active || (state.view !== 'home' ? state.view : null);
+  const dockApps = () => apps.filter((a) => (a.builtin ? usedViews.has(a.id) : state.open.includes(a.id)));
+
   function render() {
     const media = state.media;
     const game = state.game || {};
     const playing = !!(media && media.playing);
-    if (state.view === 'maps') mapsUsed = true;
+    if (state.view !== 'home') usedViews.add(state.view);
 
     $('home').hidden = state.view !== 'home';
     $('maps').hidden = state.view !== 'maps';
+    $('mirrors').hidden = state.view !== 'mirrors';
+    $('truck').hidden = state.view !== 'truck';
     if (state.view === 'maps') renderMaps(game);
+    if (state.view === 'mirrors') {
+      if (!$('mirror-tiles').children.length) layoutMirrors(); // the host put us here
+      renderMirrors(game);
+    }
+    if (state.view === 'truck') renderTruck(game, state.vehicle);
 
     // dock: one shortcut per open app
-    const shown = apps.filter((a) => (a.builtin ? a.id === 'maps' && mapsUsed : state.open.includes(a.id)));
-    const front = state.active || (state.view === 'maps' ? 'maps' : null);
+    const shown = dockApps();
+    const front = frontId();
     const dock = $('dock-apps');
+    dock.classList.toggle('many', shown.length === 4);
+    dock.classList.toggle('lots', shown.length === 5);
+    dock.classList.toggle('crowded', shown.length >= 6);
     dock.replaceChildren();
     for (const app of shown) {
       const el = document.createElement('button');
@@ -200,6 +444,11 @@
     }
     const activeApp = apps.find((a) => a.id === state.active);
     $('dock-fullscreen').hidden = !(activeApp && activeApp.fullscreenKey);
+    // back and forward, like in any browser, for the site in front
+    const browser = state.browser || {};
+    $('dock-nav').hidden = !activeApp;
+    $('dock-back').disabled = !browser.back;
+    $('dock-forward').disabled = !browser.forward;
     for (const tile of grid.querySelectorAll('.app[data-id]')) {
       tile.classList.toggle('open', state.open.includes(tile.dataset.id));
     }
@@ -238,13 +487,16 @@
 
   if (host) {
     host.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'cycle') cycle(e.data.step);
       if (e.data && e.data.type === 'state') {
         state = {
           active: e.data.active || null,
-          view: e.data.view === 'maps' ? 'maps' : 'home',
+          view: VIEWS.includes(e.data.view) ? e.data.view : 'home',
           open: e.data.open || [],
           media: e.data.media || null,
           game: e.data.game || {},
+          browser: e.data.browser || {},
+          vehicle: e.data.vehicle || null,
         };
         render();
       }

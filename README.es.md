@@ -58,8 +58,13 @@ Eso es todo. La pantalla se enciende con el contacto del camión. Para quitarlo,
 | `Ctrl+Alt+→` `←` | Siguiente / anterior |
 | `Ctrl+Alt+↑` `↓` | 10 segundos adelante / atrás |
 | `Ctrl+Alt+F` | Vídeo a pantalla completa |
+| `Ctrl+Alt+PgUp` `PgDn` | App abierta anterior / siguiente |
 
 La reproducción se pausa cuando pausas el juego o quitas el contacto. El idioma está en **Ajustes**, en la pantalla. Si cerraste CabinPlay desde sus ajustes, `Ctrl+Alt+C` lo vuelve a iniciar.
+
+La app **Camión** muestra los daños del camión y del remolque, la carga, el combustible y los indicadores. Los atajos Ctrl+Alt también funcionan con el juego en primer plano, y sus teclas nunca llegan al juego: un atajo no hace sonar la bocina ni acciona nada del camión.
+
+La app **Retrovisores** muestra en la pantalla los retrovisores del camión: el izquierdo, su gran angular y, si lo tiene, el frontal. Toca uno para ampliarlo.
 
 ## Requisitos
 

@@ -58,7 +58,8 @@ internal sealed class MainForm : Form
     private GameLink? _game;
     private string? _activeId;          // app shown right now, null while the shell is in front
     private string? _mediaId;           // app the media controls act on
-    private string _shellView = "home"; // what the shell shows behind the apps: "home" or "maps"
+    private string _shellView = "home"; // what the shell shows behind the apps: "home", "maps", "mirrors" or "truck"
+    private ushort[]? _navSource, _navTarget; // the mirror views' rectangles, from the shell
     private bool _stateBusy;
     private int _stateTick;
     private bool _holdingMedia;         // media was paused because the game paused or the ignition is off
@@ -250,8 +251,20 @@ internal sealed class MainForm : Form
                     await OpenAppAsync(msg!);
                     break;
                 case "view":
-                    ShowShell((string?)msg!["view"] == "maps" ? "maps" : "home");
+                    ShowShell((string?)msg!["view"] switch
+                    {
+                        "maps" => "maps", "mirrors" => "mirrors", "truck" => "truck", _ => "home",
+                    });
                     break;
+                case "nav-rects":
+                    _navSource = Rect(msg!["source"]);
+                    _navTarget = Rect(msg!["target"]);
+                    LayoutViews();
+                    break;
+                case "browser":
+                    BrowserCommand((string?)msg!["action"]);
+                    break;
+
                 case "media":
                     await MediaCommandAsync((string?)msg!["action"] ?? "");
                     break;
@@ -308,6 +321,8 @@ internal sealed class MainForm : Form
                 captured.Fullscreen = core.ContainsFullScreenElement;
                 LayoutViews();
             };
+            // Keeps the dock's back and forward buttons current.
+            core.HistoryChanged += async (_, _) => await PushStateAsync(withMedia: false);
             view.ZoomFactor = PixelZoom;
             await PrepareForInjectedInputAsync(core);
             core.Navigate(url);
@@ -317,7 +332,22 @@ internal sealed class MainForm : Form
         LayoutViews();
     }
 
-    /// <summary>Puts the shell in front, on its home screen or its map.</summary>
+    private static ushort[]? Rect(JsonNode? node) =>
+        node is JsonArray { Count: 4 } a ? a.Select(v => (ushort)Math.Clamp((int?)v ?? 0, 0, 4096)).ToArray() : null;
+
+    /// <summary>The dock's back and forward buttons, for the app in front.</summary>
+    private void BrowserCommand(string? action)
+    {
+        if (_activeId is null || !_apps.TryGetValue(_activeId, out AppView? app) || app.View.CoreWebView2 is null)
+            return;
+        CoreWebView2 core = app.View.CoreWebView2;
+        if (action == "back" && core.CanGoBack)
+            core.GoBack();
+        else if (action == "forward" && core.CanGoForward)
+            core.GoForward();
+    }
+
+    /// <summary>Puts the shell in front, on its home screen, its map or the truck page.</summary>
     private void ShowShell(string view)
     {
         _shellView = view;
@@ -358,9 +388,14 @@ internal sealed class MainForm : Form
                 app.View.Visible = false;
             }
         }
-        // The plugin lays the game's map under the shell only while the map view is in front.
+        // The plugin lays the game's map, or its mirror views, under the shell only while
+        // that view is in front.
         if (_writer is not null)
-            _writer.NavVisible = _activeId is null && _shellView == "maps";
+        {
+            bool mirrors = _activeId is null && _shellView == "mirrors";
+            _writer.SetNav(_activeId is null && (_shellView == "maps" || mirrors),
+                           mirrors ? _navSource : null, mirrors ? _navTarget : null);
+        }
     }
 
     private const string MediaStateScript = """
@@ -444,6 +479,9 @@ internal sealed class MainForm : Form
                 }
             }
             GameState g = _game?.Read() ?? default;
+            CoreWebView2? front = _activeId is not null && _apps.TryGetValue(_activeId, out AppView? shown)
+                ? shown.View.CoreWebView2
+                : null;
             var state = new JsonObject
             {
                 ["type"] = "state",
@@ -451,6 +489,12 @@ internal sealed class MainForm : Form
                 ["view"] = _shellView,
                 ["open"] = new JsonArray(_apps.Keys.Select(k => (JsonNode?)JsonValue.Create(k)).ToArray()),
                 ["media"] = _lastMedia?.DeepClone(),
+                ["browser"] = new JsonObject
+                {
+                    ["back"] = front?.CanGoBack ?? false,
+                    ["forward"] = front?.CanGoForward ?? false,
+                },
+                ["vehicle"] = g.Connected ? VehicleJson(_game?.ReadVehicle()) : null,
                 ["game"] = new JsonObject
                 {
                     ["connected"] = g.Connected,
@@ -477,6 +521,77 @@ internal sealed class MainForm : Form
         {
             _stateBusy = false;
         }
+    }
+
+    /// <summary>What the truck page shows. Wear and damage in whole percent.</summary>
+    private static JsonObject? VehicleJson(Vehicle? v)
+    {
+        if (v is null || !v.Truck)
+            return null;
+        static double Percent(float wear) => Math.Round(Math.Clamp(wear, 0f, 1f) * 100);
+        var o = new JsonObject
+        {
+            ["brand"] = v.TruckBrand,
+            ["name"] = v.TruckName,
+            ["plate"] = v.TruckPlate,
+            ["engine"] = v.Engine,
+            ["parkingBrake"] = v.ParkingBrake,
+            ["fuel"] = Math.Round(v.FuelL),
+            ["fuelCapacity"] = Math.Round(v.FuelCapacityL),
+            ["range"] = Math.Round(v.FuelRangeKm),
+            ["average"] = Math.Round(v.FuelAverageLPerKm * 100, 1), // litres per 100 km
+            ["adblue"] = Math.Round(v.AdBlueL),
+            ["adblueCapacity"] = Math.Round(v.AdBlueCapacityL),
+            ["odometer"] = Math.Round(v.OdometerKm),
+            ["oilTemperature"] = Math.Round(v.OilTemperatureC),
+            ["waterTemperature"] = Math.Round(v.WaterTemperatureC),
+            ["battery"] = Math.Round(v.BatteryVoltage, 1),
+            ["currency"] = v.Dollars ? "USD" : "EUR",
+            ["wear"] = new JsonObject
+            {
+                ["cabin"] = Percent(v.WearCabin),
+                ["chassis"] = Percent(v.WearChassis),
+                ["engine"] = Percent(v.WearEngine),
+                ["transmission"] = Percent(v.WearTransmission),
+                ["wheels"] = Percent(v.WearWheels),
+            },
+        };
+        if (v.Trailer)
+        {
+            o["trailer"] = new JsonObject
+            {
+                ["name"] = v.TrailerName,
+                ["plate"] = v.TrailerPlate,
+                ["coupled"] = v.TrailerCoupled,
+                ["wear"] = new JsonObject
+                {
+                    ["body"] = Percent(v.TrailerWearBody),
+                    ["chassis"] = Percent(v.TrailerWearChassis),
+                    ["wheels"] = Percent(v.TrailerWearWheels),
+                    ["cargo"] = Percent(v.CargoDamage),
+                },
+            };
+        }
+        if (v.Job)
+        {
+            o["job"] = new JsonObject
+            {
+                ["cargo"] = v.Cargo,
+                ["mass"] = Math.Round(v.CargoMassKg),
+                ["from"] = v.SourceCity,
+                ["fromId"] = v.SourceCityId,
+                ["fromCompany"] = v.SourceCompany,
+                ["to"] = v.DestinationCity,
+                ["toId"] = v.DestinationCityId,
+                ["toCompany"] = v.DestinationCompany,
+                ["income"] = v.Income,
+                ["delivery"] = v.DeliveryTimeMin,
+                ["distance"] = v.PlannedDistanceKm,
+                ["loaded"] = v.CargoLoaded,
+                ["special"] = v.Special,
+            };
+        }
+        return o;
     }
 
     // ------------------------------------------------------------------ following the game
@@ -581,6 +696,9 @@ internal sealed class MainForm : Form
                         break;
                     case GameEventType.Key:
                         InjectKey(e.X, (e.Y & 1) != 0, e.Y >> 8, (char)e.Data);
+                        break;
+                    case GameEventType.Shortcut:
+                        RunShortcut(e.X);
                         break;
                 }
             }
@@ -827,6 +945,8 @@ internal sealed class MainForm : Form
         (Keys.F, "fullscreen"),
         (Keys.H, "home"),
         (Keys.N, "maps"),
+        (Keys.PageUp, "app-prev"),
+        (Keys.PageDown, "app-next"),
     };
 
     protected override void OnHandleCreated(EventArgs e)
@@ -844,11 +964,26 @@ internal sealed class MainForm : Form
         if (m.Msg == WmHotkey)
         {
             int id = (int)m.WParam;
-            if (id >= 0 && id < Hotkeys.Length)
+            // While the game has the keyboard the plugin passes the shortcuts on itself
+            // (Windows usually holds them back from this window then); never run one twice.
+            if (id >= 0 && id < Hotkeys.Length && !(_game?.Read().Foreground ?? false))
                 RunHotkey(Hotkeys[id].Action);
             return;
         }
         base.WndProc(ref m);
+    }
+
+    /// <summary>A Ctrl+Alt shortcut the plugin caught while the game was in front.</summary>
+    private void RunShortcut(int vk)
+    {
+        foreach ((Keys key, string action) in Hotkeys)
+        {
+            if ((int)key == vk)
+            {
+                RunHotkey(action);
+                return;
+            }
+        }
     }
 
     private async void RunHotkey(string action)
@@ -857,6 +992,10 @@ internal sealed class MainForm : Form
         {
             if (action == "home" || action == "maps")
                 ShowShell(action);
+            else if (action is "app-prev" or "app-next")
+                // The order is the dock's, which only the shell knows.
+                _shell.CoreWebView2?.PostWebMessageAsJson(
+                    new JsonObject { ["type"] = "cycle", ["step"] = action == "app-next" ? 1 : -1 }.ToJsonString());
             else
                 await MediaCommandAsync(action);
             await PushStateAsync(withMedia: true);

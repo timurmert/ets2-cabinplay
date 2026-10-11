@@ -22,6 +22,13 @@
 
 /* app_flags */
 #define CABINPLAY_APP_NAV_VISIBLE 0x1u /* replace key-coloured pixels with the game's map */
+#define CABINPLAY_APP_NAV_RECTS 0x2u   /* nav_source / nav_target say which part goes where */
+
+/* The texture the game draws the accessory's UI into (see tools/build_mod.py): the map in
+ * the upper half, the truck's mirror views in the lower half, and down the right edge a
+ * strip the plugin recognises it by. */
+#define CABINPLAY_NAV_WIDTH 1024u
+#define CABINPLAY_NAV_HEIGHT 1024u
 
 /* Colour the screen texture in the .scs is filled with (see tools/build_mod.py). */
 #define CABINPLAY_MARKER_B 0x06
@@ -34,7 +41,7 @@
 #define CABINPLAY_KEY_G 0x00
 #define CABINPLAY_KEY_B 0x02
 
-/* Width of the dock; the map lies under everything to the right of it. */
+/* Width of the dock; by default the map lies under everything to the right of it. */
 #define CABINPLAY_DOCK_WIDTH 88u
 
 #pragma pack(push, 1)
@@ -46,7 +53,9 @@ typedef struct cabinplay_frame_header {
     volatile int32_t sequence; /* odd while a frame is being written, bumped to even after */
     uint32_t app_flags;        /* CABINPLAY_APP_* */
     uint64_t heartbeat_ms;     /* writer's GetTickCount64, refreshed even with no new frame */
-    uint8_t reserved1[32];
+    uint16_t nav_source[4];    /* x, y, width, height in the UI texture, top row first */
+    uint16_t nav_target[4];    /* x, y, width, height on the screen it is stretched over */
+    uint8_t reserved1[16];
 } cabinplay_frame_header_t;      /* followed by width * height BGRA pixels, top row first */
 #pragma pack(pop)
 
@@ -54,7 +63,7 @@ typedef struct cabinplay_frame_header {
 
 #define CABINPLAY_STATE_MAPPING_NAME L"Local\\CabinPlayState"
 #define CABINPLAY_STATE_MAGIC 0x54535043u /* "CPST" */
-#define CABINPLAY_STATE_VERSION 1u
+#define CABINPLAY_STATE_VERSION 2u
 #define CABINPLAY_EVENT_CAPACITY 256u
 
 /* flags */
@@ -64,16 +73,29 @@ typedef struct cabinplay_frame_header {
 #define CABINPLAY_STATE_MOUNTED 0x08u   /* a truck with the screen is loaded */
 #define CABINPLAY_STATE_CONTROL 0x10u   /* in-game control mode is active */
 #define CABINPLAY_STATE_NAV_READY 0x20u /* the game's map texture was found */
+#define CABINPLAY_STATE_FOREGROUND 0x40u /* the game has the keyboard: shortcuts come as events */
 
 /* event types; x and y are CabinPlay screen pixels unless noted */
 #define CABINPLAY_EVENT_MOVE 1u
 #define CABINPLAY_EVENT_BUTTON 2u /* data: button (0 left, 1 right, 2 middle) | down << 8 */
 #define CABINPLAY_EVENT_WHEEL 3u  /* data: wheel delta, 120 per notch */
 #define CABINPLAY_EVENT_KEY 4u    /* x: virtual key, y: down | modifiers << 8, data: UTF-16 char or 0 */
+#define CABINPLAY_EVENT_SHORTCUT 5u /* x: virtual key pressed with Ctrl + left Alt */
 
 #define CABINPLAY_MOD_SHIFT 0x1u
 #define CABINPLAY_MOD_CTRL 0x2u
 #define CABINPLAY_MOD_ALT 0x4u
+
+/* vehicle flags */
+#define CABINPLAY_VEHICLE_TRUCK 0x01u          /* the truck's configuration is known */
+#define CABINPLAY_VEHICLE_ENGINE 0x02u         /* engine running */
+#define CABINPLAY_VEHICLE_PARKING_BRAKE 0x04u
+#define CABINPLAY_VEHICLE_TRAILER 0x08u        /* a trailer is part of the configuration */
+#define CABINPLAY_VEHICLE_TRAILER_COUPLED 0x10u
+#define CABINPLAY_VEHICLE_JOB 0x20u            /* a job is active */
+#define CABINPLAY_VEHICLE_CARGO_LOADED 0x40u
+#define CABINPLAY_VEHICLE_SPECIAL 0x80u        /* special transport */
+#define CABINPLAY_VEHICLE_ATS 0x100u           /* American Truck Simulator: dollars */
 
 #pragma pack(push, 1)
 typedef struct cabinplay_event {
@@ -97,8 +119,47 @@ typedef struct cabinplay_state {
     uint32_t reserved[5];
     cabinplay_event_t events[CABINPLAY_EVENT_CAPACITY];
 } cabinplay_state_t;
+
+/* Truck, trailer and job, from the telemetry API. Strings are UTF-8, NUL-terminated.
+ * Wear and damage run from 0 (as new) to 1 (wrecked). */
+typedef struct cabinplay_vehicle {
+    volatile uint32_t sequence;    /* odd while being written */
+    uint32_t flags;                /* CABINPLAY_VEHICLE_* */
+    float fuel_l, fuel_capacity_l, fuel_range_km, fuel_average_l_per_km;
+    float adblue_l, adblue_capacity_l;
+    float odometer_km;
+    float oil_temperature_c, water_temperature_c, battery_voltage;
+    float wear_engine, wear_transmission, wear_cabin, wear_chassis, wear_wheels;
+    float trailer_wear_chassis, trailer_wear_wheels, trailer_wear_body;
+    float cargo_damage;
+    float cargo_mass_kg;
+    uint32_t delivery_time_min;    /* in game time, like game_time_min; 0 when unknown */
+    uint32_t planned_distance_km;
+    uint64_t income;
+    char truck_brand[32];
+    char truck_name[48];
+    char truck_plate[24];
+    char trailer_name[48];
+    char trailer_plate[24];
+    char cargo[64];
+    char source_city[48];
+    char source_company[48];
+    char destination_city[48];
+    char destination_company[48];
+    char job_market[32];
+    char source_city_id[32];       /* the game's city names are in the local language; the */
+    char destination_city_id[32];  /* app looks these ids up in its own (see app/ui/places.js) */
+} cabinplay_vehicle_t;             /* 632 bytes */
+
+/* The state mapping: version 2 adds the vehicle block after the events. */
+typedef struct cabinplay_state_mapping {
+    cabinplay_state_t state;
+    cabinplay_vehicle_t vehicle;
+} cabinplay_state_mapping_t;
 #pragma pack(pop)
 
-#define CABINPLAY_STATE_MAPPING_SIZE ((uint32_t)sizeof(cabinplay_state_t))
+#define CABINPLAY_VEHICLE_OFFSET ((uint32_t)sizeof(cabinplay_state_t)) /* 4160 */
+
+#define CABINPLAY_STATE_MAPPING_SIZE ((uint32_t)sizeof(cabinplay_state_mapping_t))
 
 #endif

@@ -58,8 +58,13 @@ C'est tout. L'écran s'allume avec le contact du camion. Pour le retirer, double
 | `Ctrl+Alt+→` `←` | Suivant / précédent |
 | `Ctrl+Alt+↑` `↓` | Avancer / reculer de 10 secondes |
 | `Ctrl+Alt+F` | Vidéo en plein écran |
+| `Ctrl+Alt+PgUp` `PgDn` | App ouverte précédente / suivante |
 
 La lecture se met en pause quand vous mettez le jeu en pause ou coupez le contact. La langue se règle dans **Réglages**, à l'écran. Si vous avez fermé CabinPlay depuis ses réglages, `Ctrl+Alt+C` le relance.
+
+L'app **Camion** affiche les dégâts du camion et de la remorque, la cargaison, le carburant et les indicateurs. Les raccourcis Ctrl+Alt fonctionnent aussi quand le jeu est au premier plan, et leurs touches n'atteignent jamais le jeu : un raccourci ne déclenche ni le klaxon ni rien d'autre sur le camion.
+
+L'app **Rétroviseurs** affiche les rétroviseurs du camion à l'écran : le rétro gauche, son grand angle et, s'il y en a un, le rétro avant. Touchez-en un pour l'agrandir.
 
 ## Prérequis
 

@@ -50,7 +50,10 @@ TEXT = {
         k_control="Use the screen from inside the game with mouse and keyboard; the game pauses meanwhile (`Esc` to leave)",
         k_nav="Navigation map", k_home="Home screen", k_play="Play / pause", k_next="Next / previous",
         k_seek="10 seconds forward / back", k_full="Video fullscreen",
+        k_apps="Previous / next open app",
         use_note="Playback pauses when you pause the game or switch the ignition off. The language is under **Settings** on the screen. If you closed CabinPlay from its settings, `Ctrl+Alt+C` starts it again.",
+        truck_note="The **Truck** app shows the damage to the truck and trailer, the cargo, the fuel and the gauges. The Ctrl+Alt shortcuts also work while the game is in front, and their keys never reach the game, so a shortcut does not sound the horn or switch anything on the truck.",
+        mirror_note="The **Mirrors** app puts the truck's own mirrors on the screen: the left mirror, its wide-angle mirror and, if the truck has one, the front mirror. Tap one to enlarge it.",
         needs="What you need",
         need_1="Euro Truck Simulator 2 **1.61**, Windows 10 or 11",
         need_2="No DLC needed",
@@ -89,7 +92,10 @@ TEXT = {
         k_control="Ekranı oyunun içinden fare ve klavyeyle kullan; bu sırada oyun duraklar (çıkış: `Esc`)",
         k_nav="Navigasyon haritası", k_home="Ana ekran", k_play="Oynat / duraklat", k_next="Sonraki / önceki",
         k_seek="10 saniye ileri / geri", k_full="Videoyu tam ekran yap",
+        k_apps="Önceki / sonraki açık uygulama",
         use_note="Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, ekrandaki **Ayarlar**'dan değişir. CabinPlay'i ayarlardan kapattıysan `Ctrl+Alt+C` onu yeniden başlatır.",
+        truck_note="**Tır** uygulaması tırın ve dorsenin hasarını, yükü, yakıtı ve göstergeleri gösterir. Ctrl+Alt kısayolları oyun öndeyken de çalışır ve tuşları oyuna gitmez; bu yüzden kısayollar korna çalmaz, tırda hiçbir şeyi açıp kapatmaz.",
+        mirror_note="**Aynalar** uygulaması tırın kendi aynalarını ekrana getirir: sol ayna, sol geniş açı aynası ve tırda varsa ön ayna. Büyütmek için birine dokun.",
         needs="Gerekenler",
         need_1="Euro Truck Simulator 2 **1.61**, Windows 10 veya 11",
         need_2="DLC gerekmez",
@@ -128,7 +134,10 @@ TEXT = {
         k_control="Den Bildschirm im Spiel mit Maus und Tastatur bedienen; das Spiel pausiert solange (verlassen mit `Esc`)",
         k_nav="Navigationskarte", k_home="Startbildschirm", k_play="Wiedergabe / Pause", k_next="Weiter / zurück",
         k_seek="10 Sekunden vor / zurück", k_full="Video im Vollbild",
+        k_apps="Vorherige / nächste offene App",
         use_note="Die Wiedergabe pausiert, wenn du das Spiel pausierst oder die Zündung ausschaltest. Die Sprache findest du unter **Einstellungen** auf dem Bildschirm. Hast du CabinPlay in den Einstellungen beendet, startet `Ctrl+Alt+C` es wieder.",
+        truck_note="Die App **Lkw** zeigt die Schäden an Lkw und Auflieger, die Ladung, den Kraftstoff und die Anzeigen. Die Ctrl+Alt-Tastenkürzel funktionieren auch, wenn das Spiel im Vordergrund ist, und ihre Tasten erreichen das Spiel nicht: Ein Tastenkürzel hupt nicht und schaltet nichts am Lkw.",
+        mirror_note="Die App **Spiegel** zeigt die Spiegel des Lkw auf dem Bildschirm: den linken Spiegel, seinen Weitwinkelspiegel und, falls vorhanden, den Frontspiegel. Tippe auf einen, um ihn zu vergrößern.",
         needs="Voraussetzungen",
         need_1="Euro Truck Simulator 2 **1.61**, Windows 10 oder 11",
         need_2="Kein DLC nötig",
@@ -167,7 +176,10 @@ TEXT = {
         k_control="Obsługa ekranu z poziomu gry myszą i klawiaturą; gra jest w tym czasie wstrzymana (wyjście: `Esc`)",
         k_nav="Mapa nawigacji", k_home="Ekran główny", k_play="Odtwarzaj / wstrzymaj", k_next="Następny / poprzedni",
         k_seek="10 sekund do przodu / do tyłu", k_full="Wideo na pełnym ekranie",
+        k_apps="Poprzednia / następna otwarta aplikacja",
         use_note="Odtwarzanie wstrzymuje się, gdy zatrzymasz grę lub wyłączysz zapłon. Język zmienisz w **Ustawieniach** na ekranie. Jeśli zamkniesz CabinPlay w ustawieniach, `Ctrl+Alt+C` uruchomi go ponownie.",
+        truck_note="Aplikacja **Ciężarówka** pokazuje uszkodzenia ciężarówki i naczepy, ładunek, paliwo i wskaźniki. Skróty Ctrl+Alt działają także wtedy, gdy gra jest na pierwszym planie, a ich klawisze nie trafiają do gry, więc skrót nie włączy klaksonu ani niczego w ciężarówce.",
+        mirror_note="Aplikacja **Lusterka** pokazuje na ekranie lusterka ciężarówki: lewe, lewe szerokokątne oraz, jeśli jest, przednie. Dotknij jednego, aby je powiększyć.",
         needs="Wymagania",
         need_1="Euro Truck Simulator 2 **1.61**, Windows 10 lub 11",
         need_2="Nie wymaga DLC",
@@ -206,7 +218,10 @@ TEXT = {
         k_control="Utiliser l'écran depuis le jeu avec la souris et le clavier ; le jeu est en pause pendant ce temps (`Échap` pour quitter)",
         k_nav="Carte de navigation", k_home="Écran d'accueil", k_play="Lecture / pause", k_next="Suivant / précédent",
         k_seek="Avancer / reculer de 10 secondes", k_full="Vidéo en plein écran",
+        k_apps="App ouverte précédente / suivante",
         use_note="La lecture se met en pause quand vous mettez le jeu en pause ou coupez le contact. La langue se règle dans **Réglages**, à l'écran. Si vous avez fermé CabinPlay depuis ses réglages, `Ctrl+Alt+C` le relance.",
+        truck_note="L'app **Camion** affiche les dégâts du camion et de la remorque, la cargaison, le carburant et les indicateurs. Les raccourcis Ctrl+Alt fonctionnent aussi quand le jeu est au premier plan, et leurs touches n'atteignent jamais le jeu : un raccourci ne déclenche ni le klaxon ni rien d'autre sur le camion.",
+        mirror_note="L'app **Rétroviseurs** affiche les rétroviseurs du camion à l'écran : le rétro gauche, son grand angle et, s'il y en a un, le rétro avant. Touchez-en un pour l'agrandir.",
         needs="Prérequis",
         need_1="Euro Truck Simulator 2 **1.61**, Windows 10 ou 11",
         need_2="Aucun DLC requis",
@@ -245,7 +260,10 @@ TEXT = {
         k_control="Usar la pantalla desde el juego con ratón y teclado; el juego se pausa mientras tanto (`Esc` para salir)",
         k_nav="Mapa de navegación", k_home="Pantalla de inicio", k_play="Reproducir / pausar", k_next="Siguiente / anterior",
         k_seek="10 segundos adelante / atrás", k_full="Vídeo a pantalla completa",
+        k_apps="App abierta anterior / siguiente",
         use_note="La reproducción se pausa cuando pausas el juego o quitas el contacto. El idioma está en **Ajustes**, en la pantalla. Si cerraste CabinPlay desde sus ajustes, `Ctrl+Alt+C` lo vuelve a iniciar.",
+        truck_note="La app **Camión** muestra los daños del camión y del remolque, la carga, el combustible y los indicadores. Los atajos Ctrl+Alt también funcionan con el juego en primer plano, y sus teclas nunca llegan al juego: un atajo no hace sonar la bocina ni acciona nada del camión.",
+        mirror_note="La app **Retrovisores** muestra en la pantalla los retrovisores del camión: el izquierdo, su gran angular y, si lo tiene, el frontal. Toca uno para ampliarlo.",
         needs="Requisitos",
         need_1="Euro Truck Simulator 2 **1.61**, Windows 10 u 11",
         need_2="No requiere DLC",
@@ -284,7 +302,10 @@ TEXT = {
         k_control="Управлять экраном из игры мышью и клавиатурой; игра в это время на паузе (выход: `Esc`)",
         k_nav="Карта навигации", k_home="Главный экран", k_play="Воспроизведение / пауза", k_next="Следующее / предыдущее",
         k_seek="На 10 секунд вперёд / назад", k_full="Видео на весь экран",
+        k_apps="Предыдущее / следующее открытое приложение",
         use_note="Воспроизведение приостанавливается, когда вы ставите игру на паузу или выключаете зажигание. Язык меняется в **Настройках** на экране. Если вы закрыли CabinPlay в настройках, `Ctrl+Alt+C` запустит его снова.",
+        truck_note="Приложение **Грузовик** показывает повреждения грузовика и прицепа, груз, топливо и показания приборов. Сочетания Ctrl+Alt работают и тогда, когда игра на переднем плане, а их клавиши в игру не попадают, поэтому сочетание не включит гудок и ничего не переключит в грузовике.",
+        mirror_note="Приложение **Зеркала** выводит на экран зеркала грузовика: левое, левое широкоугольное и, если есть, переднее. Коснитесь зеркала, чтобы увеличить его.",
         needs="Требования",
         need_1="Euro Truck Simulator 2 **1.61**, Windows 10 или 11",
         need_2="DLC не требуется",
@@ -314,6 +335,8 @@ Needs Python 3, MinGW-w64 gcc and the .NET 8 SDK on Windows.
 `tools\\` generates the mod, `plugin\\` is the game plugin, `app\\` is the companion app with the
 screen's interface in `app\\ui\\`. The version number lives in `VERSION`. This README and its
 translations are generated by `tools\\build_readme.py`.
+The city and country names on the truck page come from the game's own files:
+`tools\\build_places.py` regenerates `app\\ui\\places.js` after a map expansion.
 
 """
 
@@ -359,8 +382,13 @@ TEMPLATE = """# CabinPlay
 | `Ctrl+Alt+→` `←` | {k_next} |
 | `Ctrl+Alt+↑` `↓` | {k_seek} |
 | `Ctrl+Alt+F` | {k_full} |
+| `Ctrl+Alt+PgUp` `PgDn` | {k_apps} |
 
 {use_note}
+
+{truck_note}
+
+{mirror_note}
 
 ## {needs}
 

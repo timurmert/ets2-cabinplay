@@ -17,6 +17,11 @@
   </div>
   <div id="link"><span id="link-dot"></span><span id="link-text"></span></div>
   <div id="dock-apps"></div>
+  <div id="dock-nav" hidden>
+    <button id="dock-back" data-i18n-title="back"><svg viewBox="0 0 24 24"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button>
+    <span class="seg-line"></span>
+    <button id="dock-forward" data-i18n-title="forward"><svg viewBox="0 0 24 24"><path d="M9.5 5.5L16 12l-6.5 6.5"/></svg></button>
+  </div>
   <button id="dock-fullscreen" class="dock-btn" title="Ctrl+Alt+F" hidden>
     <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
   </button>
@@ -68,6 +73,105 @@
   <div id="map-status"></div>
 </section>
 
+<!-- Mirrors app: the game renders the views, the plugin shows them through the key-coloured
+     tiles. The tiles' places match MIRRORS in tools/build_mod.py (see CAMERAS in shell.js). -->
+<section id="mirrors" hidden>
+  <div id="mirror-tiles"></div>
+  <div id="mirror-info" class="map-card">
+    <div id="mirror-title" data-i18n="mirrors"></div>
+    <div id="mirror-hint" data-i18n="camHint"></div>
+    <div id="mirror-note" data-i18n="camFrontNote"></div>
+  </div>
+  <div id="mirror-bar" hidden>
+    <span id="mirror-name"></span>
+  </div>
+  <div class="mirror-actions">
+    <button id="mirror-all" class="map-card map-switch" hidden>
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="3" y="13" width="7" height="7" rx="1.5"/><rect x="14" y="13" width="7" height="7" rx="1.5"/></svg>
+      <span data-i18n="allMirrors"></span>
+    </button>
+  </div>
+  <div id="mirror-status"></div>
+</section>
+
+<!-- Truck page: everything comes from the game's telemetry through the plugin. The plan
+     view is coloured part by part like a car listing's damage chart (see renderTruck). -->
+<section id="truck" hidden>
+  <div id="rig-card" class="card">
+    <div class="rig-head">
+      <div class="rig-title-box">
+        <div id="rig-title"></div>
+        <div id="rig-sub"></div>
+      </div>
+      <div id="rig-chips"></div>
+    </div>
+    <svg id="rig" viewBox="0 0 600 172" aria-hidden="true">
+      <g id="rig-trailer">
+        <rect data-part="trailer-chassis" x="10" y="34" width="386" height="104" rx="8"/>
+        <rect data-part="trailer-chassis" x="392" y="73" width="38" height="26" rx="4"/>
+        <rect data-part="trailer-body" x="17" y="41" width="372" height="90" rx="5"/>
+        <rect data-part="trailer-cargo" class="cargo" x="38" y="55" width="330" height="62" rx="4"/>
+        <g data-part="trailer-wheels"><rect x="44" y="20" width="26" height="12" rx="3"/><rect x="76" y="20" width="26" height="12" rx="3"/><rect x="108" y="20" width="26" height="12" rx="3"/>
+          <rect x="44" y="140" width="26" height="12" rx="3"/><rect x="76" y="140" width="26" height="12" rx="3"/><rect x="108" y="140" width="26" height="12" rx="3"/></g>
+      </g>
+      <g id="rig-tractor">
+        <rect data-part="truck-chassis" x="420" y="60" width="112" height="52" rx="5"/>
+        <circle data-part="truck-chassis" class="detail" cx="446" cy="86" r="14"/>
+        <rect data-part="truck-transmission" x="498" y="70" width="30" height="32" rx="4"/>
+        <rect data-part="truck-cabin" x="530" y="34" width="62" height="104" rx="11"/>
+        <rect data-part="truck-engine" x="548" y="56" width="34" height="60" rx="5"/>
+        <rect class="mirror" x="580" y="26" width="9" height="8" rx="2"/>
+        <rect class="mirror" x="580" y="138" width="9" height="8" rx="2"/>
+        <g data-part="truck-wheels"><rect x="426" y="20" width="26" height="12" rx="3"/><rect x="456" y="20" width="26" height="12" rx="3"/><rect x="546" y="20" width="28" height="12" rx="3"/>
+          <rect x="426" y="140" width="26" height="12" rx="3"/><rect x="456" y="140" width="26" height="12" rx="3"/><rect x="546" y="140" width="28" height="12" rx="3"/></g>
+      </g>
+    </svg>
+    <div class="legend">
+      <span><i class="ok"></i><b data-i18n="condOk"></b></span>
+      <span><i class="light"></i><b data-i18n="condLight"></b></span>
+      <span><i class="medium"></i><b data-i18n="condMedium"></b></span>
+      <span><i class="heavy"></i><b data-i18n="condHeavy"></b></span>
+    </div>
+    <div class="damage">
+      <div><h3 data-i18n="groupTruck"></h3><ul id="damage-truck"></ul></div>
+      <div><h3 data-i18n="groupTrailer"></h3><ul id="damage-trailer"></ul></div>
+    </div>
+  </div>
+  <div id="truck-side">
+    <div id="job-card" class="card">
+      <div class="card-label" data-i18n="job"></div>
+      <div id="job-cargo"></div>
+      <div id="job-sub"></div>
+      <div class="job-route">
+        <div class="stop"><span class="pin"></span><div class="place"><b id="job-from"></b><small id="job-from-company"></small></div></div>
+        <div class="stop"><span class="pin to"></span><div class="place"><b id="job-to"></b><small id="job-to-company"></small></div></div>
+      </div>
+      <div class="stats">
+        <div><small data-i18n="timeLeft"></small><span id="job-left"></span></div>
+        <div><small data-i18n="distance"></small><span id="job-distance"></span></div>
+        <div><small data-i18n="pay"></small><span id="job-pay"></span></div>
+      </div>
+    </div>
+    <div id="fuel-card" class="card">
+      <div class="fuel-head"><span class="card-label" data-i18n="fuel"></span><span id="fuel-amount"></span></div>
+      <div class="fuel-bar"><div id="fuel-level"></div></div>
+      <div class="stats">
+        <div><small data-i18n="range"></small><span id="fuel-range"></span></div>
+        <div><small data-i18n="average"></small><span id="fuel-average"></span></div>
+        <div><small data-i18n="adblue"></small><span id="fuel-adblue"></span></div>
+      </div>
+    </div>
+    <div id="gauge-card" class="card">
+      <div class="card-label" data-i18n="gauges"></div>
+      <div class="stats">
+        <div><small data-i18n="oil"></small><span id="gauge-oil"></span></div>
+        <div><small data-i18n="coolant"></small><span id="gauge-water"></span></div>
+        <div><small data-i18n="battery"></small><span id="gauge-battery"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <div id="settings" hidden>
   <div class="sheet">
     <div class="sheet-head">
@@ -80,6 +184,7 @@
       <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>↑</kbd> <kbd>↓</kbd></td><td data-i18n="scSeek"></td></tr>
       <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>F</kbd></td><td data-i18n="scFullscreen"></td></tr>
       <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>H</kbd> <kbd>N</kbd></td><td data-i18n="scHomeNav"></td></tr>
+      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>PgUp</kbd> <kbd>PgDn</kbd></td><td data-i18n="scSwitchApp"></td></tr>
       <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>C</kbd></td><td data-i18n="scControl"></td></tr>
     </table>
     <p data-i18n="hint"></p>
@@ -94,6 +199,7 @@
 
 <script src="i18n.js"></script>
 <script src="apps.js"></script>
+<script src="places.js"></script>
 <script src="shell.js"></script>
 </body>
 </html>

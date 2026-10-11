@@ -58,8 +58,13 @@ To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Aby usunąć, 
 | `Ctrl+Alt+→` `←` | Następny / poprzedni |
 | `Ctrl+Alt+↑` `↓` | 10 sekund do przodu / do tyłu |
 | `Ctrl+Alt+F` | Wideo na pełnym ekranie |
+| `Ctrl+Alt+PgUp` `PgDn` | Poprzednia / następna otwarta aplikacja |
 
 Odtwarzanie wstrzymuje się, gdy zatrzymasz grę lub wyłączysz zapłon. Język zmienisz w **Ustawieniach** na ekranie. Jeśli zamkniesz CabinPlay w ustawieniach, `Ctrl+Alt+C` uruchomi go ponownie.
+
+Aplikacja **Ciężarówka** pokazuje uszkodzenia ciężarówki i naczepy, ładunek, paliwo i wskaźniki. Skróty Ctrl+Alt działają także wtedy, gdy gra jest na pierwszym planie, a ich klawisze nie trafiają do gry, więc skrót nie włączy klaksonu ani niczego w ciężarówce.
+
+Aplikacja **Lusterka** pokazuje na ekranie lusterka ciężarówki: lewe, lewe szerokokątne oraz, jeśli jest, przednie. Dotknij jednego, aby je powiększyć.
 
 ## Wymagania
 
