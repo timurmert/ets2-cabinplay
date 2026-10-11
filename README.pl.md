@@ -61,7 +61,7 @@ To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Aby usunąć, 
 
 Odtwarzanie wstrzymuje się, gdy zatrzymasz grę lub wyłączysz zapłon. Język zmienisz w **Ustawieniach** na ekranie. Jeśli zamkniesz CabinPlay w ustawieniach, `Ctrl+Alt+C` uruchomi go ponownie.
 
-Aplikacja **Ciężarówka** pokazuje uszkodzenia ciężarówki i naczepy, ładunek i paliwo oraz otwiera pomoc drogową z gry (holowanie, serwis, paliwo), mapę świata i szybki zapis. Klawisze wciśnięte razem z Ctrl+Alt nie trafiają do gry, więc skrót nie włączy klaksonu ani niczego w ciężarówce.
+Aplikacja **Ciężarówka** pokazuje uszkodzenia ciężarówki i naczepy, ładunek, paliwo i wskaźniki. Skróty Ctrl+Alt działają także wtedy, gdy gra jest na pierwszym planie, a ich klawisze nie trafiają do gry, więc skrót nie włączy klaksonu ani niczego w ciężarówce.
 
 ## Wymagania
 

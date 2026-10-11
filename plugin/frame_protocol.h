@@ -23,12 +23,6 @@
 /* app_flags */
 #define CABINPLAY_APP_NAV_VISIBLE 0x1u /* replace key-coloured pixels with the game's map */
 
-/* Game functions the app can ask for (action). The plugin first hands the game back from
- * control mode, waits for it to run again, then presses the game's own control. */
-#define CABINPLAY_ACTION_SERVICES 1u  /* road assistance menu: tow truck, service, fuel */
-#define CABINPLAY_ACTION_WORLD_MAP 2u
-#define CABINPLAY_ACTION_QUICKSAVE 3u
-
 /* Colour the screen texture in the .scs is filled with (see tools/build_mod.py). */
 #define CABINPLAY_MARKER_B 0x06
 #define CABINPLAY_MARKER_G 0x02
@@ -52,9 +46,7 @@ typedef struct cabinplay_frame_header {
     volatile int32_t sequence; /* odd while a frame is being written, bumped to even after */
     uint32_t app_flags;        /* CABINPLAY_APP_* */
     uint64_t heartbeat_ms;     /* writer's GetTickCount64, refreshed even with no new frame */
-    volatile uint32_t action_sequence; /* bumped once per request, after action is written */
-    uint32_t action;                   /* CABINPLAY_ACTION_* */
-    uint8_t reserved1[24];
+    uint8_t reserved1[32];
 } cabinplay_frame_header_t;      /* followed by width * height BGRA pixels, top row first */
 #pragma pack(pop)
 
@@ -72,12 +64,14 @@ typedef struct cabinplay_frame_header {
 #define CABINPLAY_STATE_MOUNTED 0x08u   /* a truck with the screen is loaded */
 #define CABINPLAY_STATE_CONTROL 0x10u   /* in-game control mode is active */
 #define CABINPLAY_STATE_NAV_READY 0x20u /* the game's map texture was found */
+#define CABINPLAY_STATE_FOREGROUND 0x40u /* the game has the keyboard: shortcuts come as events */
 
 /* event types; x and y are CabinPlay screen pixels unless noted */
 #define CABINPLAY_EVENT_MOVE 1u
 #define CABINPLAY_EVENT_BUTTON 2u /* data: button (0 left, 1 right, 2 middle) | down << 8 */
 #define CABINPLAY_EVENT_WHEEL 3u  /* data: wheel delta, 120 per notch */
 #define CABINPLAY_EVENT_KEY 4u    /* x: virtual key, y: down | modifiers << 8, data: UTF-16 char or 0 */
+#define CABINPLAY_EVENT_SHORTCUT 5u /* x: virtual key pressed with Ctrl + left Alt */
 
 #define CABINPLAY_MOD_SHIFT 0x1u
 #define CABINPLAY_MOD_CTRL 0x2u

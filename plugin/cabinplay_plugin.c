@@ -10,9 +10,9 @@
  *  - Reads ignition / pause / navigation state from the telemetry API and passes it on.
  *  - Control mode (Ctrl+Alt+C): draws the screen large over the game and redirects the
  *    game's keyboard and mouse to the companion app.
- *  - Keeps the keys of the app's Ctrl+Alt shortcuts from reaching the game.
- *  - Passes truck, trailer and job details on, and presses game controls the app asks for
- *    (road assistance, world map, quick save) through the input API.
+ *  - Catches the app's Ctrl+Alt shortcuts while the game is in front (the game keeps
+ *    Windows from delivering them) and keeps their keys from reaching the game.
+ *  - Passes truck, trailer and job details on.
  */
 #define COBJMACROS
 #define WIN32_LEAN_AND_MEAN
@@ -33,7 +33,6 @@ typedef unsigned __int64 QWORD; /* used by the NEXTRAWINPUTBLOCK macro, missing 
 #include "frame_protocol.h"
 
 /* app/GameLink.cs and app/FrameWriter.cs read these at fixed offsets. */
-_Static_assert(offsetof(cabinplay_frame_header_t, action_sequence) == 32, "frame header layout");
 _Static_assert(sizeof(cabinplay_frame_header_t) == CABINPLAY_HEADER_SIZE, "frame header size");
 _Static_assert(sizeof(cabinplay_state_t) == 4160, "state layout");
 _Static_assert(offsetof(cabinplay_vehicle_t, income) == 96, "vehicle layout");
@@ -1041,6 +1040,8 @@ static void publish_vehicle(void)
     out->sequence = seq + 2;
 }
 
+static int game_in_front(void);
+
 static void publish_state(int mounted, int nav_ready)
 {
     if (!g_state)
@@ -1052,6 +1053,7 @@ static void publish_state(int mounted, int nav_ready)
     if (mounted) flags |= CABINPLAY_STATE_MOUNTED;
     if (g_control_reported) flags |= CABINPLAY_STATE_CONTROL;
     if (nav_ready) flags |= CABINPLAY_STATE_NAV_READY;
+    if (game_in_front()) flags |= CABINPLAY_STATE_FOREGROUND;
     g_state->flags = flags;
     float speed = g_speed_ms * 3.6f;
     g_state->speed_kmh = speed < 0 ? -speed : speed;
@@ -1122,20 +1124,11 @@ typedef struct scs_input_event {
     } value;
 } scs_input_event_t; /* 28 bytes, as in scssdk_input_event.h */
 
-/* The game's own controls, reached through the input API (see scs_input_init): "pause" for
- * control mode, the others for the app's buttons. */
-enum { INPUT_PAUSE = 0, INPUT_SERVICES, INPUT_WORLD_MAP, INPUT_QUICKSAVE, INPUT_COUNT };
-static const char *const INPUT_NAME[INPUT_COUNT] = {"pause", "services", "navmap", "quicksave"};
+/* The game's "pause" control, reached through the input API (see scs_input_init). */
 static int g_semantic_registered;
 static volatile int g_semantic_active;
-static volatile LONG g_semantic_taps; /* one bit per input: presses still to deliver */
-static int g_semantic_held = -1;      /* input pressed in the previous frame */
-
-/* A game control the app asked for, waiting until the game runs again. */
-static uint32_t g_action_seen;
-static int g_action_synced;
-static int g_action_input = -1;
-static unsigned g_action_frames;
+static volatile LONG g_semantic_taps; /* presses of "pause" still to deliver */
+static int g_semantic_held;
 
 static uint8_t g_vk_down[256];        /* keys held, from window messages */
 static UINT g_pending_vk;             /* key whose character has not arrived yet */
@@ -1188,18 +1181,27 @@ static int is_pause_dik(DWORD dik)
 
 /* ---- Ctrl+Alt shortcuts
  *
- * The app's shortcuts are Ctrl + left Alt + a key, and that key is usually bound in the
- * game as well: H is the horn, N the air horn, C cruise control, Space the parking brake.
- * A key pressed while Ctrl and left Alt are held is therefore hidden from the game on
- * every route until it is released. So is a Ctrl pressed while left Alt is already held,
- * since Ctrl alone is often bound too (gear down). AltGr, which Windows reports as Ctrl
- * + right Alt, is typing and is left alone. */
+ * The app's shortcuts are Ctrl + left Alt + a key. While the game is in front, Windows
+ * does not deliver them to the app (the game asks for raw keyboard input without
+ * hotkeys), so the plugin spots them itself and passes them on as shortcut events.
+ *
+ * The key is usually bound in the game as well: H is the horn, N the air horn, C cruise
+ * control, Space the parking brake. A key pressed while Ctrl and left Alt are held is
+ * therefore hidden from the game on every route until it is released. So is a Ctrl
+ * pressed while left Alt is already held, since Ctrl alone is often bound too (gear
+ * down). AltGr, which Windows reports as Ctrl + right Alt, is typing and is left alone. */
 
 static uint8_t g_chord_hidden[256]; /* by virtual key; both Ctrl keys count as VK_CONTROL */
 static uint8_t g_chord_prev[256];   /* keys held at the last scan while left Alt was down */
 static int g_chord_scanning;        /* g_chord_prev is up to date */
 static volatile int g_chord_any;    /* something in g_chord_hidden is set */
 static uint8_t g_dik_vk[256];       /* DirectInput key -> virtual key */
+
+/* Whether the player is typing into the game. The test's stand-in keyboard always is. */
+static int game_in_front(void)
+{
+    return g_key_source || (g_game_window && GetForegroundWindow() == g_game_window);
+}
 
 static void build_key_table(void)
 {
@@ -1285,21 +1287,28 @@ static int chord_polled(UINT vk)
 }
 
 /* Once per frame: notes what is held while left Alt is down, so a polled key can tell a
- * fresh press from one held since before, and lets go of hidden keys once released. */
+ * fresh press from one held since before, passes each fresh shortcut on to the app, and
+ * lets go of hidden keys once released. */
 static void chord_scan(void)
 {
     int left_alt = left_alt_only();
     if (!left_alt && !g_chord_any && !g_chord_scanning)
         return;
     int ctrl = (real_async_key(VK_CONTROL) & 0x8000) != 0;
+    UINT shortcuts[4];
+    int shortcut_count = 0;
     EnterCriticalSection(&g_chord_lock);
     if (left_alt) {
         for (UINT vk = 1; vk < 255; vk++) {
             if (chord_key(vk) != vk)
                 continue; /* the two Ctrl keys are read as VK_CONTROL */
             int down = (real_async_key((int)vk) & 0x8000) != 0;
-            if (down && g_chord_scanning && !g_chord_prev[vk] && chord_starts(vk, 1, ctrl))
+            if (down && g_chord_scanning && !g_chord_prev[vk] && chord_starts(vk, 1, ctrl)) {
                 chord_hide(vk);
+                /* Ctrl+Alt+<control_key> is control mode, handled here in update_control. */
+                if (vk != VK_CONTROL && vk != (UINT)g_cfg_toggle_vk && shortcut_count < 4)
+                    shortcuts[shortcut_count++] = vk;
+            }
             g_chord_prev[vk] = (uint8_t)down;
         }
     }
@@ -1317,6 +1326,12 @@ static void chord_scan(void)
         g_chord_any = any;
     }
     LeaveCriticalSection(&g_chord_lock);
+    if (shortcut_count && game_in_front()) {
+        EnterCriticalSection(&g_input_lock);
+        for (int i = 0; i < shortcut_count; i++)
+            push_event(CABINPLAY_EVENT_SHORTCUT, (int32_t)shortcuts[i], 0, 0);
+        LeaveCriticalSection(&g_input_lock);
+    }
 }
 
 /* A DirectInput keyboard state about to be handed to the game. */
@@ -1482,7 +1497,7 @@ static void drive_pause(void)
             if (!g_semantic_registered || !g_semantic_active)
                 skip = 1;
             else if (g_pause_stage == 0)
-                InterlockedOr(&g_semantic_taps, 1 << INPUT_PAUSE);
+                InterlockedExchange(&g_semantic_taps, 1);
         } else if (g_pause_method == PAUSE_BY_KEY_PRESS) {
             /* A synthetic key goes to whichever window has the keyboard: only ever the game. */
             if (!g_cfg_pause_vk || !g_game_window || GetForegroundWindow() != g_game_window)
@@ -1515,19 +1530,14 @@ static int32_t __stdcall on_semantic_event(scs_input_event_t *event, uint32_t fl
     if (!(flags & 1)) /* only at the start of a frame: one change per frame */
         return -4;    /* SCS_RESULT_not_found */
     memset(event, 0, sizeof(*event));
-    if (g_semantic_held >= 0) {
-        event->input_index = (uint32_t)g_semantic_held; /* release what was pressed in the previous frame */
-        g_semantic_held = -1;
+    if (g_semantic_held) {
+        g_semantic_held = 0; /* release what was pressed in the previous frame */
         return 0;
     }
-    for (int i = 0; i < INPUT_COUNT; i++) {
-        if (g_semantic_taps & (1 << i)) {
-            InterlockedAnd(&g_semantic_taps, ~(1 << i));
-            event->input_index = (uint32_t)i;
-            event->value.b = 1;
-            g_semantic_held = i;
-            return 0;
-        }
+    if (InterlockedCompareExchange(&g_semantic_taps, 0, 1) == 1) {
+        event->value.b = 1;
+        g_semantic_held = 1;
+        return 0;
     }
     return -4;
 }
@@ -2215,56 +2225,6 @@ static void update_control(int allowed)
     drive_pause();
 }
 
-/* Picks up a game control the app asked for (see CABINPLAY_ACTION_*). */
-static void take_app_action(void)
-{
-    try_open_mapping();
-    if (!shared_valid() || GetTickCount64() - g_shared->heartbeat_ms > 3000) {
-        g_action_synced = 0; /* whatever was asked before the app (re)appeared is stale */
-        return;
-    }
-    uint32_t seq = g_shared->action_sequence;
-    if (!g_action_synced) {
-        g_action_seen = seq;
-        g_action_synced = 1;
-        return;
-    }
-    if (seq == g_action_seen)
-        return;
-    g_action_seen = seq;
-    MemoryBarrier();
-    uint32_t action = g_shared->action;
-    int input = action == CABINPLAY_ACTION_SERVICES    ? INPUT_SERVICES
-                : action == CABINPLAY_ACTION_WORLD_MAP ? INPUT_WORLD_MAP
-                : action == CABINPLAY_ACTION_QUICKSAVE ? INPUT_QUICKSAVE
-                                                       : -1;
-    if (input < 0)
-        return;
-    g_action_input = input;
-    g_action_frames = 0;
-    logf_("app asked for the game's %s control", INPUT_NAME[input]);
-}
-
-/* Once per frame: presses the control the app asked for. The game's own menus need its
- * mouse and keyboard, so control mode is closed first and the game allowed to resume. */
-static void drive_action(void)
-{
-    if (g_action_input < 0)
-        return;
-    if (g_control)
-        set_control(0);
-    int running = !g_control && g_pause_want < 0 && !g_resume_on_exit && !(g_telemetry_ok && g_paused);
-    if (running && g_semantic_registered && g_semantic_active) {
-        InterlockedOr(&g_semantic_taps, 1 << g_action_input);
-        logf_("pressed the game's %s control", INPUT_NAME[g_action_input]);
-        g_action_input = -1;
-    } else if (++g_action_frames > 600) {
-        logf_("could not press the game's %s control: %s", INPUT_NAME[g_action_input],
-              !g_semantic_registered || !g_semantic_active ? "the input API is not available" : "the game stayed paused");
-        g_action_input = -1;
-    }
-}
-
 /* ------------------------------------------------------------------ per-frame work */
 
 /* Runs once per presented frame on the render thread, with g_lock held. */
@@ -2314,10 +2274,8 @@ static void pump(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx
      * (a menu, the pause key) does, so the game is never left without its keyboard. */
     int our_pause = g_we_paused || g_pause_want == 1;
     int usable = first_screen && screen_on && !(g_telemetry_ok && g_paused && !our_pause);
-    take_app_action();
     if (!first_screen) {
         update_control(0);
-        drive_action();
         g_control_reported = g_control || g_pause_want == 0 || (g_resume_on_exit && g_we_paused);
         publish_state(0, nav != NULL);
         return;
@@ -2325,7 +2283,6 @@ static void pump(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx
 
     int fresh = fetch_frame();
     update_control(usable && g_have_frame && !g_blanked);
-    drive_action();
     /* Still "in control" for the app until the game is running again, so it does not
      * take the last moment of our own pause for a real one and stop the video. */
     g_control_reported = g_control || g_pause_want == 0 || (g_resume_on_exit && g_we_paused);
@@ -3019,8 +2976,8 @@ __declspec(dllexport) void scs_telemetry_shutdown(void)
 }
 
 /* The input API. Registers a "semantical" device: its inputs are tied to the game's own
- * controls by name, with nothing for the player to bind. "pause" is how control mode
- * pauses and resumes the game; the others are pressed for the app's buttons. */
+ * controls by name, with nothing for the player to bind. The one input, "pause", is how
+ * control mode pauses and resumes the game. */
 
 typedef struct scs_input_device_input {
     const char *name;
@@ -3053,24 +3010,19 @@ __declspec(dllexport) int32_t scs_input_init(uint32_t version, const scs_input_i
 {
     (void)version;
     init_locks();
-    static const scs_input_device_input_t inputs[INPUT_COUNT] = {
-        {"pause", "Pause", SCS_TYPE_BOOL, 0},
-        {"services", "Road assistance", SCS_TYPE_BOOL, 0},
-        {"navmap", "World map", SCS_TYPE_BOOL, 0},
-        {"quicksave", "Quick save", SCS_TYPE_BOOL, 0},
-    };
+    static const scs_input_device_input_t inputs[] = {{"pause", "Pause", SCS_TYPE_BOOL, 0}};
     scs_input_device_t device;
     memset(&device, 0, sizeof(device));
     device.name = "cabinplay";
     device.display_name = "CabinPlay";
     device.type = 2; /* SCS_INPUT_DEVICE_TYPE_semantical */
-    device.input_count = INPUT_COUNT;
+    device.input_count = 1;
     device.inputs = inputs;
     device.input_active_callback = on_semantic_active;
     device.input_event_callback = on_semantic_event;
     g_semantic_registered = params && params->register_device && params->register_device(&device) == 0;
     g_semantic_active = 0;
-    logf_("input API: game controls %s", g_semantic_registered ? "registered" : "not available");
+    logf_("input API: pause control %s", g_semantic_registered ? "registered" : "not available");
     return 0; /* SCS_RESULT_ok either way: the key press remains as a fallback */
 }
 

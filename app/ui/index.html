@@ -18,8 +18,9 @@
   <div id="link"><span id="link-dot"></span><span id="link-text"></span></div>
   <div id="dock-apps"></div>
   <div id="dock-nav" hidden>
-    <button id="dock-back" class="dock-btn" data-i18n-title="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
-    <button id="dock-forward" class="dock-btn" data-i18n-title="forward"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+    <button id="dock-back" data-i18n-title="back"><svg viewBox="0 0 24 24"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button>
+    <span class="seg-line"></span>
+    <button id="dock-forward" data-i18n-title="forward"><svg viewBox="0 0 24 24"><path d="M9.5 5.5L16 12l-6.5 6.5"/></svg></button>
   </div>
   <button id="dock-fullscreen" class="dock-btn" title="Ctrl+Alt+F" hidden>
     <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
@@ -72,7 +73,8 @@
   <div id="map-status"></div>
 </section>
 
-<!-- Truck page: everything comes from the game's telemetry through the plugin. -->
+<!-- Truck page: everything comes from the game's telemetry through the plugin. Parts
+     marked data-part are outlined in the colour of their wear (see renderTruck). -->
 <section id="truck" hidden>
   <div id="rig-card" class="card">
     <div class="rig-head">
@@ -82,26 +84,51 @@
       </div>
       <div id="rig-chips"></div>
     </div>
-    <svg id="rig" viewBox="0 0 600 200" aria-hidden="true">
+    <svg id="rig" viewBox="0 0 600 206" aria-hidden="true">
+      <defs>
+        <linearGradient id="rig-rim" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#eceef4"/><stop offset="1" stop-color="#8b8f9d"/></linearGradient>
+        <linearGradient id="rig-glass" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#c4e1ff" stop-opacity=".8"/><stop offset="1" stop-color="#4d6fa6" stop-opacity=".4"/></linearGradient>
+        <linearGradient id="rig-shine" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      </defs>
+      <ellipse class="shadow" cx="302" cy="198" rx="292" ry="7"/>
       <g id="rig-trailer">
-        <rect data-part="trailer-body" x="12" y="20" width="392" height="118" rx="7"/>
-        <rect data-part="trailer-chassis" x="12" y="138" width="402" height="13" rx="3"/>
-        <rect data-part="trailer-chassis" x="300" y="151" width="7" height="25" rx="2"/>
-        <rect data-part="trailer-chassis" x="292" y="174" width="23" height="5" rx="2"/>
-        <g data-part="trailer-wheels"><circle cx="70" cy="172" r="21"/><circle cx="118" cy="172" r="21"/><circle cx="166" cy="172" r="21"/></g>
-        <g class="hub"><circle cx="70" cy="172" r="8"/><circle cx="118" cy="172" r="8"/><circle cx="166" cy="172" r="8"/></g>
+        <rect data-part="trailer-body" x="14" y="22" width="390" height="116" rx="9"/>
+        <rect class="shine" x="17" y="25" width="384" height="52" rx="7"/>
+        <path class="seam" d="M6230v100M11030v100M15830v100M20630v100M25430v100M30230v100M35030v100"/>
+        <rect class="lamp red" x="17" y="121" width="5" height="11" rx="2"/>
+        <rect data-part="trailer-chassis" x="14" y="140" width="406" height="10" rx="3"/>
+        <rect class="steel" x="214" y="151" width="72" height="5" rx="2"/>
+        <path data-part="trailer-chassis" d="M300 150h7v23h5v5h-17v-5h5z"/>
+        <circle data-part="trailer-wheels" cx="84" cy="175" r="21"/>
+        <circle data-part="trailer-wheels" cx="132" cy="175" r="21"/>
+        <circle data-part="trailer-wheels" cx="180" cy="175" r="21"/>
+        <g class="rim"><circle cx="84" cy="175" r="11.5"/><circle cx="132" cy="175" r="11.5"/><circle cx="180" cy="175" r="11.5"/></g>
+        <g class="hubcap"><circle cx="84" cy="175" r="3.5"/><circle cx="132" cy="175" r="3.5"/><circle cx="180" cy="175" r="3.5"/></g>
       </g>
       <g id="rig-tractor">
-        <rect data-part="truck-chassis" x="374" y="150" width="210" height="13" rx="3"/>
-        <rect data-part="truck-chassis" x="392" y="141" width="44" height="9" rx="2"/>
-        <rect data-part="truck-transmission" x="470" y="129" width="42" height="21" rx="4"/>
-        <rect data-part="truck-engine" x="516" y="121" width="58" height="29" rx="5"/>
-        <path data-part="truck-cabin" d="M444 128V50q0-20 20-20h96q20 0 21 22l2 76z"/>
-        <path class="glass" d="M552 40h12q8 0 9 10l1 38h-22z"/>
-        <rect class="glass" x="498" y="42" width="44" height="38" rx="5"/>
-        <rect data-part="truck-cabin" x="577" y="112" width="9" height="34" rx="3"/>
-        <g data-part="truck-wheels"><circle cx="430" cy="172" r="22"/><circle cx="548" cy="172" r="22"/></g>
-        <g class="hub"><circle cx="430" cy="172" r="8.5"/><circle cx="548" cy="172" r="8.5"/></g>
+        <rect data-part="truck-chassis" x="408" y="150" width="182" height="11" rx="3"/>
+        <path data-part="truck-chassis" d="M408 141h50l-4 9h-42z"/>
+        <path data-part="truck-cabin" d="M476 31q6-18 34-19h42q15 0 21 19z"/>
+        <path data-part="truck-cabin" d="M456 150V52q0-21 21-21h80q19 0 24 15l7 50 3 54z"/>
+        <rect class="shine" x="459" y="33" width="118" height="40" rx="12"/>
+        <path class="glass" d="M500 42h54q5 0 5 5v40h-63q-1-27 4-45z"/>
+        <path class="glass" d="M567 38q9 1 12 10l6 44h-14z"/>
+        <path class="seam" d="M490 36v112M563 96v52"/>
+        <rect class="steel" x="547" y="99" width="11" height="3" rx="1.5"/>
+        <path class="steel" d="M586 58h4v-6h5v32h-5v-20h-4z"/>
+        <path class="seam" d="M574 103h13M575 109h13M576 115h12"/>
+        <rect class="lamp" x="578" y="121" width="11" height="7" rx="2"/>
+        <rect data-part="truck-cabin" x="565" y="135" width="27" height="17" rx="5"/>
+        <rect data-part="truck-transmission" class="inner" x="494" y="118" width="32" height="22" rx="4"/>
+        <rect data-part="truck-engine" class="inner" x="530" y="108" width="34" height="32" rx="5"/>
+        <rect class="tank" x="468" y="143" width="60" height="18" rx="8"/>
+        <circle data-part="truck-wheels" cx="440" cy="175" r="22"/>
+        <circle data-part="truck-wheels" cx="556" cy="175" r="22"/>
+        <g class="rim"><circle cx="440" cy="175" r="12"/><circle cx="556" cy="175" r="12"/></g>
+        <g class="hubcap"><circle cx="440" cy="175" r="3.8"/><circle cx="556" cy="175" r="3.8"/></g>
       </g>
     </svg>
     <div class="damage">
@@ -118,7 +145,7 @@
         <div class="stop"><span class="pin"></span><span id="job-from"></span></div>
         <div class="stop"><span class="pin to"></span><span id="job-to"></span></div>
       </div>
-      <div class="job-stats">
+      <div class="stats">
         <div><small data-i18n="timeLeft"></small><span id="job-left"></span></div>
         <div><small data-i18n="distance"></small><span id="job-distance"></span></div>
         <div><small data-i18n="pay"></small><span id="job-pay"></span></div>
@@ -127,21 +154,18 @@
     <div id="fuel-card" class="card">
       <div class="fuel-head"><span class="card-label" data-i18n="fuel"></span><span id="fuel-amount"></span></div>
       <div class="fuel-bar"><div id="fuel-level"></div></div>
-      <div class="fuel-stats">
+      <div class="stats">
         <div><small data-i18n="range"></small><span id="fuel-range"></span></div>
         <div><small data-i18n="average"></small><span id="fuel-average"></span></div>
         <div><small data-i18n="adblue"></small><span id="fuel-adblue"></span></div>
       </div>
     </div>
-    <div id="actions-card" class="card">
-      <div class="card-label" data-i18n="inGame"></div>
-      <button id="act-services" class="act-main" data-action="services">
-        <svg viewBox="0 0 24 24"><path d="M13 16V9h4l3 3v4"/><path d="M2.5 16h19"/><path d="M3 16v-3h10"/><path d="M5 13l5-7"/><path d="M10 6l-3.5 3.5"/><circle cx="6.5" cy="18.2" r="2"/><circle cx="16.5" cy="18.2" r="2"/></svg>
-        <span><b data-i18n="roadAssist"></b><small data-i18n="roadAssistSub"></small></span>
-      </button>
-      <div class="act-row">
-        <button data-action="worldmap"><svg viewBox="0 0 24 24"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg><span data-i18n="worldMap"></span></button>
-        <button data-action="quicksave"><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/></svg><span data-i18n="quickSave"></span></button>
+    <div id="gauge-card" class="card">
+      <div class="card-label" data-i18n="gauges"></div>
+      <div class="stats">
+        <div><small data-i18n="oil"></small><span id="gauge-oil"></span></div>
+        <div><small data-i18n="coolant"></small><span id="gauge-water"></span></div>
+        <div><small data-i18n="battery"></small><span id="gauge-battery"></span></div>
       </div>
     </div>
   </div>

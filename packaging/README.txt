@@ -29,8 +29,8 @@ USE
   Ctrl+Alt+N      navigation map          Ctrl+Alt+H   home screen
   Ctrl+Alt+Space  play / pause            Ctrl+Alt+F   video fullscreen
   Closed CabinPlay from its settings? Ctrl+Alt+C starts it again.
-  The Truck app shows damage, cargo and fuel, and opens the game's road assistance.
-  Keys pressed together with Ctrl+Alt never reach the game.
+  The Truck app shows the damage to the truck and trailer, the cargo and the fuel.
+  The shortcuts also work while the game is in front; their keys never reach the game.
   The language and all shortcuts are under Settings on the screen.
 
 NEEDS

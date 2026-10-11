@@ -9,6 +9,7 @@ internal enum GameEventType : uint
     Button = 2, // Data: button (0 left, 1 right, 2 middle) | down << 8
     Wheel = 3,  // Data: wheel delta, 120 per notch
     Key = 4,    // X: virtual key, Y: down | modifiers << 8, Data: UTF-16 char or 0
+    Shortcut = 5, // X: virtual key pressed with Ctrl + left Alt while the game had the keyboard
 }
 
 internal readonly record struct GameEvent(GameEventType Type, int X, int Y, int Data);
@@ -35,6 +36,7 @@ internal readonly record struct GameState(
     bool Mounted,
     bool Control,
     bool NavReady,
+    bool Foreground,  // the game has the keyboard: the plugin passes the shortcuts on
     float SpeedKmh,
     float SpeedLimitKmh,
     float NavDistanceM,
@@ -57,7 +59,7 @@ internal sealed unsafe class GameLink : IDisposable
     private const int Size = VehicleOffset + VehicleSize;
 
     private const uint FlagTelemetry = 0x01, FlagPaused = 0x02, FlagElectric = 0x04, FlagMounted = 0x08,
-                       FlagControl = 0x10, FlagNavReady = 0x20;
+                       FlagControl = 0x10, FlagNavReady = 0x20, FlagForeground = 0x40;
 
     // CABINPLAY_VEHICLE_*
     private const uint VehicleTruck = 0x01, VehicleEngine = 0x02, VehicleParkingBrake = 0x04, VehicleTrailer = 0x08,
@@ -93,6 +95,7 @@ internal sealed unsafe class GameLink : IDisposable
             connected && (flags & FlagMounted) != 0,
             connected && (flags & FlagControl) != 0,
             connected && (flags & FlagNavReady) != 0,
+            connected && (flags & FlagForeground) != 0,
             *(float*)(_base + 24),
             *(float*)(_base + 28),
             *(float*)(_base + 32),

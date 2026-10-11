@@ -255,9 +255,7 @@ internal sealed class MainForm : Form
                 case "browser":
                     BrowserCommand((string?)msg!["action"]);
                     break;
-                case "game-action":
-                    GameAction((string?)msg!["action"]);
-                    break;
+
                 case "media":
                     await MediaCommandAsync((string?)msg!["action"] ?? "");
                     break;
@@ -335,22 +333,6 @@ internal sealed class MainForm : Form
             core.GoBack();
         else if (action == "forward" && core.CanGoForward)
             core.GoForward();
-    }
-
-    /// <summary>The truck page's buttons: the plugin presses the game's own control.</summary>
-    private void GameAction(string? action)
-    {
-        uint code = action switch
-        {
-            "services" => 1, // CABINPLAY_ACTION_SERVICES
-            "worldmap" => 2, // CABINPLAY_ACTION_WORLD_MAP
-            "quicksave" => 3, // CABINPLAY_ACTION_QUICKSAVE
-            _ => 0,
-        };
-        if (code == 0 || _writer is null)
-            return;
-        Log.Write("game control asked for: " + action);
-        _writer.RequestAction(code);
     }
 
     /// <summary>Puts the shell in front, on its home screen, its map or the truck page.</summary>
@@ -544,6 +526,9 @@ internal sealed class MainForm : Form
             ["adblue"] = Math.Round(v.AdBlueL),
             ["adblueCapacity"] = Math.Round(v.AdBlueCapacityL),
             ["odometer"] = Math.Round(v.OdometerKm),
+            ["oilTemperature"] = Math.Round(v.OilTemperatureC),
+            ["waterTemperature"] = Math.Round(v.WaterTemperatureC),
+            ["battery"] = Math.Round(v.BatteryVoltage, 1),
             ["currency"] = v.Dollars ? "USD" : "EUR",
             ["wear"] = new JsonObject
             {
@@ -692,6 +677,9 @@ internal sealed class MainForm : Form
                         break;
                     case GameEventType.Key:
                         InjectKey(e.X, (e.Y & 1) != 0, e.Y >> 8, (char)e.Data);
+                        break;
+                    case GameEventType.Shortcut:
+                        RunShortcut(e.X);
                         break;
                 }
             }
@@ -955,11 +943,26 @@ internal sealed class MainForm : Form
         if (m.Msg == WmHotkey)
         {
             int id = (int)m.WParam;
-            if (id >= 0 && id < Hotkeys.Length)
+            // While the game has the keyboard the plugin passes the shortcuts on itself
+            // (Windows usually holds them back from this window then); never run one twice.
+            if (id >= 0 && id < Hotkeys.Length && !(_game?.Read().Foreground ?? false))
                 RunHotkey(Hotkeys[id].Action);
             return;
         }
         base.WndProc(ref m);
+    }
+
+    /// <summary>A Ctrl+Alt shortcut the plugin caught while the game was in front.</summary>
+    private void RunShortcut(int vk)
+    {
+        foreach ((Keys key, string action) in Hotkeys)
+        {
+            if ((int)key == vk)
+            {
+                RunHotkey(action);
+                return;
+            }
+        }
     }
 
     private async void RunHotkey(string action)

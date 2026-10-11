@@ -61,7 +61,7 @@ Bu kadar. Ekran tırın kontağıyla birlikte açılır. Kaldırmak için **Unin
 
 Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, ekrandaki **Ayarlar**'dan değişir. CabinPlay'i ayarlardan kapattıysan `Ctrl+Alt+C` onu yeniden başlatır.
 
-**Tır** uygulaması tırın ve dorsenin hasarını, yükü ve yakıtı gösterir; oyunun yol yardımını (çekici, servis, yakıt), dünya haritasını ve hızlı kaydı açar. Ctrl+Alt ile birlikte basılan tuşlar oyuna gitmez; bu yüzden kısayollar korna çalmaz, tırda hiçbir şeyi açıp kapatmaz.
+**Tır** uygulaması tırın ve dorsenin hasarını, yükü, yakıtı ve göstergeleri gösterir. Ctrl+Alt kısayolları oyun öndeyken de çalışır ve tuşları oyuna gitmez; bu yüzden kısayollar korna çalmaz, tırda hiçbir şeyi açıp kapatmaz.
 
 ## Gerekenler
 

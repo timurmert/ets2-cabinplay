@@ -95,9 +95,6 @@
   $('dock-fullscreen').addEventListener('click', () => send({ type: 'media', action: 'fullscreen' }));
   $('dock-back').addEventListener('click', () => send({ type: 'browser', action: 'back' }));
   $('dock-forward').addEventListener('click', () => send({ type: 'browser', action: 'forward' }));
-  for (const btn of document.querySelectorAll('#actions-card [data-action]')) {
-    btn.addEventListener('click', () => send({ type: 'game-action', action: btn.dataset.action }));
-  }
   for (const btn of document.querySelectorAll('[data-media]')) {
     btn.addEventListener('click', () => send({ type: 'media', action: btn.dataset.media }));
   }
@@ -116,7 +113,7 @@
     const rows = {};
     for (const [id, key] of parts) {
       const li = document.createElement('li');
-      li.innerHTML = '<span class="dot"></span><span class="name"></span><span class="val"></span>';
+      li.innerHTML = '<span class="name"></span><span class="bar"><i></i></span><span class="val"></span>';
       li.querySelector('.name').dataset.i18n = key;
       list.appendChild(li);
       rows[id] = li;
@@ -212,10 +209,16 @@
     return p < 8 ? '#30d158' : p < 25 ? '#ffd60a' : p < 50 ? '#ff9f0a' : '#ff453a';
   }
   function setPart(part, percent) {
-    for (const el of $('rig').querySelectorAll(`[data-part="${part}"]`)) el.style.fill = wearColor(percent);
+    for (const el of $('rig').querySelectorAll(`[data-part="${part}"]`)) {
+      if (percent == null) el.style.removeProperty('--c');
+      else el.style.setProperty('--c', wearColor(percent));
+    }
   }
   function setRow(row, percent) {
-    row.querySelector('.dot').style.background = wearColor(percent);
+    const bar = row.querySelector('.bar i');
+    bar.style.background = wearColor(percent);
+    // a sliver even at 0%, so the colour still reads
+    bar.style.width = percent == null ? '0' : `${Math.max(4, Math.min(100, percent))}%`;
     row.querySelector('.val').textContent = percent == null ? dash : `${percent}%`;
   }
   const duration = (minutes) => {
@@ -303,10 +306,10 @@
     $('fuel-average').textContent = live && v.average ? `${fmtKm.format(v.average)} L/100` : dash;
     $('fuel-adblue').textContent = live && v.adblueCapacity ? `${fmtInt.format(v.adblue)} L` : dash;
 
-    // the game's own functions need the game
-    for (const btn of document.querySelectorAll('#actions-card [data-action]')) {
-      btn.disabled = !(game.connected && game.telemetry);
-    }
+    // gauges
+    $('gauge-oil').textContent = live && v.oilTemperature ? `${fmtInt.format(v.oilTemperature)} °C` : dash;
+    $('gauge-water').textContent = live && v.waterTemperature ? `${fmtInt.format(v.waterTemperature)} °C` : dash;
+    $('gauge-battery').textContent = live && v.battery ? `${fmtKm.format(v.battery)} V` : dash;
   }
 
   function render() {

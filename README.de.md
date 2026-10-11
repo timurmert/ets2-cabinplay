@@ -61,7 +61,7 @@ Das war's. Der Bildschirm schaltet sich mit der Zündung ein. Zum Entfernen dopp
 
 Die Wiedergabe pausiert, wenn du das Spiel pausierst oder die Zündung ausschaltest. Die Sprache findest du unter **Einstellungen** auf dem Bildschirm. Hast du CabinPlay in den Einstellungen beendet, startet `Ctrl+Alt+C` es wieder.
 
-Die App **Lkw** zeigt die Schäden an Lkw und Auflieger, die Ladung und den Kraftstoff und öffnet die Pannenhilfe des Spiels (Abschleppen, Werkstatt, Kraftstoff), die Weltkarte und das Schnellspeichern. Tasten, die zusammen mit Ctrl+Alt gedrückt werden, erreichen das Spiel nicht: Ein Tastenkürzel hupt nicht und schaltet nichts am Lkw.
+Die App **Lkw** zeigt die Schäden an Lkw und Auflieger, die Ladung, den Kraftstoff und die Anzeigen. Die Ctrl+Alt-Tastenkürzel funktionieren auch, wenn das Spiel im Vordergrund ist, und ihre Tasten erreichen das Spiel nicht: Ein Tastenkürzel hupt nicht und schaltet nichts am Lkw.
 
 ## Voraussetzungen
 

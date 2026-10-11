@@ -271,14 +271,6 @@ static int32_t __stdcall register_input_device(const input_device_t *device)
     return device->type == 2 && device->input_count >= 1 ? 0 : -1;
 }
 
-static int input_index(const char *name)
-{
-    for (int i = 0; i < g_input_count && i < 8; i++)
-        if (!strcmp(g_input_names[i], name))
-            return i;
-    return -1;
-}
-
 /* One frame of the game asking the plugin's device for events. Returns one bit per input
  * that was pressed ("pause" is bit 0). */
 static int poll_input_api(void)
@@ -629,9 +621,8 @@ int main(int argc, char **argv)
         check(typed == 1 && arrow == 1, "typed keys reach the app, each once");
 
         /* pausing, first choice: the game's "pause" control through the input API */
-        check(g_input_event && !strcmp(g_input_names[0], "pause") && input_index("services") > 0 &&
-                  input_index("navmap") > 0 && input_index("quicksave") > 0,
-              "pause, road assistance, world map and quick save are registered with the input API");
+        check(g_input_event && g_input_count == 1 && !strcmp(g_input_names[0], "pause"),
+              "a pause control is registered with the input API");
         int pause_pressed = 0, released = 0;
         for (int i = 0; i < 20 && !pause_pressed; i++) {
             present(hdr, 1);
@@ -665,37 +656,6 @@ int main(int argc, char **argv)
         }
         check(state && !(state->flags & CABINPLAY_STATE_CONTROL) && !(state->flags & CABINPLAY_STATE_PAUSED),
               "control mode is fully closed afterwards");
-
-        /* a button on the screen: road assistance, asked for while control mode is open */
-        control(1);
-        pause_pressed = 0;
-        for (int i = 0; i < 20 && !pause_pressed; i++) {
-            present(hdr, 1);
-            pause_pressed = poll_input_api() & 1;
-        }
-        g_event_cb[3](3, NULL, NULL);
-        present(hdr, 2);
-        poll_input_api(); /* the release */
-        hdr->action = CABINPLAY_ACTION_SERVICES;
-        hdr->action_sequence++;
-        int services = input_index("services"), resumed = 0, assisted = 0, early = 0;
-        for (int i = 0; i < 60 && !assisted; i++) {
-            present(hdr, 1);
-            int pressed = poll_input_api();
-            if ((pressed & (1 << services)) && !resumed)
-                early = 1;
-            if (pressed & (1 << services))
-                assisted = 1;
-            if ((pressed & 1) && !resumed) {
-                resumed = 1;
-                g_event_cb[4](4, NULL, NULL); /* the game runs again */
-            }
-        }
-        check(resumed && !early, "the app's button first closes control mode and resumes the game");
-        check(assisted, "then presses the game's road assistance control");
-        check(state && !(state->flags & CABINPLAY_STATE_CONTROL), "control mode stays closed");
-        present(hdr, 2);
-        check(poll_input_api() == 0, "the control is pressed once");
 
         /* fallback: with the input API unavailable the pause key is pressed instead (here
          * through DirectInput, since this window is not in front) */
@@ -739,9 +699,21 @@ int main(int argc, char **argv)
     hold(VK_LMENU, 1);
     present(hdr, 1);
     hold('H', 1);
+    uint32_t events_before = state->event_write;
     int keys_before = g_game_keys;
     SendMessageW(wnd, WM_KEYDOWN, 'H', 0);
     check(g_game_keys == keys_before, "the shortcut's key press is kept from the game");
+    present(hdr, 2);
+    int shortcuts = 0, others = 0;
+    for (uint32_t i = events_before; i < state->event_write; i++) {
+        const cabinplay_event_t *e = &state->events[i % CABINPLAY_EVENT_CAPACITY];
+        if (e->type == CABINPLAY_EVENT_SHORTCUT && e->x == 'H')
+            shortcuts++;
+        else
+            others++;
+    }
+    check(shortcuts == 1 && !others, "the app is told about the shortcut, once");
+    check(state && (state->flags & CABINPLAY_STATE_FOREGROUND), "and that the game has the keyboard");
     check(!(GetAsyncKeyState('H') & 0x8000) && !(GetKeyState('H') & 0x8000), "and so is its polled state");
     check((GetAsyncKeyState('W') & 0x8000) != 0, "a key held since before is not");
     hold(VK_LCONTROL, 0);

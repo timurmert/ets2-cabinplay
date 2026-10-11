@@ -61,7 +61,7 @@ That's it. The screen switches on with the truck's ignition. To remove it, doubl
 
 Playback pauses when you pause the game or switch the ignition off. The language is under **Settings** on the screen. If you closed CabinPlay from its settings, `Ctrl+Alt+C` starts it again.
 
-The **Truck** app shows the damage to the truck and trailer, the cargo and the fuel, and opens the game's road assistance (tow truck, service, fuel), the world map and quick save. Keys pressed together with Ctrl+Alt never reach the game, so a shortcut does not sound the horn or switch anything on the truck.
+The **Truck** app shows the damage to the truck and trailer, the cargo, the fuel and the gauges. The Ctrl+Alt shortcuts also work while the game is in front, and their keys never reach the game, so a shortcut does not sound the horn or switch anything on the truck.
 
 ## What you need
 
