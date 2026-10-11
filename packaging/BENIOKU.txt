@@ -30,6 +30,8 @@ KULLANIM
   Ctrl+Alt+N       navigasyon haritası     Ctrl+Alt+H   ana ekran
   Ctrl+Alt+Boşluk  oynat / duraklat        Ctrl+Alt+F   videoyu tam ekran yap
   CabinPlay'i ayarlardan kapattıysan Ctrl+Alt+C onu yeniden başlatır.
+  Tır uygulaması hasarı, yükü ve yakıtı gösterir; oyunun yol yardımını açar.
+  Ctrl+Alt ile birlikte basılan tuşlar oyuna gitmez.
   Dil ve tüm kısayollar ekrandaki Ayarlar bölümünde.
 
 GEREKENLER

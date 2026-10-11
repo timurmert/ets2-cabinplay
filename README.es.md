@@ -61,6 +61,8 @@ Eso es todo. La pantalla se enciende con el contacto del camión. Para quitarlo,
 
 La reproducción se pausa cuando pausas el juego o quitas el contacto. El idioma está en **Ajustes**, en la pantalla. Si cerraste CabinPlay desde sus ajustes, `Ctrl+Alt+C` lo vuelve a iniciar.
 
+La app **Camión** muestra los daños del camión y del remolque, la carga y el combustible, y abre la asistencia en carretera del juego (grúa, taller, combustible), el mapa del mundo y el guardado rápido. Las teclas pulsadas junto con Ctrl+Alt nunca llegan al juego: un atajo no hace sonar la bocina ni acciona nada del camión.
+
 ## Requisitos
 
 - Euro Truck Simulator 2 **1.61**, Windows 10 u 11

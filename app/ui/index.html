@@ -17,6 +17,10 @@
   </div>
   <div id="link"><span id="link-dot"></span><span id="link-text"></span></div>
   <div id="dock-apps"></div>
+  <div id="dock-nav" hidden>
+    <button id="dock-back" class="dock-btn" data-i18n-title="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button id="dock-forward" class="dock-btn" data-i18n-title="forward"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
   <button id="dock-fullscreen" class="dock-btn" title="Ctrl+Alt+F" hidden>
     <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
   </button>
@@ -66,6 +70,81 @@
     <div class="route-rest"><span id="map-remaining"></span><span id="map-distance"></span></div>
   </div>
   <div id="map-status"></div>
+</section>
+
+<!-- Truck page: everything comes from the game's telemetry through the plugin. -->
+<section id="truck" hidden>
+  <div id="rig-card" class="card">
+    <div class="rig-head">
+      <div class="rig-title-box">
+        <div id="rig-title"></div>
+        <div id="rig-sub"></div>
+      </div>
+      <div id="rig-chips"></div>
+    </div>
+    <svg id="rig" viewBox="0 0 600 200" aria-hidden="true">
+      <g id="rig-trailer">
+        <rect data-part="trailer-body" x="12" y="20" width="392" height="118" rx="7"/>
+        <rect data-part="trailer-chassis" x="12" y="138" width="402" height="13" rx="3"/>
+        <rect data-part="trailer-chassis" x="300" y="151" width="7" height="25" rx="2"/>
+        <rect data-part="trailer-chassis" x="292" y="174" width="23" height="5" rx="2"/>
+        <g data-part="trailer-wheels"><circle cx="70" cy="172" r="21"/><circle cx="118" cy="172" r="21"/><circle cx="166" cy="172" r="21"/></g>
+        <g class="hub"><circle cx="70" cy="172" r="8"/><circle cx="118" cy="172" r="8"/><circle cx="166" cy="172" r="8"/></g>
+      </g>
+      <g id="rig-tractor">
+        <rect data-part="truck-chassis" x="374" y="150" width="210" height="13" rx="3"/>
+        <rect data-part="truck-chassis" x="392" y="141" width="44" height="9" rx="2"/>
+        <rect data-part="truck-transmission" x="470" y="129" width="42" height="21" rx="4"/>
+        <rect data-part="truck-engine" x="516" y="121" width="58" height="29" rx="5"/>
+        <path data-part="truck-cabin" d="M444 128V50q0-20 20-20h96q20 0 21 22l2 76z"/>
+        <path class="glass" d="M552 40h12q8 0 9 10l1 38h-22z"/>
+        <rect class="glass" x="498" y="42" width="44" height="38" rx="5"/>
+        <rect data-part="truck-cabin" x="577" y="112" width="9" height="34" rx="3"/>
+        <g data-part="truck-wheels"><circle cx="430" cy="172" r="22"/><circle cx="548" cy="172" r="22"/></g>
+        <g class="hub"><circle cx="430" cy="172" r="8.5"/><circle cx="548" cy="172" r="8.5"/></g>
+      </g>
+    </svg>
+    <div class="damage">
+      <div><h3 data-i18n="groupTruck"></h3><ul id="damage-truck"></ul></div>
+      <div><h3 data-i18n="groupTrailer"></h3><ul id="damage-trailer"></ul></div>
+    </div>
+  </div>
+  <div id="truck-side">
+    <div id="job-card" class="card">
+      <div class="card-label" data-i18n="job"></div>
+      <div id="job-cargo"></div>
+      <div id="job-sub"></div>
+      <div class="job-route">
+        <div class="stop"><span class="pin"></span><span id="job-from"></span></div>
+        <div class="stop"><span class="pin to"></span><span id="job-to"></span></div>
+      </div>
+      <div class="job-stats">
+        <div><small data-i18n="timeLeft"></small><span id="job-left"></span></div>
+        <div><small data-i18n="distance"></small><span id="job-distance"></span></div>
+        <div><small data-i18n="pay"></small><span id="job-pay"></span></div>
+      </div>
+    </div>
+    <div id="fuel-card" class="card">
+      <div class="fuel-head"><span class="card-label" data-i18n="fuel"></span><span id="fuel-amount"></span></div>
+      <div class="fuel-bar"><div id="fuel-level"></div></div>
+      <div class="fuel-stats">
+        <div><small data-i18n="range"></small><span id="fuel-range"></span></div>
+        <div><small data-i18n="average"></small><span id="fuel-average"></span></div>
+        <div><small data-i18n="adblue"></small><span id="fuel-adblue"></span></div>
+      </div>
+    </div>
+    <div id="actions-card" class="card">
+      <div class="card-label" data-i18n="inGame"></div>
+      <button id="act-services" class="act-main" data-action="services">
+        <svg viewBox="0 0 24 24"><path d="M13 16V9h4l3 3v4"/><path d="M2.5 16h19"/><path d="M3 16v-3h10"/><path d="M5 13l5-7"/><path d="M10 6l-3.5 3.5"/><circle cx="6.5" cy="18.2" r="2"/><circle cx="16.5" cy="18.2" r="2"/></svg>
+        <span><b data-i18n="roadAssist"></b><small data-i18n="roadAssistSub"></small></span>
+      </button>
+      <div class="act-row">
+        <button data-action="worldmap"><svg viewBox="0 0 24 24"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg><span data-i18n="worldMap"></span></button>
+        <button data-action="quicksave"><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/></svg><span data-i18n="quickSave"></span></button>
+      </div>
+    </div>
+  </div>
 </section>
 
 <div id="settings" hidden>

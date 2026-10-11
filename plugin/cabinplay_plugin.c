@@ -10,6 +10,9 @@
  *  - Reads ignition / pause / navigation state from the telemetry API and passes it on.
  *  - Control mode (Ctrl+Alt+C): draws the screen large over the game and redirects the
  *    game's keyboard and mouse to the companion app.
+ *  - Keeps the keys of the app's Ctrl+Alt shortcuts from reaching the game.
+ *  - Passes truck, trailer and job details on, and presses game controls the app asks for
+ *    (road assistance, world map, quick save) through the input API.
  */
 #define COBJMACROS
 #define WIN32_LEAN_AND_MEAN
@@ -20,6 +23,7 @@
 #include <dinput.h>
 #include <dxgi1_2.h>
 #include <stdarg.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -27,6 +31,16 @@
 
 typedef unsigned __int64 QWORD; /* used by the NEXTRAWINPUTBLOCK macro, missing from these headers */
 #include "frame_protocol.h"
+
+/* app/GameLink.cs and app/FrameWriter.cs read these at fixed offsets. */
+_Static_assert(offsetof(cabinplay_frame_header_t, action_sequence) == 32, "frame header layout");
+_Static_assert(sizeof(cabinplay_frame_header_t) == CABINPLAY_HEADER_SIZE, "frame header size");
+_Static_assert(sizeof(cabinplay_state_t) == 4160, "state layout");
+_Static_assert(offsetof(cabinplay_vehicle_t, income) == 96, "vehicle layout");
+_Static_assert(offsetof(cabinplay_vehicle_t, truck_brand) == 104, "vehicle layout");
+_Static_assert(offsetof(cabinplay_vehicle_t, cargo) == 280, "vehicle layout");
+_Static_assert(offsetof(cabinplay_vehicle_t, job_market) == 536, "vehicle layout");
+_Static_assert(sizeof(cabinplay_vehicle_t) == 568, "vehicle size");
 
 /* Where the plugin and the app leave each other their locations. */
 #define REGISTRY_KEY L"Software\\CabinPlay"
@@ -84,7 +98,7 @@ typedef struct gfx {
 typedef struct shader_consts {
     float uv_rect[4];  /* texture 0 across the viewport: u0, v0, u1, v1 */
     float nav_rect[4]; /* texture 1 across the viewport */
-    float mode[4];     /* composite, transfer for texture 0, transfer for texture 1, alpha */
+    float mode[4];     /* 0 draw, 1 composite, 2 dim; transfer for texture 0 and 1; alpha */
     float cursor[4];   /* x, y in viewport pixels, visible, corner radius in pixels */
     float size[4];     /* viewport width, height */
     float key[4];
@@ -100,6 +114,8 @@ typedef HRESULT(STDMETHODCALLTYPE *di_data_fn)(void *, DWORD, DIDEVICEOBJECTDATA
 static HMODULE g_module;
 static CRITICAL_SECTION g_lock;       /* textures, frames, drawing */
 static CRITICAL_SECTION g_input_lock; /* control-mode input state and the event ring */
+static CRITICAL_SECTION g_chord_lock; /* keys hidden from the game (see "Ctrl+Alt shortcuts") */
+static CRITICAL_SECTION g_vehicle_lock; /* the strings in g_vehicle */
 static int g_locks_ready;
 static int g_hooked;
 static FILE *g_log;
@@ -142,6 +158,13 @@ static volatile int g_paused = 1;
 static volatile int g_electric = 1;
 static volatile float g_speed_ms, g_limit_ms, g_nav_distance, g_nav_time;
 static volatile uint32_t g_game_time;
+
+/* truck, trailer and job: numbers straight from the channels, strings from the
+ * configuration events; copied to the app in publish_vehicle */
+static cabinplay_vehicle_t g_vehicle;
+static volatile int g_engine_on, g_parking_brake, g_trailer_coupled;
+static int g_have_truck, g_have_trailer, g_have_job, g_job_loaded, g_job_special;
+static int g_is_ats;
 
 /* control mode */
 static volatile int g_control;
@@ -633,6 +656,8 @@ static const char SHADER_SOURCE[] =
     "float3 enc(float3 c) { return c <= 0.0031308 ? c * 12.92 : 1.055 * pow(abs(c), 1 / 2.4) - 0.055; }\n"
     "float3 xf(float3 c, float m) { return m > 1.5 ? enc(c) : (m > 0.5 ? dec(c) : c); }\n"
     "float4 ps(VSOut i) : SV_Target {\n"
+    /* mode 2: plain black at the given opacity, to dim the game behind control mode */
+    "  if (mode.x > 1.5) return float4(0, 0, 0, mode.w);\n"
     "  float3 c;\n"
     "  if (mode.x > 0.5) {\n"
     /* composite: texture 0 holds the app's frame byte for byte, texture 1 the game's map */
@@ -927,7 +952,8 @@ static void composite_with_map(ID3D11DeviceContext *ctx, video_t *v, const entry
     draw_rect(ctx, v->rtv, 0, 0, CABINPLAY_WIDTH, CABINPLAY_HEIGHT, g->frame_srv, nav->srv, &c, 0);
 }
 
-/* Control mode: the screen, enlarged, in the middle of the game's picture. */
+/* Control mode: the screen, enlarged, in the middle of the game's picture. The game behind
+ * it is dimmed: paused, it shows its route advisor and other panels there. */
 static void draw_overlay(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx, video_t *v)
 {
     ID3D11Texture2D *back = NULL;
@@ -943,6 +969,12 @@ static void draw_overlay(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceCont
             scale = fit;
         float w = CABINPLAY_WIDTH * scale, h = CABINPLAY_HEIGHT * scale;
         float x = (float)(int)((bd.Width - w) / 2), y = (float)(int)((bd.Height - h) / 2);
+
+        shader_consts_t dim;
+        memset(&dim, 0, sizeof(dim));
+        dim.mode[0] = 2.0f;
+        dim.mode[3] = 0.82f;
+        draw_rect(ctx, rtv, 0, 0, (float)bd.Width, (float)bd.Height, v->srv, NULL, &dim, 1);
 
         shader_consts_t c;
         memset(&c, 0, sizeof(c));
@@ -982,6 +1014,33 @@ static void open_state_mapping(void)
     g_state->version = CABINPLAY_STATE_VERSION;
 }
 
+/* Copies truck, trailer and job to the app. The sequence is odd while the copy is under
+ * way, so the app can tell a torn read and try again. */
+static void publish_vehicle(void)
+{
+    cabinplay_vehicle_t *out = (cabinplay_vehicle_t *)((uint8_t *)g_state + CABINPLAY_VEHICLE_OFFSET);
+    uint32_t seq = out->sequence & ~1u;
+    out->sequence = seq + 1;
+    MemoryBarrier();
+    EnterCriticalSection(&g_vehicle_lock);
+    uint32_t flags = 0;
+    if (g_have_truck) flags |= CABINPLAY_VEHICLE_TRUCK;
+    if (g_engine_on) flags |= CABINPLAY_VEHICLE_ENGINE;
+    if (g_parking_brake) flags |= CABINPLAY_VEHICLE_PARKING_BRAKE;
+    if (g_have_trailer) flags |= CABINPLAY_VEHICLE_TRAILER;
+    if (g_have_trailer && g_trailer_coupled) flags |= CABINPLAY_VEHICLE_TRAILER_COUPLED;
+    if (g_have_job) flags |= CABINPLAY_VEHICLE_JOB;
+    if (g_have_job && g_job_loaded) flags |= CABINPLAY_VEHICLE_CARGO_LOADED;
+    if (g_have_job && g_job_special) flags |= CABINPLAY_VEHICLE_SPECIAL;
+    if (g_is_ats) flags |= CABINPLAY_VEHICLE_ATS;
+    g_vehicle.flags = flags;
+    memcpy((uint8_t *)out + sizeof(out->sequence), (const uint8_t *)&g_vehicle + sizeof(g_vehicle.sequence),
+           sizeof(g_vehicle) - sizeof(g_vehicle.sequence));
+    LeaveCriticalSection(&g_vehicle_lock);
+    MemoryBarrier();
+    out->sequence = seq + 2;
+}
+
 static void publish_state(int mounted, int nav_ready)
 {
     if (!g_state)
@@ -1000,6 +1059,7 @@ static void publish_state(int mounted, int nav_ready)
     g_state->nav_distance_m = g_nav_distance;
     g_state->nav_time_s = g_nav_time;
     g_state->game_time_min = g_game_time;
+    publish_vehicle();
     g_state->heartbeat_ms = GetTickCount64();
 }
 
@@ -1062,11 +1122,20 @@ typedef struct scs_input_event {
     } value;
 } scs_input_event_t; /* 28 bytes, as in scssdk_input_event.h */
 
-/* The game's "pause" control, reached through the input API (see scs_input_init). */
+/* The game's own controls, reached through the input API (see scs_input_init): "pause" for
+ * control mode, the others for the app's buttons. */
+enum { INPUT_PAUSE = 0, INPUT_SERVICES, INPUT_WORLD_MAP, INPUT_QUICKSAVE, INPUT_COUNT };
+static const char *const INPUT_NAME[INPUT_COUNT] = {"pause", "services", "navmap", "quicksave"};
 static int g_semantic_registered;
 static volatile int g_semantic_active;
-static volatile LONG g_semantic_taps; /* presses of "pause" still to deliver */
-static int g_semantic_held;
+static volatile LONG g_semantic_taps; /* one bit per input: presses still to deliver */
+static int g_semantic_held = -1;      /* input pressed in the previous frame */
+
+/* A game control the app asked for, waiting until the game runs again. */
+static uint32_t g_action_seen;
+static int g_action_synced;
+static int g_action_input = -1;
+static unsigned g_action_frames;
 
 static uint8_t g_vk_down[256];        /* keys held, from window messages */
 static UINT g_pending_vk;             /* key whose character has not arrived yet */
@@ -1085,13 +1154,20 @@ static const char *const PAUSE_METHOD_NAME[] = {"input API", "key press", "Direc
 static void on_mouse_move(long dx, long dy, long dz);
 static void on_mouse_button(int button, int down);
 
+typedef SHORT(WINAPI *key_source_fn)(int);
+static key_source_fn g_key_source; /* test aid: stands in for the physical keyboard */
+
 static SHORT real_async_key(int vk)
 {
+    if (g_key_source)
+        return g_key_source(vk);
     return o_GetAsyncKeyState ? o_GetAsyncKeyState(vk) : GetAsyncKeyState(vk);
 }
 
 static SHORT real_key_state(int vk)
 {
+    if (g_key_source)
+        return g_key_source(vk);
     return o_GetKeyState ? o_GetKeyState(vk) : GetKeyState(vk);
 }
 
@@ -1108,6 +1184,187 @@ static BOOL real_set_cursor(int x, int y)
 static int is_pause_dik(DWORD dik)
 {
     return dik == DIK_PAUSE || dik == DIK_NUMLOCK; /* the two share a scan code */
+}
+
+/* ---- Ctrl+Alt shortcuts
+ *
+ * The app's shortcuts are Ctrl + left Alt + a key, and that key is usually bound in the
+ * game as well: H is the horn, N the air horn, C cruise control, Space the parking brake.
+ * A key pressed while Ctrl and left Alt are held is therefore hidden from the game on
+ * every route until it is released. So is a Ctrl pressed while left Alt is already held,
+ * since Ctrl alone is often bound too (gear down). AltGr, which Windows reports as Ctrl
+ * + right Alt, is typing and is left alone. */
+
+static uint8_t g_chord_hidden[256]; /* by virtual key; both Ctrl keys count as VK_CONTROL */
+static uint8_t g_chord_prev[256];   /* keys held at the last scan while left Alt was down */
+static int g_chord_scanning;        /* g_chord_prev is up to date */
+static volatile int g_chord_any;    /* something in g_chord_hidden is set */
+static uint8_t g_dik_vk[256];       /* DirectInput key -> virtual key */
+
+static void build_key_table(void)
+{
+    for (UINT dik = 1; dik < 256; dik++) {
+        UINT scan = (dik & 0x80) ? 0xE000 | (dik & 0x7F) : dik;
+        g_dik_vk[dik] = (uint8_t)MapVirtualKeyW(scan, MAPVK_VSC_TO_VK_EX);
+    }
+}
+
+static int left_alt_only(void)
+{
+    return (real_async_key(VK_LMENU) & 0x8000) && !(real_async_key(VK_RMENU) & 0x8000);
+}
+
+static UINT chord_key(UINT vk)
+{
+    vk &= 0xFF;
+    return vk == VK_LCONTROL || vk == VK_RCONTROL ? VK_CONTROL : vk;
+}
+
+/* Whether a key going down now is part of a shortcut, given the modifiers held. */
+static int chord_starts(UINT vk, int left_alt, int ctrl)
+{
+    switch (vk) {
+    case 0: case VK_LBUTTON: case VK_RBUTTON: case VK_CANCEL: case VK_MBUTTON: case VK_XBUTTON1:
+    case VK_XBUTTON2: case VK_SHIFT: case VK_LSHIFT: case VK_RSHIFT: case VK_MENU: case VK_LMENU:
+    case VK_RMENU: case VK_LWIN: case VK_RWIN: case 0xFF:
+        return 0;
+    case VK_CONTROL:
+        return left_alt;
+    default:
+        return left_alt && ctrl;
+    }
+}
+
+/* Caller holds g_chord_lock. */
+static void chord_hide(UINT vk)
+{
+    g_chord_hidden[vk] = 1;
+    g_chord_any = 1;
+}
+
+/* Keeps a key from the game until it is released, like the Esc that closed control mode. */
+static void hide_until_released(UINT vk)
+{
+    EnterCriticalSection(&g_chord_lock);
+    chord_hide(chord_key(vk));
+    LeaveCriticalSection(&g_chord_lock);
+}
+
+/* A key press or release the game is about to receive. Returns 1 if it must not. */
+static int chord_event(UINT vk, int down)
+{
+    vk = chord_key(vk);
+    if (!vk || vk == 0xFF)
+        return 0;
+    EnterCriticalSection(&g_chord_lock);
+    int hide = g_chord_hidden[vk];
+    if (!hide && down && chord_starts(vk, left_alt_only(), (real_async_key(VK_CONTROL) & 0x8000) != 0)) {
+        chord_hide(vk);
+        hide = 1;
+    }
+    LeaveCriticalSection(&g_chord_lock);
+    return hide;
+}
+
+/* A key the game polls and finds held. Returns 1 if it must read as up. */
+static int chord_polled(UINT vk)
+{
+    vk = chord_key(vk);
+    if (!vk || vk == 0xFF || (!g_chord_any && !g_chord_scanning))
+        return 0;
+    EnterCriticalSection(&g_chord_lock);
+    int hide = g_chord_hidden[vk];
+    /* Only a fresh press counts: a key held since before left Alt went down is driving. */
+    if (!hide && g_chord_scanning && !g_chord_prev[vk] &&
+        chord_starts(vk, left_alt_only(), (real_async_key(VK_CONTROL) & 0x8000) != 0)) {
+        chord_hide(vk);
+        hide = 1;
+    }
+    LeaveCriticalSection(&g_chord_lock);
+    return hide;
+}
+
+/* Once per frame: notes what is held while left Alt is down, so a polled key can tell a
+ * fresh press from one held since before, and lets go of hidden keys once released. */
+static void chord_scan(void)
+{
+    int left_alt = left_alt_only();
+    if (!left_alt && !g_chord_any && !g_chord_scanning)
+        return;
+    int ctrl = (real_async_key(VK_CONTROL) & 0x8000) != 0;
+    EnterCriticalSection(&g_chord_lock);
+    if (left_alt) {
+        for (UINT vk = 1; vk < 255; vk++) {
+            if (chord_key(vk) != vk)
+                continue; /* the two Ctrl keys are read as VK_CONTROL */
+            int down = (real_async_key((int)vk) & 0x8000) != 0;
+            if (down && g_chord_scanning && !g_chord_prev[vk] && chord_starts(vk, 1, ctrl))
+                chord_hide(vk);
+            g_chord_prev[vk] = (uint8_t)down;
+        }
+    }
+    g_chord_scanning = left_alt;
+    if (g_chord_any) {
+        int any = 0;
+        for (UINT vk = 1; vk < 256; vk++) {
+            if (!g_chord_hidden[vk])
+                continue;
+            if (real_async_key((int)vk) & 0x8000)
+                any = 1;
+            else
+                g_chord_hidden[vk] = 0;
+        }
+        g_chord_any = any;
+    }
+    LeaveCriticalSection(&g_chord_lock);
+}
+
+/* A DirectInput keyboard state about to be handed to the game. */
+static void chord_filter_state(BYTE *k)
+{
+    static uint8_t prev[256]; /* the device's own state at the previous read */
+    int left_alt = left_alt_only();
+    int active = left_alt || g_chord_any;
+    int ctrl = active && (real_async_key(VK_CONTROL) & 0x8000) != 0;
+    if (active)
+        EnterCriticalSection(&g_chord_lock);
+    for (int dik = 1; dik < 256; dik++) {
+        int down = (k[dik] & 0x80) != 0, was = prev[dik];
+        prev[dik] = (uint8_t)down;
+        if (!down || !active)
+            continue;
+        UINT vk = chord_key(g_dik_vk[dik]);
+        if (!vk || vk == 0xFF)
+            continue;
+        if (!was && chord_starts(vk, left_alt, ctrl))
+            chord_hide(vk);
+        if (g_chord_hidden[vk])
+            k[dik] = 0;
+    }
+    if (active)
+        LeaveCriticalSection(&g_chord_lock);
+}
+
+/* A window message about to reach the game. Returns 1 if it must not. */
+static int chord_message(UINT msg, WPARAM wp)
+{
+    switch (msg) {
+    case WM_KEYDOWN:
+    case WM_SYSKEYDOWN:
+        return chord_event((UINT)wp, 1);
+    case WM_KEYUP:
+    case WM_SYSKEYUP:
+        return chord_event((UINT)wp, 0);
+    case WM_CHAR:
+    case WM_SYSCHAR:
+    case WM_DEADCHAR:
+    case WM_SYSDEADCHAR:
+    case WM_UNICHAR:
+        /* Windows turns Ctrl + left Alt into AltGr characters on some layouts. */
+        return (g_chord_any || g_chord_scanning) && left_alt_only() && (real_async_key(VK_CONTROL) & 0x8000);
+    default:
+        return 0;
+    }
 }
 
 static void subclass_window(HWND wnd);
@@ -1225,7 +1482,7 @@ static void drive_pause(void)
             if (!g_semantic_registered || !g_semantic_active)
                 skip = 1;
             else if (g_pause_stage == 0)
-                InterlockedExchange(&g_semantic_taps, 1);
+                InterlockedOr(&g_semantic_taps, 1 << INPUT_PAUSE);
         } else if (g_pause_method == PAUSE_BY_KEY_PRESS) {
             /* A synthetic key goes to whichever window has the keyboard: only ever the game. */
             if (!g_cfg_pause_vk || !g_game_window || GetForegroundWindow() != g_game_window)
@@ -1258,14 +1515,19 @@ static int32_t __stdcall on_semantic_event(scs_input_event_t *event, uint32_t fl
     if (!(flags & 1)) /* only at the start of a frame: one change per frame */
         return -4;    /* SCS_RESULT_not_found */
     memset(event, 0, sizeof(*event));
-    if (g_semantic_held) {
-        g_semantic_held = 0; /* release what was pressed in the previous frame */
+    if (g_semantic_held >= 0) {
+        event->input_index = (uint32_t)g_semantic_held; /* release what was pressed in the previous frame */
+        g_semantic_held = -1;
         return 0;
     }
-    if (InterlockedCompareExchange(&g_semantic_taps, 0, 1) == 1) {
-        event->value.b = 1;
-        g_semantic_held = 1;
-        return 0;
+    for (int i = 0; i < INPUT_COUNT; i++) {
+        if (g_semantic_taps & (1 << i)) {
+            InterlockedAnd(&g_semantic_taps, ~(1 << i));
+            event->input_index = (uint32_t)i;
+            event->value.b = 1;
+            g_semantic_held = i;
+            return 0;
+        }
     }
     return -4;
 }
@@ -1367,14 +1629,18 @@ static BOOL WINAPI hk_SetCursorPos(int x, int y)
 
 /* ---- keyboard */
 
-/* Polled key state: nothing is held as far as the game is concerned. */
+/* Polled key state: in control mode nothing is held as far as the game is concerned,
+ * otherwise only the keys of a shortcut are hidden. */
 static SHORT WINAPI hk_GetAsyncKeyState(int vk)
 {
     if (g_control && vk != g_cfg_pause_vk) {
         InterlockedIncrement(&g_routes.key_state);
         return 0;
     }
-    return o_GetAsyncKeyState(vk);
+    SHORT r = real_async_key(vk);
+    if ((r & 0x8000) && chord_polled((UINT)vk))
+        return 0;
+    return r;
 }
 
 static SHORT WINAPI hk_GetKeyState(int vk)
@@ -1383,7 +1649,10 @@ static SHORT WINAPI hk_GetKeyState(int vk)
         InterlockedIncrement(&g_routes.key_state);
         return 0;
     }
-    return o_GetKeyState(vk);
+    SHORT r = real_key_state(vk);
+    if ((r & 0x8000) && chord_polled((UINT)vk))
+        return (SHORT)(r & 1); /* up, toggle state kept */
+    return r;
 }
 
 static uint32_t current_modifiers(void)
@@ -1452,8 +1721,10 @@ static int handle_key_message(UINT msg, WPARAM wp)
                     !(real_key_state(VK_RMENU) & 0x8000);
         if (down) {
             g_vk_down[vk] = 1;
-            if (vk == VK_ESCAPE)
+            if (vk == VK_ESCAPE) {
                 set_control(0); /* Esc always hands the keyboard back to the game */
+                hide_until_released(VK_ESCAPE); /* but not this press: it would open the menu */
+            }
             else if (chord || is_modifier_vk(vk) || keyboard_cursor_key(vk, 1))
                 ;
             else if (key_makes_character(vk))
@@ -1525,11 +1796,12 @@ static LONG take_pause_read(void)
 static HRESULT di_state_common(di_state_fn original, void *dev, DWORD size, LPVOID data)
 {
     HRESULT hr = original(dev, size, data);
-    if ((!g_control && g_di_pause_reads <= 0) || FAILED(hr) || !data)
+    if (FAILED(hr) || !data)
         return hr;
     int kind = device_kind(dev);
     if (kind == 2 && size >= 256) {
         BYTE *k = (BYTE *)data;
+        chord_filter_state(k); /* first, so it sees every press even in control mode */
         if (g_control) {
             InterlockedIncrement(&g_routes.di_keyboard);
             BYTE pause = k[DIK_PAUSE], numlock = k[DIK_NUMLOCK];
@@ -1561,7 +1833,10 @@ static HRESULT di_data_common(di_data_fn original, void *dev, DWORD size, DIDEVI
 {
     DWORD capacity = count ? *count : 0;
     HRESULT hr = original(dev, size, items, count, flags);
-    if ((!g_control && g_di_pause_reads <= 0) || FAILED(hr) || !count)
+    if (FAILED(hr) || !count)
+        return hr;
+    int chords = !g_control && items && *count && (g_chord_any || left_alt_only());
+    if (!g_control && g_di_pause_reads <= 0 && !chords)
         return hr;
     int kind = device_kind(dev);
     if (!kind || size < sizeof(DIDEVICEOBJECTDATA) - sizeof(UINT_PTR))
@@ -1602,6 +1877,18 @@ static HRESULT di_data_common(di_data_fn original, void *dev, DWORD size, DIDEVI
                     }
                 }
             }
+        } else if (chords) {
+            /* Drop the keys of a shortcut. */
+            kept = 0;
+            for (DWORD i = 0; i < *count; i++) {
+                BYTE *d = (BYTE *)items + (size_t)i * size;
+                const DIDEVICEOBJECTDATA *o = (const DIDEVICEOBJECTDATA *)d;
+                if (o->dwOfs < 256 && chord_event(g_dik_vk[o->dwOfs], (o->dwData & 0x80) != 0))
+                    continue;
+                if (kept != i)
+                    memmove((BYTE *)items + (size_t)kept * size, d, size);
+                kept++;
+            }
         }
         LONG left = (items && !(flags & DIGDD_PEEK)) ? take_pause_read() : 0;
         if ((left == 6 || left == 1) && kept < capacity) {
@@ -1615,6 +1902,8 @@ static HRESULT di_data_common(di_data_fn original, void *dev, DWORD size, DIDEVI
     } else {
         return hr;
     }
+    if (kept == *count)
+        return hr;
     *count = kept;
     return hr == DI_BUFFEROVERFLOW ? DI_OK : hr;
 }
@@ -1653,6 +1942,7 @@ static void raw_key(UINT vk, UINT scan, int down)
     }
     if (vk == VK_ESCAPE) {
         set_control(0);
+        hide_until_released(VK_ESCAPE);
         return;
     }
     if ((ctrl && alt) || is_modifier_vk(vk) || keyboard_cursor_key(vk, 1))
@@ -1719,10 +2009,25 @@ static void blank_raw(RAWINPUT *raw)
     }
 }
 
-/* Reached only if the game reads raw input somewhere other than a filtered window. */
+/* Outside control mode: a raw keyboard record that is part of a shortcut. */
+static int raw_chord(const RAWINPUT *raw)
+{
+    if (raw->header.dwType != RIM_TYPEKEYBOARD)
+        return 0;
+    const RAWKEYBOARD *k = &raw->data.keyboard;
+    if (!k->VKey || k->VKey >= 255)
+        return 0;
+    return chord_event(k->VKey, !(k->Flags & RI_KEY_BREAK));
+}
+
+/* In control mode this is reached only if the game reads raw input somewhere other than a
+ * filtered window. */
 static UINT WINAPI hk_GetRawInputData(HRAWINPUT handle, UINT command, LPVOID data, PUINT size, UINT header)
 {
     UINT result = o_GetRawInputData(handle, command, data, size, header);
+    if (!g_control && command == RID_INPUT && data && result != (UINT)-1 &&
+        result >= sizeof(RAWINPUTHEADER) + sizeof(RAWKEYBOARD) && raw_chord((RAWINPUT *)data))
+        blank_raw((RAWINPUT *)data);
     if (g_control && command == RID_INPUT && data && result != (UINT)-1 && result >= sizeof(RAWINPUTHEADER)) {
         RAWINPUT *raw = (RAWINPUT *)data;
         if (!raw_is_for_game(raw)) {
@@ -1740,6 +2045,14 @@ static UINT WINAPI hk_GetRawInputData(HRAWINPUT handle, UINT command, LPVOID dat
 static UINT WINAPI hk_GetRawInputBuffer(PRAWINPUT data, PUINT size, UINT header)
 {
     UINT result = o_GetRawInputBuffer(data, size, header);
+    if (!g_control && data && result != (UINT)-1 && result > 0) {
+        PRAWINPUT raw = data;
+        for (UINT i = 0; i < result; i++) {
+            if (raw_chord(raw))
+                blank_raw(raw);
+            raw = NEXTRAWINPUTBLOCK(raw);
+        }
+    }
     if (g_control && data && result != (UINT)-1 && result > 0) {
         InterlockedIncrement(&g_routes.raw_buffer);
         EnterCriticalSection(&g_input_lock);
@@ -1807,6 +2120,8 @@ static LRESULT CALLBACK hk_wndproc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp)
             LeaveCriticalSection(&g_input_lock);
             return 0;
         }
+    } else if (msg >= WM_KEYFIRST && msg <= WM_KEYLAST && chord_message(msg, wp)) {
+        return 0;
     }
     WNDPROC original = original_proc(wnd);
     if (!original)
@@ -1867,6 +2182,7 @@ static int start_companion(int asked);
 /* Once per frame: the Ctrl+Alt+<key> toggle, the cursor, and pausing the game. */
 static void update_control(int allowed)
 {
+    chord_scan();
     int down = (real_async_key(VK_CONTROL) & 0x8000) && (real_async_key(VK_MENU) & 0x8000) &&
                (real_async_key(g_cfg_toggle_vk) & 0x8000);
     /* If the player closed the app from its settings, the same key brings it back. */
@@ -1897,6 +2213,56 @@ static void update_control(int allowed)
         LeaveCriticalSection(&g_input_lock);
     }
     drive_pause();
+}
+
+/* Picks up a game control the app asked for (see CABINPLAY_ACTION_*). */
+static void take_app_action(void)
+{
+    try_open_mapping();
+    if (!shared_valid() || GetTickCount64() - g_shared->heartbeat_ms > 3000) {
+        g_action_synced = 0; /* whatever was asked before the app (re)appeared is stale */
+        return;
+    }
+    uint32_t seq = g_shared->action_sequence;
+    if (!g_action_synced) {
+        g_action_seen = seq;
+        g_action_synced = 1;
+        return;
+    }
+    if (seq == g_action_seen)
+        return;
+    g_action_seen = seq;
+    MemoryBarrier();
+    uint32_t action = g_shared->action;
+    int input = action == CABINPLAY_ACTION_SERVICES    ? INPUT_SERVICES
+                : action == CABINPLAY_ACTION_WORLD_MAP ? INPUT_WORLD_MAP
+                : action == CABINPLAY_ACTION_QUICKSAVE ? INPUT_QUICKSAVE
+                                                       : -1;
+    if (input < 0)
+        return;
+    g_action_input = input;
+    g_action_frames = 0;
+    logf_("app asked for the game's %s control", INPUT_NAME[input]);
+}
+
+/* Once per frame: presses the control the app asked for. The game's own menus need its
+ * mouse and keyboard, so control mode is closed first and the game allowed to resume. */
+static void drive_action(void)
+{
+    if (g_action_input < 0)
+        return;
+    if (g_control)
+        set_control(0);
+    int running = !g_control && g_pause_want < 0 && !g_resume_on_exit && !(g_telemetry_ok && g_paused);
+    if (running && g_semantic_registered && g_semantic_active) {
+        InterlockedOr(&g_semantic_taps, 1 << g_action_input);
+        logf_("pressed the game's %s control", INPUT_NAME[g_action_input]);
+        g_action_input = -1;
+    } else if (++g_action_frames > 600) {
+        logf_("could not press the game's %s control: %s", INPUT_NAME[g_action_input],
+              !g_semantic_registered || !g_semantic_active ? "the input API is not available" : "the game stayed paused");
+        g_action_input = -1;
+    }
 }
 
 /* ------------------------------------------------------------------ per-frame work */
@@ -1948,8 +2314,10 @@ static void pump(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx
      * (a menu, the pause key) does, so the game is never left without its keyboard. */
     int our_pause = g_we_paused || g_pause_want == 1;
     int usable = first_screen && screen_on && !(g_telemetry_ok && g_paused && !our_pause);
+    take_app_action();
     if (!first_screen) {
         update_control(0);
+        drive_action();
         g_control_reported = g_control || g_pause_want == 0 || (g_resume_on_exit && g_we_paused);
         publish_state(0, nav != NULL);
         return;
@@ -1957,6 +2325,7 @@ static void pump(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx
 
     int fresh = fetch_frame();
     update_control(usable && g_have_frame && !g_blanked);
+    drive_action();
     /* Still "in control" for the app until the game is running again, so it does not
      * take the last moment of our own pause for a real one and stop the video. */
     g_control_reported = g_control || g_pause_want == 0 || (g_resume_on_exit && g_we_paused);
@@ -2242,11 +2611,27 @@ typedef struct scs_value {
     uint32_t padding;
     union {
         uint8_t b;
+        int32_t s32;
         uint32_t u32;
+        uint64_t u64;
         float f;
+        double d;
+        const char *s;
         uint8_t raw[40];
     } v;
 } scs_value_t; /* 48 bytes, as in scssdk_value.h */
+
+typedef struct scs_named_value {
+    const char *name;
+    uint32_t index;
+    uint32_t padding;
+    scs_value_t value;
+} scs_named_value_t; /* 64 bytes */
+
+typedef struct scs_configuration {
+    const char *id;
+    const scs_named_value_t *attributes; /* ends with a NULL name */
+} scs_configuration_t;
 
 typedef void(__stdcall *scs_event_cb)(uint32_t event, const void *info, void *context);
 typedef void(__stdcall *scs_channel_cb)(const char *name, uint32_t index, const scs_value_t *value, void *context);
@@ -2264,9 +2649,10 @@ typedef struct scs_telemetry_init_params {
     int32_t(__stdcall *unregister_from_channel)(const char *name, uint32_t index, uint32_t type);
 } scs_telemetry_init_params_t; /* 64 bytes: scs_telemetry_init_params_v100_t */
 
-enum { SCS_EVENT_PAUSED = 3, SCS_EVENT_STARTED = 4 };
-enum { SCS_TYPE_BOOL = 1, SCS_TYPE_U32 = 3, SCS_TYPE_FLOAT = 5 };
-enum { SCS_CHANNEL_EACH_FRAME = 1 };
+enum { SCS_EVENT_PAUSED = 3, SCS_EVENT_STARTED = 4, SCS_EVENT_CONFIGURATION = 5 };
+enum { SCS_TYPE_BOOL = 1, SCS_TYPE_S32 = 2, SCS_TYPE_U32 = 3, SCS_TYPE_U64 = 4, SCS_TYPE_FLOAT = 5, SCS_TYPE_DOUBLE = 6,
+       SCS_TYPE_STRING = 12 };
+enum { SCS_CHANNEL_ON_CHANGE = 0, SCS_CHANNEL_EACH_FRAME = 1 };
 
 static void __stdcall on_scs_event(uint32_t event, const void *info, void *context)
 {
@@ -2302,6 +2688,146 @@ static void __stdcall on_scs_u32(const char *name, uint32_t index, const scs_val
         *(volatile uint32_t *)context = value->v.u32;
 }
 
+/* Copies a game string, never cutting a character in half. */
+static void copy_text(char *dst, size_t capacity, const scs_value_t *value)
+{
+    const char *src = value && value->type == SCS_TYPE_STRING ? value->v.s : NULL;
+    size_t n = src ? strlen(src) : 0;
+    if (n >= capacity) {
+        n = capacity - 1;
+        while (n > 0 && ((unsigned char)src[n] & 0xC0) == 0x80)
+            n--;
+    }
+    if (n)
+        memcpy(dst, src, n);
+    dst[n] = 0;
+}
+
+static double value_number(const scs_value_t *value)
+{
+    switch (value->type) {
+    case SCS_TYPE_BOOL: return value->v.b;
+    case SCS_TYPE_S32: return value->v.s32;
+    case SCS_TYPE_U32: return value->v.u32;
+    case SCS_TYPE_U64: return (double)value->v.u64;
+    case SCS_TYPE_FLOAT: return value->v.f;
+    case SCS_TYPE_DOUBLE: return value->v.d;
+    default: return 0;
+    }
+}
+
+/* The truck, the first trailer and the job, each sent whole whenever it changes; an empty
+ * one means there is none (no trailer, no job). */
+static void __stdcall on_scs_configuration(uint32_t event, const void *info, void *context)
+{
+    (void)event;
+    (void)context;
+    const scs_configuration_t *c = (const scs_configuration_t *)info;
+    if (!c || !c->id)
+        return;
+    int truck = !strcmp(c->id, "truck");
+    int trailer = !strcmp(c->id, "trailer") || !strcmp(c->id, "trailer.0");
+    int job = !strcmp(c->id, "job");
+    if (!truck && !trailer && !job)
+        return;
+    EnterCriticalSection(&g_vehicle_lock);
+    cabinplay_vehicle_t *v = &g_vehicle;
+    if (truck) {
+        v->truck_brand[0] = v->truck_name[0] = v->truck_plate[0] = 0;
+        v->fuel_capacity_l = v->adblue_capacity_l = 0;
+    } else if (trailer) {
+        v->trailer_name[0] = v->trailer_plate[0] = 0;
+    } else {
+        v->cargo[0] = v->source_city[0] = v->source_company[0] = 0;
+        v->destination_city[0] = v->destination_company[0] = v->job_market[0] = 0;
+        v->cargo_mass_kg = 0;
+        v->delivery_time_min = v->planned_distance_km = 0;
+        v->income = 0;
+        g_job_loaded = g_job_special = 0;
+    }
+    int any = 0;
+    for (const scs_named_value_t *a = c->attributes; a && a->name; a++) {
+        const char *n = a->name;
+        const scs_value_t *x = &a->value;
+        any = 1;
+        if (truck) {
+            if (!strcmp(n, "brand")) copy_text(v->truck_brand, sizeof(v->truck_brand), x);
+            else if (!strcmp(n, "name")) copy_text(v->truck_name, sizeof(v->truck_name), x);
+            else if (!strcmp(n, "license.plate")) copy_text(v->truck_plate, sizeof(v->truck_plate), x);
+            else if (!strcmp(n, "fuel.capacity")) v->fuel_capacity_l = (float)value_number(x);
+            else if (!strcmp(n, "adblue.capacity")) v->adblue_capacity_l = (float)value_number(x);
+        } else if (trailer) {
+            if (!strcmp(n, "name")) copy_text(v->trailer_name, sizeof(v->trailer_name), x);
+            else if (!strcmp(n, "license.plate")) copy_text(v->trailer_plate, sizeof(v->trailer_plate), x);
+        } else {
+            if (!strcmp(n, "cargo")) copy_text(v->cargo, sizeof(v->cargo), x);
+            else if (!strcmp(n, "cargo.mass")) v->cargo_mass_kg = (float)value_number(x);
+            else if (!strcmp(n, "source.city")) copy_text(v->source_city, sizeof(v->source_city), x);
+            else if (!strcmp(n, "source.company")) copy_text(v->source_company, sizeof(v->source_company), x);
+            else if (!strcmp(n, "destination.city")) copy_text(v->destination_city, sizeof(v->destination_city), x);
+            else if (!strcmp(n, "destination.company"))
+                copy_text(v->destination_company, sizeof(v->destination_company), x);
+            else if (!strcmp(n, "job.market")) copy_text(v->job_market, sizeof(v->job_market), x);
+            else if (!strcmp(n, "income")) v->income = (uint64_t)value_number(x);
+            else if (!strcmp(n, "delivery.time")) v->delivery_time_min = (uint32_t)value_number(x);
+            else if (!strcmp(n, "planned_distance.km")) v->planned_distance_km = (uint32_t)value_number(x);
+            else if (!strcmp(n, "is.cargo.loaded")) g_job_loaded = value_number(x) != 0;
+            else if (!strcmp(n, "special.transport")) g_job_special = value_number(x) != 0;
+        }
+    }
+    if (truck)
+        g_have_truck = any;
+    else if (trailer)
+        g_have_trailer = any;
+    else
+        g_have_job = any;
+    LeaveCriticalSection(&g_vehicle_lock);
+}
+
+/* Channels of the truck and its first trailer, for the app's truck page. Those that do
+ * not exist in this game version are simply not registered. */
+static void register_vehicle_channels(const scs_telemetry_init_params_t *p)
+{
+    const uint32_t none = 0xFFFFFFFFu;
+    static const struct { const char *name; size_t offset; } floats[] = {
+        {"truck.fuel.amount", offsetof(cabinplay_vehicle_t, fuel_l)},
+        {"truck.fuel.range", offsetof(cabinplay_vehicle_t, fuel_range_km)},
+        {"truck.fuel.consumption.average", offsetof(cabinplay_vehicle_t, fuel_average_l_per_km)},
+        {"truck.adblue", offsetof(cabinplay_vehicle_t, adblue_l)},
+        {"truck.odometer", offsetof(cabinplay_vehicle_t, odometer_km)},
+        {"truck.oil.temperature", offsetof(cabinplay_vehicle_t, oil_temperature_c)},
+        {"truck.water.temperature", offsetof(cabinplay_vehicle_t, water_temperature_c)},
+        {"truck.battery.voltage", offsetof(cabinplay_vehicle_t, battery_voltage)},
+        {"truck.wear.engine", offsetof(cabinplay_vehicle_t, wear_engine)},
+        {"truck.wear.transmission", offsetof(cabinplay_vehicle_t, wear_transmission)},
+        {"truck.wear.cabin", offsetof(cabinplay_vehicle_t, wear_cabin)},
+        {"truck.wear.chassis", offsetof(cabinplay_vehicle_t, wear_chassis)},
+        {"truck.wear.wheels", offsetof(cabinplay_vehicle_t, wear_wheels)},
+        /* the first trailer, under its old name and the newer numbered one */
+        {"trailer.wear.chassis", offsetof(cabinplay_vehicle_t, trailer_wear_chassis)},
+        {"trailer.0.wear.chassis", offsetof(cabinplay_vehicle_t, trailer_wear_chassis)},
+        {"trailer.wear.wheels", offsetof(cabinplay_vehicle_t, trailer_wear_wheels)},
+        {"trailer.0.wear.wheels", offsetof(cabinplay_vehicle_t, trailer_wear_wheels)},
+        {"trailer.wear.body", offsetof(cabinplay_vehicle_t, trailer_wear_body)},
+        {"trailer.0.wear.body", offsetof(cabinplay_vehicle_t, trailer_wear_body)},
+        {"trailer.cargo.damage", offsetof(cabinplay_vehicle_t, cargo_damage)},
+        {"trailer.0.cargo.damage", offsetof(cabinplay_vehicle_t, cargo_damage)},
+    };
+    for (size_t i = 0; i < sizeof(floats) / sizeof(floats[0]); i++)
+        p->register_for_channel(floats[i].name, none, SCS_TYPE_FLOAT, SCS_CHANNEL_ON_CHANGE, on_scs_float,
+                                (void *)((uint8_t *)&g_vehicle + floats[i].offset));
+    p->register_for_channel("truck.engine.enabled", none, SCS_TYPE_BOOL, SCS_CHANNEL_ON_CHANGE, on_scs_bool,
+                            (void *)&g_engine_on);
+    p->register_for_channel("truck.brake.parking", none, SCS_TYPE_BOOL, SCS_CHANNEL_ON_CHANGE, on_scs_bool,
+                            (void *)&g_parking_brake);
+    p->register_for_channel("trailer.connected", none, SCS_TYPE_BOOL, SCS_CHANNEL_ON_CHANGE, on_scs_bool,
+                            (void *)&g_trailer_coupled);
+    p->register_for_channel("trailer.0.connected", none, SCS_TYPE_BOOL, SCS_CHANNEL_ON_CHANGE, on_scs_bool,
+                            (void *)&g_trailer_coupled);
+    if (p->register_for_event(SCS_EVENT_CONFIGURATION, on_scs_configuration, NULL) != 0)
+        logf_("telemetry: no configuration events, truck and job details are unavailable");
+}
+
 static void register_telemetry(const scs_telemetry_init_params_t *p)
 {
     if (!p || !p->register_for_event || !p->register_for_channel)
@@ -2319,6 +2845,7 @@ static void register_telemetry(const scs_telemetry_init_params_t *p)
     p->register_for_channel("truck.navigation.time", none, SCS_TYPE_FLOAT, SCS_CHANNEL_EACH_FRAME, on_scs_float,
                             (void *)&g_nav_time);
     p->register_for_channel("game.time", none, SCS_TYPE_U32, SCS_CHANNEL_EACH_FRAME, on_scs_u32, (void *)&g_game_time);
+    register_vehicle_channels(p);
     g_paused = 1; /* the game starts in its menus */
     g_telemetry_ok = ok;
     logf_("telemetry: %s", ok ? "registered" : "not available, ignition and pause are ignored");
@@ -2382,18 +2909,26 @@ static int start_companion(int asked)
 
 /* ------------------------------------------------------------------ SCS SDK entry points */
 
+static void init_locks(void)
+{
+    if (g_locks_ready)
+        return;
+    InitializeCriticalSection(&g_lock);
+    InitializeCriticalSection(&g_input_lock);
+    InitializeCriticalSection(&g_chord_lock);
+    InitializeCriticalSection(&g_vehicle_lock);
+    g_locks_ready = 1;
+}
+
 __declspec(dllexport) int32_t scs_telemetry_init(uint32_t version, const scs_telemetry_init_params_t *params)
 {
     (void)version;
     if (g_hooked)
         return 0;
-    if (!g_locks_ready) {
-        InitializeCriticalSection(&g_lock);
-        InitializeCriticalSection(&g_input_lock);
-        g_locks_ready = 1;
-    }
+    init_locks();
     open_log_and_config();
     logf_("CabinPlay plugin starting (game: %s)", params && params->game_id ? params->game_id : "?");
+    g_is_ats = params && params->game_id && !strcmp(params->game_id, "ats");
 
     const char *status = "[cabinplay] plugin active";
     if (!g_cfg_enabled) {
@@ -2409,6 +2944,7 @@ __declspec(dllexport) int32_t scs_telemetry_init(uint32_t version, const scs_tel
             for (size_t i = 3; i < CABINPLAY_FRAME_BYTES; i += 4)
                 g_black[i] = 0xFF;
             if (MH_Initialize() == MH_OK && install_d3d_hooks()) {
+                build_key_table();
                 install_input_hooks();
                 open_state_mapping();
                 register_telemetry(params);
@@ -2483,8 +3019,8 @@ __declspec(dllexport) void scs_telemetry_shutdown(void)
 }
 
 /* The input API. Registers a "semantical" device: its inputs are tied to the game's own
- * controls by name, with nothing for the player to bind. The one input, "pause", is how
- * control mode pauses and resumes the game. */
+ * controls by name, with nothing for the player to bind. "pause" is how control mode
+ * pauses and resumes the game; the others are pressed for the app's buttons. */
 
 typedef struct scs_input_device_input {
     const char *name;
@@ -2516,19 +3052,25 @@ typedef struct scs_input_init_params {
 __declspec(dllexport) int32_t scs_input_init(uint32_t version, const scs_input_init_params_t *params)
 {
     (void)version;
-    static const scs_input_device_input_t inputs[] = {{"pause", "Pause", SCS_TYPE_BOOL, 0}};
+    init_locks();
+    static const scs_input_device_input_t inputs[INPUT_COUNT] = {
+        {"pause", "Pause", SCS_TYPE_BOOL, 0},
+        {"services", "Road assistance", SCS_TYPE_BOOL, 0},
+        {"navmap", "World map", SCS_TYPE_BOOL, 0},
+        {"quicksave", "Quick save", SCS_TYPE_BOOL, 0},
+    };
     scs_input_device_t device;
     memset(&device, 0, sizeof(device));
     device.name = "cabinplay";
     device.display_name = "CabinPlay";
     device.type = 2; /* SCS_INPUT_DEVICE_TYPE_semantical */
-    device.input_count = 1;
+    device.input_count = INPUT_COUNT;
     device.inputs = inputs;
     device.input_active_callback = on_semantic_active;
     device.input_event_callback = on_semantic_event;
     g_semantic_registered = params && params->register_device && params->register_device(&device) == 0;
     g_semantic_active = 0;
-    logf_("input API: pause control %s", g_semantic_registered ? "registered" : "not available");
+    logf_("input API: game controls %s", g_semantic_registered ? "registered" : "not available");
     return 0; /* SCS_RESULT_ok either way: the key press remains as a fallback */
 }
 
@@ -2542,6 +3084,12 @@ __declspec(dllexport) void scs_input_shutdown(void)
 __declspec(dllexport) void cabinplay_debug_control(int on)
 {
     set_control(on);
+}
+
+/* Test aid: reads keys from the test instead of the physical keyboard (NULL: the keyboard). */
+__declspec(dllexport) void cabinplay_debug_key_source(key_source_fn source)
+{
+    g_key_source = source;
 }
 
 BOOL WINAPI DllMain(HINSTANCE module, DWORD reason, LPVOID reserved)

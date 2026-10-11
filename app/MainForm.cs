@@ -58,7 +58,7 @@ internal sealed class MainForm : Form
     private GameLink? _game;
     private string? _activeId;          // app shown right now, null while the shell is in front
     private string? _mediaId;           // app the media controls act on
-    private string _shellView = "home"; // what the shell shows behind the apps: "home" or "maps"
+    private string _shellView = "home"; // what the shell shows behind the apps: "home", "maps" or "truck"
     private bool _stateBusy;
     private int _stateTick;
     private bool _holdingMedia;         // media was paused because the game paused or the ignition is off
@@ -250,7 +250,13 @@ internal sealed class MainForm : Form
                     await OpenAppAsync(msg!);
                     break;
                 case "view":
-                    ShowShell((string?)msg!["view"] == "maps" ? "maps" : "home");
+                    ShowShell((string?)msg!["view"] switch { "maps" => "maps", "truck" => "truck", _ => "home" });
+                    break;
+                case "browser":
+                    BrowserCommand((string?)msg!["action"]);
+                    break;
+                case "game-action":
+                    GameAction((string?)msg!["action"]);
                     break;
                 case "media":
                     await MediaCommandAsync((string?)msg!["action"] ?? "");
@@ -308,6 +314,8 @@ internal sealed class MainForm : Form
                 captured.Fullscreen = core.ContainsFullScreenElement;
                 LayoutViews();
             };
+            // Keeps the dock's back and forward buttons current.
+            core.HistoryChanged += async (_, _) => await PushStateAsync(withMedia: false);
             view.ZoomFactor = PixelZoom;
             await PrepareForInjectedInputAsync(core);
             core.Navigate(url);
@@ -317,7 +325,35 @@ internal sealed class MainForm : Form
         LayoutViews();
     }
 
-    /// <summary>Puts the shell in front, on its home screen or its map.</summary>
+    /// <summary>The dock's back and forward buttons, for the app in front.</summary>
+    private void BrowserCommand(string? action)
+    {
+        if (_activeId is null || !_apps.TryGetValue(_activeId, out AppView? app) || app.View.CoreWebView2 is null)
+            return;
+        CoreWebView2 core = app.View.CoreWebView2;
+        if (action == "back" && core.CanGoBack)
+            core.GoBack();
+        else if (action == "forward" && core.CanGoForward)
+            core.GoForward();
+    }
+
+    /// <summary>The truck page's buttons: the plugin presses the game's own control.</summary>
+    private void GameAction(string? action)
+    {
+        uint code = action switch
+        {
+            "services" => 1, // CABINPLAY_ACTION_SERVICES
+            "worldmap" => 2, // CABINPLAY_ACTION_WORLD_MAP
+            "quicksave" => 3, // CABINPLAY_ACTION_QUICKSAVE
+            _ => 0,
+        };
+        if (code == 0 || _writer is null)
+            return;
+        Log.Write("game control asked for: " + action);
+        _writer.RequestAction(code);
+    }
+
+    /// <summary>Puts the shell in front, on its home screen, its map or the truck page.</summary>
     private void ShowShell(string view)
     {
         _shellView = view;
@@ -444,6 +480,9 @@ internal sealed class MainForm : Form
                 }
             }
             GameState g = _game?.Read() ?? default;
+            CoreWebView2? front = _activeId is not null && _apps.TryGetValue(_activeId, out AppView? shown)
+                ? shown.View.CoreWebView2
+                : null;
             var state = new JsonObject
             {
                 ["type"] = "state",
@@ -451,6 +490,12 @@ internal sealed class MainForm : Form
                 ["view"] = _shellView,
                 ["open"] = new JsonArray(_apps.Keys.Select(k => (JsonNode?)JsonValue.Create(k)).ToArray()),
                 ["media"] = _lastMedia?.DeepClone(),
+                ["browser"] = new JsonObject
+                {
+                    ["back"] = front?.CanGoBack ?? false,
+                    ["forward"] = front?.CanGoForward ?? false,
+                },
+                ["vehicle"] = g.Connected ? VehicleJson(_game?.ReadVehicle()) : null,
                 ["game"] = new JsonObject
                 {
                     ["connected"] = g.Connected,
@@ -477,6 +522,72 @@ internal sealed class MainForm : Form
         {
             _stateBusy = false;
         }
+    }
+
+    /// <summary>What the truck page shows. Wear and damage in whole percent.</summary>
+    private static JsonObject? VehicleJson(Vehicle? v)
+    {
+        if (v is null || !v.Truck)
+            return null;
+        static double Percent(float wear) => Math.Round(Math.Clamp(wear, 0f, 1f) * 100);
+        var o = new JsonObject
+        {
+            ["brand"] = v.TruckBrand,
+            ["name"] = v.TruckName,
+            ["plate"] = v.TruckPlate,
+            ["engine"] = v.Engine,
+            ["parkingBrake"] = v.ParkingBrake,
+            ["fuel"] = Math.Round(v.FuelL),
+            ["fuelCapacity"] = Math.Round(v.FuelCapacityL),
+            ["range"] = Math.Round(v.FuelRangeKm),
+            ["average"] = Math.Round(v.FuelAverageLPerKm * 100, 1), // litres per 100 km
+            ["adblue"] = Math.Round(v.AdBlueL),
+            ["adblueCapacity"] = Math.Round(v.AdBlueCapacityL),
+            ["odometer"] = Math.Round(v.OdometerKm),
+            ["currency"] = v.Dollars ? "USD" : "EUR",
+            ["wear"] = new JsonObject
+            {
+                ["cabin"] = Percent(v.WearCabin),
+                ["chassis"] = Percent(v.WearChassis),
+                ["engine"] = Percent(v.WearEngine),
+                ["transmission"] = Percent(v.WearTransmission),
+                ["wheels"] = Percent(v.WearWheels),
+            },
+        };
+        if (v.Trailer)
+        {
+            o["trailer"] = new JsonObject
+            {
+                ["name"] = v.TrailerName,
+                ["plate"] = v.TrailerPlate,
+                ["coupled"] = v.TrailerCoupled,
+                ["wear"] = new JsonObject
+                {
+                    ["body"] = Percent(v.TrailerWearBody),
+                    ["chassis"] = Percent(v.TrailerWearChassis),
+                    ["wheels"] = Percent(v.TrailerWearWheels),
+                    ["cargo"] = Percent(v.CargoDamage),
+                },
+            };
+        }
+        if (v.Job)
+        {
+            o["job"] = new JsonObject
+            {
+                ["cargo"] = v.Cargo,
+                ["mass"] = Math.Round(v.CargoMassKg),
+                ["from"] = v.SourceCity,
+                ["fromCompany"] = v.SourceCompany,
+                ["to"] = v.DestinationCity,
+                ["toCompany"] = v.DestinationCompany,
+                ["income"] = v.Income,
+                ["delivery"] = v.DeliveryTimeMin,
+                ["distance"] = v.PlannedDistanceKm,
+                ["loaded"] = v.CargoLoaded,
+                ["special"] = v.Special,
+            };
+        }
+        return o;
     }
 
     // ------------------------------------------------------------------ following the game

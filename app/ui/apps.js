@@ -18,6 +18,20 @@ window.CABINPLAY_APPS = [
       <circle cx="62" cy="58" r="13" fill="#fff"/><path d="M62 49 L69.5 65 L62 61.5 L54.5 65 Z" fill="#0a84ff"/></svg>`,
   },
   {
+    id: 'truck',
+    nameKey: 'truck',
+    builtin: true,
+    icon: `<svg viewBox="0 0 100 100"><defs><linearGradient id="g-tk" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ffb340"/><stop offset="1" stop-color="#ff7a00"/></linearGradient></defs>
+      <rect width="100" height="100" fill="url(#g-tk)"/>
+      <rect x="9" y="29" width="52" height="31" rx="3.5" fill="#fff"/>
+      <path d="M64 61V41q0-5 5-5h11q4 0 6 4l5 10v11z" fill="#fff"/>
+      <path d="M74 40h6q2 0 3 2l3.5 7H74z" fill="#ff8a00"/>
+      <rect x="9" y="61" width="82" height="5" rx="2" fill="#fff"/>
+      <g fill="#fff" stroke="#ff7a00" stroke-width="3"><circle cx="22" cy="70" r="7"/><circle cx="39" cy="70" r="7"/>
+      <circle cx="78" cy="70" r="7"/></g></svg>`,
+  },
+  {
     id: 'youtube',
     name: 'YouTube',
     url: 'https://www.youtube.com/',

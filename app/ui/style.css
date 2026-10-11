@@ -323,3 +323,106 @@ kbd {
 .sheet-actions button.quiet { background: rgba(255, 255, 255, .12); }
 .sheet p.sheet-note { margin-top: 8px; font-size: 13px; text-align: center; }
 .sheet-actions button:active { transform: scale(.96); }
+
+/* ---------------------------------------------------------------- dock: back / forward */
+
+#dock-nav { display: flex; gap: 4px; }
+#dock-nav .dock-btn { width: 37px; height: 44px; border-radius: 12px; }
+#dock-nav .dock-btn svg { width: 24px; height: 24px; stroke-width: 2.6; }
+.dock-btn:disabled { opacity: .32; pointer-events: none; }
+
+/* Room for every open app even with the browser buttons showing. */
+#dock-apps { min-height: 0; overflow: hidden; }
+#dock-apps.many { gap: 8px; }
+#dock-apps.many .dock-app { width: 46px; height: 46px; border-radius: 12px; }
+#dock-apps.lots { gap: 6px; }
+#dock-apps.lots .dock-app { width: 38px; height: 38px; border-radius: 10px; }
+
+/* ---------------------------------------------------------------- truck */
+
+#truck {
+  position: fixed;
+  inset: 0 0 0 var(--dock-w);
+  display: flex;
+  gap: 16px;
+  padding: 18px;
+}
+
+#rig-card { flex: 1; min-width: 0; padding: 14px 18px 12px; display: flex; flex-direction: column; }
+.rig-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.rig-title-box { min-width: 0; }
+#rig-title { font-size: 24px; font-weight: 700; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#rig-sub { font-size: 15px; font-weight: 600; color: var(--fg-dim); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#rig-chips { display: flex; gap: 6px; flex: none; }
+.chip { padding: 4px 10px; border-radius: 10px; font-size: 13px; font-weight: 700; background: rgba(255, 255, 255, .12); color: var(--fg-dim); }
+.chip.on { background: rgba(48, 209, 88, .2); color: #30d158; }
+.chip.warn { background: rgba(255, 159, 10, .2); color: #ff9f0a; }
+
+#rig { width: 100%; height: auto; margin: 10px 0 4px; }
+#rig [data-part] { fill: #3a3a46; stroke: #0b0b14; stroke-width: 2.5; transition: fill .4s ease; }
+#rig .hub { fill: #15151d; stroke: none; }
+#rig .glass { fill: rgba(170, 215, 255, .38); stroke: none; }
+#rig-trailer.detached { opacity: .5; }
+#rig-trailer.absent [data-part] { fill: none; stroke: rgba(255, 255, 255, .22); stroke-dasharray: 7 6; }
+#rig-trailer.absent .hub { fill: none; }
+
+.damage { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; margin-top: auto; }
+.damage h3 { font-size: 13px; font-weight: 700; letter-spacing: .9px; text-transform: uppercase; color: var(--fg-dim); margin-bottom: 3px; }
+.damage ul { list-style: none; }
+.damage li { display: flex; align-items: center; gap: 9px; padding: 3px 0; font-size: 16px; font-weight: 600; border-bottom: 1px solid rgba(255, 255, 255, .07); }
+.damage li:last-child { border-bottom: 0; }
+.damage .dot { width: 11px; height: 11px; border-radius: 50%; flex: none; background: #3a3a46; }
+.damage .val { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--fg-dim); }
+.damage .note { padding: 6px 0; font-size: 15px; font-weight: 600; color: var(--fg-dim); border: 0; }
+
+#truck-side { width: 340px; flex: none; display: flex; flex-direction: column; gap: 16px; }
+#truck-side .card { padding: 13px 18px; }
+
+#job-card { height: 184px; display: flex; flex-direction: column; }
+#job-cargo { font-size: 21px; font-weight: 700; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#job-sub { font-size: 14px; font-weight: 600; color: var(--fg-dim); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.job-route { margin-top: 7px; display: flex; flex-direction: column; gap: 3px; }
+.stop { display: flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; }
+.stop span:last-child { overflow: hidden; text-overflow: ellipsis; }
+.pin { width: 10px; height: 10px; border-radius: 50%; border: 2.5px solid #8e8e93; flex: none; }
+.pin.to { border-color: #30d158; background: #30d158; }
+.job-stats, .fuel-stats { display: flex; justify-content: space-between; gap: 8px; margin-top: auto; }
+.job-stats div, .fuel-stats div { display: flex; flex-direction: column; min-width: 0; }
+.job-stats small, .fuel-stats small { font-size: 12px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--fg-dim); }
+.job-stats span, .fuel-stats span { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+#job-left.late { color: #ff453a; }
+#job-card.idle #job-cargo { color: var(--fg-dim); }
+#job-card.idle .job-route, #job-card.idle .job-stats { visibility: hidden; }
+
+#fuel-card { height: 108px; display: flex; flex-direction: column; }
+.fuel-head { display: flex; justify-content: space-between; align-items: baseline; }
+#fuel-amount { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.fuel-bar { height: 9px; border-radius: 5px; background: rgba(255, 255, 255, .16); margin-top: 7px; overflow: hidden; }
+#fuel-level { height: 100%; width: 0; border-radius: 5px; background: #30d158; transition: width .6s ease, background .3s ease; }
+#fuel-level.low { background: #ff9f0a; }
+#fuel-level.empty { background: #ff453a; }
+
+#actions-card { flex: 1; display: flex; flex-direction: column; gap: 7px; }
+#actions-card button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .12);
+  transition: background .12s ease, transform .12s ease;
+}
+#actions-card button:hover { background: rgba(255, 255, 255, .2); }
+#actions-card button:active { transform: scale(.97); }
+#actions-card button:disabled { opacity: .35; pointer-events: none; }
+#actions-card svg { width: 26px; height: 26px; flex: none; }
+.act-main { padding: 6px 14px; text-align: left; background: rgba(255, 159, 10, .22) !important; color: #ffb340; }
+.act-main span { display: flex; flex-direction: column; min-width: 0; }
+.act-main b { font-size: 17px; color: #fff; }
+.act-main small { font-size: 13px; font-weight: 600; color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.act-row { display: flex; gap: 8px; }
+.act-row button { flex: 1; min-width: 0; min-height: 44px; padding: 5px 9px; gap: 7px !important; font-size: 13.5px; font-weight: 650; }
+.act-row button svg { width: 20px; height: 20px; }
+/* two lines rather than cut: some languages need the room */
+.act-row span { text-align: left; line-height: 1.12; overflow: hidden; }
+
+#truck.offline #rig [data-part] { fill: #2c2c36; }

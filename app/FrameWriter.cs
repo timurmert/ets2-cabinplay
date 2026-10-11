@@ -19,6 +19,8 @@ internal sealed unsafe class FrameWriter : IDisposable
     private const int AppFlagsOffset = 20;
     private const uint AppNavVisible = 0x1;
     private const int HeartbeatOffset = 24;
+    private const int ActionSequenceOffset = 32;
+    private const int ActionOffset = 36;
 
     private readonly MemoryMappedFile _file;
     private readonly MemoryMappedViewAccessor _view;
@@ -67,6 +69,22 @@ internal sealed unsafe class FrameWriter : IDisposable
                 if (!_disposed)
                     *(uint*)(_base + AppFlagsOffset) = value ? AppNavVisible : 0;
             }
+        }
+    }
+
+    /// <summary>
+    /// Asks the plugin to press one of the game's own controls (CABINPLAY_ACTION_* in
+    /// plugin/frame_protocol.h). It closes control mode first and waits for the game to run.
+    /// </summary>
+    public void RequestAction(uint action)
+    {
+        lock (_gate)
+        {
+            if (_disposed)
+                return;
+            *(uint*)(_base + ActionOffset) = action;
+            // Published last, so the plugin never reads the request half-written.
+            Interlocked.Increment(ref *(int*)(_base + ActionSequenceOffset));
         }
     }
 

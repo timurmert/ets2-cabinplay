@@ -61,6 +61,8 @@ C'est tout. L'écran s'allume avec le contact du camion. Pour le retirer, double
 
 La lecture se met en pause quand vous mettez le jeu en pause ou coupez le contact. La langue se règle dans **Réglages**, à l'écran. Si vous avez fermé CabinPlay depuis ses réglages, `Ctrl+Alt+C` le relance.
 
+L'app **Camion** affiche les dégâts du camion et de la remorque, la cargaison et le carburant, et ouvre l'assistance routière du jeu (dépanneuse, garage, carburant), la carte du monde et la sauvegarde rapide. Les touches pressées avec Ctrl+Alt n'atteignent jamais le jeu : un raccourci ne déclenche ni le klaxon ni rien d'autre sur le camion.
+
 ## Prérequis
 
 - Euro Truck Simulator 2 **1.61**, Windows 10 ou 11

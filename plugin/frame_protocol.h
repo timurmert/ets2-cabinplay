@@ -23,6 +23,12 @@
 /* app_flags */
 #define CABINPLAY_APP_NAV_VISIBLE 0x1u /* replace key-coloured pixels with the game's map */
 
+/* Game functions the app can ask for (action). The plugin first hands the game back from
+ * control mode, waits for it to run again, then presses the game's own control. */
+#define CABINPLAY_ACTION_SERVICES 1u  /* road assistance menu: tow truck, service, fuel */
+#define CABINPLAY_ACTION_WORLD_MAP 2u
+#define CABINPLAY_ACTION_QUICKSAVE 3u
+
 /* Colour the screen texture in the .scs is filled with (see tools/build_mod.py). */
 #define CABINPLAY_MARKER_B 0x06
 #define CABINPLAY_MARKER_G 0x02
@@ -46,7 +52,9 @@ typedef struct cabinplay_frame_header {
     volatile int32_t sequence; /* odd while a frame is being written, bumped to even after */
     uint32_t app_flags;        /* CABINPLAY_APP_* */
     uint64_t heartbeat_ms;     /* writer's GetTickCount64, refreshed even with no new frame */
-    uint8_t reserved1[32];
+    volatile uint32_t action_sequence; /* bumped once per request, after action is written */
+    uint32_t action;                   /* CABINPLAY_ACTION_* */
+    uint8_t reserved1[24];
 } cabinplay_frame_header_t;      /* followed by width * height BGRA pixels, top row first */
 #pragma pack(pop)
 
@@ -54,7 +62,7 @@ typedef struct cabinplay_frame_header {
 
 #define CABINPLAY_STATE_MAPPING_NAME L"Local\\CabinPlayState"
 #define CABINPLAY_STATE_MAGIC 0x54535043u /* "CPST" */
-#define CABINPLAY_STATE_VERSION 1u
+#define CABINPLAY_STATE_VERSION 2u
 #define CABINPLAY_EVENT_CAPACITY 256u
 
 /* flags */
@@ -74,6 +82,17 @@ typedef struct cabinplay_frame_header {
 #define CABINPLAY_MOD_SHIFT 0x1u
 #define CABINPLAY_MOD_CTRL 0x2u
 #define CABINPLAY_MOD_ALT 0x4u
+
+/* vehicle flags */
+#define CABINPLAY_VEHICLE_TRUCK 0x01u          /* the truck's configuration is known */
+#define CABINPLAY_VEHICLE_ENGINE 0x02u         /* engine running */
+#define CABINPLAY_VEHICLE_PARKING_BRAKE 0x04u
+#define CABINPLAY_VEHICLE_TRAILER 0x08u        /* a trailer is part of the configuration */
+#define CABINPLAY_VEHICLE_TRAILER_COUPLED 0x10u
+#define CABINPLAY_VEHICLE_JOB 0x20u            /* a job is active */
+#define CABINPLAY_VEHICLE_CARGO_LOADED 0x40u
+#define CABINPLAY_VEHICLE_SPECIAL 0x80u        /* special transport */
+#define CABINPLAY_VEHICLE_ATS 0x100u           /* American Truck Simulator: dollars */
 
 #pragma pack(push, 1)
 typedef struct cabinplay_event {
@@ -97,8 +116,45 @@ typedef struct cabinplay_state {
     uint32_t reserved[5];
     cabinplay_event_t events[CABINPLAY_EVENT_CAPACITY];
 } cabinplay_state_t;
+
+/* Truck, trailer and job, from the telemetry API. Strings are UTF-8, NUL-terminated.
+ * Wear and damage run from 0 (as new) to 1 (wrecked). */
+typedef struct cabinplay_vehicle {
+    volatile uint32_t sequence;    /* odd while being written */
+    uint32_t flags;                /* CABINPLAY_VEHICLE_* */
+    float fuel_l, fuel_capacity_l, fuel_range_km, fuel_average_l_per_km;
+    float adblue_l, adblue_capacity_l;
+    float odometer_km;
+    float oil_temperature_c, water_temperature_c, battery_voltage;
+    float wear_engine, wear_transmission, wear_cabin, wear_chassis, wear_wheels;
+    float trailer_wear_chassis, trailer_wear_wheels, trailer_wear_body;
+    float cargo_damage;
+    float cargo_mass_kg;
+    uint32_t delivery_time_min;    /* in game time, like game_time_min; 0 when unknown */
+    uint32_t planned_distance_km;
+    uint64_t income;
+    char truck_brand[32];
+    char truck_name[48];
+    char truck_plate[24];
+    char trailer_name[48];
+    char trailer_plate[24];
+    char cargo[64];
+    char source_city[48];
+    char source_company[48];
+    char destination_city[48];
+    char destination_company[48];
+    char job_market[32];
+} cabinplay_vehicle_t;             /* 568 bytes */
+
+/* The state mapping: version 2 adds the vehicle block after the events. */
+typedef struct cabinplay_state_mapping {
+    cabinplay_state_t state;
+    cabinplay_vehicle_t vehicle;
+} cabinplay_state_mapping_t;
 #pragma pack(pop)
 
-#define CABINPLAY_STATE_MAPPING_SIZE ((uint32_t)sizeof(cabinplay_state_t))
+#define CABINPLAY_VEHICLE_OFFSET ((uint32_t)sizeof(cabinplay_state_t)) /* 4160 */
+
+#define CABINPLAY_STATE_MAPPING_SIZE ((uint32_t)sizeof(cabinplay_state_mapping_t))
 
 #endif
