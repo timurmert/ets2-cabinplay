@@ -344,7 +344,7 @@ kbd {
 .seg-line { width: 1px; margin: 10px 0; background: rgba(255, 255, 255, .16); }
 
 /* Room for every open app even with the browser buttons showing. */
-#dock-apps { min-height: 0; overflow: hidden; }
+#dock-apps { min-height: 0; overflow: hidden; align-self: stretch; } /* full width: room for the active ring */
 #dock-apps.many { gap: 8px; }
 #dock-apps.many .dock-app { width: 46px; height: 46px; border-radius: 12px; }
 #dock-apps.lots { gap: 6px; }
@@ -371,34 +371,45 @@ kbd {
 .chip.on { color: #30d158; background: rgba(48, 209, 88, .14); }
 .chip.warn { color: #ff9f0a; background: rgba(255, 159, 10, .14); }
 
-/* The rig: graphite bodywork, each part outlined in its wear colour (--c, set by
-   renderTruck) and faintly tinted with it. */
-/* fill and stroke are set per shape below, not inherited from the icon style */
+/* The rig: a white truck as it stands; a badly worn part glows orange (from 25 %) or red
+   (from 50 %), engine and gearbox show through the cab only then. */
 #rig { width: 100%; height: auto; margin: 12px 0 2px; overflow: visible; fill: none; stroke: none; }
-#rig [data-part] {
-  --c: #626776;
-  fill: color-mix(in srgb, var(--c) 9%, #23262f);
-  stroke: var(--c);
-  stroke-width: 2.4;
-  stroke-linejoin: round;
-}
-#rig [data-part].inner { stroke-dasharray: 4 3; fill: color-mix(in srgb, var(--c) 18%, #2a2e39); }
-#rig .shadow { fill: rgba(0, 0, 0, .38); }
-#rig .shine { fill: url(#rig-shine); stroke: none; pointer-events: none; }
-#rig .glass { fill: url(#rig-glass); stroke: rgba(255, 255, 255, .25); stroke-width: 1; }
-#rig .seam { fill: none; stroke: rgba(255, 255, 255, .10); stroke-width: 1.6; }
-#rig .steel { fill: #9a9ead; stroke: none; }
-#rig .tank { fill: #b4b8c5; stroke: #6f7381; stroke-width: 1.2; }
-#rig .lamp { fill: #fff3c4; stroke: none; }
-#rig .lamp.red { fill: #ff5a4f; }
-#rig .rim { fill: url(#rig-rim); stroke: #3b3e49; stroke-width: 1.2; }
-#rig .hubcap { fill: #33363f; stroke: none; }
+#rig .shadow { fill: rgba(0, 0, 0, .45); }
+#rig .cab { fill: url(#rig-cab); stroke: rgba(0, 0, 0, .35); stroke-width: 1; }
+#rig .box { fill: url(#rig-box); stroke: rgba(0, 0, 0, .35); stroke-width: 1; }
+#rig .rail { fill: #c4c8d0; }
+#rig .rail.low { fill: #9ca1ac; }
+#rig .rib { stroke: rgba(30, 35, 45, .11); stroke-width: 1.5; }
+#rig .contour { stroke: #e8473d; stroke-width: 3; stroke-dasharray: 14 9; }
+#rig .frame { fill: #2a2d34; }
+#rig .fender, #rig .skirt, #rig .visor, #rig .grille, #rig .mirror { fill: #2c2f37; }
+#rig .well { fill: #141519; }
+#rig .bumper { fill: #3a3d46; }
+#rig .glass { fill: url(#rig-glass); stroke: rgba(0, 0, 0, .3); stroke-width: 1; }
+#rig .seam { stroke: rgba(0, 0, 0, .2); stroke-width: 1.4; }
+#rig .slats { stroke: #4a4e58; stroke-width: 1.4; }
+#rig .mirror-arm { stroke: #2c2f37; stroke-width: 2.5; }
+#rig .steel { fill: #8d929d; }
+#rig .tank { fill: url(#rig-tank); stroke: #7a7f8a; stroke-width: 1; }
+#rig .strap { stroke: #6b707b; stroke-width: 2; }
+#rig .flap { fill: #1c1e23; }
+#rig .lamp { fill: #fff6d6; }
+#rig .lamp.red { fill: #ff4a3d; }
+#rig .lamp.amber, #rig .beacon { fill: #ffb340; }
+#rig .tire { fill: #17181c; stroke: #2e3037; stroke-width: 1.5; }
+#rig .rim { fill: url(#rig-rim); stroke: #4a4d57; stroke-width: 1; }
+#rig .rim-in { fill: #a3a7b3; stroke: #6d717d; stroke-width: 1; }
+#rig .hub { fill: #3a3d45; }
+#rig .xray { display: none; stroke-width: 2; stroke-dasharray: 4 3; }
+#rig [data-level="warn"] { stroke: #ff9f0a; stroke-width: 3; filter: url(#rig-warn); }
+#rig [data-level="bad"] { stroke: #ff453a; stroke-width: 3; filter: url(#rig-bad); }
+#rig .xray[data-level] { display: inline; stroke-width: 2; }
+#rig .xray[data-level="warn"] { fill: rgba(255, 159, 10, .2); }
+#rig .xray[data-level="bad"] { fill: rgba(255, 69, 58, .22); }
 #rig-trailer { transition: opacity .3s ease; }
-#rig-trailer.detached { opacity: .45; }
-#rig-trailer.absent { opacity: .5; }
-#rig-trailer.absent [data-part] { fill: none; stroke: rgba(255, 255, 255, .25); stroke-dasharray: 7 6; }
-#rig-trailer.absent .shine, #rig-trailer.absent .seam, #rig-trailer.absent .lamp, #rig-trailer.absent .steel { display: none; }
-#rig-trailer.absent .rim, #rig-trailer.absent .hubcap { fill: none; stroke: none; }
+#rig-trailer.detached { opacity: .5; }
+#rig-trailer.absent { opacity: .14; }
+#truck.offline #rig { opacity: .45; filter: grayscale(1); }
 
 .damage { display: grid; grid-template-columns: 1fr 1fr; gap: 0 30px; margin-top: auto; }
 .damage h3 { font-size: 13px; font-weight: 700; letter-spacing: .9px; text-transform: uppercase; color: var(--fg-dim); margin-bottom: 4px; }
@@ -427,20 +438,23 @@ kbd {
 .stats small { font-size: 12px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--fg-dim); white-space: nowrap; }
 .stats span { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
-#job-card { height: 206px; }
+#job-card { height: 232px; }
 #job-cargo { font-size: 21px; font-weight: 700; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #job-sub { font-size: 14px; font-weight: 600; color: var(--fg-dim); margin-top: 1px; min-height: 19px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.job-route { position: relative; margin-top: 9px; display: flex; flex-direction: column; gap: 7px; }
-.job-route::before { content: ""; position: absolute; left: 4px; top: 12px; bottom: 12px; border-left: 2px dotted rgba(255, 255, 255, .28); }
-.stop { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; }
-.stop span:last-child { overflow: hidden; text-overflow: ellipsis; }
-.pin { position: relative; width: 10px; height: 10px; border-radius: 50%; border: 2.5px solid #8e8e93; background: #1c1c26; flex: none; }
+.job-route { position: relative; margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+/* dotted line from the first pin to the second */
+.job-route::before { content: ""; position: absolute; left: 4px; top: 15px; height: 30px; border-left: 2px dotted rgba(255, 255, 255, .3); }
+.stop { display: flex; align-items: flex-start; gap: 10px; min-width: 0; }
+.place { display: flex; flex-direction: column; min-width: 0; }
+.place b { font-size: 15px; font-weight: 650; line-height: 19px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.place small { font-size: 12.5px; font-weight: 600; line-height: 16px; color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pin { position: relative; width: 10px; height: 10px; margin-top: 4.5px; border-radius: 50%; border: 2.5px solid #8e8e93; background: #1c1c26; flex: none; }
 .pin.to { border-color: #30d158; background: #30d158; }
 #job-left.late { color: #ff453a; }
 #job-card.idle #job-cargo { color: var(--fg-dim); }
 #job-card.idle .job-route, #job-card.idle .stats { visibility: hidden; }
 
-#fuel-card { height: 116px; }
+#fuel-card { height: 110px; }
 .fuel-head { display: flex; justify-content: space-between; align-items: baseline; }
 #fuel-amount { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .fuel-bar { height: 10px; border-radius: 5px; background: rgba(255, 255, 255, .12); margin-top: 8px; overflow: hidden; }

@@ -39,7 +39,8 @@ _Static_assert(offsetof(cabinplay_vehicle_t, income) == 96, "vehicle layout");
 _Static_assert(offsetof(cabinplay_vehicle_t, truck_brand) == 104, "vehicle layout");
 _Static_assert(offsetof(cabinplay_vehicle_t, cargo) == 280, "vehicle layout");
 _Static_assert(offsetof(cabinplay_vehicle_t, job_market) == 536, "vehicle layout");
-_Static_assert(sizeof(cabinplay_vehicle_t) == 568, "vehicle size");
+_Static_assert(offsetof(cabinplay_vehicle_t, source_city_id) == 568, "vehicle layout");
+_Static_assert(sizeof(cabinplay_vehicle_t) == 632, "vehicle size");
 
 /* Where the plugin and the app leave each other their locations. */
 #define REGISTRY_KEY L"Software\\CabinPlay"
@@ -2697,6 +2698,7 @@ static void __stdcall on_scs_configuration(uint32_t event, const void *info, voi
     } else {
         v->cargo[0] = v->source_city[0] = v->source_company[0] = 0;
         v->destination_city[0] = v->destination_company[0] = v->job_market[0] = 0;
+        v->source_city_id[0] = v->destination_city_id[0] = 0;
         v->cargo_mass_kg = 0;
         v->delivery_time_min = v->planned_distance_km = 0;
         v->income = 0;
@@ -2720,6 +2722,9 @@ static void __stdcall on_scs_configuration(uint32_t event, const void *info, voi
             if (!strcmp(n, "cargo")) copy_text(v->cargo, sizeof(v->cargo), x);
             else if (!strcmp(n, "cargo.mass")) v->cargo_mass_kg = (float)value_number(x);
             else if (!strcmp(n, "source.city")) copy_text(v->source_city, sizeof(v->source_city), x);
+            else if (!strcmp(n, "source.city.id")) copy_text(v->source_city_id, sizeof(v->source_city_id), x);
+            else if (!strcmp(n, "destination.city.id"))
+                copy_text(v->destination_city_id, sizeof(v->destination_city_id), x);
             else if (!strcmp(n, "source.company")) copy_text(v->source_company, sizeof(v->source_company), x);
             else if (!strcmp(n, "destination.city")) copy_text(v->destination_city, sizeof(v->destination_city), x);
             else if (!strcmp(n, "destination.company"))

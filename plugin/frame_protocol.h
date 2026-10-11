@@ -138,7 +138,9 @@ typedef struct cabinplay_vehicle {
     char destination_city[48];
     char destination_company[48];
     char job_market[32];
-} cabinplay_vehicle_t;             /* 568 bytes */
+    char source_city_id[32];       /* the game's city names are in the local language; the */
+    char destination_city_id[32];  /* app looks these ids up in its own (see app/ui/places.js) */
+} cabinplay_vehicle_t;             /* 632 bytes */
 
 /* The state mapping: version 2 adds the vehicle block after the events. */
 typedef struct cabinplay_state_mapping {

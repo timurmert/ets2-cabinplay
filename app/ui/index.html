@@ -73,8 +73,8 @@
   <div id="map-status"></div>
 </section>
 
-<!-- Truck page: everything comes from the game's telemetry through the plugin. Parts
-     marked data-part are outlined in the colour of their wear (see renderTruck). -->
+<!-- Truck page: everything comes from the game's telemetry through the plugin. A part
+     marked data-part glows orange or red once it is badly worn (see renderTruck). -->
 <section id="truck" hidden>
   <div id="rig-card" class="card">
     <div class="rig-head">
@@ -86,49 +86,66 @@
     </div>
     <svg id="rig" viewBox="0 0 600 206" aria-hidden="true">
       <defs>
+        <linearGradient id="rig-cab" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fbfbfd"/><stop offset=".55" stop-color="#e2e5ea"/><stop offset="1" stop-color="#b7bcc6"/></linearGradient>
+        <linearGradient id="rig-box" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#f3f5f8"/><stop offset=".6" stop-color="#dce0e6"/><stop offset="1" stop-color="#b6bbc5"/></linearGradient>
         <linearGradient id="rig-rim" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#eceef4"/><stop offset="1" stop-color="#8b8f9d"/></linearGradient>
+          <stop offset="0" stop-color="#f2f3f7"/><stop offset="1" stop-color="#8c909d"/></linearGradient>
         <linearGradient id="rig-glass" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="#c4e1ff" stop-opacity=".8"/><stop offset="1" stop-color="#4d6fa6" stop-opacity=".4"/></linearGradient>
-        <linearGradient id="rig-shine" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+          <stop offset="0" stop-color="#6b86a6"/><stop offset=".5" stop-color="#2c3a50"/><stop offset="1" stop-color="#1a2232"/></linearGradient>
+        <linearGradient id="rig-tank" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#f5f6f9"/><stop offset=".5" stop-color="#c3c7cf"/><stop offset="1" stop-color="#8d929d"/></linearGradient>
+        <filter id="rig-warn" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#ff9f0a" flood-opacity=".9"/></filter>
+        <filter id="rig-bad" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="0" stdDeviation="3.5" flood-color="#ff453a" flood-opacity=".95"/></filter>
       </defs>
-      <ellipse class="shadow" cx="302" cy="198" rx="292" ry="7"/>
+      <ellipse class="shadow" cx="302" cy="195" rx="292" ry="6"/>
       <g id="rig-trailer">
-        <rect data-part="trailer-body" x="14" y="22" width="390" height="116" rx="9"/>
-        <rect class="shine" x="17" y="25" width="384" height="52" rx="7"/>
-        <path class="seam" d="M6230v100M11030v100M15830v100M20630v100M25430v100M30230v100M35030v100"/>
-        <rect class="lamp red" x="17" y="121" width="5" height="11" rx="2"/>
-        <rect data-part="trailer-chassis" x="14" y="140" width="406" height="10" rx="3"/>
-        <rect class="steel" x="214" y="151" width="72" height="5" rx="2"/>
-        <path data-part="trailer-chassis" d="M300 150h7v23h5v5h-17v-5h5z"/>
-        <circle data-part="trailer-wheels" cx="84" cy="175" r="21"/>
-        <circle data-part="trailer-wheels" cx="132" cy="175" r="21"/>
-        <circle data-part="trailer-wheels" cx="180" cy="175" r="21"/>
-        <g class="rim"><circle cx="84" cy="175" r="11.5"/><circle cx="132" cy="175" r="11.5"/><circle cx="180" cy="175" r="11.5"/></g>
-        <g class="hubcap"><circle cx="84" cy="175" r="3.5"/><circle cx="132" cy="175" r="3.5"/><circle cx="180" cy="175" r="3.5"/></g>
+        <rect data-part="trailer-chassis" class="frame" x="40" y="138" width="372" height="9" rx="2"/>
+        <path data-part="trailer-chassis" class="frame" d="M330 147h6v24h4v4h-14v-4h4z"/>
+        <rect data-part="trailer-body" class="box" x="12" y="18" width="396" height="122" rx="6"/>
+        <rect class="rail" x="12" y="18" width="396" height="7" rx="3"/>
+        <path class="rib" d="M4827v98M8427v98M12027v98M15627v98M19227v98M22827v98M26427v98M30027v98M33627v98M37227v98"/>
+        <rect class="rail low" x="12" y="125" width="396" height="15" rx="2"/>
+        <path class="contour" d="M19 132.5h383"/>
+        <rect class="lamp red" x="12" y="108" width="5" height="13" rx="1.5"/>
+        <rect class="steel" x="212" y="150" width="104" height="5" rx="2"/>
+        <rect class="flap" x="194" y="150" width="4" height="27" rx="1"/>
+        <g data-part="trailer-wheels" class="tire"><circle cx="70" cy="172" r="22"/><circle cx="118" cy="172" r="22"/><circle cx="166" cy="172" r="22"/></g>
+        <g class="rim"><circle cx="70" cy="172" r="12.5"/><circle cx="118" cy="172" r="12.5"/><circle cx="166" cy="172" r="12.5"/></g>
+        <g class="rim-in"><circle cx="70" cy="172" r="8"/><circle cx="118" cy="172" r="8"/><circle cx="166" cy="172" r="8"/></g>
+        <g class="hub"><circle cx="70" cy="172" r="3.2"/><circle cx="118" cy="172" r="3.2"/><circle cx="166" cy="172" r="3.2"/></g>
       </g>
       <g id="rig-tractor">
-        <rect data-part="truck-chassis" x="408" y="150" width="182" height="11" rx="3"/>
-        <path data-part="truck-chassis" d="M408 141h50l-4 9h-42z"/>
-        <path data-part="truck-cabin" d="M476 31q6-18 34-19h42q15 0 21 19z"/>
-        <path data-part="truck-cabin" d="M456 150V52q0-21 21-21h80q19 0 24 15l7 50 3 54z"/>
-        <rect class="shine" x="459" y="33" width="118" height="40" rx="12"/>
-        <path class="glass" d="M500 42h54q5 0 5 5v40h-63q-1-27 4-45z"/>
-        <path class="glass" d="M567 38q9 1 12 10l6 44h-14z"/>
-        <path class="seam" d="M490 36v112M563 96v52"/>
-        <rect class="steel" x="547" y="99" width="11" height="3" rx="1.5"/>
-        <path class="steel" d="M586 58h4v-6h5v32h-5v-20h-4z"/>
-        <path class="seam" d="M574 103h13M575 109h13M576 115h12"/>
-        <rect class="lamp" x="578" y="121" width="11" height="7" rx="2"/>
-        <rect data-part="truck-cabin" x="565" y="135" width="27" height="17" rx="5"/>
-        <rect data-part="truck-transmission" class="inner" x="494" y="118" width="32" height="22" rx="4"/>
-        <rect data-part="truck-engine" class="inner" x="530" y="108" width="34" height="32" rx="5"/>
-        <rect class="tank" x="468" y="143" width="60" height="18" rx="8"/>
-        <circle data-part="truck-wheels" cx="440" cy="175" r="22"/>
-        <circle data-part="truck-wheels" cx="556" cy="175" r="22"/>
-        <g class="rim"><circle cx="440" cy="175" r="12"/><circle cx="556" cy="175" r="12"/></g>
-        <g class="hubcap"><circle cx="440" cy="175" r="3.8"/><circle cx="556" cy="175" r="3.8"/></g>
+        <rect data-part="truck-chassis" class="frame" x="404" y="146" width="186" height="11" rx="2"/>
+        <path data-part="truck-chassis" class="frame" d="M402 140h52l-3 6h-46z"/>
+        <path class="fender" d="M409 151a31 31 0 0 1 62 0h-6a25 25 0 0 0-50 0z"/>
+        <rect class="tank" x="470" y="147" width="56" height="20" rx="10"/>
+        <path class="strap" d="M484 147v20M512 147v20"/>
+        <path data-part="truck-cabin" class="cab" d="M458 150V34q0-14 14-14h81q15 0 20 12l10 56q5 8 5 18l2 44z"/>
+        <path class="well" d="M530.2 150A27 27 0 0 1 581.8 150z"/>
+        <rect class="skirt" x="458" y="137" width="68" height="13" rx="2"/>
+        <path class="glass" d="M498 44h54q5 0 6 6l3 40h-67q0-30 4-46z"/>
+        <path class="glass" d="M566 30q7 1 9 10l9 50q1 3 1 6h-13z"/>
+        <path class="seam" d="M490 38v99M563 96v41"/>
+        <rect class="steel" x="544" y="98" width="12" height="3" rx="1.5"/>
+        <path class="visor" d="M555 21q16 1 20 12h-9q-3-7-11-7z"/>
+        <g class="beacon"><rect x="482" y="16" width="9" height="4" rx="1.5"/><rect x="498" y="16" width="9" height="4" rx="1.5"/><rect x="514" y="16" width="9" height="4" rx="1.5"/><rect x="530" y="16" width="9" height="4" rx="1.5"/></g>
+        <rect class="grille" x="580" y="98" width="8" height="27" rx="2"/>
+        <path class="slats" d="M581 104h6M581 110h6M581 116h6"/>
+        <rect class="lamp" x="577" y="127" width="12" height="7" rx="2"/>
+        <rect class="lamp amber" x="571" y="128" width="4" height="5" rx="1"/>
+        <rect data-part="truck-cabin" class="bumper" x="566" y="136" width="26" height="16" rx="3"/>
+        <path class="mirror-arm" d="M584 56h7"/>
+        <rect class="mirror" x="590" y="45" width="6" height="31" rx="2"/>
+        <rect data-part="truck-transmission" class="xray" x="492" y="110" width="30" height="24" rx="4"/>
+        <rect data-part="truck-engine" class="xray" x="526" y="102" width="40" height="32" rx="5"/>
+        <g data-part="truck-wheels" class="tire"><circle cx="440" cy="172" r="23"/><circle cx="556" cy="172" r="23"/></g>
+        <g class="rim"><circle cx="440" cy="172" r="13"/><circle cx="556" cy="172" r="13"/></g>
+        <g class="rim-in"><circle cx="440" cy="172" r="8.5"/><circle cx="556" cy="172" r="8.5"/></g>
+        <g class="hub"><circle cx="440" cy="172" r="3.4"/><circle cx="556" cy="172" r="3.4"/></g>
       </g>
     </svg>
     <div class="damage">
@@ -142,8 +159,8 @@
       <div id="job-cargo"></div>
       <div id="job-sub"></div>
       <div class="job-route">
-        <div class="stop"><span class="pin"></span><span id="job-from"></span></div>
-        <div class="stop"><span class="pin to"></span><span id="job-to"></span></div>
+        <div class="stop"><span class="pin"></span><div class="place"><b id="job-from"></b><small id="job-from-company"></small></div></div>
+        <div class="stop"><span class="pin to"></span><div class="place"><b id="job-to"></b><small id="job-to-company"></small></div></div>
       </div>
       <div class="stats">
         <div><small data-i18n="timeLeft"></small><span id="job-left"></span></div>
@@ -197,6 +214,7 @@
 
 <script src="i18n.js"></script>
 <script src="apps.js"></script>
+<script src="places.js"></script>
 <script src="shell.js"></script>
 </body>
 </html>

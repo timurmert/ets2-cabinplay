@@ -441,6 +441,7 @@ int main(int argc, char **argv)
     named_t trailer_cfg[] = {attr_text("name", "Curtainsider"), {0}};
     named_t job_cfg[] = {attr_text("cargo", "Elma ve armut"), attr_float("cargo.mass", 18000.0f),
                          attr_text("source.city", "İstanbul"), attr_text("destination.city", "Ankara"),
+                         attr_text("source.city.id", "istanbul"), attr_text("destination.city.id", "ankara"),
                          attr_u64("income", 12345), attr_u32("delivery.time", 5000), attr_bool("is.cargo.loaded", 1),
                          {0}};
     send_config("truck", truck_cfg);
@@ -461,7 +462,8 @@ int main(int argc, char **argv)
     check(vehicle && (vehicle->flags & want) == want && !(vehicle->flags & CABINPLAY_VEHICLE_ATS),
           "truck, coupled trailer and loaded job are flagged");
     check(vehicle && !strcmp(vehicle->cargo, "Elma ve armut") && !strcmp(vehicle->source_city, "İstanbul") &&
-              !strcmp(vehicle->destination_city, "Ankara") && vehicle->income == 12345 &&
+              !strcmp(vehicle->destination_city, "Ankara") && !strcmp(vehicle->source_city_id, "istanbul") &&
+              !strcmp(vehicle->destination_city_id, "ankara") && vehicle->income == 12345 &&
               vehicle->delivery_time_min == 5000 && near_((int)vehicle->cargo_mass_kg, 18000, 0),
           "job passed on");
     check(vehicle && near_((int)vehicle->fuel_l, 350, 0) && near_((int)(vehicle->wear_engine * 100), 25, 0) &&

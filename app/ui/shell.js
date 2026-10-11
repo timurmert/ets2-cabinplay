@@ -208,10 +208,12 @@
     if (p == null) return '';
     return p < 8 ? '#30d158' : p < 25 ? '#ffd60a' : p < 50 ? '#ff9f0a' : '#ff453a';
   }
+  // The drawing only speaks up once a part is badly worn; the list has every figure.
   function setPart(part, percent) {
+    const level = percent >= 50 ? 'bad' : percent >= 25 ? 'warn' : '';
     for (const el of $('rig').querySelectorAll(`[data-part="${part}"]`)) {
-      if (percent == null) el.style.removeProperty('--c');
-      else el.style.setProperty('--c', wearColor(percent));
+      if (level) el.dataset.level = level;
+      else delete el.dataset.level;
     }
   }
   function setRow(row, percent) {
@@ -225,7 +227,16 @@
     const h = Math.floor(minutes / 60);
     return h ? `${h} ${t('hour')} ${minutes % 60} ${t('minute')}` : `${minutes} ${t('minute')}`;
   };
-  const place = (city, company) => [city, company].filter(Boolean).join(' · ') || dash;
+  // The game names cities in their own language and script; places.js has them in ours.
+  const PLACES = window.CABINPLAY_PLACES || { cities: {}, countries: {} };
+  const inLanguage = (names, fallback) => (names && (names[language] || names.en)) || fallback;
+  function cityLine(id, name) {
+    const city = id && PLACES.cities[id.toLowerCase()];
+    if (!city) return name || dash;
+    const country = PLACES.countries[city[0]];
+    const cityName = inLanguage(city[1], name);
+    return country ? `${cityName}, ${inLanguage(country, '')}` : cityName;
+  }
 
   function renderTruck(game, v) {
     const live = !!(game.connected && v);
@@ -279,8 +290,10 @@
       if (job.special) sub.push(t('special'));
       if (!job.loaded) sub.push(t('notLoaded'));
       $('job-sub').textContent = sub.join(' · ');
-      $('job-from').textContent = place(job.from, job.fromCompany);
-      $('job-to').textContent = place(job.to, job.toCompany);
+      $('job-from').textContent = cityLine(job.fromId, job.from);
+      $('job-from-company').textContent = job.fromCompany || '';
+      $('job-to').textContent = cityLine(job.toId, job.to);
+      $('job-to-company').textContent = job.toCompany || '';
       // delivery time and the clock are both game time, in minutes
       const left = job.delivery && game.gameTime ? job.delivery - game.gameTime : null;
       $('job-left').textContent = left == null ? dash : left < 0 ? t('late') : duration(left);
