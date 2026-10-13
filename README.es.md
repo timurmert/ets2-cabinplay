@@ -66,6 +66,8 @@ La app **Camión** muestra los daños del camión y del remolque, la carga, el c
 
 La app **Retrovisores** muestra en la pantalla los retrovisores del camión: el izquierdo, su gran angular y, si lo tiene, el frontal. Toca uno para ampliarlo.
 
+La app **Navegador** abre cualquier sitio web: escribe una dirección o una búsqueda en la barra superior y pulsa la estrella para guardar una página en la página de inicio. Las sesiones de los sitios se mantienen iniciadas, y `Ctrl+Alt+F` pone el vídeo de una página a pantalla completa. Para escribir hace falta el modo de control (`Ctrl+Alt+C`).
+
 ## Requisitos
 
 - Euro Truck Simulator 2 **1.61**, Windows 10 u 11

@@ -31,6 +31,7 @@ KULLANIM
   Ctrl+Alt+Boşluk  oynat / duraklat        Ctrl+Alt+F   videoyu tam ekran yap
   Ctrl+Alt+PgUp / PgDn  önceki / sonraki açık uygulama
   Aynalar uygulaması tırın kendi aynalarını ekrana getirir.
+  Tarayıcı uygulaması istediğin siteyi açar; adresi kontrol modunda yaz.
   CabinPlay'i ayarlardan kapattıysan Ctrl+Alt+C onu yeniden başlatır.
   Tır uygulaması tırın ve dorsenin hasarını, yükü ve yakıtı gösterir.
   Kısayollar oyun öndeyken de çalışır; tuşları oyuna gitmez.

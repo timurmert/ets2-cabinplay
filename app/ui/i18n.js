@@ -34,6 +34,9 @@ window.CABINPLAY_I18N = {
     camFront: 'Front mirror', camHint: 'Tap a view to enlarge it.',
     camFrontNote: 'The views come from the truck\'s own mirrors. The front mirror only shows if the truck has one fitted.',
     allMirrors: 'All mirrors', scSwitchApp: 'Previous / next app',
+    browser: 'Browser', addressHint: 'Search or type an address', reload: 'Reload', startPage: 'Start page',
+    favAdd: 'Keep this page on the start page', favRemove: 'Remove from the start page', shortcuts: 'Shortcuts',
+    favHint: 'Open a page and press the star to keep it here. Sites you sign in to stay signed in.',
   },
   tr: {
     name: 'Türkçe', locale: 'tr-TR',
@@ -67,6 +70,9 @@ window.CABINPLAY_I18N = {
     camFront: 'Ön ayna', camHint: 'Büyütmek için bir görüntüye dokun.',
     camFrontNote: 'Görüntüler tırın kendi aynalarından gelir. Ön ayna yalnızca tırda takılıysa görünür.',
     allMirrors: 'Tüm aynalar', scSwitchApp: 'Önceki / sonraki uygulama',
+    browser: 'Tarayıcı', addressHint: 'Ara ya da adres yaz', reload: 'Yenile', startPage: 'Başlangıç sayfası',
+    favAdd: 'Bu sayfayı başlangıç sayfasına ekle', favRemove: 'Başlangıç sayfasından kaldır', shortcuts: 'Kısayollar',
+    favHint: 'Bir sayfayı açıp yıldıza basarsan burada kalır. Giriş yaptığın sitelerde oturumun açık kalır.',
   },
   de: {
     name: 'Deutsch', locale: 'de-DE',
@@ -101,6 +107,9 @@ window.CABINPLAY_I18N = {
     camFront: 'Frontspiegel', camHint: 'Tippe auf ein Bild, um es zu vergrößern.',
     camFrontNote: 'Die Bilder kommen aus den Spiegeln des Lkw. Der Frontspiegel erscheint nur, wenn er verbaut ist.',
     allMirrors: 'Alle Spiegel', scSwitchApp: 'Vorherige / nächste App',
+    browser: 'Browser', addressHint: 'Suchen oder Adresse eingeben', reload: 'Neu laden', startPage: 'Startseite',
+    favAdd: 'Diese Seite auf der Startseite behalten', favRemove: 'Von der Startseite entfernen', shortcuts: 'Schnellzugriff',
+    favHint: 'Öffne eine Seite und tippe auf den Stern, um sie hier zu behalten. Auf Websites bleibst du angemeldet.',
   },
   pl: {
     name: 'Polski', locale: 'pl-PL',
@@ -135,6 +144,9 @@ window.CABINPLAY_I18N = {
     camFront: 'Lusterko przednie', camHint: 'Dotknij widoku, aby go powiększyć.',
     camFrontNote: 'Obraz pochodzi z lusterek ciężarówki. Lusterko przednie widać tylko, jeśli jest zamontowane.',
     allMirrors: 'Wszystkie lusterka', scSwitchApp: 'Poprzednia / następna aplikacja',
+    browser: 'Przeglądarka', addressHint: 'Szukaj lub wpisz adres', reload: 'Odśwież', startPage: 'Strona startowa',
+    favAdd: 'Zachowaj tę stronę na stronie startowej', favRemove: 'Usuń ze strony startowej', shortcuts: 'Skróty',
+    favHint: 'Otwórz stronę i naciśnij gwiazdkę, aby ją tu zachować. W serwisach pozostajesz zalogowany.',
   },
   fr: {
     name: 'Français', locale: 'fr-FR',
@@ -170,6 +182,9 @@ window.CABINPLAY_I18N = {
     camFront: 'Rétro avant', camHint: 'Touchez une vue pour l\'agrandir.',
     camFrontNote: 'Les images viennent des rétroviseurs du camion. Le rétro avant n\'apparaît que s\'il est monté.',
     allMirrors: 'Tous les rétros', scSwitchApp: 'App précédente / suivante',
+    browser: 'Navigateur', addressHint: 'Rechercher ou saisir une adresse', reload: 'Recharger', startPage: 'Page de démarrage',
+    favAdd: 'Garder cette page sur la page de démarrage', favRemove: 'Retirer de la page de démarrage', shortcuts: 'Raccourcis',
+    favHint: 'Ouvrez une page et touchez l\'étoile pour la garder ici. Vous restez connecté aux sites.',
   },
   es: {
     name: 'Español', locale: 'es-ES',
@@ -205,6 +220,9 @@ window.CABINPLAY_I18N = {
     camFront: 'Retrovisor frontal', camHint: 'Toca una vista para ampliarla.',
     camFrontNote: 'Las imágenes vienen de los retrovisores del camión. El frontal solo aparece si está montado.',
     allMirrors: 'Todos los retrovisores', scSwitchApp: 'App anterior / siguiente',
+    browser: 'Navegador', addressHint: 'Busca o escribe una dirección', reload: 'Recargar', startPage: 'Página de inicio',
+    favAdd: 'Guardar esta página en la página de inicio', favRemove: 'Quitar de la página de inicio', shortcuts: 'Accesos directos',
+    favHint: 'Abre una página y pulsa la estrella para guardarla aquí. Las sesiones de los sitios se mantienen iniciadas.',
   },
   ru: {
     name: 'Русский', locale: 'ru-RU',
@@ -239,5 +257,8 @@ window.CABINPLAY_I18N = {
     camFront: 'Переднее зеркало', camHint: 'Коснитесь вида, чтобы увеличить.',
     camFrontNote: 'Изображение берётся из зеркал грузовика. Переднее зеркало видно, только если оно установлено.',
     allMirrors: 'Все зеркала', scSwitchApp: 'Предыдущее / следующее приложение',
+    browser: 'Браузер', addressHint: 'Поиск или адрес', reload: 'Обновить', startPage: 'Стартовая страница',
+    favAdd: 'Оставить эту страницу на стартовой', favRemove: 'Убрать со стартовой страницы', shortcuts: 'Быстрый доступ',
+    favHint: 'Откройте страницу и нажмите звезду, чтобы она осталась здесь. Вход на сайтах сохраняется.',
   },
 };

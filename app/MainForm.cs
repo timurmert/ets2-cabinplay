@@ -15,6 +15,7 @@ namespace CabinPlay;
 internal sealed class MainForm : Form
 {
     private const int DockWidth = 88; // keep in sync with --dock-w in ui/style.css
+    private const int BarHeight = 46; // the browser's address bar; keep in sync with --bar-h in ui/style.css
     private const string ShellHost = "cabinplay.local";
 
     // Chromium stops painting windows it believes are hidden; the game covers this one.
@@ -30,6 +31,7 @@ internal sealed class MainForm : Form
         public required WebView2 View;
         public string? NextSelector, PrevSelector, FullscreenKey;
         public bool Fullscreen;
+        public bool Bar; // the shell's address bar stays visible above the page
     }
 
     private readonly WebView2 _shell = new();
@@ -58,7 +60,8 @@ internal sealed class MainForm : Form
     private GameLink? _game;
     private string? _activeId;          // app shown right now, null while the shell is in front
     private string? _mediaId;           // app the media controls act on
-    private string _shellView = "home"; // what the shell shows behind the apps: "home", "maps", "mirrors" or "truck"
+    private string _shellView = "home"; // what the shell shows behind the apps: "home", "maps", "mirrors", "truck" or "browser"
+    private bool _shellKeys;            // the shell's address field is being typed in
     private ushort[]? _navSource, _navTarget; // the mirror views' rectangles, from the shell
     private bool _stateBusy;
     private int _stateTick;
@@ -253,9 +256,12 @@ internal sealed class MainForm : Form
                 case "view":
                     ShowShell((string?)msg!["view"] switch
                     {
-                        "maps" => "maps", "mirrors" => "mirrors", "truck" => "truck", _ => "home",
+                        "maps" => "maps", "mirrors" => "mirrors", "truck" => "truck", "browser" => "browser", _ => "home",
                     });
                     break;
+                case "shell-keys":
+                    _shellKeys = (bool?)msg!["on"] ?? false;
+                    return; // nothing the shell shows has changed
                 case "nav-rects":
                     _navSource = Rect(msg!["source"]);
                     _navTarget = Rect(msg!["target"]);
@@ -307,6 +313,7 @@ internal sealed class MainForm : Form
                 NextSelector = (string?)msg["next"],
                 PrevSelector = (string?)msg["prev"],
                 FullscreenKey = (string?)msg["fullscreenKey"],
+                Bar = (bool?)msg["bar"] ?? false,
             };
             _apps[id] = app;
             await view.EnsureCoreWebView2Async(_environment);
@@ -327,7 +334,13 @@ internal sealed class MainForm : Form
             await PrepareForInjectedInputAsync(core);
             core.Navigate(url);
         }
+        else if (((bool?)msg["navigate"] ?? false) && app.View.CoreWebView2 is not null)
+        {
+            app.View.CoreWebView2.Navigate(url);
+        }
 
+        if (app.Bar)
+            _shellView = "browser"; // the bar is the shell's
         _activeId = _mediaId = id;
         LayoutViews();
     }
@@ -345,6 +358,8 @@ internal sealed class MainForm : Form
             core.GoBack();
         else if (action == "forward" && core.CanGoForward)
             core.GoForward();
+        else if (action == "reload")
+            core.Reload();
     }
 
     /// <summary>Puts the shell in front, on its home screen, its map or the truck page.</summary>
@@ -376,9 +391,10 @@ internal sealed class MainForm : Form
             bool active = app.Id == _activeId;
             if (active)
             {
+                int top = app.Bar ? BarHeight : 0;
                 app.View.Bounds = app.Fullscreen
                     ? ClientRectangle
-                    : new Rectangle(DockWidth, 0, ClientSize.Width - DockWidth, ClientSize.Height);
+                    : new Rectangle(DockWidth, top, ClientSize.Width - DockWidth, ClientSize.Height - top);
                 app.View.Visible = true;
                 app.View.BringToFront();
             }
@@ -493,6 +509,8 @@ internal sealed class MainForm : Form
                 {
                     ["back"] = front?.CanGoBack ?? false,
                     ["forward"] = front?.CanGoForward ?? false,
+                    ["url"] = front?.Source,
+                    ["title"] = front?.DocumentTitle,
                 },
                 ["vehicle"] = g.Connected ? VehicleJson(_game?.ReadVehicle()) : null,
                 ["game"] = new JsonObject
@@ -721,7 +739,7 @@ internal sealed class MainForm : Form
     }
 
     private WebView2 KeyboardView =>
-        _activeId is not null && _apps.TryGetValue(_activeId, out AppView? app) ? app.View : _shell;
+        !_shellKeys && _activeId is not null && _apps.TryGetValue(_activeId, out AppView? app) ? app.View : _shell;
 
     private static readonly string[] ButtonNames = { "left", "right", "middle" };
     private static readonly int[] ButtonMasks = { 1, 2, 4 };
@@ -757,6 +775,12 @@ internal sealed class MainForm : Form
         if (down)
         {
             (view, p) = ViewAt(screen);
+            if (_shellKeys && view != _shell)
+            {
+                // A click into the page takes the keyboard back from the address field.
+                _shellKeys = false;
+                _shell.CoreWebView2?.PostWebMessageAsJson("{\"type\":\"blur\"}");
+            }
             if (_buttonsDown == 0)
             {
                 _dragView = view;
@@ -910,6 +934,14 @@ internal sealed class MainForm : Form
             $"(() => {{ const b = document.querySelector({JsonSerializer.Serialize(selector)}); if (b) b.click(); }})()");
     }
 
+    private const string FullscreenVideoScript = """
+        (() => {
+          const area = (v) => { const r = v.getBoundingClientRect(); return r.width * r.height; };
+          const v = [...document.querySelectorAll('video')].sort((a, b) => area(b) - area(a))[0];
+          if (v) v.requestFullscreen();
+        })()
+        """;
+
     /// <summary>
     /// Pages may only enter fullscreen from a real key press, so one is injected through
     /// the browser's debugging protocol rather than from script.
@@ -924,6 +956,16 @@ internal sealed class MainForm : Form
         }
         if (string.IsNullOrEmpty(app.FullscreenKey) || app.Id != _activeId)
             return;
+        if (app.FullscreenKey == "video")
+        {
+            // Any site: the largest video itself, asked for as if the user had.
+            await core.CallDevToolsProtocolMethodAsync("Runtime.evaluate", new JsonObject
+            {
+                ["expression"] = FullscreenVideoScript,
+                ["userGesture"] = true,
+            }.ToJsonString());
+            return;
+        }
         char key = char.ToLowerInvariant(app.FullscreenKey[0]);
         int vk = char.ToUpperInvariant(key);
         string common = $"\"key\":\"{key}\",\"code\":\"Key{char.ToUpperInvariant(key)}\"," +

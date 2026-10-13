@@ -2,7 +2,9 @@
 //   name / nameKey   label under the tile; nameKey is looked up in i18n.js instead
 //   next / prev      CSS selectors of the site's own skip buttons (used by the media keys)
 //   fullscreenKey    key the site's player uses to toggle fullscreen (Ctrl+Alt+F sends it)
+//                    ('video' instead makes whatever video is playing fullscreen)
 //   builtin          drawn by the shell itself instead of loading a site
+//   browser          the web browser: any address, under the shell's address bar
 window.CABINPLAY_APPS = [
   {
     id: 'maps',
@@ -69,6 +71,18 @@ window.CABINPLAY_APPS = [
       <rect x="48" y="38" width="5" height="13" fill="#fff"/><rect x="60" y="38" width="5" height="13" fill="#fff"/></svg>`,
   },
   {
+    id: 'browser',
+    nameKey: 'browser',
+    browser: true,
+    fullscreenKey: 'video',
+    icon: `<svg viewBox="0 0 100 100"><defs><linearGradient id="g-br" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#3fd0ff"/><stop offset="1" stop-color="#0a6fe8"/></linearGradient></defs>
+      <rect width="100" height="100" fill="#fff"/>
+      <circle cx="50" cy="50" r="35" fill="url(#g-br)"/>
+      <g fill="none" stroke="#fff" stroke-width="3.5" opacity=".9"><ellipse cx="50" cy="50" rx="15" ry="35"/>
+      <path d="M15 50h70M20.5 32h59M20.5 68h59"/></g></svg>`,
+  },
+  {
     id: 'truck',
     nameKey: 'truck',
     builtin: true,
@@ -82,4 +96,17 @@ window.CABINPLAY_APPS = [
       <g fill="#fff" stroke="#ff7a00" stroke-width="3"><circle cx="22" cy="70" r="7"/><circle cx="39" cy="70" r="7"/>
       <circle cx="78" cy="70" r="7"/></g></svg>`,
   },
+];
+
+// Shortcuts on the browser's start page, next to the pages the user keeps with the star.
+//   lang   only shown in that screen language
+window.CABINPLAY_SITES = [
+  { name: 'TRT 1 Canlı', url: 'https://www.tabii.com/tr/watch/live/trt1?trackId=150002', lang: 'tr' },
+  { name: 'tabii', url: 'https://www.tabii.com/tr', lang: 'tr' },
+  { name: 'TRT Spor', url: 'https://www.trtspor.com.tr/canli-yayin-izle/trt-spor', lang: 'tr' },
+  { name: 'beIN CONNECT', url: 'https://www.beinconnect.com.tr/', lang: 'tr' },
+  { name: 'TOD', url: 'https://www.todtv.com.tr/', lang: 'tr' },
+  { name: 'S Sport Plus', url: 'https://www.ssportplus.com/', lang: 'tr' },
+  { name: 'Exxen', url: 'https://www.exxen.com/', lang: 'tr' },
+  { name: 'Google', url: 'https://www.google.com/' },
 ];
