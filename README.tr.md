@@ -66,6 +66,8 @@ Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, 
 
 **Aynalar** uygulaması tırın kendi aynalarını ekrana getirir: sol ayna, sol geniş açı aynası ve tırda varsa ön ayna. Büyütmek için birine dokun.
 
+**Tarayıcı** uygulaması istediğin siteyi açar: üstteki çubuğa adres ya da arama yaz, bir sayfayı başlangıç sayfasında tutmak için yıldıza bas. Giriş yaptığın sitelerde oturumun açık kalır; `Ctrl+Alt+F` sayfadaki videoyu tam ekran yapar. Yazı yazmak için kontrol modu gerekir (`Ctrl+Alt+C`).
+
 ## Gerekenler
 
 - Euro Truck Simulator 2 **1.61**, Windows 10 veya 11

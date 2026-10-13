@@ -66,6 +66,8 @@ Die App **Lkw** zeigt die Schäden an Lkw und Auflieger, die Ladung, den Kraftst
 
 Die App **Spiegel** zeigt die Spiegel des Lkw auf dem Bildschirm: den linken Spiegel, seinen Weitwinkelspiegel und, falls vorhanden, den Frontspiegel. Tippe auf einen, um ihn zu vergrößern.
 
+Die App **Browser** öffnet jede Website: Gib oben in der Leiste eine Adresse oder eine Suche ein und tippe auf den Stern, um eine Seite auf der Startseite zu behalten. Auf Websites bleibst du angemeldet, und `Ctrl+Alt+F` zeigt das Video einer Seite im Vollbild. Zum Tippen brauchst du den Steuermodus (`Ctrl+Alt+C`).
+
 ## Voraussetzungen
 
 - Euro Truck Simulator 2 **1.61**, Windows 10 oder 11

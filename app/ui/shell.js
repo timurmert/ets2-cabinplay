@@ -44,14 +44,17 @@
   // active: id of the web app in front, or null. view: what this page shows behind it.
   let state = { active: null, view: 'home', open: [], media: null, game: {}, browser: {}, vehicle: null };
   const usedViews = new Set(); // built-in views keep their dock shortcut once opened
-  const VIEWS = ['home', 'maps', 'mirrors', 'truck'];
+  const VIEWS = ['home', 'maps', 'mirrors', 'truck', 'browser'];
 
-  function open(app) {
+  // url: a page to go to, even when the app is already open on another one.
+  function open(app, url) {
     $('settings').hidden = true;
-    if (app.builtin) {
-      showView(app.id);
+    address.blur();
+    if (app.builtin || (app.browser && !url && !state.open.includes(app.id))) {
+      showView(app.id); // the browser's start page until it has a page
     } else {
-      send({ type: 'open', id: app.id, url: app.url, next: app.next, prev: app.prev, fullscreenKey: app.fullscreenKey });
+      send({ type: 'open', id: app.id, url: url || app.url || 'about:blank', navigate: !!url, bar: !!app.browser,
+             next: app.next, prev: app.prev, fullscreenKey: app.fullscreenKey });
     }
   }
 
@@ -107,6 +110,97 @@
     if (app) open(app);
   });
 
+  // ---- browser: address bar, start page, kept pages
+  const address = $('bar-address');
+  const browserApp = apps.find((a) => a.browser);
+  const SITES = window.CABINPLAY_SITES || [];
+  const MARK_COLOURS = ['#0a84ff', '#30b0c7', '#34c759', '#ff9f0a', '#ff375f', '#bf5af2', '#5e5ce6'];
+  let favourites = [];
+  try { favourites = JSON.parse(localStorage.getItem('cabinplay.favourites')) || []; } catch (e) { /* none kept */ }
+  const isWeb = (url) => /^https?:\/\//i.test(url || '');
+  const hostOf = (url) => { try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return url; } };
+
+  // What was typed: an address if it looks like one, otherwise something to search for.
+  function toUrl(text) {
+    text = text.trim();
+    if (!text) return null;
+    if (isWeb(text)) return text;
+    if (/^[^\s/:]+\.[^\s/.:]{2,}(:\d+)?(\/\S*)?$/.test(text)) return `https://${text}`;
+    return `https://www.google.com/search?q=${encodeURIComponent(text)}`;
+  }
+
+  function saveFavourites() {
+    try { localStorage.setItem('cabinplay.favourites', JSON.stringify(favourites)); } catch (e) { /* storage unavailable */ }
+    layoutSites();
+    render();
+  }
+
+  function layoutSites() {
+    const list = $('browser-sites');
+    list.replaceChildren();
+    const shown = [...favourites.map((f) => ({ ...f, kept: true })), ...SITES.filter((s) => !s.lang || s.lang === language)];
+    for (const site of shown) {
+      const el = document.createElement('button');
+      el.className = 'site';
+      el.innerHTML = '<span class="site-mark"></span><span class="site-text"><b></b><small></small></span>';
+      const host = hostOf(site.url);
+      const mark = el.querySelector('.site-mark');
+      mark.textContent = (site.name || host).charAt(0).toLocaleUpperCase();
+      mark.style.background = MARK_COLOURS[[...host].reduce((n, c) => n + c.charCodeAt(0), 0) % MARK_COLOURS.length];
+      el.querySelector('b').textContent = site.name || host;
+      el.querySelector('small').textContent = host;
+      el.addEventListener('click', () => open(browserApp, site.url));
+      if (site.kept) {
+        const remove = document.createElement('span');
+        remove.className = 'site-remove';
+        remove.textContent = '×';
+        remove.title = t('favRemove');
+        remove.addEventListener('click', (e) => {
+          e.stopPropagation();
+          favourites = favourites.filter((f) => f.url !== site.url);
+          saveFavourites();
+        });
+        el.appendChild(remove);
+      }
+      list.appendChild(el);
+    }
+  }
+
+  // While the address is being typed the host sends the game's keyboard here instead of
+  // to the page under the bar.
+  address.addEventListener('focus', () => { address.select(); send({ type: 'shell-keys', on: true }); });
+  address.addEventListener('blur', () => send({ type: 'shell-keys', on: false }));
+  address.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    const url = toUrl(address.value);
+    if (url) open(browserApp, url);
+  });
+  $('bar-start').addEventListener('click', () => showView('browser'));
+  $('bar-reload').addEventListener('click', () => send({ type: 'browser', action: 'reload' }));
+  $('bar-star').addEventListener('click', () => {
+    const { url, title } = state.browser || {};
+    if (!isWeb(url)) return;
+    favourites = favourites.some((f) => f.url === url)
+      ? favourites.filter((f) => f.url !== url)
+      : [{ url, name: (title || '').trim().slice(0, 60) || hostOf(url) }, ...favourites];
+    saveFavourites();
+  });
+
+  function renderBrowser() {
+    const page = state.active === browserApp.id ? state.browser || {} : {};
+    const url = isWeb(page.url) ? page.url : '';
+    $('bar-reload').disabled = !url;
+    const star = $('bar-star');
+    const kept = favourites.some((f) => f.url === url);
+    star.disabled = !url;
+    star.classList.toggle('on', kept);
+    star.title = t(kept ? 'favRemove' : 'favAdd');
+    // not while it is being typed in
+    if (document.activeElement !== address && address.dataset.shown !== url) {
+      address.value = address.dataset.shown = url;
+    }
+  }
+
   // ---- truck page: damage lists, one row per part
   const TRUCK_PARTS = [['cabin', 'partCabin'], ['chassis', 'partChassis'], ['engine', 'partEngine'],
     ['transmission', 'partTransmission'], ['wheels', 'partWheels']];
@@ -154,6 +248,8 @@
     fmtInt = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 });
     for (const el of document.querySelectorAll('[data-i18n]')) el.textContent = t(el.dataset.i18n);
     for (const el of document.querySelectorAll('[data-i18n-title]')) el.title = t(el.dataset.i18nTitle);
+    address.placeholder = t('addressHint');
+    layoutSites(); // the shortcuts depend on the language
     for (const tile of grid.querySelectorAll('.app[data-id]')) {
       tile.querySelector('.app-name').textContent = appName(apps.find((a) => a.id === tile.dataset.id));
     }
@@ -407,7 +503,8 @@
   }
 
   const frontId = () => state.active || (state.view !== 'home' ? state.view : null);
-  const dockApps = () => apps.filter((a) => (a.builtin ? usedViews.has(a.id) : state.open.includes(a.id)));
+  const dockApps = () => apps.filter((a) => (a.builtin ? usedViews.has(a.id)
+    : state.open.includes(a.id) || (a.browser && usedViews.has(a.id))));
 
   function render() {
     const media = state.media;
@@ -419,6 +516,8 @@
     $('maps').hidden = state.view !== 'maps';
     $('mirrors').hidden = state.view !== 'mirrors';
     $('truck').hidden = state.view !== 'truck';
+    $('browser').hidden = state.view !== 'browser';
+    if (state.view === 'browser') renderBrowser();
     if (state.view === 'maps') renderMaps(game);
     if (state.view === 'mirrors') {
       if (!$('mirror-tiles').children.length) layoutMirrors(); // the host put us here
@@ -488,6 +587,7 @@
   if (host) {
     host.addEventListener('message', (e) => {
       if (e.data && e.data.type === 'cycle') cycle(e.data.step);
+      if (e.data && e.data.type === 'blur') address.blur();
       if (e.data && e.data.type === 'state') {
         state = {
           active: e.data.active || null,
@@ -508,5 +608,5 @@
   // "?open=<id>[&url=<address>]" starts straight in an app, optionally on a given page
   // (the host passes its --open and --url arguments through).
   const startApp = apps.find((a) => a.id === params.get('open'));
-  if (startApp) open({ ...startApp, url: params.get('url') || startApp.url });
+  if (startApp) open(startApp, params.get('url') || undefined);
 })();

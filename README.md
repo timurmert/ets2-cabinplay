@@ -66,6 +66,8 @@ The **Truck** app shows the damage to the truck and trailer, the cargo, the fuel
 
 The **Mirrors** app puts the truck's own mirrors on the screen: the left mirror, its wide-angle mirror and, if the truck has one, the front mirror. Tap one to enlarge it.
 
+The **Browser** app opens any website: type an address or a search in the bar at the top, and press the star to keep a page on its start page. Sites you sign in to stay signed in, and `Ctrl+Alt+F` makes the video on a page fullscreen. Typing needs control mode (`Ctrl+Alt+C`).
+
 ## What you need
 
 - Euro Truck Simulator 2 **1.61**, Windows 10 or 11

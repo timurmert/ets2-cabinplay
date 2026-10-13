@@ -66,6 +66,8 @@ Aplikacja **Ciężarówka** pokazuje uszkodzenia ciężarówki i naczepy, ładun
 
 Aplikacja **Lusterka** pokazuje na ekranie lusterka ciężarówki: lewe, lewe szerokokątne oraz, jeśli jest, przednie. Dotknij jednego, aby je powiększyć.
 
+Aplikacja **Przeglądarka** otwiera dowolną stronę: wpisz adres lub wyszukiwanie w pasku u góry i naciśnij gwiazdkę, aby zachować stronę na stronie startowej. W serwisach pozostajesz zalogowany, a `Ctrl+Alt+F` włącza pełny ekran dla wideo na stronie. Do pisania potrzebny jest tryb sterowania (`Ctrl+Alt+C`).
+
 ## Wymagania
 
 - Euro Truck Simulator 2 **1.61**, Windows 10 lub 11

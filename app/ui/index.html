@@ -172,6 +172,22 @@
   </div>
 </section>
 
+<!-- Browser: the bar stays visible above the page, which the host lays over everything
+     below it; the start page shows while no page is in front. -->
+<section id="browser" hidden>
+  <div id="browser-bar">
+    <button id="bar-start" data-i18n-title="startPage"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg></button>
+    <button id="bar-reload" data-i18n-title="reload"><svg viewBox="0 0 24 24"><path d="M19 12a7 7 0 1 1-2.05-4.95M19 4v4h-4"/></svg></button>
+    <input id="bar-address" type="text" spellcheck="false" autocomplete="off">
+    <button id="bar-star"><svg viewBox="0 0 24 24"><path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.6 9.7l5.8-.8z"/></svg></button>
+  </div>
+  <div id="browser-start">
+    <div class="card-label" data-i18n="shortcuts"></div>
+    <div id="browser-sites"></div>
+    <p id="browser-hint" data-i18n="favHint"></p>
+  </div>
+</section>
+
 <div id="settings" hidden>
   <div class="sheet">
     <div class="sheet-head">
