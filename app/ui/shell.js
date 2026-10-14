@@ -1,6 +1,7 @@
-// CabinPlay shell: dock, home screen, the map view and the truck page. Opened apps are
-// separate browser views the host layers over everything right of the dock; this page
-// only tells the host what to show.
+// CabinPlay shell: dock, home screen, the map view, the truck page and the settings.
+// Opened apps are separate browser views the host layers over everything right of the
+// dock, or over one half of it when two apps are side by side; this page only tells the
+// host what to show.
 (() => {
   const apps = window.CABINPLAY_APPS || [];
   const host = window.chrome && window.chrome.webview;
@@ -42,9 +43,12 @@
   const PAUSE = 'M6 4.5h4.4v15H6zM13.6 4.5H18v15h-4.4z';
 
   // active: id of the web app in front, or null. view: what this page shows behind it.
-  let state = { active: null, view: 'home', open: [], media: null, game: {}, browser: {}, vehicle: null };
+  // split: the two apps shown side by side (left, right), or null; active is then the
+  // one of them that has the keyboard.
+  let state = { active: null, view: 'home', split: null, open: [], media: null, game: {}, browser: {}, vehicle: null };
   const usedViews = new Set(); // built-in views keep their dock shortcut once opened
-  const VIEWS = ['home', 'maps', 'mirrors', 'truck', 'browser'];
+  const VIEWS = ['home', 'maps', 'mirrors', 'truck', 'browser', 'split'];
+  const byId = (id) => apps.find((a) => a.id === id);
 
   // url: a page to go to, even when the app is already open on another one.
   function open(app, url) {
@@ -53,6 +57,11 @@
     if (app.builtin || (app.browser && !url && !state.open.includes(app.id))) {
       showView(app.id); // the browser's start page until it has a page
     } else {
+      if (state.split) {
+        // Out of the pair at once: the host's answer waits for the page to say what it plays.
+        state = { ...state, active: app.id, split: null };
+        render();
+      }
       send({ type: 'open', id: app.id, url: url || app.url || 'about:blank', navigate: !!url, bar: !!app.browser,
              next: app.next, prev: app.prev, fullscreenKey: app.fullscreenKey });
     }
@@ -61,8 +70,9 @@
   function showView(view) {
     $('settings').hidden = true;
     // Applied at once so the screen does not wait for the host's next state message.
-    state = { ...state, active: null, view };
+    state = { ...state, active: null, view, split: null };
     if (view === 'mirrors') layoutMirrors(); // before the view, so the plugin has the rectangles
+    if (view === 'split') layoutSplit();
     render();
     send({ type: 'view', view });
   }
@@ -80,10 +90,24 @@
   const settingsTile = document.createElement('button');
   settingsTile.className = 'app';
   settingsTile.innerHTML = `<div class="app-icon">${SETTINGS_ICON}</div><div class="app-name"></div>`;
-  settingsTile.addEventListener('click', () => { $('settings').hidden = false; });
+  settingsTile.addEventListener('click', () => {
+    $('settings').hidden = false;
+    send({ type: 'ready' }); // pictures may have been added to the folder meanwhile
+  });
   grid.appendChild(settingsTile);
 
-  $('settings-close').addEventListener('click', () => { $('settings').hidden = true; });
+  function showTab(name) {
+    keyCapture = null;
+    for (const el of document.querySelectorAll('#settings .tab')) el.hidden = el.dataset.tab !== name;
+    for (const el of document.querySelectorAll('#settings-tabs button')) el.classList.toggle('on', el.dataset.tab === name);
+    $('settings-reset').hidden = name !== 'controls';
+    layoutBinds();
+  }
+  for (const el of document.querySelectorAll('#settings-tabs button')) {
+    el.addEventListener('click', () => showTab(el.dataset.tab));
+  }
+  $('settings-reset').addEventListener('click', () => send({ type: 'bind-reset' }));
+  $('settings-close').addEventListener('click', () => { keyCapture = null; $('settings').hidden = true; });
   $('settings-quit').addEventListener('click', () => send({ type: 'quit' }));
   $('settings-diagnostics').addEventListener('click', () => send({ type: 'diagnostics' }));
   const languageSelect = $('settings-language');
@@ -96,6 +120,10 @@
     applyLanguage();
   });
   $('dock-home').addEventListener('click', () => showView('home'));
+  $('dock-split').addEventListener('click', () => showView('split'));
+  $('split-swap').addEventListener('click', () => swapSplit());
+  $('split-on').addEventListener('click', () => startSplit());
+  $('split-off').addEventListener('click', () => open(byId(pair.left)));
   $('dock-fullscreen').addEventListener('click', () => send({ type: 'media', action: 'fullscreen' }));
   $('mirror-all').addEventListener('click', () => pickMirror(null));
   $('dock-back').addEventListener('click', () => send({ type: 'browser', action: 'back' }));
@@ -109,6 +137,243 @@
     const app = apps.find((a) => a.id === state.media.app);
     if (app) open(app);
   });
+
+  // ---- settings from the host: the background and the shortcuts
+  let config = { wallpaper: null, wallpapers: [], wallpaperHost: '', bindings: [], capturing: null };
+
+  // Built-in backgrounds (see [data-wall] in style.css); the user's own pictures are files
+  // the host keeps and serves. The chosen one is "preset:<name>" or a file name.
+  const PRESETS = ['aurora', 'dusk', 'forest', 'ocean', 'graphite'];
+  const wallUrl = (name) => `url("https://${config.wallpaperHost}/${encodeURIComponent(name)}")`;
+  const chosenWall = () => {
+    const name = config.wallpaper || '';
+    if (config.wallpapers.includes(name)) return name;
+    return PRESETS.includes(name.slice(7)) && name.startsWith('preset:') ? name : `preset:${PRESETS[0]}`;
+  };
+
+  function applyWallpaper() {
+    const name = chosenWall();
+    const preset = name.startsWith('preset:');
+    document.body.dataset.wall = preset ? name.slice(7) : 'photo';
+    document.body.style.setProperty('--photo', preset ? 'none' : wallUrl(name));
+  }
+
+  function layoutWalls() {
+    const list = $('walls');
+    list.replaceChildren();
+    const tile = (name) => {
+      const el = document.createElement('button');
+      el.className = 'wall' + (name === chosenWall() ? ' on' : '');
+      el.addEventListener('click', () => send({ type: 'wallpaper-set', name }));
+      list.appendChild(el);
+      return el;
+    };
+    for (const preset of PRESETS) tile(`preset:${preset}`).dataset.wall = preset;
+    for (const name of config.wallpapers) {
+      const el = tile(name);
+      el.style.backgroundImage = wallUrl(name);
+      const remove = document.createElement('span');
+      remove.className = 'wall-remove';
+      remove.textContent = '×';
+      remove.title = t('wallRemove');
+      remove.addEventListener('click', (e) => {
+        e.stopPropagation();
+        send({ type: 'wallpaper-remove', name });
+      });
+      el.appendChild(remove);
+    }
+    const add = document.createElement('button');
+    add.className = 'wall add';
+    add.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span></span>';
+    add.querySelector('span').textContent = t('wallAdd');
+    add.addEventListener('click', () => send({ type: 'wallpaper-add' }));
+    list.appendChild(add);
+  }
+
+  // ---- shortcuts: every action has a key that goes with Ctrl+Alt and, if the user gave
+  // it one, a button on a steering wheel or gamepad. Keep the list the same as Actions in
+  // MainForm.cs. Control mode's key belongs to the plugin and is not changed here.
+  const ACTIONS = [['playpause', 'actPlayPause'], ['next', 'actNext'], ['prev', 'actPrev'],
+    ['seek-forward', 'actSeekForward'], ['seek-back', 'actSeekBack'], ['fullscreen', 'actFullscreen'],
+    ['home', 'actHome'], ['maps', 'actMaps'], ['app-prev', 'actAppPrev'], ['app-next', 'actAppNext'],
+    ['split', 'actSplit'], ['split-swap', 'actSwap'], ['control', 'actControl']];
+  const KEY_NAMES = { 0x21: 'PgUp', 0x22: 'PgDn', 0x23: 'End', 0x24: 'Home', 0x25: '←', 0x26: '↑', 0x27: '→',
+    0x28: '↓', 0x2D: 'Ins', 0x2E: 'Del' };
+  // Keys every keyboard layout has in the same place; C is control mode's.
+  const bindable = (vk) => vk !== 0x43 && ((vk >= 0x30 && vk <= 0x39) || (vk >= 0x41 && vk <= 0x5A)
+    || (vk >= 0x70 && vk <= 0x7B) || (vk >= 0x20 && vk <= 0x28) || vk === 0x2D || vk === 0x2E || (vk >= 0x60 && vk <= 0x69));
+  function keyLabel(vk) {
+    if (vk === 0x20) return t('keySpace');
+    if (vk >= 0x70 && vk <= 0x7B) return `F${vk - 0x6F}`;
+    if (vk >= 0x60 && vk <= 0x69) return `Num ${vk - 0x60}`;
+    return KEY_NAMES[vk] || String.fromCharCode(vk);
+  }
+  const padLabel = (button) => (button >= 100 ? `${t('padHat')} ${'↑→↓←'.charAt(button - 100)}` : `${t('padButton')} ${button + 1}`);
+  const bindingOf = (action) => config.bindings.find((b) => b.action === action) || {};
+  const shortcut = (action) => (bindingOf(action).key ? `Ctrl+Alt+${keyLabel(bindingOf(action).key)}` : '');
+  let keyCapture = null; // action whose new key is being waited for
+
+  function layoutBinds() {
+    const list = $('binds');
+    list.replaceChildren();
+    const keys = (el, ...names) => {
+      for (const name of names) el.appendChild(document.createElement('kbd')).textContent = name;
+    };
+    for (const [action, nameKey] of ACTIONS) {
+      const binding = bindingOf(action);
+      const row = document.createElement('div');
+      row.className = 'bind';
+      row.innerHTML = '<span class="name"></span><button class="bind-key"></button><button class="bind-pad"></button><button class="bind-clear">×</button>';
+      row.querySelector('.name').textContent = row.querySelector('.name').title = t(nameKey);
+
+      const key = row.querySelector('.bind-key');
+      if (action === 'control') {
+        key.disabled = true;
+        keys(key, 'Ctrl', 'Alt', 'C');
+      } else if (keyCapture === action) {
+        key.classList.add('wait');
+        key.textContent = t('ctlPressKey');
+      } else if (binding.key) {
+        keys(key, 'Ctrl', 'Alt', keyLabel(binding.key));
+      } else {
+        key.classList.add('none');
+        key.textContent = t('ctlNone');
+      }
+      key.addEventListener('click', () => {
+        keyCapture = keyCapture === action ? null : action;
+        layoutBinds();
+      });
+
+      const pad = row.querySelector('.bind-pad');
+      if (config.capturing === action) {
+        pad.classList.add('wait');
+        pad.textContent = t('ctlPressButton');
+      } else if (binding.pad) {
+        pad.innerHTML = '<b></b><small></small>';
+        pad.querySelector('b').textContent = padLabel(binding.pad.button);
+        pad.querySelector('small').textContent = binding.pad.device;
+        pad.title = `${padLabel(binding.pad.button)} · ${binding.pad.device}`;
+      } else {
+        pad.classList.add('none');
+        pad.textContent = t('ctlNone');
+      }
+      pad.addEventListener('click', () => {
+        keyCapture = null;
+        send({ type: 'bind-pad', action, mode: 'capture' });
+      });
+
+      const clear = row.querySelector('.bind-clear');
+      clear.hidden = !binding.pad;
+      clear.title = t('ctlClear');
+      clear.addEventListener('click', () => send({ type: 'bind-pad', action, mode: 'clear' }));
+      list.appendChild(row);
+    }
+  }
+
+  // The key pressed while a row waits for one becomes that action's key. Esc gives up.
+  document.addEventListener('keydown', (e) => {
+    if (!keyCapture) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.keyCode === 27) {
+      keyCapture = null;
+      layoutBinds();
+    } else if (bindable(e.keyCode)) {
+      send({ type: 'bind-key', action: keyCapture, vk: e.keyCode });
+      keyCapture = null; // the row is redrawn when the host answers
+    }
+  }, true);
+
+  // The buttons' tooltips name their shortcuts.
+  function refreshTitles() {
+    $('dock-home').title = shortcut('home');
+    $('dock-fullscreen').title = shortcut('fullscreen');
+    $('dock-split').title = [t('split'), shortcut('split')].filter(Boolean).join(' · ');
+    for (const btn of document.querySelectorAll('[data-media]')) btn.title = shortcut(btn.dataset.media);
+  }
+
+  // ---- side by side: the map, the truck page and the sites can share the screen, one in
+  // each half. The pair is remembered; the browser can only take a half once it has a page.
+  const PANE_APPS = apps.filter((a) => a.id === 'maps' || a.id === 'truck' || !a.builtin);
+  let pair = { left: 'maps', right: 'ytmusic' };
+  try { pair = { ...pair, ...JSON.parse(localStorage.getItem('cabinplay.split')) }; } catch (e) { /* none kept */ }
+  const paneReady = (app) => !app.browser || state.open.includes(app.id);
+  const canPane = (id) => PANE_APPS.some((a) => a.id === id && paneReady(a));
+
+  function savePair() {
+    try { localStorage.setItem('cabinplay.split', JSON.stringify(pair)); } catch (e) { /* storage unavailable */ }
+  }
+
+  // Two different apps that can be shown, whatever was saved.
+  function fixPair() {
+    const other = (id) => PANE_APPS.find((a) => a.id !== id && paneReady(a)).id;
+    if (!canPane(pair.left)) pair.left = other(pair.right);
+    if (!canPane(pair.right) || pair.right === pair.left) pair.right = other(pair.left);
+  }
+
+  const paneMessage = (app) => (app.builtin ? { id: app.id }
+    : { id: app.id, url: app.url || 'about:blank', bar: !!app.browser, next: app.next, prev: app.prev,
+        fullscreenKey: app.fullscreenKey });
+
+  function startSplit() {
+    fixPair();
+    savePair();
+    $('settings').hidden = true;
+    address.blur();
+    state = { ...state, view: 'home', split: [pair.left, pair.right] };
+    render();
+    send({ type: 'split', left: paneMessage(byId(pair.left)), right: paneMessage(byId(pair.right)) });
+  }
+
+  // The shortcut: on with the remembered pair, off back to the app that was in use.
+  function toggleSplit() {
+    if (state.split) {
+      open(byId(state.active) || byId(state.split[0]));
+      return;
+    }
+    // The app in front joins the pair, next to the map if the pair has it.
+    const front = frontId();
+    if (canPane(front) && front !== pair.left && front !== pair.right) {
+      if (pair.right === 'maps') pair.left = front;
+      else pair.right = front;
+    }
+    startSplit();
+  }
+
+  function swapSplit() {
+    pair = { left: pair.right, right: pair.left };
+    savePair();
+    if (state.split) startSplit();
+    else layoutSplit();
+  }
+
+  // The page where the two are picked.
+  function layoutSplit() {
+    fixPair();
+    for (const side of ['left', 'right']) {
+      const other = side === 'left' ? 'right' : 'left';
+      const list = $(`split-${side}`);
+      list.replaceChildren();
+      for (const app of PANE_APPS) {
+        const el = document.createElement('button');
+        el.className = 'split-app' + (pair[side] === app.id ? ' on' : '');
+        // own gradient ids: the same icons elsewhere on the page may be hidden
+        el.innerHTML = `${app.icon.replace(/\bg-(\w+)/g, `g-$1-${side}`)}<span></span>`;
+        el.querySelector('span').textContent = appName(app);
+        if (!paneReady(app)) {
+          el.disabled = true;
+          el.title = t('splitNeedsPage');
+        }
+        el.addEventListener('click', () => {
+          if (pair[other] === app.id) pair[other] = pair[side]; // picked on the other side: they trade places
+          pair[side] = app.id;
+          savePair();
+          layoutSplit();
+        });
+        list.appendChild(el);
+      }
+    }
+  }
 
   // ---- browser: address bar, start page, kept pages
   const address = $('bar-address');
@@ -250,6 +515,10 @@
     for (const el of document.querySelectorAll('[data-i18n-title]')) el.title = t(el.dataset.i18nTitle);
     address.placeholder = t('addressHint');
     layoutSites(); // the shortcuts depend on the language
+    layoutWalls();
+    layoutBinds();
+    refreshTitles();
+    if (state.view === 'split') layoutSplit();
     for (const tile of grid.querySelectorAll('.app[data-id]')) {
       tile.querySelector('.app-name').textContent = appName(apps.find((a) => a.id === tile.dataset.id));
     }
@@ -502,7 +771,7 @@
     $('gauge-battery').textContent = live && v.battery ? `${fmtKm.format(v.battery)} V` : dash;
   }
 
-  const frontId = () => state.active || (state.view !== 'home' ? state.view : null);
+  const frontId = () => state.active || (state.view !== 'home' && state.view !== 'split' ? state.view : null);
   const dockApps = () => apps.filter((a) => (a.builtin ? usedViews.has(a.id)
     : state.open.includes(a.id) || (a.browser && usedViews.has(a.id))));
 
@@ -510,20 +779,32 @@
     const media = state.media;
     const game = state.game || {};
     const playing = !!(media && media.playing);
-    if (state.view !== 'home') usedViews.add(state.view);
+    const split = state.split;
+    // Side by side, this page draws its own views in their half and nothing else.
+    const view = split ? null : state.view;
+    const shows = (id) => (split ? split.includes(id) : view === id);
+    for (const id of split || [view]) {
+      if (id !== 'home' && id !== 'split' && byId(id) && (byId(id).builtin || byId(id).browser)) usedViews.add(id);
+    }
 
-    $('home').hidden = state.view !== 'home';
-    $('maps').hidden = state.view !== 'maps';
-    $('mirrors').hidden = state.view !== 'mirrors';
-    $('truck').hidden = state.view !== 'truck';
-    $('browser').hidden = state.view !== 'browser';
-    if (state.view === 'browser') renderBrowser();
-    if (state.view === 'maps') renderMaps(game);
-    if (state.view === 'mirrors') {
+    document.body.classList.toggle('split', !!split);
+    $('home').hidden = view !== 'home';
+    $('maps').hidden = !shows('maps');
+    $('mirrors').hidden = view !== 'mirrors';
+    $('truck').hidden = !shows('truck');
+    $('browser').hidden = view !== 'browser';
+    $('split').hidden = view !== 'split';
+    for (const id of ['maps', 'truck']) {
+      if (split && split.includes(id)) $(id).dataset.pane = split[0] === id ? 'left' : 'right';
+      else delete $(id).dataset.pane;
+    }
+    if (view === 'browser') renderBrowser();
+    if (shows('maps')) renderMaps(game);
+    if (view === 'mirrors') {
       if (!$('mirror-tiles').children.length) layoutMirrors(); // the host put us here
       renderMirrors(game);
     }
-    if (state.view === 'truck') renderTruck(game, state.vehicle);
+    if (shows('truck')) renderTruck(game, state.vehicle);
 
     // dock: one shortcut per open app
     const shown = dockApps();
@@ -535,7 +816,8 @@
     dock.replaceChildren();
     for (const app of shown) {
       const el = document.createElement('button');
-      el.className = 'dock-app' + (app.id === front ? ' active' : '') + (playing && media.app === app.id ? ' playing' : '');
+      el.className = 'dock-app' + ((split ? split.includes(app.id) : app.id === front) ? ' active' : '')
+        + (playing && media.app === app.id ? ' playing' : '');
       el.title = appName(app);
       el.innerHTML = app.icon;
       el.addEventListener('click', () => open(app));
@@ -543,6 +825,7 @@
     }
     const activeApp = apps.find((a) => a.id === state.active);
     $('dock-fullscreen').hidden = !(activeApp && activeApp.fullscreenKey);
+    $('dock-split').classList.toggle('on', !!split || view === 'split');
     // back and forward, like in any browser, for the site in front
     const browser = state.browser || {};
     $('dock-nav').hidden = !activeApp;
@@ -587,11 +870,21 @@
   if (host) {
     host.addEventListener('message', (e) => {
       if (e.data && e.data.type === 'cycle') cycle(e.data.step);
+      if (e.data && e.data.type === 'split') toggleSplit();
+      if (e.data && e.data.type === 'split-swap') swapSplit();
+      if (e.data && e.data.type === 'config') {
+        config = { ...config, ...e.data };
+        applyWallpaper();
+        layoutWalls();
+        layoutBinds();
+        refreshTitles();
+      }
       if (e.data && e.data.type === 'blur') address.blur();
       if (e.data && e.data.type === 'state') {
         state = {
           active: e.data.active || null,
           view: VIEWS.includes(e.data.view) ? e.data.view : 'home',
+          split: Array.isArray(e.data.split) && e.data.split.length === 2 ? e.data.split : null,
           open: e.data.open || [],
           media: e.data.media || null,
           game: e.data.game || {},
@@ -603,6 +896,8 @@
     });
   }
   applyLanguage();
+  showTab('general');
+  send({ type: 'ready' });
   setInterval(tick, 1000);
 
   // "?open=<id>[&url=<address>]" starts straight in an app, optionally on a given page

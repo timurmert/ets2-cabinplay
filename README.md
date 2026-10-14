@@ -43,7 +43,7 @@ Close the game and unzip the file. Then pick one:
 
 1. Start the game and accept the "SDK features" notice it shows once.
 2. In the **Mod Manager**, switch on **CabinPlay Screen**.
-3. In a truck workshop, fit **CabinPlay Screen** in the left windscreen accessory slot. There are two versions: *Large* (11", on an arm) and *Compact* (10", at the glass).
+3. In a truck workshop, fit **CabinPlay Screen** in a windscreen accessory slot. On the left there are two versions, *Large* (11", on an arm) and *Compact* (10", at the glass); in the middle slot there is *Centre*, turned towards the driver (with a version of its own for right-hand-drive cabins).
 
 That's it. The screen switches on with the truck's ignition. To remove it, double-click **Uninstall.cmd**, or delete the files you copied by hand.
 
@@ -59,6 +59,8 @@ That's it. The screen switches on with the truck's ignition. To remove it, doubl
 | `Ctrl+Alt+↑` `↓` | 10 seconds forward / back |
 | `Ctrl+Alt+F` | Video fullscreen |
 | `Ctrl+Alt+PgUp` `PgDn` | Previous / next open app |
+| `Ctrl+Alt+S` | Two apps side by side, on / off |
+| `Ctrl+Alt+X` | Swap the two sides |
 
 Playback pauses when you pause the game or switch the ignition off. The language is under **Settings** on the screen. If you closed CabinPlay from its settings, `Ctrl+Alt+C` starts it again.
 
@@ -67,6 +69,8 @@ The **Truck** app shows the damage to the truck and trailer, the cargo, the fuel
 The **Mirrors** app puts the truck's own mirrors on the screen: the left mirror, its wide-angle mirror and, if the truck has one, the front mirror. Tap one to enlarge it.
 
 The **Browser** app opens any website: type an address or a search in the bar at the top, and press the star to keep a page on its start page. Sites you sign in to stay signed in, and `Ctrl+Alt+F` makes the video on a page fullscreen. Typing needs control mode (`Ctrl+Alt+C`).
+
+**Side by side** puts two apps next to each other, for example the map on the left and music on the right: press the split button in the dock and pick the app for each half. Under **Settings** you can choose a background, also from your own pictures, change the keys of the shortcuts, and put any of them on a button of your steering wheel or gamepad.
 
 ## What you need
 

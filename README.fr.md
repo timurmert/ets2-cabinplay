@@ -43,7 +43,7 @@ Fermez le jeu et décompressez le fichier. Choisissez ensuite une méthode :
 
 1. Lancez le jeu et acceptez l'avertissement sur les « fonctionnalités SDK », affiché une seule fois.
 2. Dans le **Gestionnaire de mods**, activez **CabinPlay Screen**.
-3. Dans un garage, installez **CabinPlay Screen** dans l'emplacement d'accessoire à gauche du pare-brise. Deux versions existent : *Large* (11", sur un bras) et *Compact* (10", contre la vitre).
+3. Dans un garage, installez **CabinPlay Screen** dans un emplacement d'accessoire du pare-brise. À gauche, deux versions existent : *Large* (11", sur un bras) et *Compact* (10", contre la vitre) ; au milieu, il y a *Centre*, tourné vers le conducteur (avec une version à part pour les cabines à conduite à droite).
 
 C'est tout. L'écran s'allume avec le contact du camion. Pour le retirer, double-cliquez sur **Uninstall.cmd** ou supprimez les fichiers copiés à la main.
 
@@ -59,6 +59,8 @@ C'est tout. L'écran s'allume avec le contact du camion. Pour le retirer, double
 | `Ctrl+Alt+↑` `↓` | Avancer / reculer de 10 secondes |
 | `Ctrl+Alt+F` | Vidéo en plein écran |
 | `Ctrl+Alt+PgUp` `PgDn` | App ouverte précédente / suivante |
+| `Ctrl+Alt+S` | Deux apps côte à côte, activer / désactiver |
+| `Ctrl+Alt+X` | Échanger les deux côtés |
 
 La lecture se met en pause quand vous mettez le jeu en pause ou coupez le contact. La langue se règle dans **Réglages**, à l'écran. Si vous avez fermé CabinPlay depuis ses réglages, `Ctrl+Alt+C` le relance.
 
@@ -67,6 +69,8 @@ L'app **Camion** affiche les dégâts du camion et de la remorque, la cargaison,
 L'app **Rétroviseurs** affiche les rétroviseurs du camion à l'écran : le rétro gauche, son grand angle et, s'il y en a un, le rétro avant. Touchez-en un pour l'agrandir.
 
 L'app **Navigateur** ouvre n'importe quel site : saisissez une adresse ou une recherche dans la barre du haut, et touchez l'étoile pour garder une page sur la page de démarrage. Vous restez connecté aux sites, et `Ctrl+Alt+F` passe la vidéo d'une page en plein écran. La saisie nécessite le mode contrôle (`Ctrl+Alt+C`).
+
+La vue **côte à côte** affiche deux apps en même temps, par exemple la carte à gauche et la musique à droite : touchez le bouton de partage dans le dock et choisissez l'app de chaque moitié. Dans **Réglages**, vous pouvez choisir un arrière-plan, y compris parmi vos propres images, changer les touches des raccourcis et placer chacun d'eux sur un bouton de votre volant ou de votre manette.
 
 ## Prérequis
 

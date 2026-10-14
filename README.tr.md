@@ -43,7 +43,7 @@ Oyunu kapat ve zip'i aç. Sonra birini seç:
 
 1. Oyunu başlat ve bir kez çıkan "SDK özellikleri" uyarısını onayla.
 2. **Mod Yöneticisi**'nde **CabinPlay Screen**'i etkinleştir.
-3. Serviste, sol ön cam aksesuar yuvasına **CabinPlay Screen**'i tak. İki sürüm var: *Large* (11", kolda) ve *Compact* (10", camın dibinde).
+3. Serviste **CabinPlay Screen**'i ön camdaki bir aksesuar yuvasına tak. Sol yuvada iki sürüm var: *Large* (11", kolda) ve *Compact* (10", camın dibinde); orta yuvada ise sürücüye dönük *Centre* var (sağdan direksiyonlu kabinler için ayrı bir sürümüyle).
 
 Bu kadar. Ekran tırın kontağıyla birlikte açılır. Kaldırmak için **Uninstall.cmd** dosyasına çift tıkla ya da elle kopyaladığın dosyaları sil.
 
@@ -59,6 +59,8 @@ Bu kadar. Ekran tırın kontağıyla birlikte açılır. Kaldırmak için **Unin
 | `Ctrl+Alt+↑` `↓` | 10 saniye ileri / geri |
 | `Ctrl+Alt+F` | Videoyu tam ekran yap |
 | `Ctrl+Alt+PgUp` `PgDn` | Önceki / sonraki açık uygulama |
+| `Ctrl+Alt+S` | İki uygulamayı yan yana aç / kapat |
+| `Ctrl+Alt+X` | İki tarafı değiştir |
 
 Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, ekrandaki **Ayarlar**'dan değişir. CabinPlay'i ayarlardan kapattıysan `Ctrl+Alt+C` onu yeniden başlatır.
 
@@ -67,6 +69,8 @@ Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, 
 **Aynalar** uygulaması tırın kendi aynalarını ekrana getirir: sol ayna, sol geniş açı aynası ve tırda varsa ön ayna. Büyütmek için birine dokun.
 
 **Tarayıcı** uygulaması istediğin siteyi açar: üstteki çubuğa adres ya da arama yaz, bir sayfayı başlangıç sayfasında tutmak için yıldıza bas. Giriş yaptığın sitelerde oturumun açık kalır; `Ctrl+Alt+F` sayfadaki videoyu tam ekran yapar. Yazı yazmak için kontrol modu gerekir (`Ctrl+Alt+C`).
+
+**Yan yana** görünüm iki uygulamayı aynı anda gösterir; örneğin solda harita, sağda müzik: kenar çubuğundaki bölme düğmesine bas ve her yarı için uygulamayı seç. **Ayarlar**'dan arka planı (kendi resimlerinden de) seçebilir, kısayol tuşlarını değiştirebilir ve her birini direksiyonundaki ya da oyun kolundaki bir düğmeye atayabilirsin.
 
 ## Gerekenler
 
