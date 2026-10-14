@@ -24,7 +24,8 @@ SONRA, OYUNDA
   1. Oyunu başlat ve bir kez çıkan "SDK özellikleri" uyarısını onayla.
   2. Mod Yöneticisi'nde "CabinPlay Screen" modunu etkinleştir.
   3. Serviste "CabinPlay Screen"i ön camdaki bir aksesuar yuvasına tak: solda (Large veya
-     Compact) ya da ortada (Centre).
+     Compact) ya da ortada (Centre). Serviste başka yerler ve yatakta izlemek için
+     "CabinPlay TV" de var.
 
 KULLANIM
   Ctrl+Alt+C       ekranı oyunun içinden fare ve klavyeyle kullan (çıkış: Esc)

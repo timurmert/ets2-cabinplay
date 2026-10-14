@@ -22,7 +22,8 @@ THEN, IN THE GAME
   1. Start the game and accept the "SDK features" notice it shows once.
   2. In the Mod Manager, switch on "CabinPlay Screen".
   3. In a truck workshop, fit "CabinPlay Screen" in a windscreen accessory slot: on the
-     left (Large or Compact) or in the middle (Centre).
+     left (Large or Compact) or in the middle (Centre). The workshop has more places too,
+     and "CabinPlay TV" to watch from the bunk.
 
 USE
   Ctrl+Alt+C      use the screen from inside the game with mouse and keyboard (Esc to leave)

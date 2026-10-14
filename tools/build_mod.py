@@ -5,6 +5,7 @@ so the mod has no source assets besides this script.
 """
 import math
 import os
+import re
 import shutil
 import struct
 import sys
@@ -12,6 +13,7 @@ import zipfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import scsmodel
+from cabin_slots import CAMERAS, SLOTS
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TREE = os.path.join(ROOT, "build", "mod_tree")
@@ -131,6 +133,230 @@ def centre_variant(base, down):
                 cup=(0.0, -cup, -GLASS_LEAN * cup - 0.002), glass=(0.0, -GLASS_LEAN, 1.0))
 
 
+# Screen sizes: half width, half height of the picture, its corner radius, and the tablet body
+# (half width, half height, thickness, corner radius).
+SIZE_PHONE = dict(screen=(0.0780, 0.0390), screen_r=0.0040, body=(0.0830, 0.0440, 0.0080, 0.0090))  # 7 inch
+SIZE_COMPACT = dict(screen=(0.1150, 0.0575), screen_r=0.0050, body=(0.1220, 0.0645, 0.0090, 0.0120))  # 10 inch
+SIZE_LARGE = dict(screen=(0.1260, 0.0630), screen_r=0.0055, body=(0.1330, 0.0700, 0.0095, 0.0130))  # 11 inch
+# A television to watch from the bunk, on a wall bracket: only for the places made for that.
+SIZE_TV = dict(screen=(0.3100, 0.1550), screen_r=0.0060, body=(0.3180, 0.1630, 0.0300, 0.0080))  # 27 inch
+
+UP, DOWN = (0.0, 1.0, 0.0), (0.0, -1.0, 0.0)
+SWING_PLATE = 0.012  # thickness of the folding arm's plates on the wall and the screen
+SWING_VIEW = 0.90  # the folding arm keeps the screen at least this far from the viewer's eyes
+
+# Where a viewer lying on the bunk has their eyes: above the bunk slot, towards the cabin.
+BUNK_EYES = (0.0, 0.25, -0.05)
+# ... and lying with their head on the pillow, at the head end of the bunk.
+PILLOW_EYES = (-0.10, 0.18, -0.05)
+
+# More places in the cabin, each on a slot of the game's own. Positions are in the cabin's axes
+# (the driver's eyes at the origin, +y up, -z forward), from the slot's locator: the foot of
+# the arm sits at `foot`, on a surface facing `normal` ("driver": straight towards the
+# driver), and the screen centre at `centre`, turned to face the driver's eyes. With
+# local=True the offsets are in the slot's own axes instead.
+#
+# mount="wall" hangs the screen flat on the surface on a bracket `gap` deep instead of the
+# arm; mount="swing" holds it `reach` out from the surface on a folding arm. face="normal"
+# turns the screen the way the surface faces; face=(slot, offset) turns it towards that point
+# from another slot.
+PLACES = [
+    # standing on the top of the dashboard, like a built-in screen
+    dict(slot="set_dashbrd", unit="cabinplay_d", model="cp_dash", name="CabinPlay Screen (Dashboard)",
+         price=1500, size=SIZE_LARGE, foot=(0.0, 0.0, 0.0), normal=UP, centre=(0.0, 0.105, 0.03)),
+    # clipped to the air vent, like a phone holder
+    dict(slot="toyac", unit="cabinplay_v", model="cp_vent", name="CabinPlay Screen (Air vent)",
+         price=900, size=SIZE_PHONE, foot=(0.0, 0.0, 0.0), normal="driver", centre=(0.0, 0.025, 0.09)),
+    # hanging from the roof above the middle of the windscreen
+    dict(slot="toyhang", unit="cabinplay_o", model="cp_roof", name="CabinPlay Screen (Overhead)",
+         price=1500, size=SIZE_LARGE, foot=(0.0, 0.0, 0.0), normal=DOWN, centre=(0.0, -0.15, 0.05)),
+    # on a stand on the passenger seat
+    dict(slot="toyseat", unit="cabinplay_p", model="cp_seat", name="CabinPlay Screen (Passenger seat)",
+         price=1500, size=SIZE_LARGE, foot=(0.0, 0.0, 0.0), normal=UP, centre=(0.0, 0.13, 0.0)),
+    # where the game's own dashboard toys stand; in some trucks that is the centre console
+    dict(slot="toystand", unit="cabinplay_t", model="cp_stand", name="CabinPlay Screen (Console)",
+         price=1200, size=SIZE_COMPACT, foot=(0.0, 0.0, 0.0), normal=UP, centre=(0.0, 0.10, 0.0)),
+    # standing in the cup holder (only the newer trucks have the slot)
+    dict(slot="cup_holder", unit="cabinplay_k", model="cp_cup", name="CabinPlay Screen (Cup holder)",
+         price=900, size=SIZE_PHONE, foot=(0.0, 0.0, 0.0), normal=UP, centre=(0.0, 0.13, 0.0)),
+    # on the passenger's side of the windscreen, from the middle mount point
+    dict(slot="set_glass", unit="cabinplay_g", model="cp_pglass", name="CabinPlay Screen (Passenger side)",
+         price=1500, size=SIZE_LARGE, local=True, foot=(0.45, -0.08, -GLASS_LEAN * 0.08 - 0.002),
+         normal=(0.0, -GLASS_LEAN, 1.0), centre=(0.45, -0.10, -GLASS_LEAN * 0.10 + 0.150)),
+    # televisions to watch lying on the bunk: on the back wall, where the light panel goes
+    # (the slot's -z faces into the cabin), and in the middle of the windscreen, either flat on
+    # the glass or turned towards the bunk
+    dict(slot="intlight_bck", unit="cabinplay_w", model="cp_tv_wall", name="CabinPlay TV (Back wall)",
+         price=3500, size=SIZE_TV, local=True, mount="wall", gap=0.025, face="normal",
+         foot=(0.0, 0.05, 0.0), normal=(0.0, 0.0, -1.0)),
+    # the same, swung out from the wall on its arm and turned to the pillow
+    dict(slot="intlight_bck", unit="cabinplay_r", model="cp_tv_swing", name="CabinPlay TV (Back wall, to the pillow)",
+         price=3800, size=SIZE_TV, local=True, mount="swing", reach=0.40, face=("l_pillow", PILLOW_EYES),
+         foot=(0.0, 0.05, 0.0), normal=(0.0, 0.0, -1.0)),
+    dict(slot="set_glass", unit="cabinplay_f", model="cp_tv_flat", name="CabinPlay TV (Windscreen, flat)",
+         price=3500, size=SIZE_TV, local=True, mount="wall", gap=0.03, face="normal",
+         foot=(0.0, 0.03, GLASS_LEAN * 0.03 - 0.002), normal=(0.0, -GLASS_LEAN, 1.0)),
+    dict(slot="set_glass", unit="cabinplay_a", model="cp_tv_bunk", name="CabinPlay TV (Windscreen, to the bunk)",
+         price=3500, size=SIZE_TV, local=True, arm=1.6, face=("toybed", BUNK_EYES),
+         foot=(0.0, 0.03, GLASS_LEAN * 0.03 - 0.002), normal=(0.0, -GLASS_LEAN, 1.0),
+         centre=(0.0, 0.03, GLASS_LEAN * 0.03 + 0.10)),
+]
+
+
+def qrot(q, v):
+    """Rotates v by the unit quaternion q = (w, x, y, z)."""
+    w, qv = q[0], q[1:]
+    t = vmul(vcross(qv, v), 2.0)
+    return vadd(vadd(v, vmul(t, w)), vcross(qv, t))
+
+
+def qinv(q):
+    l = math.sqrt(sum(c * c for c in q))
+    return (q[0] / l, -q[1] / l, -q[2] / l, -q[3] / l)
+
+
+def placed_variant(place, truck):
+    """The screen for one place in one truck, in the slot's own axes, or None when the truck
+    has no such slot."""
+    if place["slot"] not in SLOTS[truck]:
+        return None
+    pos, rot = SLOTS[truck][place["slot"]]
+    inv = qinv(rot)
+
+    def world(offset):
+        return vadd(pos, qrot(rot, offset) if place.get("local") else offset)
+
+    foot = world(place["foot"])
+    if place["normal"] == "driver":
+        normal = vnorm((-foot[0], 0.0, -foot[2]))
+    elif place.get("local"):
+        normal = qrot(rot, vnorm(place["normal"]))
+    else:
+        normal = vnorm(place["normal"])
+    if place.get("mount") == "wall":
+        centre = vadd(foot, vmul(normal, place["size"]["body"][2] + place["gap"]))
+    elif place.get("mount") == "swing":
+        centre = vadd(foot, vmul(normal, place["reach"]))
+        # Where the slot sits right above the viewer, the arm also swings along the wall, away
+        # from them, until the screen is far enough off to watch.
+        eyes = vadd(SLOTS[truck][place["face"][0]][0], place["face"][1]) if place["face"][0] in SLOTS[truck] else None
+        if eyes:
+            away = vsub(centre, eyes)
+            away = vnorm(vsub(away, vmul(normal, vdot(away, normal))))
+            for _ in range(25):
+                if math.sqrt(vdot(vsub(centre, eyes), vsub(centre, eyes))) >= SWING_VIEW:
+                    break
+                centre = vadd(centre, vmul(away, 0.02))
+    else:
+        centre = world(place["centre"])
+    face = place.get("face")
+    if face == "normal":
+        front = normal
+    elif face:
+        if face[0] not in SLOTS[truck]:
+            return None
+        front = vnorm(vsub(vadd(SLOTS[truck][face[0]][0], face[1]), centre))
+    else:
+        front = vnorm(vmul(centre, -1.0))  # towards the driver's eyes
+    right = vnorm(vcross(UP, front))
+    up = vcross(front, right)
+
+    def local(p):
+        return qrot(inv, vsub(p, pos))
+    variant = dict(place, center=local(centre), cup=local(foot), glass=qrot(inv, normal),
+                   frame=tuple(qrot(inv, a) for a in (right, up, front)), **place["size"])
+    if place.get("mount") == "swing":
+        # The folding arm: from the wall plate out to an elbow, bent away from the viewer, and
+        # on to the hinge on the back of the screen.
+        hinge = vsub(centre, vmul(front, place["size"]["body"][2] + SWING_PLATE))
+        # The wall plate goes along the wall, away from the viewer, until it is behind the screen:
+        # an arm from in front of it would cross the picture.
+        toward = vnorm(vsub(front, vmul(normal, vdot(front, normal))))  # to the viewer, along the wall
+        for _ in range(30):
+            if vdot(vsub(foot, centre), front) <= -0.12:
+                break
+            foot = vsub(foot, vmul(toward, 0.02))
+        start = vadd(foot, vmul(normal, SWING_PLATE))
+        elbow = vsub(vmul(vadd(start, hinge), 0.5), vmul(front, 0.06))
+        variant["cup"] = local(foot)
+        variant["arm_points"] = tuple(local(p) for p in (start, elbow, hinge))
+        variant["wall_up"] = qrot(inv, UP)
+    key = tuple(round(c, 4) for v in (variant["center"], variant["cup"], variant["glass"]) + variant["frame"]
+                for c in v)
+    return variant, key
+
+
+# --------------------------------------------------------------------------- pillow view
+
+# The interior camera moves the driver's head by how far it is turned (the azimuth, in degrees:
+# 0 ahead, positive to the left), and the turn does not wrap round at 180. So turning on to
+# the right past looking straight back, which driving never needs, can carry the head over the
+# bunk to the pillow, where it arrives looking left along the bunk at the TV turned to the
+# pillow. These are the extra azimuth ranges, after the game's own last one on the right.
+PILLOW_TV = "cabinplay_r"
+PILLOW_VIA = (0.0, 0.30, -0.15)  # half way: above the middle of the bunk, from its slot
+PILLOW_TURN = 75  # degrees the head can still turn right, on the pillow, past facing the TV
+
+
+def azimuth_ranges(text):
+    """The camera_azimuth_range units in a camera definition, as name -> attributes."""
+    out = {}
+    for name, body in re.findall(r"camera_azimuth_range\s*:\s*(\S+)\s*\{(.*?)\}", text, re.S):
+        out[name] = dict(re.findall(r"(\w+)\s*:\s*([^\n#]+?)\s*(?:#.*)?$", body, re.M))
+    return out
+
+
+def pillow_camera(truck):
+    """The game's interior camera of this truck with the pillow view added."""
+    _, text = CAMERAS[truck]
+    unit = re.search(r"vehicle_interior_camera\s*:\s*(\S+)", text).group(1)
+    ranges = azimuth_ranges(text)
+    last = min(ranges.values(), key=lambda r: float(r["end_azimuth"]))  # furthest to the right
+
+    def vec(s):
+        return tuple(float(c) for c in s.strip("() ").split(","))
+    place = next(p for p in PLACES if p["unit"] == PILLOW_TV)
+    variant, _ = placed_variant(place, truck)
+    pos, rot = SLOTS[truck][place["slot"]]
+    tv = vadd(pos, qrot(rot, variant["center"]))
+    eyes = vadd(SLOTS[truck][place["face"][0]][0], place["face"][1])
+    via = vadd(SLOTS[truck]["toybed"][0], PILLOW_VIA)
+    d = vsub(tv, eyes)
+    start = float(last["end_azimuth"])
+    watch = math.degrees(math.atan2(-d[0], -d[2]))
+    while watch > start - 60:
+        watch -= 360
+    pitch = math.degrees(math.atan2(d[1], math.hypot(d[0], d[2])))
+
+    up, down = last["end_up_limit"], last["end_down_limit"]
+    lr = last["end_left_right_default"]
+    steps = [  # (end azimuth, head offset, up/down default)
+        (start - 45, via, float(last["end_up_down_default"])),
+        (watch + 15, eyes, pitch),
+        (watch - PILLOW_TURN, eyes, pitch),  # free to look on to the right while lying there
+    ]
+    prev_az, prev_off, prev_ud = start, vec(last["end_head_offset_offset"]), float(last["end_up_down_default"])
+    units, refs = "", ""
+    for i, (az, off, ud) in enumerate(steps):
+        name = "_nameless.%s.ar.cp%d" % (truck, i + 1)
+        refs += "        azimuth_overrides[]: %s\n" % name
+        units += ("\ncamera_azimuth_range: %s\n{\n"
+                  "\tstart_azimuth: %.1f\n\tend_azimuth: %.1f\n\n\toutside: false\n\n"
+                  "\tstart_up_limit: %s\n\tend_up_limit: %s\n"
+                  "\tstart_down_limit: %s\n\tend_down_limit: %s\n\n"
+                  "\tstart_up_down_default: %.1f\n\tend_up_down_default: %.1f\n\n"
+                  "\tstart_left_right_default: %s\n\tend_left_right_default: %s\n\n"
+                  "\tstart_head_offset_offset: (%.3f, %.3f, %.3f)\n\tend_head_offset_offset: (%.3f, %.3f, %.3f)\n"
+                  "}\n") % (name, prev_az, az, up, up, down, down, prev_ud, ud, lr, lr, *prev_off, *off)
+        prev_az, prev_off, prev_ud = az, off, ud
+    # the unit's own block ends at the first closing brace after its name
+    head, sep, rest = text.partition(unit)
+    body_end = rest.index("\n}")
+    rest = rest[:body_end] + "\n\t# CabinPlay: turn on to the right past looking back to lie on the pillow\n" + refs + rest[body_end:]
+    rest = re.sub(r"mouse_right_limit\s*:\s*-?[\d.]+", "mouse_right_limit: %.1f" % prev_az, rest, count=1)
+    return head + sep + rest.rstrip() + "\n" + units
+
+
 # --------------------------------------------------------------------------- mesh
 
 def vsub(a, b): return (a[0] - b[0], a[1] - b[1], a[2] - b[2])
@@ -174,6 +400,12 @@ class Mesh:
     def transform(self, fn_point, fn_dir):
         self.position = [fn_point(p) for p in self.position]
         self.normal = [vnorm(fn_dir(n)) for n in self.normal]
+
+    def merge(self, other):
+        base = len(self.position)
+        for name in ("position", "normal", "uv", "color"):
+            getattr(self, name).extend(getattr(other, name))
+        self.indices += [i + base for i in other.indices]
 
     def piece(self):
         return dict(material=self.material, position=self.position, normal=self.normal,
@@ -305,7 +537,7 @@ def build_model(variant):
     SCREEN_HW, SCREEN_HH = variant["screen"]
     SCREEN_R = variant["screen_r"]
     BODY_HW, BODY_HH, BODY_T, BODY_R = variant["body"]
-    CENTER, TILT_DEG, YAW_DEG = variant["center"], variant["tilt"], variant["yaw"]
+    CENTER = variant["center"]
     body, glass, screen, nav = Mesh(0), Mesh(1), Mesh(2), Mesh(3)
 
     # --- tablet, built facing +z with its front glass at z = 0
@@ -330,24 +562,67 @@ def build_model(variant):
          ((-s, -s, (0, 1)), (s, -s, (1, 1)), (s, s, (1, 0)), (-s, s, (0, 0)))]
     nav.quad(*q)
 
-    # mounting boss and ball joint on the back of the tablet
-    boss_z = -BODY_T - 0.006
-    ball_local = (0.0, -0.010, -BODY_T - 0.017)
-    add_tube(body, [((0, -0.010, -BODY_T), 0.028), ((0, -0.010, boss_z + 0.002), 0.026),
-                    ((0, -0.010, boss_z), 0.017)], seg=20, shade=100)
-    add_sphere(body, ball_local, 0.0135, shade=120)
+    wall = variant.get("mount") == "wall"
+    swing = variant.get("mount") == "swing"
+    s = variant.get("arm", 1.0)  # size of the arm and its joints
+    if wall:
+        # a bracket plate from the back of the screen to the wall
+        plate = rounded_rect(0.10, 0.075, 0.010)
+        add_band(body, plate, -BODY_T, plate, -BODY_T - variant["gap"], shade=84)
+        add_cap(body, plate, -BODY_T - variant["gap"], -1, shade=80)
+    elif swing:
+        # the plate the folding arm holds the screen by
+        plate = rounded_rect(0.06, 0.05, 0.010)
+        add_band(body, plate, -BODY_T, plate, -BODY_T - SWING_PLATE, shade=84)
+        add_cap(body, plate, -BODY_T - SWING_PLATE, -1, shade=80)
+    else:
+        # mounting boss and ball joint on the back of the tablet
+        boss_z = -BODY_T - 0.006 * s
+        ball_local = (0.0, -0.010 * s, -BODY_T - 0.017 * s)
+        add_tube(body, [((0, -0.010 * s, -BODY_T), 0.028 * s), ((0, -0.010 * s, boss_z + 0.002 * s), 0.026 * s),
+                        ((0, -0.010 * s, boss_z), 0.017 * s)], seg=20, shade=100)
+        add_sphere(body, ball_local, 0.0135 * s, shade=120)
 
-    t, yaw = math.radians(TILT_DEG), math.radians(YAW_DEG)
+    if "frame" in variant:
+        # the tablet's right, up and front, in the slot's axes
+        right, up, front = variant["frame"]
 
-    def rot(p):
-        x, y, z = p[0], p[1] * math.cos(t) + p[2] * math.sin(t), -p[1] * math.sin(t) + p[2] * math.cos(t)
-        return (x * math.cos(yaw) + z * math.sin(yaw), y, -x * math.sin(yaw) + z * math.cos(yaw))
+        def rot(p):
+            return vadd(vadd(vmul(right, p[0]), vmul(up, p[1])), vmul(front, p[2]))
+    else:
+        t, yaw = math.radians(variant["tilt"]), math.radians(variant["yaw"])
+
+        def rot(p):
+            x, y, z = p[0], p[1] * math.cos(t) + p[2] * math.sin(t), -p[1] * math.sin(t) + p[2] * math.cos(t)
+            return (x * math.cos(yaw) + z * math.sin(yaw), y, -x * math.sin(yaw) + z * math.cos(yaw))
 
     def place(p):
         return vadd(rot(p), CENTER)
 
     for m in (body, glass, screen, nav):
         m.transform(place, rot)
+    if wall:
+        return [body.piece(), glass.piece(), screen.piece(), nav.piece()]
+    if swing:
+        start, elbow, hinge = variant["arm_points"]
+        n = vnorm(variant["glass"])
+        u = vcross(variant["wall_up"], n)
+        _, u, v = frame_for_axis(n) if vdot(u, u) < 1e-6 else (n, vnorm(u), vcross(n, vnorm(u)))
+        foot = variant["cup"]
+        mount = Mesh(0)
+        plate = rounded_rect(0.07, 0.09, 0.012)
+        add_band(mount, plate, 0.0, plate, SWING_PLATE, shade=84)
+        add_cap(mount, plate, SWING_PLATE, 1, shade=80)
+
+        def on_wall(d):
+            return vadd(vadd(vmul(u, d[0]), vmul(v, d[1])), vmul(n, d[2]))
+        mount.transform(lambda p: vadd(foot, on_wall(p)), on_wall)
+        body.merge(mount)
+        for a, b in ((start, elbow), (elbow, hinge)):
+            add_path_tube(body, [a, b], 0.011, seg=14, shade=106)
+        for joint, r in ((start, 0.016), (elbow, 0.018), (hinge, 0.016)):
+            add_sphere(body, joint, r, shade=110)
+        return [body.piece(), glass.piece(), screen.piece(), nav.piece()]
     ball = place(ball_local)
 
     # --- suction cup on the glass. The glass leans back about 5 degrees at the left mount.
@@ -355,20 +630,21 @@ def build_model(variant):
     base = vadd(variant.get("cup", (0.0, 0.0, 0.0)), (0.0, 0.0, 0.0035))
 
     def along(d):
-        return vadd(base, vmul(g_axis, d))
-    add_tube(body, [(along(-0.0015), 0.0370), (along(0.0005), 0.0360), (along(0.0045), 0.0300),
-                    (along(0.0100), 0.0170), (along(0.0150), 0.0125), (along(0.0210), 0.0125)],
+        return vadd(base, vmul(g_axis, d * s))
+    add_tube(body, [(along(-0.0015), 0.0370 * s), (along(0.0005), 0.0360 * s), (along(0.0045), 0.0300 * s),
+                    (along(0.0100), 0.0170 * s), (along(0.0150), 0.0125 * s), (along(0.0210), 0.0125 * s)],
              seg=24, shade=92, cap_end=True)
     neck = along(0.0210)
-    add_sphere(body, neck, 0.0105, shade=110)
+    add_sphere(body, neck, 0.0105 * s, shade=110)
     # gooseneck arm: leaves the cup square to the glass, meets the tablet square to its back
     back_dir = rot((0.0, 0.0, -1.0))
     reach = math.sqrt(vdot(vsub(ball, neck), vsub(ball, neck)))
     path = bezier(neck, vadd(neck, vmul(g_axis, reach * 0.45)), vadd(ball, vmul(back_dir, reach * 0.40)), ball, 18)
-    add_path_tube(body, path, 0.0078, seg=12, shade=106)
+    add_path_tube(body, path, 0.0078 * s, seg=12, shade=106)
     for end, direction in ((neck, g_axis), (ball, back_dir)):
-        add_tube(body, [(vadd(end, vmul(direction, 0.004)), 0.0105), (vadd(end, vmul(direction, 0.022)), 0.0105),
-                        (vadd(end, vmul(direction, 0.027)), 0.0080)], seg=14, shade=84)
+        add_tube(body, [(vadd(end, vmul(direction, 0.004 * s)), 0.0105 * s),
+                        (vadd(end, vmul(direction, 0.022 * s)), 0.0105 * s),
+                        (vadd(end, vmul(direction, 0.027 * s)), 0.0080 * s)], seg=14, shade=84)
 
     return [body.piece(), glass.piece(), screen.piece(), nav.piece()]
 
@@ -470,7 +746,20 @@ def main():
         for base in CENTRE_VARIANTS:
             variant = centre_variant(base, centre_down(truck))
             centre[variant["model"]] = variant
-    for variant in VARIANTS + list(centre.values()):
+    # the other places: one model per place and truck, shared by trucks where it comes out the same
+    placed, models = {}, {}
+    for place in PLACES:
+        shapes = {}
+        for truck in TRUCKS:
+            found = placed_variant(place, truck)
+            if not found:
+                continue
+            variant, key = found
+            if key not in shapes:
+                shapes[key] = dict(variant, model="%s_%d" % (place["model"], len(shapes)))
+                models[place["model"], key] = shapes[key]
+            placed[place["unit"], truck] = shapes[key]
+    for variant in VARIANTS + list(centre.values()) + list(models.values()):
         assert len(variant["unit"]) <= 12, "the game limits each part of a unit name to 12 characters"
         pieces = build_model(variant)
         pmg = write("%s/%s.pmg" % (MODEL_DIR, variant["model"]), b"")
@@ -576,6 +865,7 @@ def main():
     for truck in TRUCKS:
         fitted = [(SLOT, v) for v in VARIANTS]
         fitted += [(CENTRE_SLOT, centre_variant(v, centre_down(truck))) for v in CENTRE_VARIANTS]
+        fitted += [(p["slot"], placed[p["unit"], truck]) for p in PLACES if (p["unit"], truck) in placed]
         for slot, variant in fitted:
             write("/def/vehicle/truck/%s/accessory/%s/%s.sii" % (truck, slot, variant["unit"]),
                   'SiiNunit\n{\n'
@@ -585,12 +875,18 @@ def main():
                   '\tunlock: 0\n'
                   '\ticon: "cabinplay_screen"\n'
                   '\tpart_type: aftermarket\n\n'
-                  '\tinterior_model: "%s/%s.pmd"\n\n'
+                  '\tinterior_model: "%s/%s.pmd"\n'
+                  # the same model seen through the windows from the outside cameras
+                  '\texterior_model: "%s/%s.pmd"\n\n'
                   '\tui_path: "/ui/dashboard/cabinplay_nav.sii"\n'
                   '\tui_drawable_texture_path: "%s/nav_ui.tobj"\n'
                   '\tui_drawable_size: (%d, %d)\n'
                   '}\n}\n' % (variant["unit"], truck, slot, variant["name"], variant["price"],
-                              MODEL_DIR, variant["model"], MODEL_DIR, NAV_W, NAV_H))
+                              MODEL_DIR, variant["model"], MODEL_DIR, variant["model"], MODEL_DIR, NAV_W, NAV_H))
+
+    # interior cameras with the pillow view, in place of the game's own
+    for truck, (name, _) in CAMERAS.items():
+        write("/def/camera/units/%s.sui" % name, pillow_camera(truck))
 
     # manifest
     has_icon = os.path.exists(os.path.join(STATIC, "mod_icon.jpg"))
@@ -610,7 +906,9 @@ def main():
           "CabinPlay Screen\n\n"
           "Adds an in-cabin display to every truck. On the left of the windscreen in two versions,\n"
           "Large (11 inch, on an arm) and Compact (10 inch, at the glass), or in the middle of the\n"
-          "windscreen (Centre), turned towards the driver.\n"
+          "windscreen (Centre), turned towards the driver. Also on the dashboard, the air vent, the\n"
+          "roof, the passenger seat, the console, the cup holder or the passenger's side of the\n"
+          "windscreen. And a 27 inch TV to watch from the bunk, on the back wall or the windscreen.\n"
           "The picture comes from the CabinPlay companion app through the cabinplay plugin;\n"
           "without them the screen stays off.\n")
 
