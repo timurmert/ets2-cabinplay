@@ -22,6 +22,16 @@ Działający ekran multimedialny w kabinie ciężarówki w **Euro Truck Simulato
   <img src="docs/media/navigation.jpg" width="32.5%" alt="">
   <img src="docs/media/driving-night.jpg" width="32.5%" alt="">
 </p>
+<p align="center">
+  <img src="docs/media/cabin-places.jpg" width="32.5%" alt="">
+  <img src="docs/media/cabin-places-side.jpg" width="32.5%" alt="">
+  <img src="docs/media/bunk-tv.jpg" width="32.5%" alt="">
+</p>
+<p align="center">
+  <img src="docs/media/truck-app.jpg" width="32.5%" alt="">
+  <img src="docs/media/mirrors.jpg" width="32.5%" alt="">
+  <img src="docs/media/driving-football.jpg" width="32.5%" alt="">
+</p>
 
 ## Pobieranie
 
