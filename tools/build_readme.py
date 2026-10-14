@@ -471,6 +471,16 @@ SHOWCASE = """<p align="center">
   <img src="{media}/navigation.jpg" width="32.5%" alt="">
   <img src="{media}/driving-night.jpg" width="32.5%" alt="">
 </p>
+<p align="center">
+  <img src="{media}/cabin-places.jpg" width="32.5%" alt="">
+  <img src="{media}/cabin-places-side.jpg" width="32.5%" alt="">
+  <img src="{media}/bunk-tv.jpg" width="32.5%" alt="">
+</p>
+<p align="center">
+  <img src="{media}/truck-app.jpg" width="32.5%" alt="">
+  <img src="{media}/mirrors.jpg" width="32.5%" alt="">
+  <img src="{media}/driving-football.jpg" width="32.5%" alt="">
+</p>
 """
 
 
