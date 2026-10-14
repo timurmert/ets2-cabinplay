@@ -784,6 +784,16 @@ int main(int argc, char **argv)
     key_source(NULL);
     present(hdr, 200); /* let the pause attempt of that control session run out */
 
+    printf("control mode asked for by the app\n");
+    hdr->control_requests++;
+    present(hdr, 2);
+    check(state && (state->flags & CABINPLAY_STATE_CONTROL), "a request from the app opens control mode");
+    present(hdr, 5);
+    check(state && (state->flags & CABINPLAY_STATE_CONTROL), "one request is one toggle");
+    hdr->control_requests++;
+    present(hdr, 200);
+    check(state && !(state->flags & CABINPLAY_STATE_CONTROL), "the next request closes it");
+
     printf("screen blanks when the companion stops\n");
     hdr->heartbeat_ms = GetTickCount64() - 10000;
     IDXGISwapChain_Present(sc, 0, 0);

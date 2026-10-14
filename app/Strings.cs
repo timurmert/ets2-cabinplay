@@ -15,42 +15,49 @@ internal static class Strings
             ["show"] = "Show", ["hide"] = "Hide", ["topmost"] = "Always on top",
             ["center"] = "Move to the middle of the screen", ["exit"] = "Exit",
             ["startfail"] = "CabinPlay could not start:",
+            ["pickimage"] = "Choose a background picture",
         },
         ["tr"] = new()
         {
             ["show"] = "Göster", ["hide"] = "Gizle", ["topmost"] = "Her zaman üstte",
             ["center"] = "Ekranın ortasına al", ["exit"] = "Çıkış",
             ["startfail"] = "CabinPlay başlatılamadı:",
+            ["pickimage"] = "Arka plan resmi seç",
         },
         ["de"] = new()
         {
             ["show"] = "Anzeigen", ["hide"] = "Ausblenden", ["topmost"] = "Immer im Vordergrund",
             ["center"] = "In die Bildschirmmitte verschieben", ["exit"] = "Beenden",
             ["startfail"] = "CabinPlay konnte nicht gestartet werden:",
+            ["pickimage"] = "Hintergrundbild auswählen",
         },
         ["pl"] = new()
         {
             ["show"] = "Pokaż", ["hide"] = "Ukryj", ["topmost"] = "Zawsze na wierzchu",
             ["center"] = "Przenieś na środek ekranu", ["exit"] = "Zakończ",
             ["startfail"] = "Nie udało się uruchomić CabinPlay:",
+            ["pickimage"] = "Wybierz obraz tła",
         },
         ["fr"] = new()
         {
             ["show"] = "Afficher", ["hide"] = "Masquer", ["topmost"] = "Toujours au premier plan",
             ["center"] = "Placer au centre de l'écran", ["exit"] = "Quitter",
             ["startfail"] = "Impossible de démarrer CabinPlay :",
+            ["pickimage"] = "Choisir une image d'arrière-plan",
         },
         ["es"] = new()
         {
             ["show"] = "Mostrar", ["hide"] = "Ocultar", ["topmost"] = "Siempre visible",
             ["center"] = "Mover al centro de la pantalla", ["exit"] = "Salir",
             ["startfail"] = "No se pudo iniciar CabinPlay:",
+            ["pickimage"] = "Elegir una imagen de fondo",
         },
         ["ru"] = new()
         {
             ["show"] = "Показать", ["hide"] = "Скрыть", ["topmost"] = "Поверх всех окон",
             ["center"] = "Переместить в центр экрана", ["exit"] = "Выход",
             ["startfail"] = "Не удалось запустить CabinPlay:",
+            ["pickimage"] = "Выберите фоновое изображение",
         },
     };
 

@@ -43,7 +43,7 @@ Zamknij grę i rozpakuj plik. Następnie wybierz jeden sposób:
 
 1. Uruchom grę i zaakceptuj komunikat o "funkcjach SDK", który pojawia się raz.
 2. W **Menedżerze modów** włącz **CabinPlay Screen**.
-3. W warsztacie zamontuj **CabinPlay Screen** w gnieździe akcesoriów po lewej stronie przedniej szyby. Są dwie wersje: *Large* (11", na ramieniu) i *Compact* (10", przy szybie).
+3. W warsztacie zamontuj **CabinPlay Screen** w gnieździe akcesoriów na przedniej szybie. Po lewej są dwie wersje: *Large* (11", na ramieniu) i *Compact* (10", przy szybie); w środkowym gnieździe jest *Centre*, zwrócony w stronę kierowcy (z osobną wersją dla kabin z kierownicą po prawej).
 
 To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Aby usunąć, kliknij dwukrotnie **Uninstall.cmd** albo usuń pliki skopiowane ręcznie.
 
@@ -59,6 +59,8 @@ To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Aby usunąć, 
 | `Ctrl+Alt+↑` `↓` | 10 sekund do przodu / do tyłu |
 | `Ctrl+Alt+F` | Wideo na pełnym ekranie |
 | `Ctrl+Alt+PgUp` `PgDn` | Poprzednia / następna otwarta aplikacja |
+| `Ctrl+Alt+S` | Dwie aplikacje obok siebie, wł. / wył. |
+| `Ctrl+Alt+X` | Zamień strony miejscami |
 
 Odtwarzanie wstrzymuje się, gdy zatrzymasz grę lub wyłączysz zapłon. Język zmienisz w **Ustawieniach** na ekranie. Jeśli zamkniesz CabinPlay w ustawieniach, `Ctrl+Alt+C` uruchomi go ponownie.
 
@@ -67,6 +69,8 @@ Aplikacja **Ciężarówka** pokazuje uszkodzenia ciężarówki i naczepy, ładun
 Aplikacja **Lusterka** pokazuje na ekranie lusterka ciężarówki: lewe, lewe szerokokątne oraz, jeśli jest, przednie. Dotknij jednego, aby je powiększyć.
 
 Aplikacja **Przeglądarka** otwiera dowolną stronę: wpisz adres lub wyszukiwanie w pasku u góry i naciśnij gwiazdkę, aby zachować stronę na stronie startowej. W serwisach pozostajesz zalogowany, a `Ctrl+Alt+F` włącza pełny ekran dla wideo na stronie. Do pisania potrzebny jest tryb sterowania (`Ctrl+Alt+C`).
+
+Widok **obok siebie** pokazuje dwie aplikacje naraz, na przykład mapę po lewej i muzykę po prawej: naciśnij przycisk podziału w doku i wybierz aplikację dla każdej połowy. W **Ustawieniach** możesz wybrać tło, także z własnych obrazów, zmienić klawisze skrótów i przypisać każdy z nich do przycisku na kierownicy lub padzie.
 
 ## Wymagania
 

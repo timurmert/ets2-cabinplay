@@ -21,14 +21,17 @@ B) BY HAND (no script is run)
 THEN, IN THE GAME
   1. Start the game and accept the "SDK features" notice it shows once.
   2. In the Mod Manager, switch on "CabinPlay Screen".
-  3. In a truck workshop, fit "CabinPlay Screen" in the left windscreen accessory slot
-     (Large or Compact).
+  3. In a truck workshop, fit "CabinPlay Screen" in a windscreen accessory slot: on the
+     left (Large or Compact) or in the middle (Centre).
 
 USE
   Ctrl+Alt+C      use the screen from inside the game with mouse and keyboard (Esc to leave)
   Ctrl+Alt+N      navigation map          Ctrl+Alt+H   home screen
   Ctrl+Alt+Space  play / pause            Ctrl+Alt+F   video fullscreen
   Ctrl+Alt+PgUp / PgDn  previous / next open app
+  Ctrl+Alt+S      two apps side by side   Ctrl+Alt+X   swap the two sides
+  Settings: your own background picture, other shortcut keys, and steering-wheel or
+  gamepad buttons for any shortcut.
   The Mirrors app shows the truck's own mirrors on the screen.
   The Browser app opens any website; type the address in control mode.
   Closed CabinPlay from its settings? Ctrl+Alt+C starts it again.

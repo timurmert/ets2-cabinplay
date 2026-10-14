@@ -23,13 +23,17 @@ B) ELLE (hiçbir betik çalışmaz)
 SONRA, OYUNDA
   1. Oyunu başlat ve bir kez çıkan "SDK özellikleri" uyarısını onayla.
   2. Mod Yöneticisi'nde "CabinPlay Screen" modunu etkinleştir.
-  3. Serviste, sol ön cam aksesuar yuvasına "CabinPlay Screen"i tak (Large veya Compact).
+  3. Serviste "CabinPlay Screen"i ön camdaki bir aksesuar yuvasına tak: solda (Large veya
+     Compact) ya da ortada (Centre).
 
 KULLANIM
   Ctrl+Alt+C       ekranı oyunun içinden fare ve klavyeyle kullan (çıkış: Esc)
   Ctrl+Alt+N       navigasyon haritası     Ctrl+Alt+H   ana ekran
   Ctrl+Alt+Boşluk  oynat / duraklat        Ctrl+Alt+F   videoyu tam ekran yap
   Ctrl+Alt+PgUp / PgDn  önceki / sonraki açık uygulama
+  Ctrl+Alt+S       iki uygulama yan yana   Ctrl+Alt+X   iki tarafı değiştir
+  Ayarlar: kendi arka plan resmin, farklı kısayol tuşları ve her kısayol için direksiyon
+  ya da oyun kolu düğmesi.
   Aynalar uygulaması tırın kendi aynalarını ekrana getirir.
   Tarayıcı uygulaması istediğin siteyi açar; adresi kontrol modunda yaz.
   CabinPlay'i ayarlardan kapattıysan Ctrl+Alt+C onu yeniden başlatır.

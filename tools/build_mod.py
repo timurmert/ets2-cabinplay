@@ -23,7 +23,7 @@ GAME_VERSION = "1.61.*"
 MODEL_DIR = "/vehicle/truck/upgrade/cabinplay"
 
 # Trucks whose interiors have the left-windshield accessory slot (the one the
-# game's own portable navigator uses).
+# game's own portable navigator uses) and the one in the middle of the windscreen.
 TRUCKS = [
     "daf.2021", "daf.xd", "daf.xf", "daf.xf_electric", "daf.xf_euro6",
     "iveco.hiway", "iveco.stralis", "iveco.sway",
@@ -34,6 +34,21 @@ TRUCKS = [
     "volvo.fh16", "volvo.fh16_2012", "volvo.fh_2021", "volvo.fh_2024",
 ]
 SLOT = "set_lglass"
+CENTRE_SLOT = "set_glass"
+
+# How far the middle mount point is above the left one in each truck's interior (metres),
+# measured from the game's interior models. The middle point sits half way up the glass,
+# so the centre screen hangs below it by about this much to end up level with the left one.
+CENTRE_DROP = {
+    "daf.2021": 0.038, "daf.xd": 0.047, "daf.xf": 0.194, "daf.xf_electric": 0.038, "daf.xf_euro6": 0.263,
+    "iveco.hiway": 0.302, "iveco.stralis": 0.202, "iveco.sway": 0.146,
+    "man.tgx": 0.313, "man.tgx_2020": 0.285, "man.tgx_euro6": 0.218,
+    "mercedes.actros": 0.191, "mercedes.actros2014": 0.224,
+    "renault.magnum": 0.252, "renault.premium": 0.180, "renault.t": 0.272,
+    "scania.r": 0.221, "scania.r_2016": 0.186, "scania.s_2016": 0.186, "scania.s_2024e": 0.186,
+    "scania.streamline": 0.221,
+    "volvo.fh16": 0.223, "volvo.fh16_2012": 0.203, "volvo.fh_2021": 0.203, "volvo.fh_2024": 0.203,
+}
 
 # The screen texture is a flat fill of this exact colour. The plugin recognises the
 # texture by it, at any mip level, and replaces its contents with live frames.
@@ -78,6 +93,8 @@ MIRRORS = [
 #   center   position of the screen centre
 #   tilt     degrees the screen leans back
 #   yaw      degrees it turns right (negative: left)
+#   cup      where the suction cup sits on the glass (default: the mount point)
+#   glass    direction the glass faces there (default: as at the left mount point)
 VARIANTS = [
     # 11 inch on the gooseneck arm: raised, clear of the A-pillar, squarely facing the driver.
     dict(unit="cabinplay", model="cabinplay", name="CabinPlay Screen (Large)", price=1500,
@@ -88,6 +105,30 @@ VARIANTS = [
          screen=(0.1150, 0.0575), screen_r=0.0050, body=(0.1220, 0.0645, 0.0090, 0.0120),
          center=(0.0, 0.025, 0.105), tilt=10.0, yaw=0.0),
 ]
+
+# The centre screen: 11 inch, on the middle of the windscreen, turned towards the driver.
+# The mount point there has the cabin's own axes, so the driver is to the left of it, or to
+# the right in a right-hand-drive cabin, which gets a version of its own.
+CENTRE_VARIANTS = [
+    dict(unit="cabinplay_c", model="cabinplay_centre", name="CabinPlay Screen (Centre)", price=1500, yaw=-30.0),
+    dict(unit="cabinplay_cr", model="cabinplay_centre_rhd", name="CabinPlay Screen (Centre, right-hand drive)",
+         price=1500, yaw=30.0),
+]
+GLASS_LEAN = 0.2  # how far the glass comes towards the driver per metre of height, at its middle
+
+
+def centre_down(truck):
+    """How far below the middle mount point the centre screen hangs in this truck, in whole
+    centimetres: level with the left screen, but never so low that it meets the dashboard."""
+    return round(min(max(CENTRE_DROP[truck] - 0.06, -0.03), 0.14), 2)
+
+
+def centre_variant(base, down):
+    cup = min(max(down - 0.02, 0.0), 0.10)  # as far down the glass as the game's own suction toys go
+    return dict(base, model="%s_%d" % (base["model"], round(down * 100) + 3),
+                screen=(0.1260, 0.0630), screen_r=0.0055, body=(0.1330, 0.0700, 0.0095, 0.0130),
+                center=(0.0, -down, -GLASS_LEAN * down + 0.150), tilt=14.0,
+                cup=(0.0, -cup, -GLASS_LEAN * cup - 0.002), glass=(0.0, -GLASS_LEAN, 1.0))
 
 
 # --------------------------------------------------------------------------- mesh
@@ -309,9 +350,9 @@ def build_model(variant):
         m.transform(place, rot)
     ball = place(ball_local)
 
-    # --- suction cup on the glass. The glass leans back about 5 degrees here.
-    g_axis = vnorm((0.0, -0.088, 1.0))
-    base = (0.0, 0.0, 0.0035)
+    # --- suction cup on the glass. The glass leans back about 5 degrees at the left mount.
+    g_axis = vnorm(variant.get("glass", (0.0, -0.088, 1.0)))
+    base = vadd(variant.get("cup", (0.0, 0.0, 0.0)), (0.0, 0.0, 0.0035))
 
     def along(d):
         return vadd(base, vmul(g_axis, d))
@@ -423,7 +464,13 @@ def main():
     # models: one per version, sharing materials and textures
     materials = [MODEL_DIR + "/body.mat", MODEL_DIR + "/glass.mat", MODEL_DIR + "/screen.mat",
                  MODEL_DIR + "/nav.mat"]
-    for variant in VARIANTS:
+    # the centre screen hangs at a different height in different trucks: one model per height
+    centre = {}
+    for truck in TRUCKS:
+        for base in CENTRE_VARIANTS:
+            variant = centre_variant(base, centre_down(truck))
+            centre[variant["model"]] = variant
+    for variant in VARIANTS + list(centre.values()):
         assert len(variant["unit"]) <= 12, "the game limits each part of a unit name to 12 characters"
         pieces = build_model(variant)
         pmg = write("%s/%s.pmg" % (MODEL_DIR, variant["model"]), b"")
@@ -525,10 +572,12 @@ def main():
           'effect : "ui.rfx" {\n\ttexture : "texture" {\n\t\tsource : "cabinplay_screen.tobj"\n'
           '\t\tu_address : clamp\n\t\tv_address : clamp\n\t\tmip_filter : none\n\t}\n}\n')
 
-    # one accessory definition per truck and version
+    # one accessory definition per truck, mount point and version
     for truck in TRUCKS:
-        for variant in VARIANTS:
-            write("/def/vehicle/truck/%s/accessory/%s/%s.sii" % (truck, SLOT, variant["unit"]),
+        fitted = [(SLOT, v) for v in VARIANTS]
+        fitted += [(CENTRE_SLOT, centre_variant(v, centre_down(truck))) for v in CENTRE_VARIANTS]
+        for slot, variant in fitted:
+            write("/def/vehicle/truck/%s/accessory/%s/%s.sii" % (truck, slot, variant["unit"]),
                   'SiiNunit\n{\n'
                   'accessory_addon_int_ui_data : %s.%s.%s\n{\n'
                   '\tname: "%s"\n'
@@ -540,7 +589,7 @@ def main():
                   '\tui_path: "/ui/dashboard/cabinplay_nav.sii"\n'
                   '\tui_drawable_texture_path: "%s/nav_ui.tobj"\n'
                   '\tui_drawable_size: (%d, %d)\n'
-                  '}\n}\n' % (variant["unit"], truck, SLOT, variant["name"], variant["price"],
+                  '}\n}\n' % (variant["unit"], truck, slot, variant["name"], variant["price"],
                               MODEL_DIR, variant["model"], MODEL_DIR, NAV_W, NAV_H))
 
     # manifest
@@ -559,8 +608,9 @@ def main():
           '}\n}\n' % (MOD_VERSION, '\ticon: "mod_icon.jpg"\n' if has_icon else '', GAME_VERSION))
     write("/mod_description.txt",
           "CabinPlay Screen\n\n"
-          "Adds an in-cabin display to the left windshield accessory slot of every truck, in two\n"
-          "versions: Large (11 inch, on an arm) and Compact (10 inch, at the glass).\n"
+          "Adds an in-cabin display to every truck. On the left of the windscreen in two versions,\n"
+          "Large (11 inch, on an arm) and Compact (10 inch, at the glass), or in the middle of the\n"
+          "windscreen (Centre), turned towards the driver.\n"
           "The picture comes from the CabinPlay companion app through the cabinplay plugin;\n"
           "without them the screen stays off.\n")
 

@@ -20,6 +20,7 @@ internal sealed unsafe class FrameWriter : IDisposable
     private const uint AppNavVisible = 0x1, AppNavRects = 0x2;
     private const int HeartbeatOffset = 24;
     private const int NavSourceOffset = 32; // 4 x ushort, then the target's 4 x ushort
+    private const int ControlRequestsOffset = 48;
 
     private readonly MemoryMappedFile _file;
     private readonly MemoryMappedViewAccessor _view;
@@ -78,6 +79,19 @@ internal sealed unsafe class FrameWriter : IDisposable
                 }
             }
             *(uint*)(_base + AppFlagsOffset) = (visible ? AppNavVisible : 0) | (rects ? AppNavRects : 0);
+        }
+    }
+
+    /// <summary>
+    /// Asks the plugin to open or close control mode, as its own Ctrl+Alt key does: for a
+    /// controller button, which only this app sees.
+    /// </summary>
+    public void RequestControl()
+    {
+        lock (_gate)
+        {
+            if (!_disposed)
+                ++*(uint*)(_base + ControlRequestsOffset);
         }
     }
 

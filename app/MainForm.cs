@@ -16,7 +16,9 @@ internal sealed class MainForm : Form
 {
     private const int DockWidth = 88; // keep in sync with --dock-w in ui/style.css
     private const int BarHeight = 46; // the browser's address bar; keep in sync with --bar-h in ui/style.css
+    private const int PaneGap = 2;    // between two apps side by side; keep in sync with --pane-w in ui/style.css
     private const string ShellHost = "cabinplay.local";
+    private const string WallpaperHost = "wallpapers.cabinplay.local";
 
     // Chromium stops painting windows it believes are hidden; the game covers this one.
     // The colour profile is pinned so the map key colour reaches the plugin unchanged.
@@ -40,6 +42,8 @@ internal sealed class MainForm : Form
     private readonly System.Windows.Forms.Timer _inputTimer = new() { Interval = 10 };
     private readonly NotifyIcon _tray = new();
     private readonly string _settingsPath = Path.Combine(Program.DataDir, "settings.json");
+    private readonly string _wallpaperDir = Path.Combine(Program.DataDir, "wallpapers");
+    private JsonObject _settings = new();
     private readonly string? _dumpPath;
     private readonly string? _startApp;
     private readonly string? _startUrl;
@@ -60,12 +64,20 @@ internal sealed class MainForm : Form
     private GameLink? _game;
     private string? _activeId;          // app shown right now, null while the shell is in front
     private string? _mediaId;           // app the media controls act on
-    private string _shellView = "home"; // what the shell shows behind the apps: "home", "maps", "mirrors", "truck" or "browser"
+    private string _shellView = "home"; // what the shell shows behind the apps: "home", "maps", "mirrors", "truck", "browser" or "split"
+    private (string Left, string Right)? _split; // two apps side by side; _activeId is then the one with the keyboard
     private bool _shellKeys;            // the shell's address field is being typed in
     private ushort[]? _navSource, _navTarget; // the mirror views' rectangles, from the shell
     private bool _stateBusy;
     private int _stateTick;
     private bool _holdingMedia;         // media was paused because the game paused or the ignition is off
+
+    // shortcuts: the key that goes with Ctrl+Alt and the controller button of each action
+    private readonly Dictionary<string, int> _keys = new();
+    private readonly Dictionary<string, (PadButton Button, string Device)> _pads = new();
+    private Controllers? _controllers;
+    private string? _capturing;         // action waiting for a controller button to be pressed
+    private long _captureUntil;
 
     // control mode: where the in-game cursor's button press landed, for drags
     private WebView2? _dragView;
@@ -93,6 +105,7 @@ internal sealed class MainForm : Form
         ClientSize = new Size(FrameWriter.Width, FrameWriter.Height);
         Icon = CreateIcon();
         RestorePlacement();
+        LoadBindings();
         _restoreLocation = Location;
         if (_background)
         {
@@ -146,8 +159,11 @@ internal sealed class MainForm : Form
         Location = new Point(all.Right + 64, all.Bottom + 64);
     }
 
+    private string _language = Strings.SystemLanguage;
+
     private void ApplyLanguage(string language)
     {
+        _language = language;
         _showItem.Text = Strings.Get(language, "show");
         _hideItem.Text = Strings.Get(language, "hide");
         _topMostItem.Text = Strings.Get(language, "topmost");
@@ -182,6 +198,9 @@ internal sealed class MainForm : Form
             core.Settings.IsNonClientRegionSupportEnabled = true; // lets the dock clock drag the window
             core.SetVirtualHostNameToFolderMapping(
                 ShellHost, Path.Combine(AppContext.BaseDirectory, "ui"), CoreWebView2HostResourceAccessKind.Allow);
+            Directory.CreateDirectory(_wallpaperDir);
+            core.SetVirtualHostNameToFolderMapping(
+                WallpaperHost, _wallpaperDir, CoreWebView2HostResourceAccessKind.Allow);
             core.WebMessageReceived += OnShellMessage;
             _shell.ZoomFactor = PixelZoom;
             await PrepareForInjectedInputAsync(core);
@@ -196,6 +215,12 @@ internal sealed class MainForm : Form
             _game = new GameLink();
             _capture = new WindowCapture(_writer);
             _capture.Start(Handle);
+            _controllers = new Controllers();
+            _controllers.Pressed += (button, device) =>
+            {
+                if (IsHandleCreated && !IsDisposed)
+                    BeginInvoke(() => OnPadButton(button, device));
+            };
             _stateTimer.Start();
             _inputTimer.Start();
             Log.Write("started");
@@ -256,9 +281,37 @@ internal sealed class MainForm : Form
                 case "view":
                     ShowShell((string?)msg!["view"] switch
                     {
-                        "maps" => "maps", "mirrors" => "mirrors", "truck" => "truck", "browser" => "browser", _ => "home",
+                        "maps" => "maps", "mirrors" => "mirrors", "truck" => "truck", "browser" => "browser",
+                        "split" => "split", _ => "home",
                     });
                     break;
+                case "split":
+                    await SplitAsync(msg!["left"], msg["right"]);
+                    break;
+                case "ready":
+                    PushConfig();
+                    return;
+                case "wallpaper-set":
+                    _settings["wallpaper"] = (string?)msg!["name"];
+                    SaveSettings();
+                    PushConfig();
+                    return;
+                case "wallpaper-add":
+                    AddWallpaper((string?)msg!["file"]);
+                    return;
+                case "wallpaper-remove":
+                    RemoveWallpaper((string?)msg!["name"]);
+                    return;
+                case "bind-key":
+                    BindKey((string?)msg!["action"], (int?)msg["vk"] ?? 0);
+                    return;
+                case "bind-pad":
+                    // "capture" waits for the next button pressed, anything else takes the button away
+                    BindPad((string?)msg!["action"], (string?)msg["mode"] == "capture");
+                    return;
+                case "bind-reset":
+                    DefaultBindings();
+                    return;
                 case "shell-keys":
                     _shellKeys = (bool?)msg!["on"] ?? false;
                     return; // nothing the shell shows has changed
@@ -297,10 +350,23 @@ internal sealed class MainForm : Form
 
     private async Task OpenAppAsync(JsonNode msg)
     {
+        AppView? app = await EnsureAppAsync(msg);
+        if (app is null)
+            return;
+        if (app.Bar)
+            _shellView = "browser"; // the bar is the shell's
+        _split = null;
+        _activeId = _mediaId = app.Id;
+        LayoutViews();
+    }
+
+    /// <summary>The app's browser view, created and sent to its page on first use.</summary>
+    private async Task<AppView?> EnsureAppAsync(JsonNode msg)
+    {
         string? id = (string?)msg["id"];
         string? url = (string?)msg["url"];
         if (id is null || url is null || _environment is null)
-            return;
+            return null;
 
         if (!_apps.TryGetValue(id, out AppView? app))
         {
@@ -330,6 +396,8 @@ internal sealed class MainForm : Form
             };
             // Keeps the dock's back and forward buttons current.
             core.HistoryChanged += async (_, _) => await PushStateAsync(withMedia: false);
+            // Side by side, the app that was clicked last has the keyboard and the media keys.
+            view.GotFocus += (_, _) => FocusPane(captured.Id);
             view.ZoomFactor = PixelZoom;
             await PrepareForInjectedInputAsync(core);
             core.Navigate(url);
@@ -338,11 +406,47 @@ internal sealed class MainForm : Form
         {
             app.View.CoreWebView2.Navigate(url);
         }
+        return app;
+    }
 
-        if (app.Bar)
-            _shellView = "browser"; // the bar is the shell's
-        _activeId = _mediaId = id;
+    /// <summary>
+    /// Two apps side by side. A side is either a site (with the fields of an "open" message)
+    /// or one of the shell's own views, which the shell draws in that half itself.
+    /// </summary>
+    private async Task SplitAsync(JsonNode? left, JsonNode? right)
+    {
+        string? l = (string?)left?["id"], r = (string?)right?["id"];
+        if (l is null || r is null || l == r)
+            return;
+        foreach (JsonNode side in new[] { left!, right! })
+        {
+            if (side["url"] is not null)
+                await EnsureAppAsync(side);
+        }
+        _split = (l, r);
+        _shellView = "home"; // where leaving the pair falls back to
+        if (_activeId != l && _activeId != r)
+            _activeId = _apps.ContainsKey(r) ? r : _apps.ContainsKey(l) ? l : null;
+        else if (!_apps.ContainsKey(_activeId!))
+            _activeId = null;
+        if (_activeId is not null && _mediaId != l && _mediaId != r)
+            _mediaId = _activeId;
         LayoutViews();
+    }
+
+    private void FocusPane(string id)
+    {
+        if (_split is not { } s || (id != s.Left && id != s.Right) || _activeId == id || !_apps.ContainsKey(id))
+            return;
+        _activeId = _mediaId = id;
+        _ = PushStateAsync(withMedia: true);
+    }
+
+    /// <summary>Where each half goes: everything right of the dock, split in two with a gap.</summary>
+    private Rectangle PaneBounds(bool right)
+    {
+        int width = (ClientSize.Width - DockWidth - PaneGap) / 2;
+        return new Rectangle(right ? ClientSize.Width - width : DockWidth, 0, width, ClientSize.Height);
     }
 
     private static ushort[]? Rect(JsonNode? node) =>
@@ -366,6 +470,7 @@ internal sealed class MainForm : Form
     private void ShowShell(string view)
     {
         _shellView = view;
+        _split = null;
         _activeId = null;
         LayoutViews();
     }
@@ -376,6 +481,8 @@ internal sealed class MainForm : Form
             return;
         Controls.Remove(app.View);
         app.View.Dispose();
+        if (_split is { } s && (s.Left == id || s.Right == id))
+            _split = null;
         if (_activeId == id)
             _activeId = null;
         if (_mediaId == id)
@@ -386,17 +493,21 @@ internal sealed class MainForm : Form
     private void LayoutViews()
     {
         _shell.Bounds = ClientRectangle;
+        AppView? fullscreen = null;
         foreach (AppView app in _apps.Values)
         {
-            bool active = app.Id == _activeId;
-            if (active)
+            bool left = _split?.Left == app.Id, right = _split?.Right == app.Id;
+            bool shown = _split is null ? app.Id == _activeId : left || right;
+            if (shown)
             {
-                int top = app.Bar ? BarHeight : 0;
-                app.View.Bounds = app.Fullscreen
-                    ? ClientRectangle
+                int top = app.Bar && _split is null ? BarHeight : 0;
+                app.View.Bounds = app.Fullscreen ? ClientRectangle
+                    : _split is not null ? PaneBounds(right)
                     : new Rectangle(DockWidth, top, ClientSize.Width - DockWidth, ClientSize.Height - top);
                 app.View.Visible = true;
                 app.View.BringToFront();
+                if (app.Fullscreen)
+                    fullscreen = app;
             }
             else
             {
@@ -404,13 +515,27 @@ internal sealed class MainForm : Form
                 app.View.Visible = false;
             }
         }
+        fullscreen?.View.BringToFront(); // over the other half as well
         // The plugin lays the game's map, or its mirror views, under the shell only while
         // that view is in front.
         if (_writer is not null)
         {
-            bool mirrors = _activeId is null && _shellView == "mirrors";
-            _writer.SetNav(_activeId is null && (_shellView == "maps" || mirrors),
-                           mirrors ? _navSource : null, mirrors ? _navTarget : null);
+            if (_split is { } s)
+            {
+                // The map in one half: the middle of the game's picture, at its own scale.
+                bool mapRight = s.Right == "maps";
+                Rectangle pane = PaneBounds(mapRight);
+                int from = (ClientSize.Width - DockWidth - pane.Width) / 2;
+                _writer.SetNav(mapRight || s.Left == "maps",
+                               new[] { (ushort)from, (ushort)0, (ushort)pane.Width, (ushort)pane.Height },
+                               new[] { (ushort)pane.X, (ushort)pane.Y, (ushort)pane.Width, (ushort)pane.Height });
+            }
+            else
+            {
+                bool mirrors = _activeId is null && _shellView == "mirrors";
+                _writer.SetNav(_activeId is null && (_shellView == "maps" || mirrors),
+                               mirrors ? _navSource : null, mirrors ? _navTarget : null);
+            }
         }
     }
 
@@ -438,6 +563,11 @@ internal sealed class MainForm : Form
         if (LeaveWithGame())
             return;
         await HoldMediaForGameAsync();
+        if (_capturing is not null && Environment.TickCount64 > _captureUntil)
+        {
+            _capturing = null; // nobody pressed a button
+            PushConfig();
+        }
         if (_stateTick % 40 == 0)
             RaisePriorities();
         if (_stateTick % 120 == 0)
@@ -503,6 +633,7 @@ internal sealed class MainForm : Form
                 ["type"] = "state",
                 ["active"] = _activeId,
                 ["view"] = _shellView,
+                ["split"] = _split is { } pair ? new JsonArray(pair.Left, pair.Right) : null,
                 ["open"] = new JsonArray(_apps.Keys.Select(k => (JsonNode?)JsonValue.Create(k)).ToArray()),
                 ["media"] = _lastMedia?.DeepClone(),
                 ["browser"] = new JsonObject
@@ -732,9 +863,12 @@ internal sealed class MainForm : Form
     /// <summary>The view under a screen position, and that position in the view's own pixels.</summary>
     private (WebView2 View, Point Local) ViewAt(Point screen)
     {
-        if (_activeId is not null && _apps.TryGetValue(_activeId, out AppView? app) && app.View.Visible &&
-            app.View.Bounds.Contains(screen))
-            return (app.View, new Point(screen.X - app.View.Left, screen.Y - app.View.Top));
+        // A fullscreen view lies over the other half.
+        foreach (AppView app in _apps.Values.OrderByDescending(a => a.Fullscreen))
+        {
+            if (app.View.Visible && app.View.Bounds.Contains(screen))
+                return (app.View, new Point(screen.X - app.View.Left, screen.Y - app.View.Top));
+        }
         return (_shell, screen);
     }
 
@@ -781,6 +915,8 @@ internal sealed class MainForm : Form
                 _shellKeys = false;
                 _shell.CoreWebView2?.PostWebMessageAsJson("{\"type\":\"blur\"}");
             }
+            if (_split is not null && _apps.Values.FirstOrDefault(a => a.View == view) is { } pane)
+                FocusPane(pane.Id);
             if (_buttonsDown == 0)
             {
                 _dragView = view;
@@ -977,27 +1113,163 @@ internal sealed class MainForm : Form
 
     // ------------------------------------------------------------------ global hotkeys
 
-    private static readonly (Keys Key, string Action)[] Hotkeys =
+    /// <summary>
+    /// What a shortcut can do, with the key that goes with Ctrl+Alt unless the user picked
+    /// another. Control mode's key is the plugin's own (control_key in cabinplay.ini); here
+    /// it can only be put on a controller button. Keep the list the same as ACTIONS in
+    /// ui/shell.js.
+    /// </summary>
+    private static readonly (string Action, Keys Key)[] Actions =
     {
-        (Keys.Space, "playpause"),
-        (Keys.Right, "next"),
-        (Keys.Left, "prev"),
-        (Keys.Up, "seek-forward"),
-        (Keys.Down, "seek-back"),
-        (Keys.F, "fullscreen"),
-        (Keys.H, "home"),
-        (Keys.N, "maps"),
-        (Keys.PageUp, "app-prev"),
-        (Keys.PageDown, "app-next"),
+        ("playpause", Keys.Space),
+        ("next", Keys.Right),
+        ("prev", Keys.Left),
+        ("seek-forward", Keys.Up),
+        ("seek-back", Keys.Down),
+        ("fullscreen", Keys.F),
+        ("home", Keys.H),
+        ("maps", Keys.N),
+        ("app-prev", Keys.PageUp),
+        ("app-next", Keys.PageDown),
+        ("split", Keys.S),
+        ("split-swap", Keys.X),
+        ("control", Keys.None),
     };
+
+    private static bool IsAction(string? action) => action is not null && Actions.Any(a => a.Action == action);
+
+    /// <summary>Keys a shortcut can be put on: ones every keyboard layout has in the same place.</summary>
+    private static bool IsBindableKey(int vk) =>
+        vk is (>= '0' and <= '9') or (>= 'A' and <= 'Z') or (>= 0x70 and <= 0x7B) // F1-F12
+            or (>= 0x20 and <= 0x28)                                               // space, paging, arrows
+            or 0x2D or 0x2E                                                        // Insert, Delete
+            or (>= 0x60 and <= 0x69);                                              // number pad
+
+    private void LoadBindings()
+    {
+        _keys.Clear();
+        _pads.Clear();
+        JsonObject? saved = _settings["bindings"] as JsonObject;
+        foreach ((string action, Keys key) in Actions)
+        {
+            JsonObject? b = saved?[action] as JsonObject;
+            int vk = b?["key"] is JsonValue v && v.TryGetValue(out int n) ? n : (int)key;
+            _keys[action] = action != "control" && (vk == 0 || IsBindableKey(vk)) ? vk : (int)key;
+            if (b?["pad"] is JsonObject p)
+            {
+                _pads[action] = (new PadButton((int?)p["vendor"] ?? 0, (int?)p["product"] ?? 0, (int?)p["button"] ?? 0),
+                                 (string?)p["device"] ?? "");
+            }
+        }
+    }
+
+    private void SaveBindings()
+    {
+        var all = new JsonObject();
+        foreach ((string action, _) in Actions)
+        {
+            var b = new JsonObject { ["key"] = _keys[action] };
+            if (_pads.TryGetValue(action, out var pad))
+            {
+                b["pad"] = new JsonObject
+                {
+                    ["vendor"] = pad.Button.Vendor, ["product"] = pad.Button.Product, ["button"] = pad.Button.Index,
+                    ["device"] = pad.Device,
+                };
+            }
+            all[action] = b;
+        }
+        _settings["bindings"] = all;
+        SaveSettings();
+    }
+
+    private void BindKey(string? action, int vk)
+    {
+        // C stays control mode's: the plugin takes it before any shortcut.
+        if (!IsAction(action) || action == "control" || vk == 'C' || (vk != 0 && !IsBindableKey(vk)))
+            return;
+        // One key, one action: whoever had it loses it.
+        foreach (string other in _keys.Keys.ToArray())
+        {
+            if (vk != 0 && _keys[other] == vk)
+                _keys[other] = 0;
+        }
+        _keys[action!] = vk;
+        SaveBindings();
+        RegisterHotkeys();
+        PushConfig();
+    }
+
+    private void BindPad(string? action, bool capture)
+    {
+        if (!IsAction(action))
+            return;
+        if (capture)
+        {
+            _capturing = action;
+            _captureUntil = Environment.TickCount64 + 10_000;
+        }
+        else
+        {
+            _capturing = null;
+            _pads.Remove(action!);
+            SaveBindings();
+        }
+        PushConfig();
+    }
+
+    private void DefaultBindings()
+    {
+        _capturing = null;
+        _settings.Remove("bindings");
+        LoadBindings();
+        SaveBindings();
+        RegisterHotkeys();
+        PushConfig();
+    }
+
+    /// <summary>A button on a wheel or gamepad went down: the one being asked for, or one with an action on it.</summary>
+    private void OnPadButton(PadButton button, string device)
+    {
+        if (_capturing is string action)
+        {
+            _capturing = null;
+            foreach (string other in _pads.Where(p => p.Value.Button == button).Select(p => p.Key).ToArray())
+                _pads.Remove(other);
+            _pads[action] = (button, device);
+            SaveBindings();
+            PushConfig();
+            return;
+        }
+        foreach ((string bound, var pad) in _pads)
+        {
+            if (pad.Button == button)
+            {
+                RunHotkey(bound);
+                return;
+            }
+        }
+    }
 
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
+        RegisterHotkeys();
+    }
+
+    /// <summary>Ctrl+Alt+key for every action, system-wide. Called again whenever a key changes.</summary>
+    private void RegisterHotkeys()
+    {
         const uint ModAlt = 1, ModControl = 2, ModNoRepeat = 0x4000;
-        for (int i = 0; i < Hotkeys.Length; i++)
-            if (!RegisterHotKey(Handle, i, ModControl | ModAlt | ModNoRepeat, (uint)Hotkeys[i].Key))
-                Log.Write($"hotkey Ctrl+Alt+{Hotkeys[i].Key} is taken by another program");
+        if (!IsHandleCreated)
+            return;
+        for (int i = 0; i < Actions.Length; i++)
+        {
+            UnregisterHotKey(Handle, i);
+            int vk = _keys.GetValueOrDefault(Actions[i].Action);
+            if (vk != 0 && !RegisterHotKey(Handle, i, ModControl | ModAlt | ModNoRepeat, (uint)vk))
+                Log.Write($"hotkey Ctrl+Alt+{(Keys)vk} is taken by another program");
+        }
     }
 
     protected override void WndProc(ref Message m)
@@ -1008,8 +1280,8 @@ internal sealed class MainForm : Form
             int id = (int)m.WParam;
             // While the game has the keyboard the plugin passes the shortcuts on itself
             // (Windows usually holds them back from this window then); never run one twice.
-            if (id >= 0 && id < Hotkeys.Length && !(_game?.Read().Foreground ?? false))
-                RunHotkey(Hotkeys[id].Action);
+            if (id >= 0 && id < Actions.Length && !(_game?.Read().Foreground ?? false))
+                RunHotkey(Actions[id].Action);
             return;
         }
         base.WndProc(ref m);
@@ -1018,9 +1290,9 @@ internal sealed class MainForm : Form
     /// <summary>A Ctrl+Alt shortcut the plugin caught while the game was in front.</summary>
     private void RunShortcut(int vk)
     {
-        foreach ((Keys key, string action) in Hotkeys)
+        foreach ((string action, int key) in _keys)
         {
-            if ((int)key == vk)
+            if (key == vk && vk != 0)
             {
                 RunHotkey(action);
                 return;
@@ -1034,10 +1306,15 @@ internal sealed class MainForm : Form
         {
             if (action == "home" || action == "maps")
                 ShowShell(action);
+            else if (action == "control")
+                _writer?.RequestControl();
             else if (action is "app-prev" or "app-next")
                 // The order is the dock's, which only the shell knows.
                 _shell.CoreWebView2?.PostWebMessageAsJson(
                     new JsonObject { ["type"] = "cycle", ["step"] = action == "app-next" ? 1 : -1 }.ToJsonString());
+            else if (action is "split" or "split-swap")
+                // Which two apps go side by side is the shell's to say.
+                _shell.CoreWebView2?.PostWebMessageAsJson(new JsonObject { ["type"] = action }.ToJsonString());
             else
                 await MediaCommandAsync(action);
             await PushStateAsync(withMedia: true);
@@ -1046,6 +1323,137 @@ internal sealed class MainForm : Form
         {
             Log.Write("hotkey failed: " + ex.Message);
         }
+    }
+
+    // ------------------------------------------------------------------ settings shown on the screen
+
+    private static readonly string[] PictureTypes = { ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp" };
+
+    /// <summary>What the settings page needs besides the state: backgrounds and shortcuts.</summary>
+    private void PushConfig()
+    {
+        if (_shell.CoreWebView2 is null)
+            return;
+        try
+        {
+            var pictures = new JsonArray();
+            if (Directory.Exists(_wallpaperDir))
+            {
+                foreach (string file in Directory.EnumerateFiles(_wallpaperDir).OrderBy(File.GetCreationTimeUtc))
+                {
+                    if (PictureTypes.Contains(Path.GetExtension(file).ToLowerInvariant()))
+                        pictures.Add(Path.GetFileName(file));
+                }
+            }
+            var bindings = new JsonArray();
+            foreach ((string action, _) in Actions)
+            {
+                var b = new JsonObject { ["action"] = action, ["key"] = _keys[action] };
+                if (_pads.TryGetValue(action, out var pad))
+                    b["pad"] = new JsonObject { ["button"] = pad.Button.Index, ["device"] = pad.Device };
+                bindings.Add(b);
+            }
+            _shell.CoreWebView2.PostWebMessageAsJson(new JsonObject
+            {
+                ["type"] = "config",
+                ["wallpaper"] = (string?)_settings["wallpaper"],
+                ["wallpapers"] = pictures,
+                ["wallpaperHost"] = WallpaperHost,
+                ["bindings"] = bindings,
+                ["capturing"] = _capturing,
+            }.ToJsonString());
+        }
+        catch (Exception ex)
+        {
+            Log.Write("config update failed: " + ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Lets the user pick a picture and keeps a copy of it, no larger than the screen can
+    /// show, as the background. The file window is Windows' own, on the desktop.
+    /// </summary>
+    private void AddWallpaper(string? testFile)
+    {
+        // A test instance is told which file, since nobody is there to pick one.
+        string? source = Program.Namespace.Length > 0 ? testFile : null;
+        if (source is null)
+        {
+            using var dialog = new OpenFileDialog
+            {
+                Title = Strings.Get(_language, "pickimage"),
+                Filter = "*.jpg; *.png; *.webp; *.bmp; *.gif|*.jpg;*.jpeg;*.png;*.webp;*.bmp;*.gif",
+            };
+            // Without an owner: this window may be parked beyond the edge of the desktop.
+            if (dialog.ShowDialog() != DialogResult.OK)
+                return;
+            source = dialog.FileName;
+        }
+        try
+        {
+            _settings["wallpaper"] = ImportWallpaper(source);
+            SaveSettings();
+        }
+        catch (Exception ex)
+        {
+            Log.Write("background not added: " + ex.Message);
+        }
+        PushConfig();
+    }
+
+    /// <summary>Copies a picture into the backgrounds folder and returns its file name there.</summary>
+    private string ImportWallpaper(string source)
+    {
+        Directory.CreateDirectory(_wallpaperDir);
+        string name = $"{DateTime.Now:yyyyMMdd-HHmmss}-{Path.GetFileNameWithoutExtension(source)}";
+        name = new string(name.Select(c => char.IsAsciiLetterOrDigit(c) || c == '-' ? c : '_').ToArray());
+        string target;
+        try
+        {
+            // A photo straight from a camera is far larger than the 1024x512 screen.
+            using var image = Image.FromFile(source);
+            double scale = Math.Min(1.0, Math.Max(2048.0 / image.Width, 1024.0 / image.Height));
+            using var copy = new Bitmap(Math.Max(1, (int)(image.Width * scale)), Math.Max(1, (int)(image.Height * scale)));
+            using (Graphics g = Graphics.FromImage(copy))
+            {
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.DrawImage(image, 0, 0, copy.Width, copy.Height);
+            }
+            target = Path.Combine(_wallpaperDir, name + ".jpg");
+            var jpeg = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders()
+                .First(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+            using var quality = new System.Drawing.Imaging.EncoderParameters(1);
+            quality.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 92L);
+            copy.Save(target, jpeg, quality);
+        }
+        catch (Exception ex) when (ex is OutOfMemoryException or ArgumentException or ExternalException)
+        {
+            // A format Windows' own decoder does not read (WebP): the browser does.
+            target = Path.Combine(_wallpaperDir, name + Path.GetExtension(source).ToLowerInvariant());
+            File.Copy(source, target, overwrite: true);
+        }
+        return Path.GetFileName(target);
+    }
+
+    private void RemoveWallpaper(string? name)
+    {
+        // Only a file of ours: the name comes from the page.
+        if (string.IsNullOrEmpty(name) || name != Path.GetFileName(name))
+            return;
+        try
+        {
+            File.Delete(Path.Combine(_wallpaperDir, name));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Log.Write("background not removed: " + ex.Message);
+        }
+        if ((string?)_settings["wallpaper"] == name)
+        {
+            _settings.Remove("wallpaper");
+            SaveSettings();
+        }
+        PushConfig();
     }
 
     // ------------------------------------------------------------------ window placement
@@ -1057,6 +1465,8 @@ internal sealed class MainForm : Form
             if (File.Exists(_settingsPath))
             {
                 JsonNode? s = JsonNode.Parse(File.ReadAllText(_settingsPath));
+                if (s is JsonObject all)
+                    _settings = all;
                 var saved = new Point((int)s!["x"]!, (int)s["y"]!);
                 TopMost = (bool?)s["topMost"] ?? false;
                 // Ignore positions on a monitor that is no longer connected.
@@ -1083,11 +1493,19 @@ internal sealed class MainForm : Form
 
     private void SavePlacement()
     {
+        Point where = _offscreen ? _restoreLocation : Location;
+        _settings["x"] = where.X;
+        _settings["y"] = where.Y;
+        _settings["topMost"] = TopMost;
+        SaveSettings();
+    }
+
+    /// <summary>Window position, background and shortcuts, in one file.</summary>
+    private void SaveSettings()
+    {
         try
         {
-            Point where = _offscreen ? _restoreLocation : Location;
-            var s = new JsonObject { ["x"] = where.X, ["y"] = where.Y, ["topMost"] = TopMost };
-            File.WriteAllText(_settingsPath, s.ToJsonString());
+            File.WriteAllText(_settingsPath, _settings.ToJsonString());
         }
         catch (IOException ex)
         {
@@ -1125,6 +1543,7 @@ internal sealed class MainForm : Form
         _inputTimer.Stop();
         _tray.Visible = false;
         _tray.Dispose();
+        _controllers?.Dispose();
         _capture?.Dispose();
         _writer?.Dispose();
         _game?.Dispose();
@@ -1190,4 +1609,7 @@ internal sealed class MainForm : Form
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint modifiers, uint vk);
+
+    [DllImport("user32.dll")]
+    private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 }

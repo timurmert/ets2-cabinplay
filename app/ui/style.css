@@ -26,13 +26,45 @@ html, body {
   cursor: default;
 }
 
-body {
-  display: flex;
+body { display: flex; }
+
+/* Backgrounds. The body carries the chosen one in data-wall; the tiles in Settings show the
+   same ones small, so sizes are in percent. Keep the names in sync with PRESETS in shell.js. */
+[data-wall="aurora"] {
   background:
-    radial-gradient(520px 380px at 78% 18%, rgba(94, 92, 230, .55), transparent 70%),
-    radial-gradient(460px 360px at 30% 92%, rgba(10, 132, 255, .42), transparent 70%),
-    radial-gradient(420px 300px at 96% 96%, rgba(191, 90, 242, .38), transparent 70%),
+    radial-gradient(51% 74% at 78% 18%, rgba(94, 92, 230, .55), transparent 70%),
+    radial-gradient(45% 70% at 30% 92%, rgba(10, 132, 255, .42), transparent 70%),
+    radial-gradient(41% 59% at 96% 96%, rgba(191, 90, 242, .38), transparent 70%),
     linear-gradient(140deg, #0b1026 0%, #141034 55%, #1d0f33 100%);
+}
+[data-wall="dusk"] {
+  background:
+    radial-gradient(55% 80% at 82% 12%, rgba(255, 149, 0, .50), transparent 70%),
+    radial-gradient(48% 74% at 18% 94%, rgba(255, 45, 85, .42), transparent 70%),
+    linear-gradient(140deg, #24102e 0%, #3a1230 55%, #451a1c 100%);
+}
+[data-wall="forest"] {
+  background:
+    radial-gradient(52% 76% at 76% 16%, rgba(48, 209, 88, .34), transparent 70%),
+    radial-gradient(46% 72% at 22% 92%, rgba(100, 210, 255, .28), transparent 70%),
+    linear-gradient(140deg, #06201c 0%, #0c2a24 55%, #10231a 100%);
+}
+[data-wall="ocean"] {
+  background:
+    radial-gradient(54% 78% at 80% 14%, rgba(100, 210, 255, .42), transparent 70%),
+    radial-gradient(46% 72% at 24% 94%, rgba(10, 132, 255, .45), transparent 70%),
+    linear-gradient(140deg, #04182e 0%, #082744 55%, #0a2038 100%);
+}
+[data-wall="graphite"] {
+  background:
+    radial-gradient(60% 90% at 80% 10%, rgba(255, 255, 255, .10), transparent 70%),
+    linear-gradient(140deg, #1a1b20 0%, #26272e 55%, #141519 100%);
+}
+/* The user's own picture, a little darker so the cards and labels on it stay readable. */
+[data-wall="photo"] {
+  background:
+    linear-gradient(rgba(0, 0, 0, .22), rgba(0, 0, 0, .22)),
+    #000 var(--photo, none) center / cover no-repeat;
 }
 
 button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
@@ -284,8 +316,11 @@ svg.filled, svg .filled { fill: currentColor; stroke: none; }
   backdrop-filter: blur(18px);
 }
 .sheet {
-  width: 680px;
-  padding: 18px 28px 18px;
+  width: 720px;
+  height: 476px;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 26px 16px;
   border-radius: 26px;
   background: rgba(34, 34, 44, .94);
   border: 1px solid var(--card-border);
@@ -293,9 +328,12 @@ svg.filled, svg .filled { fill: currentColor; stroke: none; }
 }
 .sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 .sheet h2 { font-size: 24px; font-weight: 700; }
-.sheet-head label { font-size: 15px; font-weight: 600; color: var(--fg-dim); }
-.sheet-head select {
-  margin-left: 6px;
+.tabs { display: flex; gap: 4px; padding: 4px; border-radius: 13px; background: rgba(255, 255, 255, .08); }
+.tabs button { padding: 6px 16px; border-radius: 10px; font-size: 15px; font-weight: 650; color: var(--fg-dim); }
+.tabs button.on { background: rgba(255, 255, 255, .18); color: var(--fg); }
+.tab { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.setting { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; font-size: 17px; font-weight: 600; border-bottom: 1px solid rgba(255, 255, 255, .08); }
+.sheet select {
   padding: 6px 10px;
   border-radius: 10px;
   border: 1px solid var(--card-border);
@@ -303,10 +341,49 @@ svg.filled, svg .filled { fill: currentColor; stroke: none; }
   color: var(--fg);
   font: 600 15px "Segoe UI", sans-serif;
 }
-.sheet table { width: 100%; border-collapse: collapse; font-size: 17px; }
-.sheet td { padding: 6px 0; border-bottom: 1px solid rgba(255, 255, 255, .08); }
-.sheet td:first-child { width: 250px; white-space: nowrap; }
 .sheet p { font-size: 15px; color: var(--fg-dim); margin-top: 12px; line-height: 1.4; }
+.tab-actions { display: flex; gap: 12px; margin-top: auto; }
+.sheet ::-webkit-scrollbar { width: 8px; }
+.sheet ::-webkit-scrollbar-thumb { border-radius: 4px; background: rgba(255, 255, 255, .22); }
+
+/* backgrounds */
+#walls { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(4, 1fr); align-content: start; gap: 14px; padding: 5px; overflow-y: auto; }
+.wall { position: relative; aspect-ratio: 2 / 1; border-radius: 14px; border: 1px solid var(--card-border); background-position: center; background-size: cover; transition: transform .12s ease; }
+.wall:active { transform: scale(.96); }
+.wall.on { outline: 3px solid #fff; outline-offset: 2px; }
+.wall.add { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: rgba(255, 255, 255, .08); font-size: 14px; font-weight: 650; color: var(--fg-dim); }
+.wall.add svg { width: 26px; height: 26px; }
+.wall.add:hover { background: rgba(255, 255, 255, .14); color: var(--fg); }
+.wall-remove { position: absolute; top: -7px; right: -7px; width: 24px; height: 24px; border-radius: 50%; display: none; place-items: center; background: #3a3a46; font-size: 15px; font-weight: 700; line-height: 1; }
+.wall:hover .wall-remove { display: grid; }
+.wall-remove:hover { background: #ff453a; }
+
+/* shortcuts */
+.bind, .bind-head { display: grid; grid-template-columns: 1fr 166px 190px 28px; align-items: center; gap: 8px; }
+.bind-head { padding: 0 8px 5px 0; font-size: 12px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--fg-dim); }
+#binds { flex: 1; min-height: 0; overflow-y: auto; padding-right: 8px; }
+.bind { padding: 4px 0; border-top: 1px solid rgba(255, 255, 255, .08); font-size: 16px; font-weight: 600; }
+.bind .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bind-key, .bind-pad {
+  height: 34px;
+  min-width: 0;
+  padding: 0 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .08);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bind-key:hover, .bind-pad:hover { background: rgba(255, 255, 255, .15); }
+.bind-key:disabled { background: none; pointer-events: none; }
+.bind .none { color: var(--fg-dim); }
+.bind .wait { color: #fff; background: var(--accent); }
+.bind-pad small { margin-left: 6px; font-size: 12px; color: var(--fg-dim); }
+.bind-clear { width: 28px; height: 28px; border-radius: 50%; font-size: 17px; font-weight: 700; color: var(--fg-dim); }
+.bind-clear:hover { background: #ff453a; color: #fff; }
 kbd {
   display: inline-block;
   min-width: 30px;
@@ -318,16 +395,58 @@ kbd {
   text-align: center;
 }
 .sheet-actions { display: flex; justify-content: space-between; margin-top: 12px; }
-.sheet-actions button { padding: 9px 20px; border-radius: 14px; font-size: 16px; font-weight: 650; background: var(--accent); }
-.sheet-actions button.danger { background: rgba(255, 69, 58, .22); color: #ff6961; }
-.sheet-actions button.quiet { background: rgba(255, 255, 255, .12); }
-.sheet p.sheet-note { margin-top: 8px; font-size: 13px; text-align: center; }
-.sheet-actions button:active { transform: scale(.96); }
+.sheet-actions button:only-child, #settings-close { margin-left: auto; }
+.sheet-actions button, .tab-actions button, .split-actions button { padding: 9px 20px; border-radius: 14px; font-size: 16px; font-weight: 650; background: var(--accent); }
+.sheet button.danger { background: rgba(255, 69, 58, .22); color: #ff6961; }
+.sheet button.quiet, .split-actions button.quiet { background: rgba(255, 255, 255, .12); }
+.sheet p.sheet-note { margin-top: 8px; font-size: 13px; }
+.sheet-actions button:active, .tab-actions button:active, .split-actions button:active { transform: scale(.96); }
+
+/* ---------------------------------------------------------------- side by side */
+
+/* Two apps next to each other. A site's half is a browser view the host lays there; the
+   map and the truck page are drawn by this page in their half. */
+:root { --pane-w: 467px; } /* (screen - dock - 2px gap) / 2; keep in sync with PaneBounds in MainForm.cs */
+#split-line { position: fixed; top: 0; bottom: 0; left: calc(var(--dock-w) + var(--pane-w)); width: 2px; background: #000; }
+body:not(.split) #split-line { display: none; }
+body.split #maps, body.split #truck { right: auto; width: var(--pane-w); }
+body.split #maps[data-pane="right"], body.split #truck[data-pane="right"] { left: calc(var(--dock-w) + var(--pane-w) + 2px); }
+body.split #map-status { padding: 0 36px; font-size: 19px; }
+body.split #truck { padding: 14px; }
+body.split #rig-card { display: none; }
+body.split #truck-side { width: auto; flex: 1; }
+
+/* choosing the two */
+#split {
+  position: fixed;
+  inset: 0 0 0 var(--dock-w);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 22px 18px;
+}
+.split-head { display: flex; align-items: baseline; gap: 14px; }
+.split-head h2 { font-size: 24px; font-weight: 700; }
+.split-head p { font-size: 15px; font-weight: 600; color: var(--fg-dim); }
+.split-sides { flex: 1; min-height: 0; display: flex; align-items: stretch; gap: 12px; }
+.split-side { flex: 1; min-width: 0; padding: 14px 14px 10px; }
+.split-apps { display: grid; grid-template-columns: repeat(3, 1fr); justify-items: center; gap: 10px 4px; margin-top: 12px; }
+.split-app { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 116px; padding: 9px 0 7px; border-radius: 16px; font-size: 13px; font-weight: 650; }
+.split-app svg { width: 62px; height: 62px; border-radius: 15px; stroke: none; box-shadow: 0 6px 16px rgba(0, 0, 0, .4); }
+.split-app span { max-width: 108px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.split-app:hover { background: rgba(255, 255, 255, .10); }
+.split-app.on { background: rgba(255, 255, 255, .20); outline: 2px solid #fff; }
+.split-app:disabled { opacity: .35; pointer-events: none; }
+#split-swap { align-self: center; flex: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: var(--card); border: 1px solid var(--card-border); }
+#split-swap svg { width: 24px; height: 24px; }
+#split-swap:active { transform: scale(.92); }
+.split-actions { display: flex; justify-content: flex-end; gap: 12px; }
 
 /* ---------------------------------------------------------------- dock: back / forward */
 
-/* One button the width of the others, split in two. */
-#dock-nav {
+/* One button the width of the others, split in two: back and forward, and below them
+   fullscreen and side by side. */
+.dock-seg {
   width: 56px;
   height: 46px;
   flex: none;
@@ -336,12 +455,15 @@ kbd {
   overflow: hidden;
   background: rgba(255, 255, 255, .10);
 }
-#dock-nav button { flex: 1; display: grid; place-items: center; color: rgba(255, 255, 255, .92); transition: background .12s ease; }
-#dock-nav button:hover { background: rgba(255, 255, 255, .10); }
-#dock-nav button:active { background: rgba(255, 255, 255, .18); }
-#dock-nav button:disabled { color: rgba(255, 255, 255, .25); pointer-events: none; }
+.dock-seg button { flex: 1; display: grid; place-items: center; color: rgba(255, 255, 255, .92); transition: background .12s ease; }
+.dock-seg button:hover { background: rgba(255, 255, 255, .10); }
+.dock-seg button:active { background: rgba(255, 255, 255, .18); }
+.dock-seg button:disabled { color: rgba(255, 255, 255, .25); pointer-events: none; }
+.dock-seg button.on { background: rgba(255, 255, 255, .26); }
+.dock-seg svg { width: 22px; height: 22px; }
 #dock-nav svg { width: 21px; height: 21px; stroke-width: 2.8; }
 .seg-line { width: 1px; margin: 10px 0; background: rgba(255, 255, 255, .16); }
+#dock-fullscreen[hidden] + .seg-line { display: none; }
 
 /* Room for every open app even with the browser buttons showing. */
 #dock-apps { min-height: 0; overflow: hidden; align-self: stretch; } /* full width: room for the active ring */

@@ -5,7 +5,7 @@
 <title>CabinPlay</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-wall="aurora">
 
 <!-- Texts are filled in by shell.js from i18n.js: data-i18n sets the content,
      data-i18n-title the tooltip. -->
@@ -17,15 +17,19 @@
   </div>
   <div id="link"><span id="link-dot"></span><span id="link-text"></span></div>
   <div id="dock-apps"></div>
-  <div id="dock-nav" hidden>
+  <div id="dock-nav" class="dock-seg" hidden>
     <button id="dock-back" data-i18n-title="back"><svg viewBox="0 0 24 24"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button>
     <span class="seg-line"></span>
     <button id="dock-forward" data-i18n-title="forward"><svg viewBox="0 0 24 24"><path d="M9.5 5.5L16 12l-6.5 6.5"/></svg></button>
   </div>
-  <button id="dock-fullscreen" class="dock-btn" title="Ctrl+Alt+F" hidden>
-    <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
-  </button>
-  <button id="dock-home" class="dock-btn" title="Ctrl+Alt+H">
+  <!-- Fullscreen only shows for apps that have it; side by side is always there. The
+       tooltips carry the shortcuts and are set by shell.js. -->
+  <div id="dock-tools" class="dock-seg">
+    <button id="dock-fullscreen" hidden><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    <span class="seg-line"></span>
+    <button id="dock-split"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M12 5v14"/></svg></button>
+  </div>
+  <button id="dock-home" class="dock-btn">
     <svg viewBox="0 0 24 24" class="filled">
       <rect x="3" y="3" width="7.5" height="7.5" rx="2.2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2.2"/>
       <rect x="3" y="13.5" width="7.5" height="7.5" rx="2.2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2.2"/>
@@ -47,9 +51,9 @@
       <div class="np-progress"><div id="np-bar"></div></div>
       <div class="np-times"><span id="np-pos">0:00</span><span id="np-dur">0:00</span></div>
       <div class="np-controls">
-        <button data-media="prev" title="Ctrl+Alt+←"><svg viewBox="0 0 24 24" class="filled"><path d="M6 5h2.4v14H6zM20 5.5v13L9.5 12z"/></svg></button>
-        <button data-media="playpause" id="np-play" title="Ctrl+Alt+Space"><svg viewBox="0 0 24 24" class="filled"><path id="np-play-icon" d="M7 4.5v15L20 12z"/></svg></button>
-        <button data-media="next" title="Ctrl+Alt+→"><svg viewBox="0 0 24 24" class="filled"><path d="M15.6 5H18v14h-2.4zM4 5.5v13L14.5 12z"/></svg></button>
+        <button data-media="prev"><svg viewBox="0 0 24 24" class="filled"><path d="M6 5h2.4v14H6zM20 5.5v13L9.5 12z"/></svg></button>
+        <button data-media="playpause" id="np-play"><svg viewBox="0 0 24 24" class="filled"><path id="np-play-icon" d="M7 4.5v15L20 12z"/></svg></button>
+        <button data-media="next"><svg viewBox="0 0 24 24" class="filled"><path d="M15.6 5H18v14h-2.4zM4 5.5v13L14.5 12z"/></svg></button>
       </div>
     </div>
     <div id="day-card" class="card">
@@ -188,28 +192,66 @@
   </div>
 </section>
 
+<!-- Two apps side by side: which one goes in which half. The halves themselves are the
+     apps' own views (see render in shell.js); the line between them is drawn here. -->
+<section id="split" hidden>
+  <div class="split-head">
+    <h2 data-i18n="split"></h2>
+    <p data-i18n="splitHint"></p>
+  </div>
+  <div class="split-sides">
+    <div class="card split-side">
+      <div class="card-label" data-i18n="splitLeft"></div>
+      <div id="split-left" class="split-apps"></div>
+    </div>
+    <button id="split-swap" data-i18n-title="splitSwap"><svg viewBox="0 0 24 24"><path d="M7 8h13l-3.5-3.5M17 16H4l3.5 3.5"/></svg></button>
+    <div class="card split-side">
+      <div class="card-label" data-i18n="splitRight"></div>
+      <div id="split-right" class="split-apps"></div>
+    </div>
+  </div>
+  <div class="split-actions">
+    <button id="split-off" class="quiet" data-i18n="splitOff"></button>
+    <button id="split-on" data-i18n="splitOn"></button>
+  </div>
+</section>
+<div id="split-line"></div>
+
 <div id="settings" hidden>
   <div class="sheet">
     <div class="sheet-head">
       <h2 data-i18n="settings"></h2>
-      <label><span data-i18n="language"></span> <select id="settings-language"></select></label>
+      <div id="settings-tabs" class="tabs">
+        <button data-tab="general" data-i18n="tabGeneral"></button>
+        <button data-tab="background" data-i18n="tabBackground"></button>
+        <button data-tab="controls" data-i18n="tabControls"></button>
+      </div>
     </div>
-    <table>
-      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd data-i18n="keySpace"></kbd></td><td data-i18n="scPlayPause"></td></tr>
-      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>→</kbd> <kbd>←</kbd></td><td data-i18n="scNextPrev"></td></tr>
-      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>↑</kbd> <kbd>↓</kbd></td><td data-i18n="scSeek"></td></tr>
-      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>F</kbd></td><td data-i18n="scFullscreen"></td></tr>
-      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>H</kbd> <kbd>N</kbd></td><td data-i18n="scHomeNav"></td></tr>
-      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>PgUp</kbd> <kbd>PgDn</kbd></td><td data-i18n="scSwitchApp"></td></tr>
-      <tr><td><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>C</kbd></td><td data-i18n="scControl"></td></tr>
-    </table>
-    <p data-i18n="hint"></p>
+    <div class="tab" data-tab="general">
+      <label class="setting"><span data-i18n="language"></span><select id="settings-language"></select></label>
+      <p data-i18n="hint"></p>
+      <div class="tab-actions">
+        <button id="settings-diagnostics" class="quiet" data-i18n="diagnostics"></button>
+        <button id="settings-quit" class="danger" data-i18n="quit"></button>
+      </div>
+      <p class="sheet-note" data-i18n="diagnosticsHint"></p>
+    </div>
+    <!-- Backgrounds: the built-in ones and the user's own pictures, filled in by shell.js. -->
+    <div class="tab" data-tab="background" hidden>
+      <div id="walls"></div>
+      <p data-i18n="wallHint"></p>
+    </div>
+    <!-- Shortcuts: one row per action (ACTIONS in shell.js), with its key and its
+         controller button. -->
+    <div class="tab" data-tab="controls" hidden>
+      <div class="bind-head"><span data-i18n="ctlAction"></span><span data-i18n="ctlKeyboard"></span><span data-i18n="ctlController"></span></div>
+      <div id="binds"></div>
+      <p data-i18n="ctlHint"></p>
+    </div>
     <div class="sheet-actions">
-      <button id="settings-quit" class="danger" data-i18n="quit"></button>
-      <button id="settings-diagnostics" class="quiet" data-i18n="diagnostics"></button>
+      <button id="settings-reset" class="quiet" data-i18n="ctlReset" hidden></button>
       <button id="settings-close" data-i18n="ok"></button>
     </div>
-    <p class="sheet-note" data-i18n="diagnosticsHint"></p>
   </div>
 </div>
 

@@ -43,7 +43,7 @@ Schließe das Spiel und entpacke die Datei. Wähle dann eine Variante:
 
 1. Starte das Spiel und bestätige den Hinweis zu den "SDK-Funktionen", der einmal erscheint.
 2. Aktiviere im **Mod-Manager** **CabinPlay Screen**.
-3. Baue in einer Lkw-Werkstatt **CabinPlay Screen** im Zubehörplatz an der linken Windschutzscheibe ein. Es gibt zwei Varianten: *Large* (11", am Arm) und *Compact* (10", an der Scheibe).
+3. Baue in einer Lkw-Werkstatt **CabinPlay Screen** in einen Zubehörplatz an der Windschutzscheibe ein. Links gibt es zwei Varianten, *Large* (11", am Arm) und *Compact* (10", an der Scheibe); im mittleren Platz gibt es *Centre*, zum Fahrer gedreht (mit einer eigenen Variante für Rechtslenker).
 
 Das war's. Der Bildschirm schaltet sich mit der Zündung ein. Zum Entfernen doppelklicke auf **Uninstall.cmd** oder lösche die von Hand kopierten Dateien.
 
@@ -59,6 +59,8 @@ Das war's. Der Bildschirm schaltet sich mit der Zündung ein. Zum Entfernen dopp
 | `Ctrl+Alt+↑` `↓` | 10 Sekunden vor / zurück |
 | `Ctrl+Alt+F` | Video im Vollbild |
 | `Ctrl+Alt+PgUp` `PgDn` | Vorherige / nächste offene App |
+| `Ctrl+Alt+S` | Zwei Apps nebeneinander, ein / aus |
+| `Ctrl+Alt+X` | Die beiden Seiten tauschen |
 
 Die Wiedergabe pausiert, wenn du das Spiel pausierst oder die Zündung ausschaltest. Die Sprache findest du unter **Einstellungen** auf dem Bildschirm. Hast du CabinPlay in den Einstellungen beendet, startet `Ctrl+Alt+C` es wieder.
 
@@ -67,6 +69,8 @@ Die App **Lkw** zeigt die Schäden an Lkw und Auflieger, die Ladung, den Kraftst
 Die App **Spiegel** zeigt die Spiegel des Lkw auf dem Bildschirm: den linken Spiegel, seinen Weitwinkelspiegel und, falls vorhanden, den Frontspiegel. Tippe auf einen, um ihn zu vergrößern.
 
 Die App **Browser** öffnet jede Website: Gib oben in der Leiste eine Adresse oder eine Suche ein und tippe auf den Stern, um eine Seite auf der Startseite zu behalten. Auf Websites bleibst du angemeldet, und `Ctrl+Alt+F` zeigt das Video einer Seite im Vollbild. Zum Tippen brauchst du den Steuermodus (`Ctrl+Alt+C`).
+
+**Nebeneinander** zeigt zwei Apps gleichzeitig, zum Beispiel links die Karte und rechts Musik: Tippe im Dock auf die Teilen-Taste und wähle für jede Hälfte eine App. Unter **Einstellungen** kannst du einen Hintergrund wählen, auch aus eigenen Bildern, die Tasten der Tastenkürzel ändern und jedes davon auf einen Knopf deines Lenkrads oder Gamepads legen.
 
 ## Voraussetzungen
 

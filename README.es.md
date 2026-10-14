@@ -43,7 +43,7 @@ Cierra el juego y descomprime el archivo. Después elige una opción:
 
 1. Inicia el juego y acepta el aviso de "funciones del SDK" que aparece una vez.
 2. En el **Gestor de mods**, activa **CabinPlay Screen**.
-3. En un taller, monta **CabinPlay Screen** en la ranura de accesorios izquierda del parabrisas. Hay dos versiones: *Large* (11", en un brazo) y *Compact* (10", junto al cristal).
+3. En un taller, monta **CabinPlay Screen** en una ranura de accesorios del parabrisas. A la izquierda hay dos versiones: *Large* (11", en un brazo) y *Compact* (10", junto al cristal); en la ranura central está *Centre*, girada hacia el conductor (con una versión propia para cabinas con volante a la derecha).
 
 Eso es todo. La pantalla se enciende con el contacto del camión. Para quitarlo, haz doble clic en **Uninstall.cmd** o borra los archivos que copiaste a mano.
 
@@ -59,6 +59,8 @@ Eso es todo. La pantalla se enciende con el contacto del camión. Para quitarlo,
 | `Ctrl+Alt+↑` `↓` | 10 segundos adelante / atrás |
 | `Ctrl+Alt+F` | Vídeo a pantalla completa |
 | `Ctrl+Alt+PgUp` `PgDn` | App abierta anterior / siguiente |
+| `Ctrl+Alt+S` | Dos apps en paralelo, sí / no |
+| `Ctrl+Alt+X` | Intercambiar los dos lados |
 
 La reproducción se pausa cuando pausas el juego o quitas el contacto. El idioma está en **Ajustes**, en la pantalla. Si cerraste CabinPlay desde sus ajustes, `Ctrl+Alt+C` lo vuelve a iniciar.
 
@@ -67,6 +69,8 @@ La app **Camión** muestra los daños del camión y del remolque, la carga, el c
 La app **Retrovisores** muestra en la pantalla los retrovisores del camión: el izquierdo, su gran angular y, si lo tiene, el frontal. Toca uno para ampliarlo.
 
 La app **Navegador** abre cualquier sitio web: escribe una dirección o una búsqueda en la barra superior y pulsa la estrella para guardar una página en la página de inicio. Las sesiones de los sitios se mantienen iniciadas, y `Ctrl+Alt+F` pone el vídeo de una página a pantalla completa. Para escribir hace falta el modo de control (`Ctrl+Alt+C`).
+
+La vista **en paralelo** muestra dos apps a la vez, por ejemplo el mapa a la izquierda y la música a la derecha: pulsa el botón de división del dock y elige la app de cada mitad. En **Ajustes** puedes elegir un fondo, también entre tus propias imágenes, cambiar las teclas de los atajos y asignar cualquiera de ellos a un botón de tu volante o mando.
 
 ## Requisitos
 

@@ -2218,14 +2218,32 @@ static void unsubclass_game_window(void)
 }
 static int start_companion(int asked);
 
+/* Whether the app asked for the toggle since the last frame: it does for a controller
+ * button the player put control mode on. Requests made before the app was seen do not count. */
+static int control_requested(void)
+{
+    static uint32_t seen;
+    static int valid;
+    if (!shared_valid()) {
+        valid = 0;
+        return 0;
+    }
+    uint32_t requests = g_shared->control_requests;
+    int asked = valid && requests != seen;
+    seen = requests;
+    valid = 1;
+    return asked;
+}
+
 /* Once per frame: the Ctrl+Alt+<key> toggle, the cursor, and pausing the game. */
 static void update_control(int allowed)
 {
     chord_scan();
     int down = (real_async_key(VK_CONTROL) & 0x8000) && (real_async_key(VK_MENU) & 0x8000) &&
                (real_async_key(g_cfg_toggle_vk) & 0x8000);
+    int asked = control_requested();
     /* If the player closed the app from its settings, the same key brings it back. */
-    if (down && !g_toggle_was_down && !start_companion(1))
+    if ((down && !g_toggle_was_down && !start_companion(1)) || asked)
         set_control(!g_control && allowed);
     g_toggle_was_down = down;
     if (g_control && !allowed)
