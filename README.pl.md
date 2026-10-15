@@ -51,7 +51,7 @@ Zamknij grę, a potem wybierz jeden sposób:
 
 **A) Instalator (zalecane).** Pobierz **CabinPlay-Setup-x.y.z.exe** i uruchom go. Sam znajdzie grę i nie wymaga uprawnień administratora. Jeśli system Windows poinformuje, że ochronił komputer, kliknij *Więcej informacji*, a potem *Uruchom mimo to* (instalator nie jest jeszcze podpisany).
 
-**B) Ręcznie.** Zamiast tego pobierz **CabinPlay-x.y.z.zip**, rozpakuj go i skopiuj z niego trzy rzeczy:
+**B) Ręcznie.** Zamiast tego pobierz **CabinPlay-x.y.z-manual-install.zip**, rozpakuj go i skopiuj z niego trzy rzeczy:
 
 1. `cabinplay.scs` do `Dokumenty\Euro Truck Simulator 2\mod`
 2. `plugin\cabinplay.dll` i `plugin\cabinplay.ini` do folderu gry `bin\win_x64\plugins` (utwórz `plugins`, jeśli go nie ma). Aby znaleźć folder gry: w Steam kliknij grę prawym przyciskiem > *Zarządzaj* > *Przeglądaj pliki lokalne*.

@@ -566,7 +566,7 @@ def release_notes(version):
     parts = []
     for code, (name, filename) in LANGUAGES.items():
         values = {k: v.format(repo=REPO, discord=DISCORD, email=EMAIL, virustotal=VIRUSTOTAL, vt_score=VT_SCORE, vt_engines=VT_ENGINES,
-                              setup="CabinPlay-Setup-%s.exe" % version, zip="CabinPlay-%s.zip" % version)
+                              setup="CabinPlay-Setup-%s.exe" % version, zip="CabinPlay-%s-manual-install.zip" % version)
                   for k, v in TEXT[code].items()}
         values["help_line"] = values["help_body"].replace("\n\n", " ")
         section = RELEASE_SECTION.format(**values)
@@ -583,7 +583,7 @@ def main():
         bar = " · ".join("**%s**" % name if c == code else "[%s](%s)" % (name, f)
                          for c, (name, f) in LANGUAGES.items())
         values = {k: v.format(repo=REPO, discord=DISCORD, email=EMAIL, virustotal=VIRUSTOTAL, vt_score=VT_SCORE, vt_engines=VT_ENGINES,
-                              setup="CabinPlay-Setup-x.y.z.exe", zip="CabinPlay-x.y.z.zip")
+                              setup="CabinPlay-Setup-x.y.z.exe", zip="CabinPlay-x.y.z-manual-install.zip")
                   for k, v in TEXT[code].items()}
         missing = set(TEXT["en"]) - set(TEXT[code])
         assert not missing, "%s lacks: %s" % (code, ", ".join(sorted(missing)))

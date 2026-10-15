@@ -2,7 +2,7 @@
 # people download from the release page:
 #   dist\CabinPlay-Setup-<version>.exe   the installer (Inno Setup)
 #   dist\Uninstall.exe                   starts the uninstaller the setup registered
-#   dist\CabinPlay-<version>.zip         the same files, to copy into place by hand
+#   dist\CabinPlay-<version>-manual-install.zip   the same files, to copy into place by hand
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $dist = Join-Path $root 'dist'
@@ -66,7 +66,7 @@ $setup = Join-Path $dist "CabinPlay-Setup-$version.exe"
 Write-Host '== zip for installing by hand'
 $name = "CabinPlay-$version"
 $stage = Join-Path $dist $name
-$zip = Join-Path $dist "$name.zip"
+$zip = Join-Path $dist "$name-manual-install.zip"
 if (Test-Path $stage) { Remove-Item $stage -Recurse -Force }
 if (Test-Path $zip) { Remove-Item $zip -Force }
 New-Item -ItemType Directory -Force $stage | Out-Null

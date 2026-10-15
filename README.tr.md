@@ -51,7 +51,7 @@ Oyunu kapat, sonra birini seç:
 
 **A) Kurulum (önerilen).** **CabinPlay-Setup-x.y.z.exe** dosyasını indir ve çalıştır. Oyunu kendisi bulur, yönetici izni istemez. Windows "kişisel bilgisayarınızı korudu" derse *Ek bilgi*, sonra *Yine de çalıştır* de (kurulum henüz imzalı değil).
 
-**B) Elle.** Bunun yerine **CabinPlay-x.y.z.zip** dosyasını indir, aç ve içinden üç şeyi kopyala:
+**B) Elle.** Bunun yerine **CabinPlay-x.y.z-manual-install.zip** dosyasını indir, aç ve içinden üç şeyi kopyala:
 
 1. `cabinplay.scs` dosyasını `Belgeler\Euro Truck Simulator 2\mod` klasörüne
 2. `plugin\cabinplay.dll` ve `plugin\cabinplay.ini` dosyalarını oyunun `bin\win_x64\plugins` klasörüne (`plugins` yoksa oluştur). Oyun klasörünü bulmak için: Steam'de oyuna sağ tıkla > *Yönet* > *Yerel dosyalara göz at*.
