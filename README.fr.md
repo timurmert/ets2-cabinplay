@@ -49,7 +49,7 @@ Un écran multimédia fonctionnel pour la cabine de votre camion dans **Euro Tru
 
 Fermez le jeu, puis choisissez une méthode :
 
-**A) Programme d'installation (recommandé).** Téléchargez **CabinPlay-Setup-x.y.z.exe** et lancez-le. Il trouve le jeu tout seul et ne demande pas de droits d'administrateur. Si Windows indique qu'il a protégé votre ordinateur, cliquez sur *Informations complémentaires*, puis sur *Exécuter quand même* (le programme n'est pas encore signé).
+**A) Programme d'installation (recommandé).** Téléchargez **CabinPlay-Setup-x.y.z.exe** et lancez-le. Il trouve le jeu tout seul et ne demande pas de droits d'administrateur. Si Windows indique qu'il a protégé votre ordinateur, cliquez sur *Informations complémentaires*, puis sur *Exécuter quand même* (le programme n'est pas signé).
 
 **B) À la main.** Téléchargez plutôt **CabinPlay-x.y.z-manual-install.zip**, décompressez-le et copiez-en trois éléments :
 

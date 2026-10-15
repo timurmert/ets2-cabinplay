@@ -49,7 +49,7 @@
 
 Oyunu kapat, sonra birini seç:
 
-**A) Kurulum (önerilen).** **CabinPlay-Setup-x.y.z.exe** dosyasını indir ve çalıştır. Oyunu kendisi bulur, yönetici izni istemez. Windows "kişisel bilgisayarınızı korudu" derse *Ek bilgi*, sonra *Yine de çalıştır* de (kurulum henüz imzalı değil).
+**A) Kurulum (önerilen).** **CabinPlay-Setup-x.y.z.exe** dosyasını indir ve çalıştır. Oyunu kendisi bulur, yönetici izni istemez. Windows "kişisel bilgisayarınızı korudu" derse *Ek bilgi*, sonra *Yine de çalıştır* de (kurulum imzalı değil).
 
 **B) Elle.** Bunun yerine **CabinPlay-x.y.z-manual-install.zip** dosyasını indir, aç ve içinden üç şeyi kopyala:
 
