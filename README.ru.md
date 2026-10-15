@@ -38,7 +38,7 @@
 
 **[Скачайте последнюю версию](https://github.com/timurmert/ets2-cabinplay/releases/latest)** и возьмите файл `CabinPlay-x.y.z.zip`.
 
-> 🛡️ **Проверка на вирусы:** CabinPlay проверен на VirusTotal десятками антивирусов. **[Открыть отчёт](https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc)**
+> 🛡️ **Проверка на вирусы:** архив и приложение в нём проверены на VirusTotal десятками антивирусов. Отчёты: **[архив (.zip)](https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc)** · **[CabinPlay.exe](https://www.virustotal.com/gui/file/72379b4c82d7774eccf7f0c2c715d714616f25d44110fe8ed2150fa6452cfeb6)**
 
 ## Установка
 

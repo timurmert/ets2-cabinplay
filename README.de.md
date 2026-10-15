@@ -38,7 +38,7 @@ Ein funktionierender Medienbildschirm für deine Lkw-Kabine in **Euro Truck Simu
 
 **[Lade die neueste Version herunter](https://github.com/timurmert/ets2-cabinplay/releases/latest)** und nimm die Datei `CabinPlay-x.y.z.zip`.
 
-> 🛡️ **Virenscan:** CabinPlay wurde auf VirusTotal von Dutzenden Antivirenprogrammen geprüft. **[Zum Prüfbericht](https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc)**
+> 🛡️ **Virenscan:** Der Download und die enthaltene App wurden auf VirusTotal von Dutzenden Antivirenprogrammen geprüft. Berichte: **[Download (.zip)](https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc)** · **[CabinPlay.exe](https://www.virustotal.com/gui/file/72379b4c82d7774eccf7f0c2c715d714616f25d44110fe8ed2150fa6452cfeb6)**
 
 ## Installation
 
