@@ -101,7 +101,7 @@ Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, 
 
 ## Yardım ve topluluk
 
-Sorular, sorunlar ve duyurular için **[Discord sunucumuza katıl](https://discord.gg/rhGEbsu3zy)**.
+Sorular, sorunlar ve duyurular için **[Discord sunucumuza katıl](https://discord.gg/VmJRtj7mxM)**.
 
 Sorun bildirmek için ekrandaki **Ayarlar**'ı aç, **Hata raporu oluştur**'a bas ve masaüstüne kaydettiği zip'i paylaş.
 
@@ -109,9 +109,9 @@ Sorun bildirmek için ekrandaki **Ayarlar**'ı aç, **Hata raporu oluştur**'a b
 
 ## İletişim
 
-**İş birliği ve sponsorluk için:** **[contact@hydrabon.com](mailto:contact@hydrabon.com)** adresine yaz ya da bize [Discord](https://discord.gg/rhGEbsu3zy) üzerinden ulaş.
+**İş birliği ve sponsorluk için:** **[contact@hydrabon.com](mailto:contact@hydrabon.com)** adresine yaz ya da bize [Discord](https://discord.gg/VmJRtj7mxM) üzerinden ulaş.
 
-**Şikayet ve önerilerin için:** aynı adrese yaz ya da [Discord](https://discord.gg/rhGEbsu3zy) sunucumuzda bize ilet.
+**Şikayet ve önerilerin için:** aynı adrese yaz ya da [Discord](https://discord.gg/VmJRtj7mxM) sunucumuzda bize ilet.
 
 ## Emeği geçenler ve lisans
 

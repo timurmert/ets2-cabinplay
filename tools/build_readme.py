@@ -8,7 +8,7 @@ from urllib.parse import quote
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPO = "https://github.com/timurmert/ets2-cabinplay"
-DISCORD = "https://discord.gg/rhGEbsu3zy"
+DISCORD = "https://discord.gg/VmJRtj7mxM"
 EMAIL = "contact@hydrabon.com"
 MEDIA = "docs/media"
 BADGE = "https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label="

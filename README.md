@@ -101,7 +101,7 @@ The **Browser** app opens any website: type an address or a search in the bar at
 
 ## Help and community
 
-Questions, problems and news: **[join our Discord](https://discord.gg/rhGEbsu3zy)**.
+Questions, problems and news: **[join our Discord](https://discord.gg/VmJRtj7mxM)**.
 
 To report a problem, open **Settings** on the screen, press **Create error report** and post the zip it saves to your desktop.
 
@@ -109,9 +109,9 @@ To report a problem, open **Settings** on the screen, press **Create error repor
 
 ## Contact
 
-**Collaboration and sponsorship:** write to **[contact@hydrabon.com](mailto:contact@hydrabon.com)** or reach us on [Discord](https://discord.gg/rhGEbsu3zy).
+**Collaboration and sponsorship:** write to **[contact@hydrabon.com](mailto:contact@hydrabon.com)** or reach us on [Discord](https://discord.gg/VmJRtj7mxM).
 
-**Complaints and suggestions:** write to the same address or tell us on [Discord](https://discord.gg/rhGEbsu3zy).
+**Complaints and suggestions:** write to the same address or tell us on [Discord](https://discord.gg/VmJRtj7mxM).
 
 ## Building from source
 

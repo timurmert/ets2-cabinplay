@@ -42,7 +42,7 @@ GEREKENLER
   Yalnızca tek oyunculu: TruckersMP ile çalışmaz.
 
 YARDIM
-  Discord sunucumuza katıl: https://discord.gg/rhGEbsu3zy
+  Discord sunucumuza katıl: https://discord.gg/VmJRtj7mxM
   Sorun bildirmek için ekrandaki Ayarlar'ı aç, "Hata raporu oluştur"a bas ve
   kaydettiği zip'i paylaş.
 

@@ -101,7 +101,7 @@ La vista **en paralelo** muestra dos apps a la vez, por ejemplo el mapa a la izq
 
 ## Ayuda y comunidad
 
-Preguntas, problemas y novedades: **[únete a nuestro Discord](https://discord.gg/rhGEbsu3zy)**.
+Preguntas, problemas y novedades: **[únete a nuestro Discord](https://discord.gg/VmJRtj7mxM)**.
 
 Para informar de un problema, abre **Ajustes** en la pantalla, pulsa **Crear informe de error** y publica el zip que guarda en el escritorio.
 
@@ -109,9 +109,9 @@ Para informar de un problema, abre **Ajustes** en la pantalla, pulsa **Crear inf
 
 ## Contacto
 
-**Colaboración y patrocinio:** escribe a **[contact@hydrabon.com](mailto:contact@hydrabon.com)** o contáctanos en [Discord](https://discord.gg/rhGEbsu3zy).
+**Colaboración y patrocinio:** escribe a **[contact@hydrabon.com](mailto:contact@hydrabon.com)** o contáctanos en [Discord](https://discord.gg/VmJRtj7mxM).
 
-**Quejas y sugerencias:** escribe a la misma dirección o cuéntanoslo en [Discord](https://discord.gg/rhGEbsu3zy).
+**Quejas y sugerencias:** escribe a la misma dirección o cuéntanoslo en [Discord](https://discord.gg/VmJRtj7mxM).
 
 ## Créditos y licencia
 
