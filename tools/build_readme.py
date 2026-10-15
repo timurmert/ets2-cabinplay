@@ -11,11 +11,14 @@ REPO = "https://github.com/timurmert/ets2-cabinplay"
 DISCORD = "https://discord.gg/rhGEbsu3zy"
 EMAIL = "contact@hydrabon.com"
 MEDIA = "docs/media"
-BADGE = "https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&color=2ea44f&label="
-# VirusTotal reports of the released zip and of CabinPlay.exe in it; update both after a release.
+BADGE = "https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label="
+# VirusTotal reports of the released zip and of CabinPlay.exe in it, and the zip's result
+# (also shown in docs/media/virustotal.png); update all of them after a release.
 VIRUSTOTAL = "https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"
 VIRUSTOTAL_EXE = "https://www.virustotal.com/gui/file/72379b4c82d7774eccf7f0c2c715d714616f25d44110fe8ed2150fa6452cfeb6"
-VT_BADGE = "https://img.shields.io/static/v1?style=for-the-badge&color=394EFF&logo=virustotal&logoColor=white&message=VirusTotal&label="
+VT_SCORE = "0/67"
+VT_ENGINES = "67"
+VT_BADGE = "https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message="
 VIDEO = REPO + "/blob/main/" + MEDIA + "/cabinplay-demo.mp4"
 
 # code -> (language name, file name)
@@ -35,8 +38,10 @@ TEXT = {
         download="Download",
         downloads="Downloads",
         watch="Watch the full video with sound",
-        scan="Virus scan",
         scan_line="🛡️ **Virus scan:** the download and the app inside it were checked by dozens of antivirus engines on VirusTotal. Reports: **[download (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        vt_clean="{vt_score} clean",
+        vt_caption="None of the {vt_engines} antivirus engines on VirusTotal flagged CabinPlay.",
+        vt_report="See the report",
         release_download="Download **{zip}** below and unzip it.",
         download_body="**[Download the latest version]({repo}/releases/latest)** and get the file named `CabinPlay-x.y.z.zip`.",
         install="Install",
@@ -83,8 +88,10 @@ TEXT = {
         download="İndir",
         downloads="İndirme",
         watch="Videonun tamamını sesli izle",
-        scan="Virüs taraması",
         scan_line="🛡️ **Virüs taraması:** İndirilen dosya ve içindeki uygulama VirusTotal'da onlarca antivirüs motoruyla tarandı. Raporlar: **[İndirme dosyası (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        vt_clean="{vt_score} temiz",
+        vt_caption="VirusTotal'daki {vt_engines} antivirüs motorunun hiçbiri CabinPlay'i zararlı bulmadı.",
+        vt_report="Raporu gör",
         release_download="Aşağıdaki **{zip}** dosyasını indir ve aç.",
         download_body="**[Son sürümü indir]({repo}/releases/latest)**; `CabinPlay-x.y.z.zip` adlı dosyayı al.",
         install="Kur",
@@ -131,8 +138,10 @@ TEXT = {
         download="Download",
         downloads="Downloads",
         watch="Das ganze Video mit Ton ansehen",
-        scan="Virenscan",
         scan_line="🛡️ **Virenscan:** Der Download und die enthaltene App wurden auf VirusTotal von Dutzenden Antivirenprogrammen geprüft. Berichte: **[Download (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        vt_clean="{vt_score} sauber",
+        vt_caption="Keine der {vt_engines} Antiviren-Engines auf VirusTotal hat CabinPlay beanstandet.",
+        vt_report="Zum Bericht",
         release_download="Lade unten **{zip}** herunter und entpacke die Datei.",
         download_body="**[Lade die neueste Version herunter]({repo}/releases/latest)** und nimm die Datei `CabinPlay-x.y.z.zip`.",
         install="Installation",
@@ -179,8 +188,10 @@ TEXT = {
         download="Pobieranie",
         downloads="Pobrania",
         watch="Obejrzyj cały film z dźwiękiem",
-        scan="Skan antywirusowy",
         scan_line="🛡️ **Skan antywirusowy:** plik do pobrania i aplikacja w nim zostały sprawdzone na VirusTotal przez dziesiątki silników antywirusowych. Raporty: **[plik do pobrania (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        vt_clean="{vt_score} czysty",
+        vt_caption="Żaden z {vt_engines} silników antywirusowych na VirusTotal nie oznaczył CabinPlay.",
+        vt_report="Zobacz raport",
         release_download="Pobierz poniżej **{zip}** i rozpakuj plik.",
         download_body="**[Pobierz najnowszą wersję]({repo}/releases/latest)** i weź plik `CabinPlay-x.y.z.zip`.",
         install="Instalacja",
@@ -227,8 +238,10 @@ TEXT = {
         download="Téléchargement",
         downloads="Téléchargements",
         watch="Voir la vidéo complète avec le son",
-        scan="Analyse antivirus",
         scan_line="🛡️ **Analyse antivirus :** le téléchargement et l'application qu'il contient ont été analysés sur VirusTotal par des dizaines d'antivirus. Rapports : **[téléchargement (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        vt_clean="{vt_score} sain",
+        vt_caption="Aucun des {vt_engines} antivirus de VirusTotal n'a signalé CabinPlay.",
+        vt_report="Voir le rapport",
         release_download="Téléchargez **{zip}** ci-dessous et décompressez-le.",
         download_body="**[Téléchargez la dernière version]({repo}/releases/latest)** et prenez le fichier `CabinPlay-x.y.z.zip`.",
         install="Installation",
@@ -275,8 +288,10 @@ TEXT = {
         download="Descarga",
         downloads="Descargas",
         watch="Ver el vídeo completo con sonido",
-        scan="Análisis antivirus",
         scan_line="🛡️ **Análisis antivirus:** la descarga y la aplicación que contiene se han analizado en VirusTotal con decenas de antivirus. Informes: **[descarga (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        vt_clean="{vt_score} limpio",
+        vt_caption="Ninguno de los {vt_engines} antivirus de VirusTotal ha marcado CabinPlay.",
+        vt_report="Ver el informe",
         release_download="Descarga **{zip}** más abajo y descomprímelo.",
         download_body="**[Descarga la última versión]({repo}/releases/latest)** y elige el archivo `CabinPlay-x.y.z.zip`.",
         install="Instalación",
@@ -323,8 +338,10 @@ TEXT = {
         download="Скачать",
         downloads="Загрузки",
         watch="Смотреть полное видео со звуком",
-        scan="Проверка на вирусы",
         scan_line="🛡️ **Проверка на вирусы:** архив и приложение в нём проверены на VirusTotal десятками антивирусов. Отчёты: **[архив (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        vt_clean="{vt_score} чисто",
+        vt_caption="Ни один из {vt_engines} антивирусов на VirusTotal не отметил CabinPlay.",
+        vt_report="Открыть отчёт",
         release_download="Скачайте **{zip}** ниже и распакуйте файл.",
         download_body="**[Скачайте последнюю версию]({repo}/releases/latest)** и возьмите файл `CabinPlay-x.y.z.zip`.",
         install="Установка",
@@ -471,11 +488,12 @@ TEMPLATE = """# CabinPlay
 """
 
 
-# The download counter, the VirusTotal report, the video preview and the screenshots; only the badge labels and
+# The download counter, the VirusTotal badge, the video preview, the screenshots and the
+# VirusTotal result; only the badge labels and
 # one caption change with the language.
 SHOWCASE = """<p align="center">
   <a href="{releases}"><img src="{badge}" alt="{downloads}"></a>
-  <a href="{virustotal}"><img src="{vt_badge}" alt="{scan}: VirusTotal"></a>
+  <a href="{virustotal}"><img src="{vt_badge}" alt="VirusTotal: {vt_clean}"></a>
 </p>
 
 <p align="center">
@@ -501,6 +519,11 @@ SHOWCASE = """<p align="center">
   <img src="{media}/truck-app.jpg" width="32.5%" alt="">
   <img src="{media}/mirrors.jpg" width="32.5%" alt="">
   <img src="{media}/driving-football.jpg" width="32.5%" alt="">
+</p>
+
+<p align="center">
+  <a href="{virustotal}"><img src="{media}/virustotal.png" width="100%" alt="VirusTotal: {vt_clean}"></a><br>
+  <sub>🛡️ {vt_caption} <a href="{virustotal}">{vt_report}</a></sub>
 </p>
 """
 
@@ -535,12 +558,19 @@ RELEASE_SECTION = """{intro}
 """
 
 
+def badge_text(code, text):
+    """The badges are drawn in capitals; shields.io would turn Turkish i into I, not İ."""
+    if code == "tr":
+        text = text.replace("i", "İ").replace("ı", "I")
+    return quote(text.upper())
+
+
 def release_notes(version):
     """Text for the GitHub release page: English in full, every other language folded."""
     zip_name = "CabinPlay-%s.zip" % version
     parts = []
     for code, (name, filename) in LANGUAGES.items():
-        values = {k: v.format(repo=REPO, discord=DISCORD, email=EMAIL, virustotal=VIRUSTOTAL, virustotal_exe=VIRUSTOTAL_EXE, zip=zip_name) for k, v in TEXT[code].items()}
+        values = {k: v.format(repo=REPO, discord=DISCORD, email=EMAIL, virustotal=VIRUSTOTAL, virustotal_exe=VIRUSTOTAL_EXE, vt_score=VT_SCORE, vt_engines=VT_ENGINES, zip=zip_name) for k, v in TEXT[code].items()}
         # "Close the game and unzip the file. Then pick one:" -> keep only the last sentence,
         # the download line above already covers the first.
         values["install_intro_tail"] = values["install_intro"].split(". ", 1)[-1]
@@ -558,14 +588,15 @@ def main():
     for code, (_, filename) in LANGUAGES.items():
         bar = " · ".join("**%s**" % name if c == code else "[%s](%s)" % (name, f)
                          for c, (name, f) in LANGUAGES.items())
-        values = {k: v.format(repo=REPO, discord=DISCORD, email=EMAIL, virustotal=VIRUSTOTAL, virustotal_exe=VIRUSTOTAL_EXE, zip="") for k, v in TEXT[code].items()}
+        values = {k: v.format(repo=REPO, discord=DISCORD, email=EMAIL, virustotal=VIRUSTOTAL, virustotal_exe=VIRUSTOTAL_EXE, vt_score=VT_SCORE, vt_engines=VT_ENGINES, zip="") for k, v in TEXT[code].items()}
         missing = set(TEXT["en"]) - set(TEXT[code])
         assert not missing, "%s lacks: %s" % (code, ", ".join(sorted(missing)))
         showcase = SHOWCASE.format(video=VIDEO, media=MEDIA, watch=values["watch"],
                                    releases=REPO + "/releases/latest", downloads=values["downloads"],
-                                   badge=BADGE + quote(values["downloads"]),
-                                   virustotal=VIRUSTOTAL, scan=values["scan"],
-                                   vt_badge=VT_BADGE + quote(values["scan"]))
+                                   badge=BADGE + badge_text(code, values["downloads"]),
+                                   virustotal=VIRUSTOTAL, vt_clean=values["vt_clean"],
+                                   vt_caption=values["vt_caption"], vt_report=values["vt_report"],
+                                   vt_badge=VT_BADGE + badge_text(code, values["vt_clean"]))
         text = TEMPLATE.format(languages=bar, building=BUILDING if code == "en" else "",
                                showcase=showcase, **values)
         with io.open(os.path.join(ROOT, filename), "w", encoding="utf-8", newline="\n") as f:

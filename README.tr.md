@@ -5,8 +5,8 @@
 **Euro Truck Simulator 2** için tır kabininde gerçekten çalışan bir medya ekranı. Sürerken ön cama takılı tablette YouTube izle, müzik dinle ve oyunun GPS haritasını takip et.
 
 <p align="center">
-  <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&color=2ea44f&label=%C4%B0ndirme" alt="İndirme"></a>
-  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="https://img.shields.io/static/v1?style=for-the-badge&color=394EFF&logo=virustotal&logoColor=white&message=VirusTotal&label=Vir%C3%BCs%20taramas%C4%B1" alt="Virüs taraması: VirusTotal"></a>
+  <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=%C4%B0ND%C4%B0RME" alt="İndirme"></a>
+  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/67%20TEM%C4%B0Z" alt="VirusTotal: 0/67 temiz"></a>
 </p>
 
 <p align="center">
@@ -32,6 +32,11 @@
   <img src="docs/media/truck-app.jpg" width="32.5%" alt="">
   <img src="docs/media/mirrors.jpg" width="32.5%" alt="">
   <img src="docs/media/driving-football.jpg" width="32.5%" alt="">
+</p>
+
+<p align="center">
+  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/67 temiz"></a><br>
+  <sub>🛡️ VirusTotal'daki 67 antivirüs motorunun hiçbiri CabinPlay'i zararlı bulmadı. <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc">Raporu gör</a></sub>
 </p>
 
 ## İndir
