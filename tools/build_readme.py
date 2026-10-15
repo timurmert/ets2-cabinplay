@@ -12,10 +12,9 @@ DISCORD = "https://discord.gg/rhGEbsu3zy"
 EMAIL = "contact@hydrabon.com"
 MEDIA = "docs/media"
 BADGE = "https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label="
-# VirusTotal reports of the released zip and of CabinPlay.exe in it, and the zip's result
-# (also shown in docs/media/virustotal.png); update all of them after a release.
-VIRUSTOTAL = "https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"
-VIRUSTOTAL_EXE = "https://www.virustotal.com/gui/file/72379b4c82d7774eccf7f0c2c715d714616f25d44110fe8ed2150fa6452cfeb6"
+# VirusTotal report of the released setup and its result (also shown in
+# docs/media/virustotal.png); update them after a release.
+VIRUSTOTAL = "https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc"
 VT_SCORE = "0/67"
 VT_ENGINES = "67"
 VT_BADGE = "https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message="
@@ -38,7 +37,7 @@ TEXT = {
         download="Download",
         downloads="Downloads",
         watch="Watch the full video with sound",
-        scan_line="🛡️ **Virus scan:** the download and the app inside it were checked by dozens of antivirus engines on VirusTotal. Reports: **[download (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        scan_line="🛡️ **Virus scan:** the setup was checked by {vt_engines} antivirus engines on VirusTotal and none of them flagged it. **[See the report]({virustotal})**",
         vt_clean="{vt_score} clean",
         vt_caption="None of the {vt_engines} antivirus engines on VirusTotal flagged CabinPlay.",
         vt_report="See the report",
@@ -87,7 +86,7 @@ TEXT = {
         download="İndir",
         downloads="İndirme",
         watch="Videonun tamamını sesli izle",
-        scan_line="🛡️ **Virüs taraması:** İndirilen dosya ve içindeki uygulama VirusTotal'da onlarca antivirüs motoruyla tarandı. Raporlar: **[İndirme dosyası (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        scan_line="🛡️ **Virüs taraması:** Kurulum dosyası VirusTotal'da {vt_engines} antivirüs motoruyla tarandı, hiçbiri zararlı bulmadı. **[Raporu gör]({virustotal})**",
         vt_clean="{vt_score} temiz",
         vt_caption="VirusTotal'daki {vt_engines} antivirüs motorunun hiçbiri CabinPlay'i zararlı bulmadı.",
         vt_report="Raporu gör",
@@ -136,7 +135,7 @@ TEXT = {
         download="Download",
         downloads="Downloads",
         watch="Das ganze Video mit Ton ansehen",
-        scan_line="🛡️ **Virenscan:** Der Download und die enthaltene App wurden auf VirusTotal von Dutzenden Antivirenprogrammen geprüft. Berichte: **[Download (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        scan_line="🛡️ **Virenscan:** Das Setup wurde auf VirusTotal von {vt_engines} Antivirenprogrammen geprüft, keines hat es beanstandet. **[Zum Bericht]({virustotal})**",
         vt_clean="{vt_score} sauber",
         vt_caption="Keine der {vt_engines} Antiviren-Engines auf VirusTotal hat CabinPlay beanstandet.",
         vt_report="Zum Bericht",
@@ -185,7 +184,7 @@ TEXT = {
         download="Pobieranie",
         downloads="Pobrania",
         watch="Obejrzyj cały film z dźwiękiem",
-        scan_line="🛡️ **Skan antywirusowy:** plik do pobrania i aplikacja w nim zostały sprawdzone na VirusTotal przez dziesiątki silników antywirusowych. Raporty: **[plik do pobrania (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        scan_line="🛡️ **Skan antywirusowy:** instalator został sprawdzony na VirusTotal przez {vt_engines} silników antywirusowych i żaden go nie oznaczył. **[Zobacz raport]({virustotal})**",
         vt_clean="{vt_score} czysty",
         vt_caption="Żaden z {vt_engines} silników antywirusowych na VirusTotal nie oznaczył CabinPlay.",
         vt_report="Zobacz raport",
@@ -234,7 +233,7 @@ TEXT = {
         download="Téléchargement",
         downloads="Téléchargements",
         watch="Voir la vidéo complète avec le son",
-        scan_line="🛡️ **Analyse antivirus :** le téléchargement et l'application qu'il contient ont été analysés sur VirusTotal par des dizaines d'antivirus. Rapports : **[téléchargement (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        scan_line="🛡️ **Analyse antivirus :** le programme d'installation a été analysé sur VirusTotal par {vt_engines} antivirus, et aucun ne l'a signalé. **[Voir le rapport]({virustotal})**",
         vt_clean="{vt_score} sain",
         vt_caption="Aucun des {vt_engines} antivirus de VirusTotal n'a signalé CabinPlay.",
         vt_report="Voir le rapport",
@@ -283,7 +282,7 @@ TEXT = {
         download="Descarga",
         downloads="Descargas",
         watch="Ver el vídeo completo con sonido",
-        scan_line="🛡️ **Análisis antivirus:** la descarga y la aplicación que contiene se han analizado en VirusTotal con decenas de antivirus. Informes: **[descarga (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        scan_line="🛡️ **Análisis antivirus:** el instalador se ha analizado en VirusTotal con {vt_engines} antivirus y ninguno lo ha marcado. **[Ver el informe]({virustotal})**",
         vt_clean="{vt_score} limpio",
         vt_caption="Ninguno de los {vt_engines} antivirus de VirusTotal ha marcado CabinPlay.",
         vt_report="Ver el informe",
@@ -332,7 +331,7 @@ TEXT = {
         download="Скачать",
         downloads="Загрузки",
         watch="Смотреть полное видео со звуком",
-        scan_line="🛡️ **Проверка на вирусы:** архив и приложение в нём проверены на VirusTotal десятками антивирусов. Отчёты: **[архив (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        scan_line="🛡️ **Проверка на вирусы:** установщик проверен на VirusTotal {vt_engines} антивирусами, ни один ничего не нашёл. **[Открыть отчёт]({virustotal})**",
         vt_clean="{vt_score} чисто",
         vt_caption="Ни один из {vt_engines} антивирусов на VirusTotal не отметил CabinPlay.",
         vt_report="Открыть отчёт",
@@ -566,7 +565,7 @@ def release_notes(version):
     """Text for the GitHub release page: English in full, every other language folded."""
     parts = []
     for code, (name, filename) in LANGUAGES.items():
-        values = {k: v.format(repo=REPO, discord=DISCORD, email=EMAIL, virustotal=VIRUSTOTAL, virustotal_exe=VIRUSTOTAL_EXE, vt_score=VT_SCORE, vt_engines=VT_ENGINES,
+        values = {k: v.format(repo=REPO, discord=DISCORD, email=EMAIL, virustotal=VIRUSTOTAL, vt_score=VT_SCORE, vt_engines=VT_ENGINES,
                               setup="CabinPlay-Setup-%s.exe" % version, zip="CabinPlay-%s.zip" % version)
                   for k, v in TEXT[code].items()}
         values["help_line"] = values["help_body"].replace("\n\n", " ")
@@ -583,7 +582,7 @@ def main():
     for code, (_, filename) in LANGUAGES.items():
         bar = " · ".join("**%s**" % name if c == code else "[%s](%s)" % (name, f)
                          for c, (name, f) in LANGUAGES.items())
-        values = {k: v.format(repo=REPO, discord=DISCORD, email=EMAIL, virustotal=VIRUSTOTAL, virustotal_exe=VIRUSTOTAL_EXE, vt_score=VT_SCORE, vt_engines=VT_ENGINES,
+        values = {k: v.format(repo=REPO, discord=DISCORD, email=EMAIL, virustotal=VIRUSTOTAL, vt_score=VT_SCORE, vt_engines=VT_ENGINES,
                               setup="CabinPlay-Setup-x.y.z.exe", zip="CabinPlay-x.y.z.zip")
                   for k, v in TEXT[code].items()}
         missing = set(TEXT["en"]) - set(TEXT[code])

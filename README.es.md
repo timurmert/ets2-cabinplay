@@ -6,7 +6,7 @@ Una pantalla multimedia que funciona de verdad en la cabina de tu camión en **E
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=DESCARGAS" alt="Descargas"></a>
-  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/67%20LIMPIO" alt="VirusTotal: 0/67 limpio"></a>
+  <a href="https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/67%20LIMPIO" alt="VirusTotal: 0/67 limpio"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@ Una pantalla multimedia que funciona de verdad en la cabina de tu camión en **E
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/67 limpio"></a><br>
-  <sub>🛡️ Ninguno de los 67 antivirus de VirusTotal ha marcado CabinPlay. <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc">Ver el informe</a></sub>
+  <a href="https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/67 limpio"></a><br>
+  <sub>🛡️ Ninguno de los 67 antivirus de VirusTotal ha marcado CabinPlay. <a href="https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc">Ver el informe</a></sub>
 </p>
 
 ## Descarga
 
 **[Descarga la última versión](https://github.com/timurmert/ets2-cabinplay/releases/latest)** y elige el archivo `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Análisis antivirus:** la descarga y la aplicación que contiene se han analizado en VirusTotal con decenas de antivirus. Informes: **[descarga (.zip)](https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc)** · **[CabinPlay.exe](https://www.virustotal.com/gui/file/72379b4c82d7774eccf7f0c2c715d714616f25d44110fe8ed2150fa6452cfeb6)**
+> 🛡️ **Análisis antivirus:** el instalador se ha analizado en VirusTotal con 67 antivirus y ninguno lo ha marcado. **[Ver el informe](https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc)**
 
 ## Instalación
 
