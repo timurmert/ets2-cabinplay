@@ -49,7 +49,7 @@ A working media screen for your truck cabin in **Euro Truck Simulator 2**. Watch
 
 Close the game, then pick one:
 
-**A) Setup (recommended).** Download **CabinPlay-Setup-x.y.z.exe** and run it. It finds the game by itself and needs no administrator rights. If Windows says it protected your PC, click *More info*, then *Run anyway* (the setup is not code-signed yet).
+**A) Setup (recommended).** Download **CabinPlay-Setup-x.y.z.exe** and run it. It finds the game by itself and needs no administrator rights. If Windows says it protected your PC, click *More info*, then *Run anyway* (the setup is not code-signed).
 
 **B) By hand.** Download **CabinPlay-x.y.z-manual-install.zip** instead, unzip it and copy three things from it:
 

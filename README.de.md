@@ -49,7 +49,7 @@ Ein funktionierender Medienbildschirm für deine Lkw-Kabine in **Euro Truck Simu
 
 Schließe das Spiel und wähle dann eine Variante:
 
-**A) Setup (empfohlen).** Lade **CabinPlay-Setup-x.y.z.exe** herunter und starte es. Es findet das Spiel von selbst und braucht keine Administratorrechte. Meldet Windows, der Computer wurde geschützt, klicke auf *Weitere Informationen* und dann auf *Trotzdem ausführen* (das Setup ist noch nicht signiert).
+**A) Setup (empfohlen).** Lade **CabinPlay-Setup-x.y.z.exe** herunter und starte es. Es findet das Spiel von selbst und braucht keine Administratorrechte. Meldet Windows, der Computer wurde geschützt, klicke auf *Weitere Informationen* und dann auf *Trotzdem ausführen* (das Setup ist nicht signiert).
 
 **B) Von Hand.** Lade stattdessen **CabinPlay-x.y.z-manual-install.zip** herunter, entpacke es und kopiere drei Dinge daraus:
 

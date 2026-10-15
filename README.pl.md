@@ -49,7 +49,7 @@ Działający ekran multimedialny w kabinie ciężarówki w **Euro Truck Simulato
 
 Zamknij grę, a potem wybierz jeden sposób:
 
-**A) Instalator (zalecane).** Pobierz **CabinPlay-Setup-x.y.z.exe** i uruchom go. Sam znajdzie grę i nie wymaga uprawnień administratora. Jeśli system Windows poinformuje, że ochronił komputer, kliknij *Więcej informacji*, a potem *Uruchom mimo to* (instalator nie jest jeszcze podpisany).
+**A) Instalator (zalecane).** Pobierz **CabinPlay-Setup-x.y.z.exe** i uruchom go. Sam znajdzie grę i nie wymaga uprawnień administratora. Jeśli system Windows poinformuje, że ochronił komputer, kliknij *Więcej informacji*, a potem *Uruchom mimo to* (instalator nie jest podpisany).
 
 **B) Ręcznie.** Zamiast tego pobierz **CabinPlay-x.y.z-manual-install.zip**, rozpakuj go i skopiuj z niego trzy rzeczy:
 

@@ -49,7 +49,7 @@ Una pantalla multimedia que funciona de verdad en la cabina de tu camión en **E
 
 Cierra el juego y después elige una opción:
 
-**A) Instalador (recomendado).** Descarga **CabinPlay-Setup-x.y.z.exe** y ejecútalo. Encuentra el juego por sí mismo y no pide permisos de administrador. Si Windows dice que protegió tu PC, pulsa *Más información* y luego *Ejecutar de todas formas* (el instalador aún no está firmado).
+**A) Instalador (recomendado).** Descarga **CabinPlay-Setup-x.y.z.exe** y ejecútalo. Encuentra el juego por sí mismo y no pide permisos de administrador. Si Windows dice que protegió tu PC, pulsa *Más información* y luego *Ejecutar de todas formas* (el instalador no está firmado).
 
 **B) A mano.** Descarga en su lugar **CabinPlay-x.y.z-manual-install.zip**, descomprímelo y copia tres cosas de él:
 
