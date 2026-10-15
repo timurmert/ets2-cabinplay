@@ -507,6 +507,8 @@ SHOWCASE = """<p align="center">
 
 RELEASE_SECTION = """{intro}
 
+> {scan_line}
+
 {release_download} {install_intro_tail}
 
 {auto}
