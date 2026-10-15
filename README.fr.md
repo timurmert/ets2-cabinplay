@@ -6,7 +6,7 @@ Un écran multimédia fonctionnel pour la cabine de votre camion dans **Euro Tru
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&color=2ea44f&label=T%C3%A9l%C3%A9chargements" alt="Téléchargements"></a>
-  <a href="https://www.virustotal.com/gui/file/f00ab36187b23f011cbd462f89e62cddf2b321ec3e3c60b960e188139d847610"><img src="https://img.shields.io/static/v1?style=for-the-badge&color=394EFF&logo=virustotal&logoColor=white&message=VirusTotal&label=Analyse%20antivirus" alt="Analyse antivirus: VirusTotal"></a>
+  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="https://img.shields.io/static/v1?style=for-the-badge&color=394EFF&logo=virustotal&logoColor=white&message=VirusTotal&label=Analyse%20antivirus" alt="Analyse antivirus: VirusTotal"></a>
 </p>
 
 <p align="center">
@@ -38,7 +38,7 @@ Un écran multimédia fonctionnel pour la cabine de votre camion dans **Euro Tru
 
 **[Téléchargez la dernière version](https://github.com/timurmert/ets2-cabinplay/releases/latest)** et prenez le fichier `CabinPlay-x.y.z.zip`.
 
-> 🛡️ **Analyse antivirus :** CabinPlay a été analysé sur VirusTotal par des dizaines d'antivirus. **[Voir le rapport](https://www.virustotal.com/gui/file/f00ab36187b23f011cbd462f89e62cddf2b321ec3e3c60b960e188139d847610)**
+> 🛡️ **Analyse antivirus :** CabinPlay a été analysé sur VirusTotal par des dizaines d'antivirus. **[Voir le rapport](https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc)**
 
 ## Installation
 

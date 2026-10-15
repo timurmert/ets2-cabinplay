@@ -6,7 +6,7 @@ Działający ekran multimedialny w kabinie ciężarówki w **Euro Truck Simulato
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&color=2ea44f&label=Pobrania" alt="Pobrania"></a>
-  <a href="https://www.virustotal.com/gui/file/f00ab36187b23f011cbd462f89e62cddf2b321ec3e3c60b960e188139d847610"><img src="https://img.shields.io/static/v1?style=for-the-badge&color=394EFF&logo=virustotal&logoColor=white&message=VirusTotal&label=Skan%20antywirusowy" alt="Skan antywirusowy: VirusTotal"></a>
+  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="https://img.shields.io/static/v1?style=for-the-badge&color=394EFF&logo=virustotal&logoColor=white&message=VirusTotal&label=Skan%20antywirusowy" alt="Skan antywirusowy: VirusTotal"></a>
 </p>
 
 <p align="center">
@@ -38,7 +38,7 @@ Działający ekran multimedialny w kabinie ciężarówki w **Euro Truck Simulato
 
 **[Pobierz najnowszą wersję](https://github.com/timurmert/ets2-cabinplay/releases/latest)** i weź plik `CabinPlay-x.y.z.zip`.
 
-> 🛡️ **Skan antywirusowy:** CabinPlay został sprawdzony na VirusTotal przez dziesiątki silników antywirusowych. **[Zobacz raport](https://www.virustotal.com/gui/file/f00ab36187b23f011cbd462f89e62cddf2b321ec3e3c60b960e188139d847610)**
+> 🛡️ **Skan antywirusowy:** CabinPlay został sprawdzony na VirusTotal przez dziesiątki silników antywirusowych. **[Zobacz raport](https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc)**
 
 ## Instalacja
 
