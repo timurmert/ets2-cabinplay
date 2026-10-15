@@ -5,8 +5,8 @@
 Работающий медиаэкран в кабине грузовика в **Euro Truck Simulator 2**. Смотрите YouTube, слушайте музыку и следите за GPS-картой игры на планшете у лобового стекла прямо во время поездки.
 
 <p align="center">
-  <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&color=2ea44f&label=%D0%97%D0%B0%D0%B3%D1%80%D1%83%D0%B7%D0%BA%D0%B8" alt="Загрузки"></a>
-  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="https://img.shields.io/static/v1?style=for-the-badge&color=394EFF&logo=virustotal&logoColor=white&message=VirusTotal&label=%D0%9F%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B0%20%D0%BD%D0%B0%20%D0%B2%D0%B8%D1%80%D1%83%D1%81%D1%8B" alt="Проверка на вирусы: VirusTotal"></a>
+  <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=%D0%97%D0%90%D0%93%D0%A0%D0%A3%D0%97%D0%9A%D0%98" alt="Загрузки"></a>
+  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/67%20%D0%A7%D0%98%D0%A1%D0%A2%D0%9E" alt="VirusTotal: 0/67 чисто"></a>
 </p>
 
 <p align="center">
@@ -32,6 +32,11 @@
   <img src="docs/media/truck-app.jpg" width="32.5%" alt="">
   <img src="docs/media/mirrors.jpg" width="32.5%" alt="">
   <img src="docs/media/driving-football.jpg" width="32.5%" alt="">
+</p>
+
+<p align="center">
+  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/67 чисто"></a><br>
+  <sub>🛡️ Ни один из 67 антивирусов на VirusTotal не отметил CabinPlay. <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc">Открыть отчёт</a></sub>
 </p>
 
 ## Скачать

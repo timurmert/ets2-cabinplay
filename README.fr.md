@@ -5,8 +5,8 @@
 Un écran multimédia fonctionnel pour la cabine de votre camion dans **Euro Truck Simulator 2**. Regardez YouTube, écoutez de la musique et suivez la carte GPS du jeu sur une tablette fixée au pare-brise, tout en conduisant.
 
 <p align="center">
-  <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&color=2ea44f&label=T%C3%A9l%C3%A9chargements" alt="Téléchargements"></a>
-  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="https://img.shields.io/static/v1?style=for-the-badge&color=394EFF&logo=virustotal&logoColor=white&message=VirusTotal&label=Analyse%20antivirus" alt="Analyse antivirus: VirusTotal"></a>
+  <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=T%C3%89L%C3%89CHARGEMENTS" alt="Téléchargements"></a>
+  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/67%20SAIN" alt="VirusTotal: 0/67 sain"></a>
 </p>
 
 <p align="center">
@@ -32,6 +32,11 @@ Un écran multimédia fonctionnel pour la cabine de votre camion dans **Euro Tru
   <img src="docs/media/truck-app.jpg" width="32.5%" alt="">
   <img src="docs/media/mirrors.jpg" width="32.5%" alt="">
   <img src="docs/media/driving-football.jpg" width="32.5%" alt="">
+</p>
+
+<p align="center">
+  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/67 sain"></a><br>
+  <sub>🛡️ Aucun des 67 antivirus de VirusTotal n'a signalé CabinPlay. <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc">Voir le rapport</a></sub>
 </p>
 
 ## Téléchargement

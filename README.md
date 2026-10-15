@@ -5,8 +5,8 @@
 A working media screen for your truck cabin in **Euro Truck Simulator 2**. Watch YouTube, listen to music and follow the game's GPS map on a tablet mounted at the windscreen, while you drive.
 
 <p align="center">
-  <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&color=2ea44f&label=Downloads" alt="Downloads"></a>
-  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="https://img.shields.io/static/v1?style=for-the-badge&color=394EFF&logo=virustotal&logoColor=white&message=VirusTotal&label=Virus%20scan" alt="Virus scan: VirusTotal"></a>
+  <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=DOWNLOADS" alt="Downloads"></a>
+  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/67%20CLEAN" alt="VirusTotal: 0/67 clean"></a>
 </p>
 
 <p align="center">
@@ -32,6 +32,11 @@ A working media screen for your truck cabin in **Euro Truck Simulator 2**. Watch
   <img src="docs/media/truck-app.jpg" width="32.5%" alt="">
   <img src="docs/media/mirrors.jpg" width="32.5%" alt="">
   <img src="docs/media/driving-football.jpg" width="32.5%" alt="">
+</p>
+
+<p align="center">
+  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/67 clean"></a><br>
+  <sub>🛡️ None of the 67 antivirus engines on VirusTotal flagged CabinPlay. <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc">See the report</a></sub>
 </p>
 
 ## Download
