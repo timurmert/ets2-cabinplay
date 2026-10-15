@@ -41,17 +41,17 @@ Un écran multimédia fonctionnel pour la cabine de votre camion dans **Euro Tru
 
 ## Téléchargement
 
-**[Téléchargez la dernière version](https://github.com/timurmert/ets2-cabinplay/releases/latest)** et prenez le fichier `CabinPlay-x.y.z.zip`.
+**[Téléchargez la dernière version](https://github.com/timurmert/ets2-cabinplay/releases/latest)** et prenez le fichier `CabinPlay-Setup-x.y.z.exe`.
 
 > 🛡️ **Analyse antivirus :** le téléchargement et l'application qu'il contient ont été analysés sur VirusTotal par des dizaines d'antivirus. Rapports : **[téléchargement (.zip)](https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc)** · **[CabinPlay.exe](https://www.virustotal.com/gui/file/72379b4c82d7774eccf7f0c2c715d714616f25d44110fe8ed2150fa6452cfeb6)**
 
 ## Installation
 
-Fermez le jeu et décompressez le fichier. Choisissez ensuite une méthode :
+Fermez le jeu, puis choisissez une méthode :
 
-**A) Automatique.** Double-cliquez sur **Install.cmd**. Si Windows indique qu'il a protégé votre ordinateur, cliquez sur *Informations complémentaires*, puis sur *Exécuter quand même* (les fichiers ne sont pas signés). `Install.cmd` lance uniquement `data\install.ps1`, un script en texte clair que vous pouvez lire.
+**A) Programme d'installation (recommandé).** Téléchargez **CabinPlay-Setup-x.y.z.exe** et lancez-le. Il trouve le jeu tout seul et ne demande pas de droits d'administrateur. Si Windows indique qu'il a protégé votre ordinateur, cliquez sur *Informations complémentaires*, puis sur *Exécuter quand même* (le programme n'est pas encore signé).
 
-**B) À la main.** Aucun script n'est exécuté ; vous copiez trois éléments du dossier `data` :
+**B) À la main.** Téléchargez plutôt **CabinPlay-x.y.z.zip**, décompressez-le et copiez-en trois éléments :
 
 1. `cabinplay.scs` dans `Documents\Euro Truck Simulator 2\mod`
 2. `plugin\cabinplay.dll` et `plugin\cabinplay.ini` dans le dossier `bin\win_x64\plugins` du jeu (créez `plugins` s'il n'existe pas). Pour trouver le dossier du jeu : dans Steam, clic droit sur le jeu > *Gérer* > *Parcourir les fichiers locaux*.
@@ -63,7 +63,7 @@ Fermez le jeu et décompressez le fichier. Choisissez ensuite une méthode :
 2. Dans le **Gestionnaire de mods**, activez **CabinPlay Screen**.
 3. Dans un garage, installez **CabinPlay Screen** dans un emplacement d'accessoire du pare-brise. À gauche, deux versions existent : *Large* (11", sur un bras) et *Compact* (10", contre la vitre) ; au milieu, il y a *Centre*, tourné vers le conducteur (avec une version à part pour les cabines à conduite à droite).
 
-C'est tout. L'écran s'allume avec le contact du camion. Pour le retirer, double-cliquez sur **Uninstall.cmd** ou supprimez les fichiers copiés à la main.
+C'est tout. L'écran s'allume avec le contact du camion. Pour désinstaller CabinPlay, ouvrez *Paramètres* > *Applications* dans Windows, ou lancez `Uninstall.exe` dans `%LocalAppData%\Programs\CabinPlay` ; si vous l'avez installé à la main, supprimez les fichiers copiés.
 
 ## Utilisation
 

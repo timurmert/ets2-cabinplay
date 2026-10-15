@@ -4,8 +4,8 @@
 #   plugin   -> <game>\bin\win_x64\plugins\cabinplay.dll (+ .ini)
 #   app      -> %LocalAppData%\Programs\CabinPlay
 #
-# Runs from a release package (the files sit next to this script; people start it
-# through Install.cmd) and from a source checkout after build.ps1 (the files are in dist\).
+# For a source checkout after build.ps1 (the files are in dist\). People install with the
+# setup (packaging\setup.iss), which does the same and registers an uninstaller with Windows.
 param(
     [string]$GameDir,
     [switch]$Uninstall

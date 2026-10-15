@@ -41,17 +41,17 @@
 
 ## İndir
 
-**[Son sürümü indir](https://github.com/timurmert/ets2-cabinplay/releases/latest)**; `CabinPlay-x.y.z.zip` adlı dosyayı al.
+**[Son sürümü indir](https://github.com/timurmert/ets2-cabinplay/releases/latest)**; `CabinPlay-Setup-x.y.z.exe` adlı dosyayı al.
 
 > 🛡️ **Virüs taraması:** İndirilen dosya ve içindeki uygulama VirusTotal'da onlarca antivirüs motoruyla tarandı. Raporlar: **[İndirme dosyası (.zip)](https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc)** · **[CabinPlay.exe](https://www.virustotal.com/gui/file/72379b4c82d7774eccf7f0c2c715d714616f25d44110fe8ed2150fa6452cfeb6)**
 
 ## Kur
 
-Oyunu kapat ve zip'i aç. Sonra birini seç:
+Oyunu kapat, sonra birini seç:
 
-**A) Otomatik.** **Install.cmd** dosyasına çift tıkla. Windows "kişisel bilgisayarınızı korudu" derse *Ek bilgi*, sonra *Yine de çalıştır* de (dosyalar imzalı değil). `Install.cmd` yalnızca `data\install.ps1` dosyasını çalıştırır; bu, açıp okuyabileceğin düz metin bir betiktir.
+**A) Kurulum (önerilen).** **CabinPlay-Setup-x.y.z.exe** dosyasını indir ve çalıştır. Oyunu kendisi bulur, yönetici izni istemez. Windows "kişisel bilgisayarınızı korudu" derse *Ek bilgi*, sonra *Yine de çalıştır* de (kurulum henüz imzalı değil).
 
-**B) Elle.** Hiçbir betik çalışmaz; `data` klasöründen üç şeyi kopyalarsın:
+**B) Elle.** Bunun yerine **CabinPlay-x.y.z.zip** dosyasını indir, aç ve içinden üç şeyi kopyala:
 
 1. `cabinplay.scs` dosyasını `Belgeler\Euro Truck Simulator 2\mod` klasörüne
 2. `plugin\cabinplay.dll` ve `plugin\cabinplay.ini` dosyalarını oyunun `bin\win_x64\plugins` klasörüne (`plugins` yoksa oluştur). Oyun klasörünü bulmak için: Steam'de oyuna sağ tıkla > *Yönet* > *Yerel dosyalara göz at*.
@@ -63,7 +63,7 @@ Oyunu kapat ve zip'i aç. Sonra birini seç:
 2. **Mod Yöneticisi**'nde **CabinPlay Screen**'i etkinleştir.
 3. Serviste **CabinPlay Screen**'i ön camdaki bir aksesuar yuvasına tak. Sol yuvada iki sürüm var: *Large* (11", kolda) ve *Compact* (10", camın dibinde); orta yuvada ise sürücüye dönük *Centre* var (sağdan direksiyonlu kabinler için ayrı bir sürümüyle).
 
-Bu kadar. Ekran tırın kontağıyla birlikte açılır. Kaldırmak için **Uninstall.cmd** dosyasına çift tıkla ya da elle kopyaladığın dosyaları sil.
+Bu kadar. Ekran tırın kontağıyla birlikte açılır. CabinPlay'i kaldırmak için Windows *Ayarlar* > *Uygulamalar*'ı aç ya da `%LocalAppData%\Programs\CabinPlay` klasöründeki `Uninstall.exe`'yi çalıştır; elle kurduysan kopyaladığın dosyaları sil.
 
 ## Kullan
 

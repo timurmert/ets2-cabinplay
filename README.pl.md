@@ -41,17 +41,17 @@ Działający ekran multimedialny w kabinie ciężarówki w **Euro Truck Simulato
 
 ## Pobieranie
 
-**[Pobierz najnowszą wersję](https://github.com/timurmert/ets2-cabinplay/releases/latest)** i weź plik `CabinPlay-x.y.z.zip`.
+**[Pobierz najnowszą wersję](https://github.com/timurmert/ets2-cabinplay/releases/latest)** i weź plik `CabinPlay-Setup-x.y.z.exe`.
 
 > 🛡️ **Skan antywirusowy:** plik do pobrania i aplikacja w nim zostały sprawdzone na VirusTotal przez dziesiątki silników antywirusowych. Raporty: **[plik do pobrania (.zip)](https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc)** · **[CabinPlay.exe](https://www.virustotal.com/gui/file/72379b4c82d7774eccf7f0c2c715d714616f25d44110fe8ed2150fa6452cfeb6)**
 
 ## Instalacja
 
-Zamknij grę i rozpakuj plik. Następnie wybierz jeden sposób:
+Zamknij grę, a potem wybierz jeden sposób:
 
-**A) Automatycznie.** Kliknij dwukrotnie **Install.cmd**. Jeśli system Windows poinformuje, że ochronił komputer, kliknij *Więcej informacji*, a potem *Uruchom mimo to* (pliki nie są podpisane). `Install.cmd` uruchamia tylko `data\install.ps1`, zwykły skrypt tekstowy, który możesz przeczytać.
+**A) Instalator (zalecane).** Pobierz **CabinPlay-Setup-x.y.z.exe** i uruchom go. Sam znajdzie grę i nie wymaga uprawnień administratora. Jeśli system Windows poinformuje, że ochronił komputer, kliknij *Więcej informacji*, a potem *Uruchom mimo to* (instalator nie jest jeszcze podpisany).
 
-**B) Ręcznie.** Żaden skrypt nie jest uruchamiany; kopiujesz trzy rzeczy z folderu `data`:
+**B) Ręcznie.** Zamiast tego pobierz **CabinPlay-x.y.z.zip**, rozpakuj go i skopiuj z niego trzy rzeczy:
 
 1. `cabinplay.scs` do `Dokumenty\Euro Truck Simulator 2\mod`
 2. `plugin\cabinplay.dll` i `plugin\cabinplay.ini` do folderu gry `bin\win_x64\plugins` (utwórz `plugins`, jeśli go nie ma). Aby znaleźć folder gry: w Steam kliknij grę prawym przyciskiem > *Zarządzaj* > *Przeglądaj pliki lokalne*.
@@ -63,7 +63,7 @@ Zamknij grę i rozpakuj plik. Następnie wybierz jeden sposób:
 2. W **Menedżerze modów** włącz **CabinPlay Screen**.
 3. W warsztacie zamontuj **CabinPlay Screen** w gnieździe akcesoriów na przedniej szybie. Po lewej są dwie wersje: *Large* (11", na ramieniu) i *Compact* (10", przy szybie); w środkowym gnieździe jest *Centre*, zwrócony w stronę kierowcy (z osobną wersją dla kabin z kierownicą po prawej).
 
-To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Aby usunąć, kliknij dwukrotnie **Uninstall.cmd** albo usuń pliki skopiowane ręcznie.
+To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Aby usunąć CabinPlay, otwórz w Windows *Ustawienia* > *Aplikacje* albo uruchom `Uninstall.exe` w `%LocalAppData%\Programs\CabinPlay`; jeśli instalacja była ręczna, usuń skopiowane pliki.
 
 ## Obsługa
 

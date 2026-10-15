@@ -1,0 +1,33 @@
+#include <windows.h>
+
+/* VER_TEXT is the version as one token, e.g. 1.2.3 (a quoted -D does not survive PowerShell). */
+#define STR_(x) #x
+#define STR(x) STR_(x)
+
+1 ICON "../../app/CabinPlay.ico"
+1 RT_MANIFEST "uninstall.manifest"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION VER_MAJOR, VER_MINOR, VER_PATCH, 0
+PRODUCTVERSION VER_MAJOR, VER_MINOR, VER_PATCH, 0
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_APP
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "HydRaboN"
+            VALUE "FileDescription", "CabinPlay Uninstall"
+            VALUE "FileVersion", STR(VER_TEXT)
+            VALUE "LegalCopyright", "MIT licence, HydRaboN"
+            VALUE "OriginalFilename", "Uninstall.exe"
+            VALUE "ProductName", "CabinPlay"
+            VALUE "ProductVersion", STR(VER_TEXT)
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
