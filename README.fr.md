@@ -5,7 +5,8 @@
 Un écran multimédia fonctionnel pour la cabine de votre camion dans **Euro Truck Simulator 2**. Regardez YouTube, écoutez de la musique et suivez la carte GPS du jeu sur une tablette fixée au pare-brise, tout en conduisant.
 
 <p align="center">
-  <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=flat-square&color=2ea44f&label=T%C3%A9l%C3%A9chargements" alt="Téléchargements"></a>
+  <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&color=2ea44f&label=T%C3%A9l%C3%A9chargements" alt="Téléchargements"></a>
+  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="https://img.shields.io/static/v1?style=for-the-badge&color=394EFF&logo=virustotal&logoColor=white&message=VirusTotal&label=Analyse%20antivirus" alt="Analyse antivirus: VirusTotal"></a>
 </p>
 
 <p align="center">
@@ -36,6 +37,8 @@ Un écran multimédia fonctionnel pour la cabine de votre camion dans **Euro Tru
 ## Téléchargement
 
 **[Téléchargez la dernière version](https://github.com/timurmert/ets2-cabinplay/releases/latest)** et prenez le fichier `CabinPlay-x.y.z.zip`.
+
+> 🛡️ **Analyse antivirus :** le téléchargement et l'application qu'il contient ont été analysés sur VirusTotal par des dizaines d'antivirus. Rapports : **[téléchargement (.zip)](https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc)** · **[CabinPlay.exe](https://www.virustotal.com/gui/file/72379b4c82d7774eccf7f0c2c715d714616f25d44110fe8ed2150fa6452cfeb6)**
 
 ## Installation
 

@@ -5,7 +5,8 @@
 A working media screen for your truck cabin in **Euro Truck Simulator 2**. Watch YouTube, listen to music and follow the game's GPS map on a tablet mounted at the windscreen, while you drive.
 
 <p align="center">
-  <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=flat-square&color=2ea44f&label=Downloads" alt="Downloads"></a>
+  <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&color=2ea44f&label=Downloads" alt="Downloads"></a>
+  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="https://img.shields.io/static/v1?style=for-the-badge&color=394EFF&logo=virustotal&logoColor=white&message=VirusTotal&label=Virus%20scan" alt="Virus scan: VirusTotal"></a>
 </p>
 
 <p align="center">
@@ -36,6 +37,8 @@ A working media screen for your truck cabin in **Euro Truck Simulator 2**. Watch
 ## Download
 
 **[Download the latest version](https://github.com/timurmert/ets2-cabinplay/releases/latest)** and get the file named `CabinPlay-x.y.z.zip`.
+
+> 🛡️ **Virus scan:** the download and the app inside it were checked by dozens of antivirus engines on VirusTotal. Reports: **[download (.zip)](https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc)** · **[CabinPlay.exe](https://www.virustotal.com/gui/file/72379b4c82d7774eccf7f0c2c715d714616f25d44110fe8ed2150fa6452cfeb6)**
 
 ## Install
 
