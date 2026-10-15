@@ -5,7 +5,8 @@
 **Euro Truck Simulator 2** için tır kabininde gerçekten çalışan bir medya ekranı. Sürerken ön cama takılı tablette YouTube izle, müzik dinle ve oyunun GPS haritasını takip et.
 
 <p align="center">
-  <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=flat-square&color=2ea44f&label=%C4%B0ndirme" alt="İndirme"></a>
+  <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&color=2ea44f&label=%C4%B0ndirme" alt="İndirme"></a>
+  <a href="https://www.virustotal.com/gui/file/f00ab36187b23f011cbd462f89e62cddf2b321ec3e3c60b960e188139d847610"><img src="https://img.shields.io/static/v1?style=for-the-badge&color=394EFF&logo=virustotal&logoColor=white&message=VirusTotal&label=Vir%C3%BCs%20taramas%C4%B1" alt="Virüs taraması: VirusTotal"></a>
 </p>
 
 <p align="center">
@@ -36,6 +37,8 @@
 ## İndir
 
 **[Son sürümü indir](https://github.com/timurmert/ets2-cabinplay/releases/latest)**; `CabinPlay-x.y.z.zip` adlı dosyayı al.
+
+> 🛡️ **Virüs taraması:** CabinPlay, VirusTotal'da onlarca antivirüs motoruyla tarandı. **[Tarama raporunu gör](https://www.virustotal.com/gui/file/f00ab36187b23f011cbd462f89e62cddf2b321ec3e3c60b960e188139d847610)**
 
 ## Kur
 

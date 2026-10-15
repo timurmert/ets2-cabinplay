@@ -5,7 +5,8 @@
 Ein funktionierender Medienbildschirm für deine Lkw-Kabine in **Euro Truck Simulator 2**. Schau YouTube, höre Musik und folge der GPS-Karte des Spiels auf einem Tablet an der Windschutzscheibe, während du fährst.
 
 <p align="center">
-  <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=flat-square&color=2ea44f&label=Downloads" alt="Downloads"></a>
+  <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&color=2ea44f&label=Downloads" alt="Downloads"></a>
+  <a href="https://www.virustotal.com/gui/file/f00ab36187b23f011cbd462f89e62cddf2b321ec3e3c60b960e188139d847610"><img src="https://img.shields.io/static/v1?style=for-the-badge&color=394EFF&logo=virustotal&logoColor=white&message=VirusTotal&label=Virenscan" alt="Virenscan: VirusTotal"></a>
 </p>
 
 <p align="center">
@@ -36,6 +37,8 @@ Ein funktionierender Medienbildschirm für deine Lkw-Kabine in **Euro Truck Simu
 ## Download
 
 **[Lade die neueste Version herunter](https://github.com/timurmert/ets2-cabinplay/releases/latest)** und nimm die Datei `CabinPlay-x.y.z.zip`.
+
+> 🛡️ **Virenscan:** CabinPlay wurde auf VirusTotal von Dutzenden Antivirenprogrammen geprüft. **[Zum Prüfbericht](https://www.virustotal.com/gui/file/f00ab36187b23f011cbd462f89e62cddf2b321ec3e3c60b960e188139d847610)**
 
 ## Installation
 
