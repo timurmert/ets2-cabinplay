@@ -6,7 +6,7 @@ A working media screen for your truck cabin in **Euro Truck Simulator 2**. Watch
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=DOWNLOADS" alt="Downloads"></a>
-  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/67%20CLEAN" alt="VirusTotal: 0/67 clean"></a>
+  <a href="https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/67%20CLEAN" alt="VirusTotal: 0/67 clean"></a>
 </p>
 
 <p align="center">
@@ -35,23 +35,23 @@ A working media screen for your truck cabin in **Euro Truck Simulator 2**. Watch
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/67 clean"></a><br>
-  <sub>🛡️ None of the 67 antivirus engines on VirusTotal flagged CabinPlay. <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc">See the report</a></sub>
+  <a href="https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/67 clean"></a><br>
+  <sub>🛡️ None of the 67 antivirus engines on VirusTotal flagged CabinPlay. <a href="https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc">See the report</a></sub>
 </p>
 
 ## Download
 
-**[Download the latest version](https://github.com/timurmert/ets2-cabinplay/releases/latest)** and get the file named `CabinPlay-x.y.z.zip`.
+**[Download the latest version](https://github.com/timurmert/ets2-cabinplay/releases/latest)** and get the file named `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Virus scan:** the download and the app inside it were checked by dozens of antivirus engines on VirusTotal. Reports: **[download (.zip)](https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc)** · **[CabinPlay.exe](https://www.virustotal.com/gui/file/72379b4c82d7774eccf7f0c2c715d714616f25d44110fe8ed2150fa6452cfeb6)**
+> 🛡️ **Virus scan:** the setup was checked by 67 antivirus engines on VirusTotal and none of them flagged it. **[See the report](https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc)**
 
 ## Install
 
-Close the game and unzip the file. Then pick one:
+Close the game, then pick one:
 
-**A) Automatic.** Double-click **Install.cmd**. If Windows says it protected your PC, click *More info*, then *Run anyway* (the files are not code-signed). `Install.cmd` only starts `data\install.ps1`, a plain text script you can read.
+**A) Setup (recommended).** Download **CabinPlay-Setup-x.y.z.exe** and run it. It finds the game by itself and needs no administrator rights. If Windows says it protected your PC, click *More info*, then *Run anyway* (the setup is not code-signed yet).
 
-**B) By hand.** No script is run; you copy three things from the `data` folder:
+**B) By hand.** Download **CabinPlay-x.y.z.zip** instead, unzip it and copy three things from it:
 
 1. `cabinplay.scs` into `Documents\Euro Truck Simulator 2\mod`
 2. `plugin\cabinplay.dll` and `plugin\cabinplay.ini` into the game's `bin\win_x64\plugins` folder (create `plugins` if it is not there). To find the game folder: in Steam, right-click the game > *Manage* > *Browse local files*.
@@ -63,7 +63,7 @@ Close the game and unzip the file. Then pick one:
 2. In the **Mod Manager**, switch on **CabinPlay Screen**.
 3. In a truck workshop, fit **CabinPlay Screen** in a windscreen accessory slot. On the left there are two versions, *Large* (11", on an arm) and *Compact* (10", at the glass); in the middle slot there is *Centre*, turned towards the driver (with a version of its own for right-hand-drive cabins).
 
-That's it. The screen switches on with the truck's ignition. To remove it, double-click **Uninstall.cmd**, or delete the files you copied by hand.
+That's it. The screen switches on with the truck's ignition. To remove CabinPlay, open Windows *Settings* > *Apps*, or run `Uninstall.exe` in `%LocalAppData%\Programs\CabinPlay`; if you installed it by hand, delete the files you copied.
 
 ## Use
 
@@ -115,12 +115,16 @@ To report a problem, open **Settings** on the screen, press **Create error repor
 
 ## Building from source
 
-Needs Python 3, MinGW-w64 gcc and the .NET 8 SDK on Windows.
+Needs Python 3, MinGW-w64 gcc, the .NET 8 SDK and [Inno Setup 6](https://jrsoftware.org/isinfo.php)
+(`winget install JRSoftware.InnoSetup`) on Windows.
 
 ```powershell
-.\build.ps1      # builds the mod, plugin, app and dist\CabinPlay-<version>.zip
-.\install.ps1    # installs that build on this PC
+.\build.ps1      # builds the mod, plugin, app, and in dist\ the setup, Uninstall.exe and the zip
+.\install.ps1    # installs that build on this PC without the setup
 ```
+
+The setup is made from `packaging\setup.iss`; `packaging\uninstall\` is the small `Uninstall.exe`
+that starts the uninstaller the setup registers with Windows. `tools\make_icon.py` draws the icon.
 
 `tools\` generates the mod, `plugin\` is the game plugin, `app\` is the companion app with the
 screen's interface in `app\ui\`. The version number lives in `VERSION`. This README and its

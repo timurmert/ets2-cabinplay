@@ -9,6 +9,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <!-- Made by tools/make_icon.py; the same picture as the tray icon. -->
+    <ApplicationIcon>CabinPlay.ico</ApplicationIcon>
     <AssemblyName>CabinPlay</AssemblyName>
     <RootNamespace>CabinPlay</RootNamespace>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>

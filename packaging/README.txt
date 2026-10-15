@@ -1,21 +1,17 @@
 CabinPlay - a working media screen for your truck cabin (Euro Truck Simulator 2)
 Made by HydRaboN.            Turkce: BENIOKU.txt
 
-Close the game first. Then install it one of two ways.
+This zip is for installing by hand. The easier way is the setup on the same download
+page, CabinPlay-Setup-x.y.z.exe: it finds the game by itself and installs everything.
 
-A) AUTOMATIC
-  Double-click Install.cmd.
-  If Windows says it protected your PC, click "More info", then "Run anyway".
-  Install.cmd only starts data\install.ps1, a plain text script you can open and read.
-
-B) BY HAND (no script is run)
-  1. Copy data\cabinplay.scs into
+BY HAND (close the game first)
+  1. Copy cabinplay.scs into
         Documents\Euro Truck Simulator 2\mod
-  2. Copy cabinplay.dll and cabinplay.ini from data\plugin into the game's
+  2. Copy cabinplay.dll and cabinplay.ini from the plugin folder into the game's
         bin\win_x64\plugins
      folder. Create the "plugins" folder if it is not there.
      To find the game folder: in Steam, right-click the game > Manage > Browse local files.
-  3. Copy the data\app folder anywhere you like (for example Documents\CabinPlay)
+  3. Copy the app folder anywhere you like (for example Documents\CabinPlay)
      and start CabinPlay.exe in it once. From then on it starts with the game by itself.
 
 THEN, IN THE GAME
@@ -54,7 +50,8 @@ CONTACT
   Complaints and suggestions:    the same address, or tell us on Discord.
 
 REMOVE
-  Double-click Uninstall.cmd, or delete the files you copied in B).
+  Delete the files you copied. If you used the setup instead, open Windows
+  Settings > Apps > CabinPlay > Uninstall.
 
 CabinPlay is free and open source (MIT licence, see LICENSE.txt):
 https://github.com/timurmert/ets2-cabinplay

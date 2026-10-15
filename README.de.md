@@ -6,7 +6,7 @@ Ein funktionierender Medienbildschirm für deine Lkw-Kabine in **Euro Truck Simu
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=DOWNLOADS" alt="Downloads"></a>
-  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/67%20SAUBER" alt="VirusTotal: 0/67 sauber"></a>
+  <a href="https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/67%20SAUBER" alt="VirusTotal: 0/67 sauber"></a>
 </p>
 
 <p align="center">
@@ -35,23 +35,23 @@ Ein funktionierender Medienbildschirm für deine Lkw-Kabine in **Euro Truck Simu
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/67 sauber"></a><br>
-  <sub>🛡️ Keine der 67 Antiviren-Engines auf VirusTotal hat CabinPlay beanstandet. <a href="https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc">Zum Bericht</a></sub>
+  <a href="https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/67 sauber"></a><br>
+  <sub>🛡️ Keine der 67 Antiviren-Engines auf VirusTotal hat CabinPlay beanstandet. <a href="https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc">Zum Bericht</a></sub>
 </p>
 
 ## Download
 
-**[Lade die neueste Version herunter](https://github.com/timurmert/ets2-cabinplay/releases/latest)** und nimm die Datei `CabinPlay-x.y.z.zip`.
+**[Lade die neueste Version herunter](https://github.com/timurmert/ets2-cabinplay/releases/latest)** und nimm die Datei `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Virenscan:** Der Download und die enthaltene App wurden auf VirusTotal von Dutzenden Antivirenprogrammen geprüft. Berichte: **[Download (.zip)](https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc)** · **[CabinPlay.exe](https://www.virustotal.com/gui/file/72379b4c82d7774eccf7f0c2c715d714616f25d44110fe8ed2150fa6452cfeb6)**
+> 🛡️ **Virenscan:** Das Setup wurde auf VirusTotal von 67 Antivirenprogrammen geprüft, keines hat es beanstandet. **[Zum Bericht](https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc)**
 
 ## Installation
 
-Schließe das Spiel und entpacke die Datei. Wähle dann eine Variante:
+Schließe das Spiel und wähle dann eine Variante:
 
-**A) Automatisch.** Doppelklicke auf **Install.cmd**. Meldet Windows, der Computer wurde geschützt, klicke auf *Weitere Informationen* und dann auf *Trotzdem ausführen* (die Dateien sind nicht signiert). `Install.cmd` startet nur `data\install.ps1`, ein Skript in Klartext, das du lesen kannst.
+**A) Setup (empfohlen).** Lade **CabinPlay-Setup-x.y.z.exe** herunter und starte es. Es findet das Spiel von selbst und braucht keine Administratorrechte. Meldet Windows, der Computer wurde geschützt, klicke auf *Weitere Informationen* und dann auf *Trotzdem ausführen* (das Setup ist noch nicht signiert).
 
-**B) Von Hand.** Es wird kein Skript ausgeführt; du kopierst drei Dinge aus dem Ordner `data`:
+**B) Von Hand.** Lade stattdessen **CabinPlay-x.y.z.zip** herunter, entpacke es und kopiere drei Dinge daraus:
 
 1. `cabinplay.scs` nach `Dokumente\Euro Truck Simulator 2\mod`
 2. `plugin\cabinplay.dll` und `plugin\cabinplay.ini` in den Ordner `bin\win_x64\plugins` des Spiels (lege `plugins` an, falls er fehlt). So findest du den Spielordner: in Steam Rechtsklick auf das Spiel > *Verwalten* > *Lokale Dateien durchsuchen*.
@@ -63,7 +63,7 @@ Schließe das Spiel und entpacke die Datei. Wähle dann eine Variante:
 2. Aktiviere im **Mod-Manager** **CabinPlay Screen**.
 3. Baue in einer Lkw-Werkstatt **CabinPlay Screen** in einen Zubehörplatz an der Windschutzscheibe ein. Links gibt es zwei Varianten, *Large* (11", am Arm) und *Compact* (10", an der Scheibe); im mittleren Platz gibt es *Centre*, zum Fahrer gedreht (mit einer eigenen Variante für Rechtslenker).
 
-Das war's. Der Bildschirm schaltet sich mit der Zündung ein. Zum Entfernen doppelklicke auf **Uninstall.cmd** oder lösche die von Hand kopierten Dateien.
+Das war's. Der Bildschirm schaltet sich mit der Zündung ein. Zum Entfernen öffne in Windows *Einstellungen* > *Apps* oder starte `Uninstall.exe` in `%LocalAppData%\Programs\CabinPlay`; hast du von Hand installiert, lösche die kopierten Dateien.
 
 ## Bedienung
 

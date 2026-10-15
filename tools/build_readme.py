@@ -12,10 +12,9 @@ DISCORD = "https://discord.gg/rhGEbsu3zy"
 EMAIL = "contact@hydrabon.com"
 MEDIA = "docs/media"
 BADGE = "https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label="
-# VirusTotal reports of the released zip and of CabinPlay.exe in it, and the zip's result
-# (also shown in docs/media/virustotal.png); update all of them after a release.
-VIRUSTOTAL = "https://www.virustotal.com/gui/file/9e09b36c2bf9862232006755f3f5dbbb1a8162383693705717b7488eada45ebc"
-VIRUSTOTAL_EXE = "https://www.virustotal.com/gui/file/72379b4c82d7774eccf7f0c2c715d714616f25d44110fe8ed2150fa6452cfeb6"
+# VirusTotal report of the released setup and its result (also shown in
+# docs/media/virustotal.png); update them after a release.
+VIRUSTOTAL = "https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc"
 VT_SCORE = "0/67"
 VT_ENGINES = "67"
 VT_BADGE = "https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message="
@@ -38,16 +37,15 @@ TEXT = {
         download="Download",
         downloads="Downloads",
         watch="Watch the full video with sound",
-        scan_line="🛡️ **Virus scan:** the download and the app inside it were checked by dozens of antivirus engines on VirusTotal. Reports: **[download (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        scan_line="🛡️ **Virus scan:** the setup was checked by {vt_engines} antivirus engines on VirusTotal and none of them flagged it. **[See the report]({virustotal})**",
         vt_clean="{vt_score} clean",
         vt_caption="None of the {vt_engines} antivirus engines on VirusTotal flagged CabinPlay.",
         vt_report="See the report",
-        release_download="Download **{zip}** below and unzip it.",
-        download_body="**[Download the latest version]({repo}/releases/latest)** and get the file named `CabinPlay-x.y.z.zip`.",
+        download_body="**[Download the latest version]({repo}/releases/latest)** and get the file named `CabinPlay-Setup-x.y.z.exe`.",
         install="Install",
-        install_intro="Close the game and unzip the file. Then pick one:",
-        auto="**A) Automatic.** Double-click **Install.cmd**. If Windows says it protected your PC, click *More info*, then *Run anyway* (the files are not code-signed). `Install.cmd` only starts `data\\install.ps1`, a plain text script you can read.",
-        manual="**B) By hand.** No script is run; you copy three things from the `data` folder:",
+        install_intro="Close the game, then pick one:",
+        auto="**A) Setup (recommended).** Download **{setup}** and run it. It finds the game by itself and needs no administrator rights. If Windows says it protected your PC, click *More info*, then *Run anyway* (the setup is not code-signed yet).",
+        manual="**B) By hand.** Download **{zip}** instead, unzip it and copy three things from it:",
         manual_1="`cabinplay.scs` into `Documents\\Euro Truck Simulator 2\\mod`",
         manual_2="`plugin\\cabinplay.dll` and `plugin\\cabinplay.ini` into the game's `bin\\win_x64\\plugins` folder (create `plugins` if it is not there). To find the game folder: in Steam, right-click the game > *Manage* > *Browse local files*.",
         manual_3="the `app` folder to anywhere you like, then start `CabinPlay.exe` in it once. From then on it starts with the game by itself.",
@@ -55,7 +53,7 @@ TEXT = {
         game_1="Start the game and accept the \"SDK features\" notice it shows once.",
         game_2="In the **Mod Manager**, switch on **CabinPlay Screen**.",
         game_3="In a truck workshop, fit **CabinPlay Screen** in a windscreen accessory slot. On the left there are two versions, *Large* (11\", on an arm) and *Compact* (10\", at the glass); in the middle slot there is *Centre*, turned towards the driver (with a version of its own for right-hand-drive cabins).",
-        done="That's it. The screen switches on with the truck's ignition. To remove it, double-click **Uninstall.cmd**, or delete the files you copied by hand.",
+        done="That's it. The screen switches on with the truck's ignition. To remove CabinPlay, open Windows *Settings* > *Apps*, or run `Uninstall.exe` in `%LocalAppData%\\Programs\\CabinPlay`; if you installed it by hand, delete the files you copied.",
         use="Use",
         shortcut="Shortcut", does="What it does", space="Space",
         k_control="Use the screen from inside the game with mouse and keyboard; the game pauses meanwhile (`Esc` to leave)",
@@ -88,16 +86,15 @@ TEXT = {
         download="İndir",
         downloads="İndirme",
         watch="Videonun tamamını sesli izle",
-        scan_line="🛡️ **Virüs taraması:** İndirilen dosya ve içindeki uygulama VirusTotal'da onlarca antivirüs motoruyla tarandı. Raporlar: **[İndirme dosyası (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        scan_line="🛡️ **Virüs taraması:** Kurulum dosyası VirusTotal'da {vt_engines} antivirüs motoruyla tarandı, hiçbiri zararlı bulmadı. **[Raporu gör]({virustotal})**",
         vt_clean="{vt_score} temiz",
         vt_caption="VirusTotal'daki {vt_engines} antivirüs motorunun hiçbiri CabinPlay'i zararlı bulmadı.",
         vt_report="Raporu gör",
-        release_download="Aşağıdaki **{zip}** dosyasını indir ve aç.",
-        download_body="**[Son sürümü indir]({repo}/releases/latest)**; `CabinPlay-x.y.z.zip` adlı dosyayı al.",
+        download_body="**[Son sürümü indir]({repo}/releases/latest)**; `CabinPlay-Setup-x.y.z.exe` adlı dosyayı al.",
         install="Kur",
-        install_intro="Oyunu kapat ve zip'i aç. Sonra birini seç:",
-        auto="**A) Otomatik.** **Install.cmd** dosyasına çift tıkla. Windows \"kişisel bilgisayarınızı korudu\" derse *Ek bilgi*, sonra *Yine de çalıştır* de (dosyalar imzalı değil). `Install.cmd` yalnızca `data\\install.ps1` dosyasını çalıştırır; bu, açıp okuyabileceğin düz metin bir betiktir.",
-        manual="**B) Elle.** Hiçbir betik çalışmaz; `data` klasöründen üç şeyi kopyalarsın:",
+        install_intro="Oyunu kapat, sonra birini seç:",
+        auto="**A) Kurulum (önerilen).** **{setup}** dosyasını indir ve çalıştır. Oyunu kendisi bulur, yönetici izni istemez. Windows \"kişisel bilgisayarınızı korudu\" derse *Ek bilgi*, sonra *Yine de çalıştır* de (kurulum henüz imzalı değil).",
+        manual="**B) Elle.** Bunun yerine **{zip}** dosyasını indir, aç ve içinden üç şeyi kopyala:",
         manual_1="`cabinplay.scs` dosyasını `Belgeler\\Euro Truck Simulator 2\\mod` klasörüne",
         manual_2="`plugin\\cabinplay.dll` ve `plugin\\cabinplay.ini` dosyalarını oyunun `bin\\win_x64\\plugins` klasörüne (`plugins` yoksa oluştur). Oyun klasörünü bulmak için: Steam'de oyuna sağ tıkla > *Yönet* > *Yerel dosyalara göz at*.",
         manual_3="`app` klasörünü istediğin bir yere; sonra içindeki `CabinPlay.exe` dosyasını bir kez çalıştır. Sonrasında oyunla birlikte kendiliğinden açılır.",
@@ -105,7 +102,7 @@ TEXT = {
         game_1="Oyunu başlat ve bir kez çıkan \"SDK özellikleri\" uyarısını onayla.",
         game_2="**Mod Yöneticisi**'nde **CabinPlay Screen**'i etkinleştir.",
         game_3="Serviste **CabinPlay Screen**'i ön camdaki bir aksesuar yuvasına tak. Sol yuvada iki sürüm var: *Large* (11\", kolda) ve *Compact* (10\", camın dibinde); orta yuvada ise sürücüye dönük *Centre* var (sağdan direksiyonlu kabinler için ayrı bir sürümüyle).",
-        done="Bu kadar. Ekran tırın kontağıyla birlikte açılır. Kaldırmak için **Uninstall.cmd** dosyasına çift tıkla ya da elle kopyaladığın dosyaları sil.",
+        done="Bu kadar. Ekran tırın kontağıyla birlikte açılır. CabinPlay'i kaldırmak için Windows *Ayarlar* > *Uygulamalar*'ı aç ya da `%LocalAppData%\\Programs\\CabinPlay` klasöründeki `Uninstall.exe`'yi çalıştır; elle kurduysan kopyaladığın dosyaları sil.",
         use="Kullan",
         shortcut="Kısayol", does="Ne yapar", space="Boşluk",
         k_control="Ekranı oyunun içinden fare ve klavyeyle kullan; bu sırada oyun duraklar (çıkış: `Esc`)",
@@ -138,16 +135,15 @@ TEXT = {
         download="Download",
         downloads="Downloads",
         watch="Das ganze Video mit Ton ansehen",
-        scan_line="🛡️ **Virenscan:** Der Download und die enthaltene App wurden auf VirusTotal von Dutzenden Antivirenprogrammen geprüft. Berichte: **[Download (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        scan_line="🛡️ **Virenscan:** Das Setup wurde auf VirusTotal von {vt_engines} Antivirenprogrammen geprüft, keines hat es beanstandet. **[Zum Bericht]({virustotal})**",
         vt_clean="{vt_score} sauber",
         vt_caption="Keine der {vt_engines} Antiviren-Engines auf VirusTotal hat CabinPlay beanstandet.",
         vt_report="Zum Bericht",
-        release_download="Lade unten **{zip}** herunter und entpacke die Datei.",
-        download_body="**[Lade die neueste Version herunter]({repo}/releases/latest)** und nimm die Datei `CabinPlay-x.y.z.zip`.",
+        download_body="**[Lade die neueste Version herunter]({repo}/releases/latest)** und nimm die Datei `CabinPlay-Setup-x.y.z.exe`.",
         install="Installation",
-        install_intro="Schließe das Spiel und entpacke die Datei. Wähle dann eine Variante:",
-        auto="**A) Automatisch.** Doppelklicke auf **Install.cmd**. Meldet Windows, der Computer wurde geschützt, klicke auf *Weitere Informationen* und dann auf *Trotzdem ausführen* (die Dateien sind nicht signiert). `Install.cmd` startet nur `data\\install.ps1`, ein Skript in Klartext, das du lesen kannst.",
-        manual="**B) Von Hand.** Es wird kein Skript ausgeführt; du kopierst drei Dinge aus dem Ordner `data`:",
+        install_intro="Schließe das Spiel und wähle dann eine Variante:",
+        auto="**A) Setup (empfohlen).** Lade **{setup}** herunter und starte es. Es findet das Spiel von selbst und braucht keine Administratorrechte. Meldet Windows, der Computer wurde geschützt, klicke auf *Weitere Informationen* und dann auf *Trotzdem ausführen* (das Setup ist noch nicht signiert).",
+        manual="**B) Von Hand.** Lade stattdessen **{zip}** herunter, entpacke es und kopiere drei Dinge daraus:",
         manual_1="`cabinplay.scs` nach `Dokumente\\Euro Truck Simulator 2\\mod`",
         manual_2="`plugin\\cabinplay.dll` und `plugin\\cabinplay.ini` in den Ordner `bin\\win_x64\\plugins` des Spiels (lege `plugins` an, falls er fehlt). So findest du den Spielordner: in Steam Rechtsklick auf das Spiel > *Verwalten* > *Lokale Dateien durchsuchen*.",
         manual_3="den Ordner `app` an einen beliebigen Ort; starte dann einmal `CabinPlay.exe` darin. Danach startet es von selbst mit dem Spiel.",
@@ -155,7 +151,7 @@ TEXT = {
         game_1="Starte das Spiel und bestätige den Hinweis zu den \"SDK-Funktionen\", der einmal erscheint.",
         game_2="Aktiviere im **Mod-Manager** **CabinPlay Screen**.",
         game_3="Baue in einer Lkw-Werkstatt **CabinPlay Screen** in einen Zubehörplatz an der Windschutzscheibe ein. Links gibt es zwei Varianten, *Large* (11\", am Arm) und *Compact* (10\", an der Scheibe); im mittleren Platz gibt es *Centre*, zum Fahrer gedreht (mit einer eigenen Variante für Rechtslenker).",
-        done="Das war's. Der Bildschirm schaltet sich mit der Zündung ein. Zum Entfernen doppelklicke auf **Uninstall.cmd** oder lösche die von Hand kopierten Dateien.",
+        done="Das war's. Der Bildschirm schaltet sich mit der Zündung ein. Zum Entfernen öffne in Windows *Einstellungen* > *Apps* oder starte `Uninstall.exe` in `%LocalAppData%\\Programs\\CabinPlay`; hast du von Hand installiert, lösche die kopierten Dateien.",
         use="Bedienung",
         shortcut="Tastenkürzel", does="Funktion", space="Leertaste",
         k_control="Den Bildschirm im Spiel mit Maus und Tastatur bedienen; das Spiel pausiert solange (verlassen mit `Esc`)",
@@ -188,16 +184,15 @@ TEXT = {
         download="Pobieranie",
         downloads="Pobrania",
         watch="Obejrzyj cały film z dźwiękiem",
-        scan_line="🛡️ **Skan antywirusowy:** plik do pobrania i aplikacja w nim zostały sprawdzone na VirusTotal przez dziesiątki silników antywirusowych. Raporty: **[plik do pobrania (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        scan_line="🛡️ **Skan antywirusowy:** instalator został sprawdzony na VirusTotal przez {vt_engines} silników antywirusowych i żaden go nie oznaczył. **[Zobacz raport]({virustotal})**",
         vt_clean="{vt_score} czysty",
         vt_caption="Żaden z {vt_engines} silników antywirusowych na VirusTotal nie oznaczył CabinPlay.",
         vt_report="Zobacz raport",
-        release_download="Pobierz poniżej **{zip}** i rozpakuj plik.",
-        download_body="**[Pobierz najnowszą wersję]({repo}/releases/latest)** i weź plik `CabinPlay-x.y.z.zip`.",
+        download_body="**[Pobierz najnowszą wersję]({repo}/releases/latest)** i weź plik `CabinPlay-Setup-x.y.z.exe`.",
         install="Instalacja",
-        install_intro="Zamknij grę i rozpakuj plik. Następnie wybierz jeden sposób:",
-        auto="**A) Automatycznie.** Kliknij dwukrotnie **Install.cmd**. Jeśli system Windows poinformuje, że ochronił komputer, kliknij *Więcej informacji*, a potem *Uruchom mimo to* (pliki nie są podpisane). `Install.cmd` uruchamia tylko `data\\install.ps1`, zwykły skrypt tekstowy, który możesz przeczytać.",
-        manual="**B) Ręcznie.** Żaden skrypt nie jest uruchamiany; kopiujesz trzy rzeczy z folderu `data`:",
+        install_intro="Zamknij grę, a potem wybierz jeden sposób:",
+        auto="**A) Instalator (zalecane).** Pobierz **{setup}** i uruchom go. Sam znajdzie grę i nie wymaga uprawnień administratora. Jeśli system Windows poinformuje, że ochronił komputer, kliknij *Więcej informacji*, a potem *Uruchom mimo to* (instalator nie jest jeszcze podpisany).",
+        manual="**B) Ręcznie.** Zamiast tego pobierz **{zip}**, rozpakuj go i skopiuj z niego trzy rzeczy:",
         manual_1="`cabinplay.scs` do `Dokumenty\\Euro Truck Simulator 2\\mod`",
         manual_2="`plugin\\cabinplay.dll` i `plugin\\cabinplay.ini` do folderu gry `bin\\win_x64\\plugins` (utwórz `plugins`, jeśli go nie ma). Aby znaleźć folder gry: w Steam kliknij grę prawym przyciskiem > *Zarządzaj* > *Przeglądaj pliki lokalne*.",
         manual_3="folder `app` w dowolne miejsce, a potem uruchom w nim raz `CabinPlay.exe`. Od tej pory będzie się uruchamiać razem z grą.",
@@ -205,7 +200,7 @@ TEXT = {
         game_1="Uruchom grę i zaakceptuj komunikat o \"funkcjach SDK\", który pojawia się raz.",
         game_2="W **Menedżerze modów** włącz **CabinPlay Screen**.",
         game_3="W warsztacie zamontuj **CabinPlay Screen** w gnieździe akcesoriów na przedniej szybie. Po lewej są dwie wersje: *Large* (11\", na ramieniu) i *Compact* (10\", przy szybie); w środkowym gnieździe jest *Centre*, zwrócony w stronę kierowcy (z osobną wersją dla kabin z kierownicą po prawej).",
-        done="To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Aby usunąć, kliknij dwukrotnie **Uninstall.cmd** albo usuń pliki skopiowane ręcznie.",
+        done="To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Aby usunąć CabinPlay, otwórz w Windows *Ustawienia* > *Aplikacje* albo uruchom `Uninstall.exe` w `%LocalAppData%\\Programs\\CabinPlay`; jeśli instalacja była ręczna, usuń skopiowane pliki.",
         use="Obsługa",
         shortcut="Skrót", does="Co robi", space="Spacja",
         k_control="Obsługa ekranu z poziomu gry myszą i klawiaturą; gra jest w tym czasie wstrzymana (wyjście: `Esc`)",
@@ -238,16 +233,15 @@ TEXT = {
         download="Téléchargement",
         downloads="Téléchargements",
         watch="Voir la vidéo complète avec le son",
-        scan_line="🛡️ **Analyse antivirus :** le téléchargement et l'application qu'il contient ont été analysés sur VirusTotal par des dizaines d'antivirus. Rapports : **[téléchargement (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        scan_line="🛡️ **Analyse antivirus :** le programme d'installation a été analysé sur VirusTotal par {vt_engines} antivirus, et aucun ne l'a signalé. **[Voir le rapport]({virustotal})**",
         vt_clean="{vt_score} sain",
         vt_caption="Aucun des {vt_engines} antivirus de VirusTotal n'a signalé CabinPlay.",
         vt_report="Voir le rapport",
-        release_download="Téléchargez **{zip}** ci-dessous et décompressez-le.",
-        download_body="**[Téléchargez la dernière version]({repo}/releases/latest)** et prenez le fichier `CabinPlay-x.y.z.zip`.",
+        download_body="**[Téléchargez la dernière version]({repo}/releases/latest)** et prenez le fichier `CabinPlay-Setup-x.y.z.exe`.",
         install="Installation",
-        install_intro="Fermez le jeu et décompressez le fichier. Choisissez ensuite une méthode :",
-        auto="**A) Automatique.** Double-cliquez sur **Install.cmd**. Si Windows indique qu'il a protégé votre ordinateur, cliquez sur *Informations complémentaires*, puis sur *Exécuter quand même* (les fichiers ne sont pas signés). `Install.cmd` lance uniquement `data\\install.ps1`, un script en texte clair que vous pouvez lire.",
-        manual="**B) À la main.** Aucun script n'est exécuté ; vous copiez trois éléments du dossier `data` :",
+        install_intro="Fermez le jeu, puis choisissez une méthode :",
+        auto="**A) Programme d'installation (recommandé).** Téléchargez **{setup}** et lancez-le. Il trouve le jeu tout seul et ne demande pas de droits d'administrateur. Si Windows indique qu'il a protégé votre ordinateur, cliquez sur *Informations complémentaires*, puis sur *Exécuter quand même* (le programme n'est pas encore signé).",
+        manual="**B) À la main.** Téléchargez plutôt **{zip}**, décompressez-le et copiez-en trois éléments :",
         manual_1="`cabinplay.scs` dans `Documents\\Euro Truck Simulator 2\\mod`",
         manual_2="`plugin\\cabinplay.dll` et `plugin\\cabinplay.ini` dans le dossier `bin\\win_x64\\plugins` du jeu (créez `plugins` s'il n'existe pas). Pour trouver le dossier du jeu : dans Steam, clic droit sur le jeu > *Gérer* > *Parcourir les fichiers locaux*.",
         manual_3="le dossier `app` où vous voulez, puis lancez une fois `CabinPlay.exe` qui s'y trouve. Ensuite, il démarre tout seul avec le jeu.",
@@ -255,7 +249,7 @@ TEXT = {
         game_1="Lancez le jeu et acceptez l'avertissement sur les « fonctionnalités SDK », affiché une seule fois.",
         game_2="Dans le **Gestionnaire de mods**, activez **CabinPlay Screen**.",
         game_3="Dans un garage, installez **CabinPlay Screen** dans un emplacement d'accessoire du pare-brise. À gauche, deux versions existent : *Large* (11\", sur un bras) et *Compact* (10\", contre la vitre) ; au milieu, il y a *Centre*, tourné vers le conducteur (avec une version à part pour les cabines à conduite à droite).",
-        done="C'est tout. L'écran s'allume avec le contact du camion. Pour le retirer, double-cliquez sur **Uninstall.cmd** ou supprimez les fichiers copiés à la main.",
+        done="C'est tout. L'écran s'allume avec le contact du camion. Pour désinstaller CabinPlay, ouvrez *Paramètres* > *Applications* dans Windows, ou lancez `Uninstall.exe` dans `%LocalAppData%\\Programs\\CabinPlay` ; si vous l'avez installé à la main, supprimez les fichiers copiés.",
         use="Utilisation",
         shortcut="Raccourci", does="Action", space="Espace",
         k_control="Utiliser l'écran depuis le jeu avec la souris et le clavier ; le jeu est en pause pendant ce temps (`Échap` pour quitter)",
@@ -288,16 +282,15 @@ TEXT = {
         download="Descarga",
         downloads="Descargas",
         watch="Ver el vídeo completo con sonido",
-        scan_line="🛡️ **Análisis antivirus:** la descarga y la aplicación que contiene se han analizado en VirusTotal con decenas de antivirus. Informes: **[descarga (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        scan_line="🛡️ **Análisis antivirus:** el instalador se ha analizado en VirusTotal con {vt_engines} antivirus y ninguno lo ha marcado. **[Ver el informe]({virustotal})**",
         vt_clean="{vt_score} limpio",
         vt_caption="Ninguno de los {vt_engines} antivirus de VirusTotal ha marcado CabinPlay.",
         vt_report="Ver el informe",
-        release_download="Descarga **{zip}** más abajo y descomprímelo.",
-        download_body="**[Descarga la última versión]({repo}/releases/latest)** y elige el archivo `CabinPlay-x.y.z.zip`.",
+        download_body="**[Descarga la última versión]({repo}/releases/latest)** y elige el archivo `CabinPlay-Setup-x.y.z.exe`.",
         install="Instalación",
-        install_intro="Cierra el juego y descomprime el archivo. Después elige una opción:",
-        auto="**A) Automática.** Haz doble clic en **Install.cmd**. Si Windows dice que protegió tu PC, pulsa *Más información* y luego *Ejecutar de todas formas* (los archivos no están firmados). `Install.cmd` solo inicia `data\\install.ps1`, un script de texto plano que puedes leer.",
-        manual="**B) A mano.** No se ejecuta ningún script; copias tres cosas de la carpeta `data`:",
+        install_intro="Cierra el juego y después elige una opción:",
+        auto="**A) Instalador (recomendado).** Descarga **{setup}** y ejecútalo. Encuentra el juego por sí mismo y no pide permisos de administrador. Si Windows dice que protegió tu PC, pulsa *Más información* y luego *Ejecutar de todas formas* (el instalador aún no está firmado).",
+        manual="**B) A mano.** Descarga en su lugar **{zip}**, descomprímelo y copia tres cosas de él:",
         manual_1="`cabinplay.scs` en `Documentos\\Euro Truck Simulator 2\\mod`",
         manual_2="`plugin\\cabinplay.dll` y `plugin\\cabinplay.ini` en la carpeta `bin\\win_x64\\plugins` del juego (crea `plugins` si no existe). Para encontrar la carpeta del juego: en Steam, clic derecho en el juego > *Administrar* > *Ver archivos locales*.",
         manual_3="la carpeta `app` donde quieras; después inicia una vez `CabinPlay.exe` dentro de ella. A partir de ahí se abre solo con el juego.",
@@ -305,7 +298,7 @@ TEXT = {
         game_1="Inicia el juego y acepta el aviso de \"funciones del SDK\" que aparece una vez.",
         game_2="En el **Gestor de mods**, activa **CabinPlay Screen**.",
         game_3="En un taller, monta **CabinPlay Screen** en una ranura de accesorios del parabrisas. A la izquierda hay dos versiones: *Large* (11\", en un brazo) y *Compact* (10\", junto al cristal); en la ranura central está *Centre*, girada hacia el conductor (con una versión propia para cabinas con volante a la derecha).",
-        done="Eso es todo. La pantalla se enciende con el contacto del camión. Para quitarlo, haz doble clic en **Uninstall.cmd** o borra los archivos que copiaste a mano.",
+        done="Eso es todo. La pantalla se enciende con el contacto del camión. Para quitar CabinPlay, abre *Configuración* > *Aplicaciones* en Windows o ejecuta `Uninstall.exe` en `%LocalAppData%\\Programs\\CabinPlay`; si lo instalaste a mano, borra los archivos que copiaste.",
         use="Uso",
         shortcut="Atajo", does="Qué hace", space="Espacio",
         k_control="Usar la pantalla desde el juego con ratón y teclado; el juego se pausa mientras tanto (`Esc` para salir)",
@@ -338,16 +331,15 @@ TEXT = {
         download="Скачать",
         downloads="Загрузки",
         watch="Смотреть полное видео со звуком",
-        scan_line="🛡️ **Проверка на вирусы:** архив и приложение в нём проверены на VirusTotal десятками антивирусов. Отчёты: **[архив (.zip)]({virustotal})** · **[CabinPlay.exe]({virustotal_exe})**",
+        scan_line="🛡️ **Проверка на вирусы:** установщик проверен на VirusTotal {vt_engines} антивирусами, ни один ничего не нашёл. **[Открыть отчёт]({virustotal})**",
         vt_clean="{vt_score} чисто",
         vt_caption="Ни один из {vt_engines} антивирусов на VirusTotal не отметил CabinPlay.",
         vt_report="Открыть отчёт",
-        release_download="Скачайте **{zip}** ниже и распакуйте файл.",
-        download_body="**[Скачайте последнюю версию]({repo}/releases/latest)** и возьмите файл `CabinPlay-x.y.z.zip`.",
+        download_body="**[Скачайте последнюю версию]({repo}/releases/latest)** и возьмите файл `CabinPlay-Setup-x.y.z.exe`.",
         install="Установка",
-        install_intro="Закройте игру и распакуйте файл. Затем выберите способ:",
-        auto="**А) Автоматически.** Дважды щёлкните **Install.cmd**. Если Windows сообщит, что защитила компьютер, нажмите *Подробнее*, затем *Выполнить в любом случае* (файлы не подписаны). `Install.cmd` только запускает `data\\install.ps1` — обычный текстовый скрипт, который можно прочитать.",
-        manual="**Б) Вручную.** Скрипты не запускаются; нужно скопировать три вещи из папки `data`:",
+        install_intro="Закройте игру, затем выберите способ:",
+        auto="**А) Установщик (рекомендуется).** Скачайте **{setup}** и запустите его. Он сам найдёт игру и не требует прав администратора. Если Windows сообщит, что защитила компьютер, нажмите *Подробнее*, затем *Выполнить в любом случае* (установщик пока не подписан).",
+        manual="**Б) Вручную.** Вместо этого скачайте **{zip}**, распакуйте его и скопируйте из него три вещи:",
         manual_1="`cabinplay.scs` в `Документы\\Euro Truck Simulator 2\\mod`",
         manual_2="`plugin\\cabinplay.dll` и `plugin\\cabinplay.ini` в папку игры `bin\\win_x64\\plugins` (создайте `plugins`, если её нет). Как найти папку игры: в Steam щёлкните игру правой кнопкой > *Управление* > *Просмотреть локальные файлы*.",
         manual_3="папку `app` в любое место, затем один раз запустите в ней `CabinPlay.exe`. После этого приложение будет запускаться вместе с игрой само.",
@@ -355,7 +347,7 @@ TEXT = {
         game_1="Запустите игру и подтвердите уведомление о «функциях SDK», которое показывается один раз.",
         game_2="В **Менеджере модификаций** включите **CabinPlay Screen**.",
         game_3="В мастерской установите **CabinPlay Screen** в слот аксессуаров на лобовом стекле. Слева есть две версии: *Large* (11\", на кронштейне) и *Compact* (10\", у стекла); в среднем слоте есть *Centre*, повёрнутый к водителю (с отдельной версией для кабин с правым рулём).",
-        done="Готово. Экран включается вместе с зажиганием. Чтобы удалить, дважды щёлкните **Uninstall.cmd** или удалите файлы, скопированные вручную.",
+        done="Готово. Экран включается вместе с зажиганием. Чтобы удалить CabinPlay, откройте в Windows *Параметры* > *Приложения* или запустите `Uninstall.exe` в `%LocalAppData%\\Programs\\CabinPlay`; если вы устанавливали вручную, удалите скопированные файлы.",
         use="Управление",
         shortcut="Сочетание", does="Действие", space="Пробел",
         k_control="Управлять экраном из игры мышью и клавиатурой; игра в это время на паузе (выход: `Esc`)",
@@ -388,12 +380,16 @@ TEXT = {
 # Only the English README carries this: it is for people who build the project.
 BUILDING = """## Building from source
 
-Needs Python 3, MinGW-w64 gcc and the .NET 8 SDK on Windows.
+Needs Python 3, MinGW-w64 gcc, the .NET 8 SDK and [Inno Setup 6](https://jrsoftware.org/isinfo.php)
+(`winget install JRSoftware.InnoSetup`) on Windows.
 
 ```powershell
-.\\build.ps1      # builds the mod, plugin, app and dist\\CabinPlay-<version>.zip
-.\\install.ps1    # installs that build on this PC
+.\\build.ps1      # builds the mod, plugin, app, and in dist\\ the setup, Uninstall.exe and the zip
+.\\install.ps1    # installs that build on this PC without the setup
 ```
+
+The setup is made from `packaging\\setup.iss`; `packaging\\uninstall\\` is the small `Uninstall.exe`
+that starts the uninstaller the setup registers with Windows. `tools\\make_icon.py` draws the icon.
 
 `tools\\` generates the mod, `plugin\\` is the game plugin, `app\\` is the companion app with the
 screen's interface in `app\\ui\\`. The version number lives in `VERSION`. This README and its
@@ -532,7 +528,7 @@ RELEASE_SECTION = """{intro}
 
 > {scan_line}
 
-{release_download} {install_intro_tail}
+{install_intro}
 
 {auto}
 
@@ -567,13 +563,11 @@ def badge_text(code, text):
 
 def release_notes(version):
     """Text for the GitHub release page: English in full, every other language folded."""
-    zip_name = "CabinPlay-%s.zip" % version
     parts = []
     for code, (name, filename) in LANGUAGES.items():
-        values = {k: v.format(repo=REPO, discord=DISCORD, email=EMAIL, virustotal=VIRUSTOTAL, virustotal_exe=VIRUSTOTAL_EXE, vt_score=VT_SCORE, vt_engines=VT_ENGINES, zip=zip_name) for k, v in TEXT[code].items()}
-        # "Close the game and unzip the file. Then pick one:" -> keep only the last sentence,
-        # the download line above already covers the first.
-        values["install_intro_tail"] = values["install_intro"].split(". ", 1)[-1]
+        values = {k: v.format(repo=REPO, discord=DISCORD, email=EMAIL, virustotal=VIRUSTOTAL, vt_score=VT_SCORE, vt_engines=VT_ENGINES,
+                              setup="CabinPlay-Setup-%s.exe" % version, zip="CabinPlay-%s.zip" % version)
+                  for k, v in TEXT[code].items()}
         values["help_line"] = values["help_body"].replace("\n\n", " ")
         section = RELEASE_SECTION.format(**values)
         if code == "en":
@@ -588,7 +582,9 @@ def main():
     for code, (_, filename) in LANGUAGES.items():
         bar = " · ".join("**%s**" % name if c == code else "[%s](%s)" % (name, f)
                          for c, (name, f) in LANGUAGES.items())
-        values = {k: v.format(repo=REPO, discord=DISCORD, email=EMAIL, virustotal=VIRUSTOTAL, virustotal_exe=VIRUSTOTAL_EXE, vt_score=VT_SCORE, vt_engines=VT_ENGINES, zip="") for k, v in TEXT[code].items()}
+        values = {k: v.format(repo=REPO, discord=DISCORD, email=EMAIL, virustotal=VIRUSTOTAL, vt_score=VT_SCORE, vt_engines=VT_ENGINES,
+                              setup="CabinPlay-Setup-x.y.z.exe", zip="CabinPlay-x.y.z.zip")
+                  for k, v in TEXT[code].items()}
         missing = set(TEXT["en"]) - set(TEXT[code])
         assert not missing, "%s lacks: %s" % (code, ", ".join(sorted(missing)))
         showcase = SHOWCASE.format(video=VIDEO, media=MEDIA, watch=values["watch"],
