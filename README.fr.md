@@ -101,7 +101,7 @@ La vue **côte à côte** affiche deux apps en même temps, par exemple la carte
 
 ## Aide et communauté
 
-Questions, problèmes et nouveautés : **[rejoignez notre Discord](https://discord.gg/VmJRtj7mxM)**.
+Questions, problèmes et nouveautés : **[rejoignez notre Discord](https://discord.gg/hydrabon)**.
 
 Pour signaler un problème, ouvrez **Réglages** à l'écran, appuyez sur **Créer un rapport d'erreur** et publiez le fichier zip enregistré sur le bureau.
 
@@ -109,9 +109,9 @@ Pour signaler un problème, ouvrez **Réglages** à l'écran, appuyez sur **Cré
 
 ## Contact
 
-**Collaboration et sponsoring :** écrivez à **[contact@hydrabon.com](mailto:contact@hydrabon.com)** ou contactez-nous sur [Discord](https://discord.gg/VmJRtj7mxM).
+**Collaboration et sponsoring :** écrivez à **[contact@hydrabon.com](mailto:contact@hydrabon.com)** ou contactez-nous sur [Discord](https://discord.gg/hydrabon).
 
-**Réclamations et suggestions :** écrivez à la même adresse ou dites-le-nous sur [Discord](https://discord.gg/VmJRtj7mxM).
+**Réclamations et suggestions :** écrivez à la même adresse ou dites-le-nous sur [Discord](https://discord.gg/hydrabon).
 
 ## Crédits et licence
 

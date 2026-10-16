@@ -101,7 +101,7 @@ Widok **obok siebie** pokazuje dwie aplikacje naraz, na przykład mapę po lewej
 
 ## Pomoc i społeczność
 
-Pytania, problemy i nowości: **[dołącz do naszego Discorda](https://discord.gg/VmJRtj7mxM)**.
+Pytania, problemy i nowości: **[dołącz do naszego Discorda](https://discord.gg/hydrabon)**.
 
 Aby zgłosić problem, otwórz **Ustawienia** na ekranie, naciśnij **Utwórz raport o błędzie** i wyślij plik zip zapisany na pulpicie.
 
@@ -109,9 +109,9 @@ Aby zgłosić problem, otwórz **Ustawienia** na ekranie, naciśnij **Utwórz ra
 
 ## Kontakt
 
-**Współpraca i sponsoring:** napisz na **[contact@hydrabon.com](mailto:contact@hydrabon.com)** albo odezwij się na [Discordzie](https://discord.gg/VmJRtj7mxM).
+**Współpraca i sponsoring:** napisz na **[contact@hydrabon.com](mailto:contact@hydrabon.com)** albo odezwij się na [Discordzie](https://discord.gg/hydrabon).
 
-**Skargi i sugestie:** napisz na ten sam adres albo daj nam znać na [Discordzie](https://discord.gg/VmJRtj7mxM).
+**Skargi i sugestie:** napisz na ten sam adres albo daj nam znać na [Discordzie](https://discord.gg/hydrabon).
 
 ## Autorzy i licencja
 

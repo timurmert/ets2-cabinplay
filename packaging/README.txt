@@ -41,7 +41,7 @@ NEEDS
   Single player only: it does not work with TruckersMP.
 
 HELP
-  Join our Discord: https://discord.gg/VmJRtj7mxM
+  Join our Discord: https://discord.gg/hydrabon
   To report a problem, open Settings on the screen, press "Create error report" and
   post the zip it saves.
 

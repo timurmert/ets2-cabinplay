@@ -101,7 +101,7 @@ Die App **Browser** öffnet jede Website: Gib oben in der Leiste eine Adresse od
 
 ## Hilfe und Community
 
-Fragen, Probleme und Neuigkeiten: **[tritt unserem Discord bei](https://discord.gg/VmJRtj7mxM)**.
+Fragen, Probleme und Neuigkeiten: **[tritt unserem Discord bei](https://discord.gg/hydrabon)**.
 
 Um ein Problem zu melden, öffne **Einstellungen** auf dem Bildschirm, drücke **Fehlerbericht erstellen** und poste die Zip-Datei, die auf dem Desktop gespeichert wird.
 
@@ -109,9 +109,9 @@ Um ein Problem zu melden, öffne **Einstellungen** auf dem Bildschirm, drücke *
 
 ## Kontakt
 
-**Zusammenarbeit und Sponsoring:** schreib an **[contact@hydrabon.com](mailto:contact@hydrabon.com)** oder erreiche uns auf [Discord](https://discord.gg/VmJRtj7mxM).
+**Zusammenarbeit und Sponsoring:** schreib an **[contact@hydrabon.com](mailto:contact@hydrabon.com)** oder erreiche uns auf [Discord](https://discord.gg/hydrabon).
 
-**Beschwerden und Vorschläge:** schreib an dieselbe Adresse oder melde dich auf [Discord](https://discord.gg/VmJRtj7mxM).
+**Beschwerden und Vorschläge:** schreib an dieselbe Adresse oder melde dich auf [Discord](https://discord.gg/hydrabon).
 
 ## Mitwirkende und Lizenz
 
