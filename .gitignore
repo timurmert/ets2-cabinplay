@@ -14,3 +14,9 @@ __pycache__/
 
 # Dropped in by an editor extension, not part of the project
 /.github/modernize/
+
+# Visual Studio and Windows Explorer leave these behind
+/.vs/
+*.user
+Thumbs.db
+desktop.ini
