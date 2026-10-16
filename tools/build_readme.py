@@ -11,7 +11,10 @@ REPO = "https://github.com/timurmert/ets2-cabinplay"
 DISCORD = "https://discord.gg/hydrabon"
 EMAIL = "contact@hydrabon.com"
 MEDIA = "docs/media"
-BADGE = "https://img.shields.io/github/downloads/timurmert/ets2-cabinplay/total?style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label="
+# Download count: written by .github/workflows/download-badge.yml to the "badges" branch, so the
+# badge does not depend on shields.io querying GitHub (that fails with "invalid" when its tokens run out).
+BADGE = ("https://img.shields.io/endpoint?url=" + quote("https://raw.githubusercontent.com/timurmert/ets2-cabinplay/badges/downloads.json", safe="")
+         + "&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=")
 # VirusTotal report of the released setup and its result (also shown in
 # docs/media/virustotal.png); update them after a release.
 VIRUSTOTAL = "https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc"
