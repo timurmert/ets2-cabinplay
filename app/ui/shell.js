@@ -109,14 +109,29 @@
   $('settings-reset').addEventListener('click', () => send({ type: 'bind-reset' }));
   $('settings-close').addEventListener('click', () => { keyCapture = null; $('settings').hidden = true; });
   $('settings-quit').addEventListener('click', () => send({ type: 'quit' }));
-  $('settings-diagnostics').addEventListener('click', () => send({ type: 'diagnostics' }));  const languageSelect = $('settings-language');
+  $('settings-diagnostics').addEventListener('click', () => send({ type: 'diagnostics' }));
+
+  // The language list is the page's own (see index.html: a <select> would not show).
+  const languageButton = document.querySelector('#settings-language .dropdown-button');
+  const languageList = document.querySelector('#settings-language .dropdown-list');
   for (const [code, texts] of Object.entries(I18N)) {
-    languageSelect.add(new Option(texts.name, code));
+    const item = document.createElement('button');
+    item.dataset.value = code;
+    item.textContent = texts.name;
+    item.addEventListener('click', () => {
+      languageList.hidden = true;
+      language = code;
+      try { localStorage.setItem('cabinplay.language', language); } catch (e) { /* storage unavailable */ }
+      applyLanguage();
+    });
+    languageList.appendChild(item);
   }
-  languageSelect.addEventListener('change', () => {
-    language = languageSelect.value;
-    try { localStorage.setItem('cabinplay.language', language); } catch (e) { /* storage unavailable */ }
-    applyLanguage();
+  languageButton.addEventListener('click', (e) => {
+    e.stopPropagation(); // the click below would close it again
+    languageList.hidden = !languageList.hidden;
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#settings-language')) languageList.hidden = true;
   });
   $('dock-home').addEventListener('click', () => showView('home'));
   $('dock-split').addEventListener('click', () => showView('split'));
@@ -148,7 +163,7 @@
 
   function layoutUpdate() {
     const u = config.update;
-    $('settings-updates').value = u ? u.mode : 'auto';
+    for (const b of $('settings-updates').children) b.classList.toggle('on', b.dataset.value === (u ? u.mode : 'auto'));
     const status = $('update-status');
     status.textContent = '';
     $('settings-update-now').hidden = true;
@@ -188,7 +203,9 @@
       layoutUpdateCard();
     };
   }
-  $('settings-updates').addEventListener('change', (e) => send({ type: 'update-mode', mode: e.target.value }));
+  for (const b of $('settings-updates').children) {
+    b.addEventListener('click', () => send({ type: 'update-mode', mode: b.dataset.value }));
+  }
   $('settings-update-now').addEventListener('click', () => send({ type: 'update-now' }));
   $('upd-now').addEventListener('click', () => send({ type: 'update-now' }));
   // The "updated" card goes away by itself after a minute.
@@ -557,7 +574,8 @@
   function applyLanguage() {
     const locale = t('locale');
     document.documentElement.lang = language;
-    languageSelect.value = language;
+    languageButton.querySelector('span').textContent = t('name');
+    for (const item of languageList.children) item.classList.toggle('on', item.dataset.value === language);
     fmtTime = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit', hour12: false });
     fmtShort = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' });
     fmtDay = new Intl.DateTimeFormat(locale, { weekday: 'long' });

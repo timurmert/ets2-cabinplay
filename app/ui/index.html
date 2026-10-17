@@ -235,10 +235,16 @@
       </div>
     </div>
     <div class="tab" data-tab="general">
-      <label class="setting"><span data-i18n="language"></span><select id="settings-language"></select></label>
-      <div class="setting"><span><span data-i18n="updates"></span><small id="update-status"></small></span>
-        <span class="setting-controls"><button id="settings-update-now" class="update-now" data-i18n="updNow" hidden></button>
-        <select id="settings-updates"><option value="auto" data-i18n="updatesOn"></option><option value="ask" data-i18n="updatesAsk"></option><option value="off" data-i18n="updatesOff"></option></select></span></div>
+      <!-- No <select>: its list opens as a window of its own, which the in-cabin screen does
+           not show. These lists and choices are drawn by the page itself (shell.js). -->
+      <div class="setting"><span data-i18n="language"></span>
+        <div id="settings-language" class="dropdown">
+          <button class="dropdown-button"><span></span><svg viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"/></svg></button>
+          <div class="dropdown-list" hidden></div>
+        </div></div>
+      <div class="setting"><span class="setting-text"><span data-i18n="updates"></span><small id="update-status"></small>
+        <button id="settings-update-now" class="update-now" data-i18n="updNow" hidden></button></span>
+        <span id="settings-updates" class="choice"><button data-value="auto" data-i18n="updatesOn"></button><button data-value="ask" data-i18n="updatesAsk"></button><button data-value="off" data-i18n="updatesOff"></button></span></div>
       <p data-i18n="hint"></p>
       <div class="tab-actions">
         <button id="settings-diagnostics" class="quiet" data-i18n="diagnostics"></button>
