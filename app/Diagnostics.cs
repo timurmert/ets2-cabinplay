@@ -19,7 +19,9 @@ internal static class Diagnostics
             using (ZipArchive zip = ZipFile.Open(zipPath, ZipArchiveMode.Create))
             {
                 Add(zip, Path.Combine(Program.DataDir, "app.log"), "app.log");
-                // The last automatic update (app.log starts afresh with every run).
+                // Opening the app to send the report starts a new log; the run that went wrong is here.
+                Add(zip, Path.Combine(Program.DataDir, "app.prev.log"), "app.prev.log");
+                // The last automatic update runs after the app has closed, so neither log has it.
                 Add(zip, Path.Combine(Program.DataDir, "updates", "setup.log"), "update-setup.log");
                 string? plugins = PluginFolder();
                 if (plugins is not null)

@@ -94,6 +94,7 @@ internal static class Log
 {
     private static readonly object Gate = new();
     private static readonly string File = Path.Combine(Program.DataDir, "app.log");
+    private static readonly string Previous = Path.Combine(Program.DataDir, "app.prev.log");
     private static bool _started;
 
     public static void Write(string message)
@@ -103,11 +104,20 @@ internal static class Log
             try
             {
                 string line = $"{DateTime.Now:HH:mm:ss.fff} {message}{Environment.NewLine}";
-                if (_started)
-                    System.IO.File.AppendAllText(File, line);
-                else
-                    System.IO.File.WriteAllText(File, line);
-                _started = true;
+                if (!_started)
+                {
+                    _started = true;
+                    // Keep the last run: after a crash, the app is usually opened again
+                    // before anyone looks at the log.
+                    try
+                    {
+                        System.IO.File.Move(File, Previous, overwrite: true);
+                    }
+                    catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                    {
+                    }
+                }
+                System.IO.File.AppendAllText(File, line);
             }
             catch (IOException)
             {

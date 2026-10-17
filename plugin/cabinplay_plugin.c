@@ -144,6 +144,7 @@ static unsigned g_last_map_try;
 static int32_t g_last_sequence = -1;
 static int g_have_frame;
 static int g_blanked;
+static int g_app_gone; /* the companion's heartbeat stopped; logged once until it comes back */
 static int g_frame_tex_stale = 1;
 static uint8_t *g_frame;      /* BGRA, CABINPLAY_FRAME_BYTES */
 static uint8_t *g_frame_rgba; /* same frame with R and B swapped, built on demand */
@@ -537,6 +538,13 @@ static int fetch_frame(void)
         return 0;
 
     if (GetTickCount64() - g_shared->heartbeat_ms > 3000) {
+        /* The app zeroes the heartbeat when it closes normally; a stale one means it was
+         * ended, crashed or hangs. Only the change is logged: this runs every frame. */
+        if (!g_app_gone) {
+            g_app_gone = 1;
+            logf_(g_shared->heartbeat_ms ? "the companion app stopped responding (crashed, hung or was ended)"
+                                         : "the companion app closed");
+        }
         /* Companion closed or hung: switch the screen off rather than freeze a frame. */
         if (g_have_frame && !g_blanked) {
             memcpy(g_frame, g_black, CABINPLAY_FRAME_BYTES);
@@ -547,6 +555,10 @@ static int fetch_frame(void)
             return 1;
         }
         return 0;
+    }
+    if (g_app_gone) {
+        g_app_gone = 0;
+        logf_("the companion app is running again");
     }
 
     int32_t seq = g_shared->sequence;
