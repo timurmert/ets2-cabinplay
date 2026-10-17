@@ -17,48 +17,62 @@ BADGE = ("https://img.shields.io/endpoint?url=" + quote("https://raw.githubuserc
          + "&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=")
 # VirusTotal report of the released setup and its result (also shown in
 # docs/media/virustotal.png); update them after a release.
-VIRUSTOTAL = "https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc"
-VT_SCORE = "0/67"
-VT_ENGINES = "67"
+VIRUSTOTAL = "https://www.virustotal.com/gui/file/468fd2ee5d0a35a9c45087a34f3be5ed2bea95f12796afad03c9cc5c95758d56"
+VT_SCORE = "0/68"
+VT_ENGINES = "68"
 VT_BADGE = "https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message="
 # What changed in this release: shown at the top of each language on the release page
 # only (not in the READMEs). Rewrite it for every release.
 WHATS_NEW = {
     "en": """### What's new in {version}
 
-- **Automatic updates.** CabinPlay now keeps itself up to date: it downloads a new version while you play and installs it when you close the game. The screen tells you when an update is ready and when it is done. On the screen, *Settings* > *Updates*: *Automatic*, *Ask me* (installs only after you press *Update*) or *Off*. **This is the last version you install by hand.**
+- **Automatic updates.** CabinPlay now keeps itself up to date: it downloads a new version while you play and installs it when you close the game. The screen tells you when an update is ready and when it is done. On the screen, *Settings* > *Updates*: *Automatic*, *Ask me* (installs only after you press *Update*) or *Off*.
 - **Fix:** on some PCs the screen stayed empty because of a "The parameter is incorrect" error.
-- Error reports now also hold the log of the previous run, so a crash still shows after CabinPlay was started again.""",
+- Error reports now also hold the log of the previous run, so a crash still shows after CabinPlay was started again.
+
+**Already using CabinPlay?** Close the game, download **CabinPlay-Setup-{version}.exe** below and run it: it updates CabinPlay and keeps your settings. Updates after this one come by themselves.""",
     "tr": """### {version} sürümünde neler var
 
-- **Otomatik güncelleme.** CabinPlay artık kendini güncel tutuyor: yeni sürümü sen oynarken indirir, oyunu kapattığında kurar. Güncellemenin hazır olduğunu ve tamamlandığını ekranda görürsün. Ekrandaki *Ayarlar* > *Güncellemeler*: *Otomatik*, *Bana sor* (sadece *Güncelle*'ye bastığında kurar) ya da *Kapalı*. **Elle kuracağın son sürüm bu.**
+- **Otomatik güncelleme.** CabinPlay artık kendini güncel tutuyor: yeni sürümü sen oynarken indirir, oyunu kapattığında kurar. Güncellemenin hazır olduğunu ve tamamlandığını ekranda görürsün. Ekrandaki *Ayarlar* > *Güncellemeler*: *Otomatik*, *Bana sor* (sadece *Güncelle*'ye bastığında kurar) ya da *Kapalı*.
 - **Düzeltme:** bazı bilgisayarlarda "Parametre yanlış" hatası yüzünden ekran boş kalıyordu.
-- Hata raporları artık bir önceki çalıştırmanın günlüğünü de içeriyor; CabinPlay yeniden açılsa bile bir çökmenin izi kaybolmuyor.""",
+- Hata raporları artık bir önceki çalıştırmanın günlüğünü de içeriyor; CabinPlay yeniden açılsa bile bir çökmenin izi kaybolmuyor.
+
+**CabinPlay'i zaten kullanıyor musun?** Oyunu kapat, aşağıdan **CabinPlay-Setup-{version}.exe**'yi indir ve çalıştır: CabinPlay güncellenir, ayarların korunur. Bundan sonraki güncellemeler kendiliğinden gelir.""",
     "de": """### Neu in {version}
 
-- **Automatische Updates.** CabinPlay hält sich jetzt selbst aktuell: Eine neue Version wird beim Spielen heruntergeladen und beim Schließen des Spiels installiert. Der Bildschirm zeigt an, wann ein Update bereit ist und wann es fertig ist. Auf dem Bildschirm unter *Einstellungen* > *Updates*: *Automatisch*, *Fragen* (installiert erst, wenn du *Aktualisieren* drückst) oder *Aus*. **Das ist die letzte Version, die du von Hand installierst.**
+- **Automatische Updates.** CabinPlay hält sich jetzt selbst aktuell: Eine neue Version wird beim Spielen heruntergeladen und beim Schließen des Spiels installiert. Der Bildschirm zeigt an, wann ein Update bereit ist und wann es fertig ist. Auf dem Bildschirm unter *Einstellungen* > *Updates*: *Automatisch*, *Fragen* (installiert erst, wenn du *Aktualisieren* drückst) oder *Aus*.
 - **Behoben:** Auf manchen PCs blieb der Bildschirm wegen des Fehlers „Falscher Parameter“ leer.
-- Fehlerberichte enthalten jetzt auch das Protokoll des vorherigen Starts, sodass ein Absturz auch nach einem Neustart von CabinPlay sichtbar bleibt.""",
+- Fehlerberichte enthalten jetzt auch das Protokoll des vorherigen Starts, sodass ein Absturz auch nach einem Neustart von CabinPlay sichtbar bleibt.
+
+**Du nutzt CabinPlay schon?** Schließe das Spiel, lade unten **CabinPlay-Setup-{version}.exe** herunter und starte es: CabinPlay wird aktualisiert, deine Einstellungen bleiben. Alle weiteren Updates kommen von selbst.""",
     "pl": """### Co nowego w {version}
 
-- **Automatyczne aktualizacje.** CabinPlay sam dba o aktualność: nową wersję pobiera w trakcie gry i instaluje po jej zamknięciu. Ekran pokazuje, kiedy aktualizacja jest gotowa i kiedy się zakończyła. Na ekranie w *Ustawienia* > *Aktualizacje*: *Automatyczne*, *Pytaj mnie* (instaluje dopiero po naciśnięciu *Aktualizuj*) albo *Wyłączone*. **To ostatnia wersja instalowana ręcznie.**
+- **Automatyczne aktualizacje.** CabinPlay sam dba o aktualność: nową wersję pobiera w trakcie gry i instaluje po jej zamknięciu. Ekran pokazuje, kiedy aktualizacja jest gotowa i kiedy się zakończyła. Na ekranie w *Ustawienia* > *Aktualizacje*: *Automatyczne*, *Pytaj mnie* (instaluje dopiero po naciśnięciu *Aktualizuj*) albo *Wyłączone*.
 - **Poprawka:** na niektórych komputerach ekran pozostawał pusty z powodu błędu „Parametr jest niepoprawny”.
-- Raporty o błędach zawierają teraz także dziennik poprzedniego uruchomienia, więc ślad awarii zostaje nawet po ponownym uruchomieniu CabinPlay.""",
+- Raporty o błędach zawierają teraz także dziennik poprzedniego uruchomienia, więc ślad awarii zostaje nawet po ponownym uruchomieniu CabinPlay.
+
+**Masz już CabinPlay?** Zamknij grę, pobierz poniżej **CabinPlay-Setup-{version}.exe** i uruchom go: CabinPlay zostanie zaktualizowany, a ustawienia zostaną zachowane. Kolejne aktualizacje przyjdą same.""",
     "fr": """### Nouveautés de la version {version}
 
-- **Mises à jour automatiques.** CabinPlay se met désormais à jour tout seul : il télécharge la nouvelle version pendant que vous jouez et l'installe quand vous fermez le jeu. L'écran indique quand une mise à jour est prête et quand elle est terminée. Sur l'écran, *Réglages* > *Mises à jour* : *Automatiques*, *Me demander* (installe seulement après un appui sur *Mettre à jour*) ou *Désactivées*. **C'est la dernière version à installer à la main.**
+- **Mises à jour automatiques.** CabinPlay se met désormais à jour tout seul : il télécharge la nouvelle version pendant que vous jouez et l'installe quand vous fermez le jeu. L'écran indique quand une mise à jour est prête et quand elle est terminée. Sur l'écran, *Réglages* > *Mises à jour* : *Automatiques*, *Me demander* (installe seulement après un appui sur *Mettre à jour*) ou *Désactivées*.
 - **Correction :** sur certains PC, l'écran restait vide à cause de l'erreur « Paramètre incorrect ».
-- Les rapports d'erreur contiennent maintenant aussi le journal de l'exécution précédente : un plantage reste visible même après avoir relancé CabinPlay.""",
+- Les rapports d'erreur contiennent maintenant aussi le journal de l'exécution précédente : un plantage reste visible même après avoir relancé CabinPlay.
+
+**Vous utilisez déjà CabinPlay ?** Fermez le jeu, téléchargez **CabinPlay-Setup-{version}.exe** ci-dessous et lancez-le : CabinPlay est mis à jour et vos réglages sont conservés. Les mises à jour suivantes arriveront toutes seules.""",
     "es": """### Novedades de la {version}
 
-- **Actualizaciones automáticas.** CabinPlay ahora se mantiene al día solo: descarga la nueva versión mientras juegas y la instala al cerrar el juego. La pantalla te avisa cuando una actualización está lista y cuando ha terminado. En la pantalla, *Ajustes* > *Actualizaciones*: *Automáticas*, *Preguntarme* (solo instala cuando pulsas *Actualizar*) o *Desactivadas*. **Es la última versión que instalas a mano.**
+- **Actualizaciones automáticas.** CabinPlay ahora se mantiene al día solo: descarga la nueva versión mientras juegas y la instala al cerrar el juego. La pantalla te avisa cuando una actualización está lista y cuando ha terminado. En la pantalla, *Ajustes* > *Actualizaciones*: *Automáticas*, *Preguntarme* (solo instala cuando pulsas *Actualizar*) o *Desactivadas*.
 - **Corregido:** en algunos PC la pantalla se quedaba vacía por el error «El parámetro no es correcto».
-- Los informes de error ahora incluyen también el registro de la ejecución anterior, así un fallo sigue a la vista aunque CabinPlay se haya vuelto a abrir.""",
+- Los informes de error ahora incluyen también el registro de la ejecución anterior, así un fallo sigue a la vista aunque CabinPlay se haya vuelto a abrir.
+
+**¿Ya usas CabinPlay?** Cierra el juego, descarga **CabinPlay-Setup-{version}.exe** abajo y ejecútalo: CabinPlay se actualiza y tus ajustes se conservan. Las siguientes actualizaciones llegarán solas.""",
     "ru": """### Что нового в {version}
 
-- **Автоматические обновления.** CabinPlay теперь обновляется сам: скачивает новую версию во время игры и устанавливает её, когда вы закрываете игру. Экран сообщает, когда обновление готово и когда оно установлено. На экране, *Настройки* > *Обновления*: *Автоматически*, *Спрашивать* (установка только после нажатия *Обновить*) или *Выключены*. **Это последняя версия, которую нужно устанавливать вручную.**
+- **Автоматические обновления.** CabinPlay теперь обновляется сам: скачивает новую версию во время игры и устанавливает её, когда вы закрываете игру. Экран сообщает, когда обновление готово и когда оно установлено. На экране, *Настройки* > *Обновления*: *Автоматически*, *Спрашивать* (установка только после нажатия *Обновить*) или *Выключены*.
 - **Исправлено:** на некоторых ПК экран оставался пустым из-за ошибки «Параметр задан неверно».
-- Отчёты об ошибках теперь содержат и журнал предыдущего запуска, поэтому сбой виден даже после повторного запуска CabinPlay.""",
+- Отчёты об ошибках теперь содержат и журнал предыдущего запуска, поэтому сбой виден даже после повторного запуска CabinPlay.
+
+**Уже пользуетесь CabinPlay?** Закройте игру, скачайте ниже **CabinPlay-Setup-{version}.exe** и запустите: CabinPlay обновится, настройки сохранятся. Следующие обновления придут сами.""",
 }
 
 VIDEO = REPO + "/blob/main/" + MEDIA + "/cabinplay-demo.mp4"
