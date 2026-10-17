@@ -109,8 +109,7 @@
   $('settings-reset').addEventListener('click', () => send({ type: 'bind-reset' }));
   $('settings-close').addEventListener('click', () => { keyCapture = null; $('settings').hidden = true; });
   $('settings-quit').addEventListener('click', () => send({ type: 'quit' }));
-  $('settings-diagnostics').addEventListener('click', () => send({ type: 'diagnostics' }));
-  const languageSelect = $('settings-language');
+  $('settings-diagnostics').addEventListener('click', () => send({ type: 'diagnostics' }));  const languageSelect = $('settings-language');
   for (const [code, texts] of Object.entries(I18N)) {
     languageSelect.add(new Option(texts.name, code));
   }
@@ -138,8 +137,62 @@
     if (app) open(app);
   });
 
-  // ---- settings from the host: the background and the shortcuts
-  let config = { wallpaper: null, wallpapers: [], wallpaperHost: '', bindings: [], capturing: null };
+  // ---- settings from the host: the background, the shortcuts and updates
+  let config = { wallpaper: null, wallpapers: [], wallpaperHost: '', bindings: [], capturing: null, update: null };
+
+  // Updates are downloaded while the game runs and installed by the host once it closes:
+  // by themselves ("auto") or once the player has pressed Update ("ask").
+  const fill = (key, u) => t(key).replace('{v}', u.current).replace('{new}', u.latest || '').replace('{old}', u.updatedFrom || '');
+  let updateDismissed = '';  // the card the player closed, until there is other news
+  let updatedShownAt = 0;
+
+  function layoutUpdate() {
+    const u = config.update;
+    $('settings-updates').value = u ? u.mode : 'auto';
+    const status = $('update-status');
+    status.textContent = '';
+    $('settings-update-now').hidden = true;
+    if (!u) return layoutUpdateCard();
+    const asking = u.state === 'ready' && !u.willInstall;
+    const key = asking ? 'updAsk' : { idle: 'updOff', off: 'updOff', checking: 'updChecking', current: 'updCurrent',
+      downloading: 'updDownloading', ready: 'updReady', manual: 'updManual', failed: 'updFailed' }[u.state] || 'updCurrent';
+    status.textContent = fill(key, u);
+    status.classList.toggle('ready', u.state === 'ready');
+    $('settings-update-now').hidden = !asking;
+    layoutUpdateCard();
+  }
+
+  // The home screen's card: an update is ready (or out), or CabinPlay has just been updated.
+  function layoutUpdateCard() {
+    const u = config.update;
+    let news = null;
+    if (u && u.updatedFrom && (!updatedShownAt || Date.now() - updatedShownAt < 60000)) {
+      updatedShownAt = updatedShownAt || Date.now();
+      news = { id: `updated-${u.current}`, title: 'cardUpdated', sub: 'cardUpdatedSub', done: true };
+    } else if (u && u.state === 'ready') {
+      news = { id: `ready-${u.latest}-${u.willInstall}`, title: 'cardReady', sub: u.willInstall ? 'cardInstallsOnClose' : 'cardAsk', button: !u.willInstall };
+    } else if (u && u.state === 'manual' && u.latest) {
+      news = { id: `manual-${u.latest}`, title: 'cardManual', sub: 'cardManualSub' };
+    }
+    const show = !!news && news.id !== updateDismissed;
+    $('update-card').hidden = !show;
+    $('day-card').hidden = show;
+    if (!show) return;
+    $('upd-title').textContent = fill(news.title, u);
+    $('upd-sub').textContent = fill(news.sub, u);
+    $('upd-now').hidden = !news.button;
+    $('upd-icon').classList.toggle('done', !!news.done);
+    $('upd-icon-path').setAttribute('d', news.done ? 'M5 12.5l4.5 4.5L19 7.5' : 'M12 4v11M7 10.5l5 5 5-5M5 20h14');
+    $('upd-close').onclick = () => {
+      updateDismissed = news.id;
+      layoutUpdateCard();
+    };
+  }
+  $('settings-updates').addEventListener('change', (e) => send({ type: 'update-mode', mode: e.target.value }));
+  $('settings-update-now').addEventListener('click', () => send({ type: 'update-now' }));
+  $('upd-now').addEventListener('click', () => send({ type: 'update-now' }));
+  // The "updated" card goes away by itself after a minute.
+  setInterval(() => { if (updatedShownAt) layoutUpdateCard(); }, 5000);
 
   // Built-in backgrounds (see [data-wall] in style.css); the user's own pictures are files
   // the host keeps and serves. The chosen one is "preset:<name>" or a file name.
@@ -517,6 +570,7 @@
     layoutSites(); // the shortcuts depend on the language
     layoutWalls();
     layoutBinds();
+    layoutUpdate();
     refreshTitles();
     if (state.view === 'split') layoutSplit();
     for (const tile of grid.querySelectorAll('.app[data-id]')) {
@@ -877,6 +931,7 @@
         applyWallpaper();
         layoutWalls();
         layoutBinds();
+        layoutUpdate();
         refreshTitles();
       }
       if (e.data && e.data.type === 'blur') address.blur();

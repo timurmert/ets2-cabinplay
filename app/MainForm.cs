@@ -53,6 +53,7 @@ internal sealed class MainForm : Form
     private bool _offscreen;
     private Point _restoreLocation;
     private bool _everConnected;
+    private bool _leftWithGame;     // closing because the game closed (or crashed)
     private long _lastConnectedTick = Environment.TickCount64;
     private readonly ToolStripMenuItem _showItem = new(), _hideItem = new(), _topMostItem = new() { CheckOnClick = true },
                                        _centerItem = new(), _exitItem = new();
@@ -76,7 +77,8 @@ internal sealed class MainForm : Form
     private readonly Dictionary<string, int> _keys = new();
     private readonly Dictionary<string, (PadButton Button, string Device)> _pads = new();
     private Controllers? _controllers;
-    private string? _capturing;         // action waiting for a controller button to be pressed
+    private Updater? _updater;
+    private string? _capturing;        // action waiting for a controller button to be pressed
     private long _captureUntil;
 
     // control mode: where the in-game cursor's button press landed, for drags
@@ -223,7 +225,15 @@ internal sealed class MainForm : Form
             };
             _stateTimer.Start();
             _inputTimer.Start();
-            Log.Write("started");
+            // The version that ran last, so the first start after an update can say so.
+            _updater = new Updater((string?)_settings["updateMode"], (string?)_settings["lastVersion"]);
+            _updater.Changed += PushConfig;
+            if (Program.Namespace.Length == 0)
+            {
+                _settings["lastVersion"] = Updater.Current.ToString(3);
+                SaveSettings();
+            }
+            Log.Write($"started, version {Updater.Current.ToString(3)}");
 
             if (_dumpPath is not null)
                 _ = DumpFrameLaterAsync(_dumpPath);
@@ -339,6 +349,19 @@ internal sealed class MainForm : Form
                 case "diagnostics":
                     Diagnostics.Export();
                     break;
+                case "update-mode":
+                    if (_updater is null)
+                        return;
+                    _updater.Mode = (string?)msg!["mode"] ?? "auto";
+                    _settings["updateMode"] = _updater.Mode;
+                    SaveSettings();
+                    PushConfig();
+                    return;
+                case "update-now":
+                    // With the game closed the setup runs now and starts the new app itself.
+                    if (_updater?.UpdateNow(_language) == true)
+                        Close();
+                    return;
             }
             await PushStateAsync(withMedia: true);
         }
@@ -764,6 +787,7 @@ internal sealed class MainForm : Form
         if (now - _lastConnectedTick < patience)
             return false;
         Log.Write("game is gone: closing");
+        _leftWithGame = true;
         Close();
         return true;
     }
@@ -1361,6 +1385,7 @@ internal sealed class MainForm : Form
                 ["wallpaperHost"] = WallpaperHost,
                 ["bindings"] = bindings,
                 ["capturing"] = _capturing,
+                ["update"] = _updater?.ToJson(),
             }.ToJsonString());
         }
         catch (Exception ex)
@@ -1547,6 +1572,9 @@ internal sealed class MainForm : Form
         _capture?.Dispose();
         _writer?.Dispose();
         _game?.Dispose();
+        // Last, with everything else let go: it may wait for the game's process to end.
+        _updater?.InstallIfReady(gameClosed: _leftWithGame, _language);
+        _updater?.Dispose();
         base.OnFormClosed(e);
     }
 

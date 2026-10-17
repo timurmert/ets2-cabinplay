@@ -63,7 +63,7 @@ Schließe das Spiel und wähle dann eine Variante:
 2. Aktiviere im **Mod-Manager** **CabinPlay Screen**.
 3. Baue in einer Lkw-Werkstatt **CabinPlay Screen** in einen Zubehörplatz an der Windschutzscheibe ein. Links gibt es zwei Varianten, *Large* (11", am Arm) und *Compact* (10", an der Scheibe); im mittleren Platz gibt es *Centre*, zum Fahrer gedreht (mit einer eigenen Variante für Rechtslenker).
 
-Das war's. Der Bildschirm schaltet sich mit der Zündung ein. Zum Entfernen öffne in Windows *Einstellungen* > *Apps* oder starte `Uninstall.exe` in `%LocalAppData%\Programs\CabinPlay`; hast du von Hand installiert, lösche die kopierten Dateien.
+Das war's. Der Bildschirm schaltet sich mit der Zündung ein. Mit dem Setup installiert, hält sich CabinPlay selbst aktuell: Eine neue Version wird beim Spielen heruntergeladen und beim Schließen des Spiels installiert und zeigt das auf dem Bildschirm an; unter *Einstellungen* > *Updates* kannst du es vorher fragen lassen oder abschalten. Zum Entfernen öffne in Windows *Einstellungen* > *Apps* oder starte `Uninstall.exe` in `%LocalAppData%\Programs\CabinPlay`; hast du von Hand installiert, lösche die kopierten Dateien.
 
 ## Bedienung
 

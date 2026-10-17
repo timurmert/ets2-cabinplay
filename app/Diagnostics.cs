@@ -19,6 +19,8 @@ internal static class Diagnostics
             using (ZipArchive zip = ZipFile.Open(zipPath, ZipArchiveMode.Create))
             {
                 Add(zip, Path.Combine(Program.DataDir, "app.log"), "app.log");
+                // The last automatic update (app.log starts afresh with every run).
+                Add(zip, Path.Combine(Program.DataDir, "updates", "setup.log"), "update-setup.log");
                 string? plugins = PluginFolder();
                 if (plugins is not null)
                 {

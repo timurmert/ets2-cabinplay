@@ -63,7 +63,7 @@ Zamknij grę, a potem wybierz jeden sposób:
 2. W **Menedżerze modów** włącz **CabinPlay Screen**.
 3. W warsztacie zamontuj **CabinPlay Screen** w gnieździe akcesoriów na przedniej szybie. Po lewej są dwie wersje: *Large* (11", na ramieniu) i *Compact* (10", przy szybie); w środkowym gnieździe jest *Centre*, zwrócony w stronę kierowcy (z osobną wersją dla kabin z kierownicą po prawej).
 
-To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Aby usunąć CabinPlay, otwórz w Windows *Ustawienia* > *Aplikacje* albo uruchom `Uninstall.exe` w `%LocalAppData%\Programs\CabinPlay`; jeśli instalacja była ręczna, usuń skopiowane pliki.
+To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Zainstalowany instalatorem CabinPlay sam się aktualizuje: nową wersję pobiera w trakcie gry i instaluje po jej zamknięciu i pokazuje to na ekranie; w *Ustawienia* > *Aktualizacje* możesz kazać mu najpierw pytać albo to wyłączyć. Aby usunąć CabinPlay, otwórz w Windows *Ustawienia* > *Aplikacje* albo uruchom `Uninstall.exe` w `%LocalAppData%\Programs\CabinPlay`; jeśli instalacja była ręczna, usuń skopiowane pliki.
 
 ## Obsługa
 

@@ -63,7 +63,7 @@ Oyunu kapat, sonra birini seç:
 2. **Mod Yöneticisi**'nde **CabinPlay Screen**'i etkinleştir.
 3. Serviste **CabinPlay Screen**'i ön camdaki bir aksesuar yuvasına tak. Sol yuvada iki sürüm var: *Large* (11", kolda) ve *Compact* (10", camın dibinde); orta yuvada ise sürücüye dönük *Centre* var (sağdan direksiyonlu kabinler için ayrı bir sürümüyle).
 
-Bu kadar. Ekran tırın kontağıyla birlikte açılır. CabinPlay'i kaldırmak için Windows *Ayarlar* > *Uygulamalar*'ı aç ya da `%LocalAppData%\Programs\CabinPlay` klasöründeki `Uninstall.exe`'yi çalıştır; elle kurduysan kopyaladığın dosyaları sil.
+Bu kadar. Ekran tırın kontağıyla birlikte açılır. Kurulum dosyasıyla kurduysan CabinPlay kendini güncel tutar: yeni sürümü sen oynarken indirir, oyunu kapattığında kurar ve bunu ekranda gösterir; ekrandaki *Ayarlar* > *Güncellemeler*'den önce sana sormasını seçebilir ya da kapatabilirsin. CabinPlay'i kaldırmak için Windows *Ayarlar* > *Uygulamalar*'ı aç ya da `%LocalAppData%\Programs\CabinPlay` klasöründeki `Uninstall.exe`'yi çalıştır; elle kurduysan kopyaladığın dosyaları sil.
 
 ## Kullan
 

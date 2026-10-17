@@ -60,6 +60,13 @@
       <div id="day-name"></div>
       <div id="day-date"></div>
     </div>
+    <!-- Takes the day's place while there is news about an update (shell.js). -->
+    <div id="update-card" class="card" hidden>
+      <div id="upd-icon"><svg viewBox="0 0 24 24"><path id="upd-icon-path" d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg></div>
+      <div class="upd-text"><div id="upd-title"></div><div id="upd-sub"></div></div>
+      <button id="upd-now" class="update-now" data-i18n="updNow" hidden></button>
+      <button id="upd-close">×</button>
+    </div>
   </section>
 
   <section id="grid"></section>
@@ -229,6 +236,9 @@
     </div>
     <div class="tab" data-tab="general">
       <label class="setting"><span data-i18n="language"></span><select id="settings-language"></select></label>
+      <div class="setting"><span><span data-i18n="updates"></span><small id="update-status"></small></span>
+        <span class="setting-controls"><button id="settings-update-now" class="update-now" data-i18n="updNow" hidden></button>
+        <select id="settings-updates"><option value="auto" data-i18n="updatesOn"></option><option value="ask" data-i18n="updatesAsk"></option><option value="off" data-i18n="updatesOff"></option></select></span></div>
       <p data-i18n="hint"></p>
       <div class="tab-actions">
         <button id="settings-diagnostics" class="quiet" data-i18n="diagnostics"></button>
