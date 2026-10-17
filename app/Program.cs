@@ -57,12 +57,27 @@ internal static class Program
         }
     }
 
+    private static Mutex? _single;
+
+    /// <summary>
+    /// Lets another copy start while this one is on its way out but still busy (waiting to
+    /// install an update). Called on the main thread, which owns the mutex.
+    /// </summary>
+    public static void LeaveSingleInstance()
+    {
+        Mutex? single = Interlocked.Exchange(ref _single, null);
+        if (single is null)
+            return;
+        single.ReleaseMutex();
+        single.Dispose();
+    }
+
     [STAThread]
     private static void Main(string[] args)
     {
         MigrateOldData();
         Directory.CreateDirectory(DataDir);
-        using var single = new Mutex(true, SharedName("CabinPlayApp"), out bool first);
+        _single = new Mutex(true, SharedName("CabinPlayApp"), out bool first);
         if (!first)
             return; // already running; two writers would fight over the screen
 
@@ -71,6 +86,7 @@ internal static class Program
         Application.ThreadException += (_, e) => Log.Write("UI error: " + e.Exception);
         AppDomain.CurrentDomain.UnhandledException += (_, e) => Log.Write("Fatal: " + e.ExceptionObject);
         Application.Run(new MainForm(args));
+        LeaveSingleInstance();
     }
 }
 
@@ -78,6 +94,7 @@ internal static class Log
 {
     private static readonly object Gate = new();
     private static readonly string File = Path.Combine(Program.DataDir, "app.log");
+    private static readonly string Previous = Path.Combine(Program.DataDir, "app.prev.log");
     private static bool _started;
 
     public static void Write(string message)
@@ -87,11 +104,20 @@ internal static class Log
             try
             {
                 string line = $"{DateTime.Now:HH:mm:ss.fff} {message}{Environment.NewLine}";
-                if (_started)
-                    System.IO.File.AppendAllText(File, line);
-                else
-                    System.IO.File.WriteAllText(File, line);
-                _started = true;
+                if (!_started)
+                {
+                    _started = true;
+                    // Keep the last run: after a crash, the app is usually opened again
+                    // before anyone looks at the log.
+                    try
+                    {
+                        System.IO.File.Move(File, Previous, overwrite: true);
+                    }
+                    catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                    {
+                    }
+                }
+                System.IO.File.AppendAllText(File, line);
             }
             catch (IOException)
             {

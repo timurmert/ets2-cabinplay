@@ -17,10 +17,64 @@ BADGE = ("https://img.shields.io/endpoint?url=" + quote("https://raw.githubuserc
          + "&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=")
 # VirusTotal report of the released setup and its result (also shown in
 # docs/media/virustotal.png); update them after a release.
-VIRUSTOTAL = "https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc"
-VT_SCORE = "0/67"
-VT_ENGINES = "67"
+VIRUSTOTAL = "https://www.virustotal.com/gui/file/468fd2ee5d0a35a9c45087a34f3be5ed2bea95f12796afad03c9cc5c95758d56"
+VT_SCORE = "0/68"
+VT_ENGINES = "68"
 VT_BADGE = "https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message="
+# What changed in this release: shown at the top of each language on the release page
+# only (not in the READMEs). Rewrite it for every release.
+WHATS_NEW = {
+    "en": """### What's new in {version}
+
+- **Automatic updates.** CabinPlay now keeps itself up to date: it downloads a new version while you play and installs it when you close the game. The screen tells you when an update is ready and when it is done. On the screen, *Settings* > *Updates*: *Automatic*, *Ask me* (installs only after you press *Update*) or *Off*.
+- **Fix:** on some PCs the screen stayed empty because of a "The parameter is incorrect" error.
+- Error reports now also hold the log of the previous run, so a crash still shows after CabinPlay was started again.
+
+**Already using CabinPlay?** Close the game, download **CabinPlay-Setup-{version}.exe** below and run it: it updates CabinPlay and keeps your settings. Updates after this one come by themselves.""",
+    "tr": """### {version} sürümünde neler var
+
+- **Otomatik güncelleme.** CabinPlay artık kendini güncel tutuyor: yeni sürümü sen oynarken indirir, oyunu kapattığında kurar. Güncellemenin hazır olduğunu ve tamamlandığını ekranda görürsün. Ekrandaki *Ayarlar* > *Güncellemeler*: *Otomatik*, *Bana sor* (sadece *Güncelle*'ye bastığında kurar) ya da *Kapalı*.
+- **Düzeltme:** bazı bilgisayarlarda "Parametre yanlış" hatası yüzünden ekran boş kalıyordu.
+- Hata raporları artık bir önceki çalıştırmanın günlüğünü de içeriyor; CabinPlay yeniden açılsa bile bir çökmenin izi kaybolmuyor.
+
+**CabinPlay'i zaten kullanıyor musun?** Oyunu kapat, aşağıdan **CabinPlay-Setup-{version}.exe**'yi indir ve çalıştır: CabinPlay güncellenir, ayarların korunur. Bundan sonraki güncellemeler kendiliğinden gelir.""",
+    "de": """### Neu in {version}
+
+- **Automatische Updates.** CabinPlay hält sich jetzt selbst aktuell: Eine neue Version wird beim Spielen heruntergeladen und beim Schließen des Spiels installiert. Der Bildschirm zeigt an, wann ein Update bereit ist und wann es fertig ist. Auf dem Bildschirm unter *Einstellungen* > *Updates*: *Automatisch*, *Fragen* (installiert erst, wenn du *Aktualisieren* drückst) oder *Aus*.
+- **Behoben:** Auf manchen PCs blieb der Bildschirm wegen des Fehlers „Falscher Parameter“ leer.
+- Fehlerberichte enthalten jetzt auch das Protokoll des vorherigen Starts, sodass ein Absturz auch nach einem Neustart von CabinPlay sichtbar bleibt.
+
+**Du nutzt CabinPlay schon?** Schließe das Spiel, lade unten **CabinPlay-Setup-{version}.exe** herunter und starte es: CabinPlay wird aktualisiert, deine Einstellungen bleiben. Alle weiteren Updates kommen von selbst.""",
+    "pl": """### Co nowego w {version}
+
+- **Automatyczne aktualizacje.** CabinPlay sam dba o aktualność: nową wersję pobiera w trakcie gry i instaluje po jej zamknięciu. Ekran pokazuje, kiedy aktualizacja jest gotowa i kiedy się zakończyła. Na ekranie w *Ustawienia* > *Aktualizacje*: *Automatyczne*, *Pytaj mnie* (instaluje dopiero po naciśnięciu *Aktualizuj*) albo *Wyłączone*.
+- **Poprawka:** na niektórych komputerach ekran pozostawał pusty z powodu błędu „Parametr jest niepoprawny”.
+- Raporty o błędach zawierają teraz także dziennik poprzedniego uruchomienia, więc ślad awarii zostaje nawet po ponownym uruchomieniu CabinPlay.
+
+**Masz już CabinPlay?** Zamknij grę, pobierz poniżej **CabinPlay-Setup-{version}.exe** i uruchom go: CabinPlay zostanie zaktualizowany, a ustawienia zostaną zachowane. Kolejne aktualizacje przyjdą same.""",
+    "fr": """### Nouveautés de la version {version}
+
+- **Mises à jour automatiques.** CabinPlay se met désormais à jour tout seul : il télécharge la nouvelle version pendant que vous jouez et l'installe quand vous fermez le jeu. L'écran indique quand une mise à jour est prête et quand elle est terminée. Sur l'écran, *Réglages* > *Mises à jour* : *Automatiques*, *Me demander* (installe seulement après un appui sur *Mettre à jour*) ou *Désactivées*.
+- **Correction :** sur certains PC, l'écran restait vide à cause de l'erreur « Paramètre incorrect ».
+- Les rapports d'erreur contiennent maintenant aussi le journal de l'exécution précédente : un plantage reste visible même après avoir relancé CabinPlay.
+
+**Vous utilisez déjà CabinPlay ?** Fermez le jeu, téléchargez **CabinPlay-Setup-{version}.exe** ci-dessous et lancez-le : CabinPlay est mis à jour et vos réglages sont conservés. Les mises à jour suivantes arriveront toutes seules.""",
+    "es": """### Novedades de la {version}
+
+- **Actualizaciones automáticas.** CabinPlay ahora se mantiene al día solo: descarga la nueva versión mientras juegas y la instala al cerrar el juego. La pantalla te avisa cuando una actualización está lista y cuando ha terminado. En la pantalla, *Ajustes* > *Actualizaciones*: *Automáticas*, *Preguntarme* (solo instala cuando pulsas *Actualizar*) o *Desactivadas*.
+- **Corregido:** en algunos PC la pantalla se quedaba vacía por el error «El parámetro no es correcto».
+- Los informes de error ahora incluyen también el registro de la ejecución anterior, así un fallo sigue a la vista aunque CabinPlay se haya vuelto a abrir.
+
+**¿Ya usas CabinPlay?** Cierra el juego, descarga **CabinPlay-Setup-{version}.exe** abajo y ejecútalo: CabinPlay se actualiza y tus ajustes se conservan. Las siguientes actualizaciones llegarán solas.""",
+    "ru": """### Что нового в {version}
+
+- **Автоматические обновления.** CabinPlay теперь обновляется сам: скачивает новую версию во время игры и устанавливает её, когда вы закрываете игру. Экран сообщает, когда обновление готово и когда оно установлено. На экране, *Настройки* > *Обновления*: *Автоматически*, *Спрашивать* (установка только после нажатия *Обновить*) или *Выключены*.
+- **Исправлено:** на некоторых ПК экран оставался пустым из-за ошибки «Параметр задан неверно».
+- Отчёты об ошибках теперь содержат и журнал предыдущего запуска, поэтому сбой виден даже после повторного запуска CabinPlay.
+
+**Уже пользуетесь CabinPlay?** Закройте игру, скачайте ниже **CabinPlay-Setup-{version}.exe** и запустите: CabinPlay обновится, настройки сохранятся. Следующие обновления придут сами.""",
+}
+
 VIDEO = REPO + "/blob/main/" + MEDIA + "/cabinplay-demo.mp4"
 
 # code -> (language name, file name)
@@ -56,7 +110,7 @@ TEXT = {
         game_1="Start the game and accept the \"SDK features\" notice it shows once.",
         game_2="In the **Mod Manager**, switch on **CabinPlay Screen**.",
         game_3="In a truck workshop, fit **CabinPlay Screen** in a windscreen accessory slot. On the left there are two versions, *Large* (11\", on an arm) and *Compact* (10\", at the glass); in the middle slot there is *Centre*, turned towards the driver (with a version of its own for right-hand-drive cabins).",
-        done="That's it. The screen switches on with the truck's ignition. To remove CabinPlay, open Windows *Settings* > *Apps*, or run `Uninstall.exe` in `%LocalAppData%\\Programs\\CabinPlay`; if you installed it by hand, delete the files you copied.",
+        done="That's it. The screen switches on with the truck's ignition. Installed with the setup, CabinPlay keeps itself up to date: it downloads a new version while you play and installs it when you close the game and shows it on the screen; under *Settings* > *Updates* you can have it ask first, or turn it off. To remove CabinPlay, open Windows *Settings* > *Apps*, or run `Uninstall.exe` in `%LocalAppData%\\Programs\\CabinPlay`; if you installed it by hand, delete the files you copied.",
         use="Use",
         shortcut="Shortcut", does="What it does", space="Space",
         k_control="Use the screen from inside the game with mouse and keyboard; the game pauses meanwhile (`Esc` to leave)",
@@ -105,7 +159,7 @@ TEXT = {
         game_1="Oyunu başlat ve bir kez çıkan \"SDK özellikleri\" uyarısını onayla.",
         game_2="**Mod Yöneticisi**'nde **CabinPlay Screen**'i etkinleştir.",
         game_3="Serviste **CabinPlay Screen**'i ön camdaki bir aksesuar yuvasına tak. Sol yuvada iki sürüm var: *Large* (11\", kolda) ve *Compact* (10\", camın dibinde); orta yuvada ise sürücüye dönük *Centre* var (sağdan direksiyonlu kabinler için ayrı bir sürümüyle).",
-        done="Bu kadar. Ekran tırın kontağıyla birlikte açılır. CabinPlay'i kaldırmak için Windows *Ayarlar* > *Uygulamalar*'ı aç ya da `%LocalAppData%\\Programs\\CabinPlay` klasöründeki `Uninstall.exe`'yi çalıştır; elle kurduysan kopyaladığın dosyaları sil.",
+        done="Bu kadar. Ekran tırın kontağıyla birlikte açılır. Kurulum dosyasıyla kurduysan CabinPlay kendini güncel tutar: yeni sürümü sen oynarken indirir, oyunu kapattığında kurar ve bunu ekranda gösterir; ekrandaki *Ayarlar* > *Güncellemeler*'den önce sana sormasını seçebilir ya da kapatabilirsin. CabinPlay'i kaldırmak için Windows *Ayarlar* > *Uygulamalar*'ı aç ya da `%LocalAppData%\\Programs\\CabinPlay` klasöründeki `Uninstall.exe`'yi çalıştır; elle kurduysan kopyaladığın dosyaları sil.",
         use="Kullan",
         shortcut="Kısayol", does="Ne yapar", space="Boşluk",
         k_control="Ekranı oyunun içinden fare ve klavyeyle kullan; bu sırada oyun duraklar (çıkış: `Esc`)",
@@ -154,7 +208,7 @@ TEXT = {
         game_1="Starte das Spiel und bestätige den Hinweis zu den \"SDK-Funktionen\", der einmal erscheint.",
         game_2="Aktiviere im **Mod-Manager** **CabinPlay Screen**.",
         game_3="Baue in einer Lkw-Werkstatt **CabinPlay Screen** in einen Zubehörplatz an der Windschutzscheibe ein. Links gibt es zwei Varianten, *Large* (11\", am Arm) und *Compact* (10\", an der Scheibe); im mittleren Platz gibt es *Centre*, zum Fahrer gedreht (mit einer eigenen Variante für Rechtslenker).",
-        done="Das war's. Der Bildschirm schaltet sich mit der Zündung ein. Zum Entfernen öffne in Windows *Einstellungen* > *Apps* oder starte `Uninstall.exe` in `%LocalAppData%\\Programs\\CabinPlay`; hast du von Hand installiert, lösche die kopierten Dateien.",
+        done="Das war's. Der Bildschirm schaltet sich mit der Zündung ein. Mit dem Setup installiert, hält sich CabinPlay selbst aktuell: Eine neue Version wird beim Spielen heruntergeladen und beim Schließen des Spiels installiert und zeigt das auf dem Bildschirm an; unter *Einstellungen* > *Updates* kannst du es vorher fragen lassen oder abschalten. Zum Entfernen öffne in Windows *Einstellungen* > *Apps* oder starte `Uninstall.exe` in `%LocalAppData%\\Programs\\CabinPlay`; hast du von Hand installiert, lösche die kopierten Dateien.",
         use="Bedienung",
         shortcut="Tastenkürzel", does="Funktion", space="Leertaste",
         k_control="Den Bildschirm im Spiel mit Maus und Tastatur bedienen; das Spiel pausiert solange (verlassen mit `Esc`)",
@@ -203,7 +257,7 @@ TEXT = {
         game_1="Uruchom grę i zaakceptuj komunikat o \"funkcjach SDK\", który pojawia się raz.",
         game_2="W **Menedżerze modów** włącz **CabinPlay Screen**.",
         game_3="W warsztacie zamontuj **CabinPlay Screen** w gnieździe akcesoriów na przedniej szybie. Po lewej są dwie wersje: *Large* (11\", na ramieniu) i *Compact* (10\", przy szybie); w środkowym gnieździe jest *Centre*, zwrócony w stronę kierowcy (z osobną wersją dla kabin z kierownicą po prawej).",
-        done="To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Aby usunąć CabinPlay, otwórz w Windows *Ustawienia* > *Aplikacje* albo uruchom `Uninstall.exe` w `%LocalAppData%\\Programs\\CabinPlay`; jeśli instalacja była ręczna, usuń skopiowane pliki.",
+        done="To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Zainstalowany instalatorem CabinPlay sam się aktualizuje: nową wersję pobiera w trakcie gry i instaluje po jej zamknięciu i pokazuje to na ekranie; w *Ustawienia* > *Aktualizacje* możesz kazać mu najpierw pytać albo to wyłączyć. Aby usunąć CabinPlay, otwórz w Windows *Ustawienia* > *Aplikacje* albo uruchom `Uninstall.exe` w `%LocalAppData%\\Programs\\CabinPlay`; jeśli instalacja była ręczna, usuń skopiowane pliki.",
         use="Obsługa",
         shortcut="Skrót", does="Co robi", space="Spacja",
         k_control="Obsługa ekranu z poziomu gry myszą i klawiaturą; gra jest w tym czasie wstrzymana (wyjście: `Esc`)",
@@ -252,7 +306,7 @@ TEXT = {
         game_1="Lancez le jeu et acceptez l'avertissement sur les « fonctionnalités SDK », affiché une seule fois.",
         game_2="Dans le **Gestionnaire de mods**, activez **CabinPlay Screen**.",
         game_3="Dans un garage, installez **CabinPlay Screen** dans un emplacement d'accessoire du pare-brise. À gauche, deux versions existent : *Large* (11\", sur un bras) et *Compact* (10\", contre la vitre) ; au milieu, il y a *Centre*, tourné vers le conducteur (avec une version à part pour les cabines à conduite à droite).",
-        done="C'est tout. L'écran s'allume avec le contact du camion. Pour désinstaller CabinPlay, ouvrez *Paramètres* > *Applications* dans Windows, ou lancez `Uninstall.exe` dans `%LocalAppData%\\Programs\\CabinPlay` ; si vous l'avez installé à la main, supprimez les fichiers copiés.",
+        done="C'est tout. L'écran s'allume avec le contact du camion. Installé avec le programme d'installation, CabinPlay se met à jour tout seul : il télécharge la nouvelle version pendant que vous jouez et l'installe quand vous fermez le jeu et l'indique sur l'écran ; dans *Réglages* > *Mises à jour*, vous pouvez lui demander de vous consulter d'abord, ou le désactiver. Pour désinstaller CabinPlay, ouvrez *Paramètres* > *Applications* dans Windows, ou lancez `Uninstall.exe` dans `%LocalAppData%\\Programs\\CabinPlay` ; si vous l'avez installé à la main, supprimez les fichiers copiés.",
         use="Utilisation",
         shortcut="Raccourci", does="Action", space="Espace",
         k_control="Utiliser l'écran depuis le jeu avec la souris et le clavier ; le jeu est en pause pendant ce temps (`Échap` pour quitter)",
@@ -301,7 +355,7 @@ TEXT = {
         game_1="Inicia el juego y acepta el aviso de \"funciones del SDK\" que aparece una vez.",
         game_2="En el **Gestor de mods**, activa **CabinPlay Screen**.",
         game_3="En un taller, monta **CabinPlay Screen** en una ranura de accesorios del parabrisas. A la izquierda hay dos versiones: *Large* (11\", en un brazo) y *Compact* (10\", junto al cristal); en la ranura central está *Centre*, girada hacia el conductor (con una versión propia para cabinas con volante a la derecha).",
-        done="Eso es todo. La pantalla se enciende con el contacto del camión. Para quitar CabinPlay, abre *Configuración* > *Aplicaciones* en Windows o ejecuta `Uninstall.exe` en `%LocalAppData%\\Programs\\CabinPlay`; si lo instalaste a mano, borra los archivos que copiaste.",
+        done="Eso es todo. La pantalla se enciende con el contacto del camión. Si lo instalaste con el instalador, CabinPlay se actualiza solo: descarga la nueva versión mientras juegas y la instala al cerrar el juego y lo muestra en la pantalla; en *Ajustes* > *Actualizaciones* puedes hacer que pregunte antes o desactivarlo. Para quitar CabinPlay, abre *Configuración* > *Aplicaciones* en Windows o ejecuta `Uninstall.exe` en `%LocalAppData%\\Programs\\CabinPlay`; si lo instalaste a mano, borra los archivos que copiaste.",
         use="Uso",
         shortcut="Atajo", does="Qué hace", space="Espacio",
         k_control="Usar la pantalla desde el juego con ratón y teclado; el juego se pausa mientras tanto (`Esc` para salir)",
@@ -350,7 +404,7 @@ TEXT = {
         game_1="Запустите игру и подтвердите уведомление о «функциях SDK», которое показывается один раз.",
         game_2="В **Менеджере модификаций** включите **CabinPlay Screen**.",
         game_3="В мастерской установите **CabinPlay Screen** в слот аксессуаров на лобовом стекле. Слева есть две версии: *Large* (11\", на кронштейне) и *Compact* (10\", у стекла); в среднем слоте есть *Centre*, повёрнутый к водителю (с отдельной версией для кабин с правым рулём).",
-        done="Готово. Экран включается вместе с зажиганием. Чтобы удалить CabinPlay, откройте в Windows *Параметры* > *Приложения* или запустите `Uninstall.exe` в `%LocalAppData%\\Programs\\CabinPlay`; если вы устанавливали вручную, удалите скопированные файлы.",
+        done="Готово. Экран включается вместе с зажиганием. Если CabinPlay установлен программой установки, он обновляется сам: скачивает новую версию во время игры и устанавливает её, когда вы закрываете игру и сообщает об этом на экране; в *Настройки* > *Обновления* можно включить вопрос перед установкой или отключить это. Чтобы удалить CabinPlay, откройте в Windows *Параметры* > *Приложения* или запустите `Uninstall.exe` в `%LocalAppData%\\Programs\\CabinPlay`; если вы устанавливали вручную, удалите скопированные файлы.",
         use="Управление",
         shortcut="Сочетание", does="Действие", space="Пробел",
         k_control="Управлять экраном из игры мышью и клавиатурой; игра в это время на паузе (выход: `Esc`)",
@@ -573,6 +627,8 @@ def release_notes(version):
                   for k, v in TEXT[code].items()}
         values["help_line"] = values["help_body"].replace("\n\n", " ")
         section = RELEASE_SECTION.format(**values)
+        if code in WHATS_NEW:
+            section = WHATS_NEW[code].format(version=version) + "\n\n" + section
         if code == "en":
             parts.append(section)
         else:

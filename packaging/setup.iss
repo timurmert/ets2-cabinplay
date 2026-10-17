@@ -14,6 +14,12 @@
 #ifndef Dist
   #define Dist "..\dist"
 #endif
+#ifndef Compression
+  ; Every packing installs the same files. Antivirus engines that guess from the bytes
+  ; judge them differently: for 1.2.0, lzma2/ultra64 got 2 such flags on VirusTotal and
+  ; lzma/ultra64 none. To try another: ISCC /DCompression=lzma2/max ...
+  #define Compression "lzma/ultra64"
+#endif
 #ifndef Pictures
   #define Pictures "..\build\setup"
 #endif
@@ -55,7 +61,7 @@ WizardImageStretch=no
 WizardImageBackColor=$301610
 OutputDir={#Dist}
 OutputBaseFilename=CabinPlay-Setup-{#AppVersion}
-Compression=lzma2/ultra64
+Compression={#Compression}
 SolidCompression=yes
 ShowLanguageDialog=auto
 
@@ -102,6 +108,11 @@ en.GameRunning=Euro Truck Simulator 2 is running. Close the game, then click Ret
 en.WebViewInstalling=Installing the Microsoft WebView2 Runtime...
 en.WebViewFailed=The Microsoft WebView2 Runtime could not be installed. CabinPlay needs it to show its pages: install it from https://go.microsoft.com/fwlink/p/?LinkId=2124703 before starting the game.
 en.DeleteUserData=Also delete your CabinPlay settings, backgrounds and website sign-ins (YouTube, Twitch...)?
+en.UpdateCaption=CabinPlay update
+en.UpdatingTitle=Updating CabinPlay
+en.UpdatingText=From version %1 to %2. This window closes by itself.
+en.UpdatedTitle=CabinPlay is updated ✓
+en.UpdatedText=Version %1 is installed.
 tr.GameCaption=Euro Truck Simulator 2
 tr.GameDescription=Oyun nerede kurulu?
 tr.GameFound=Kurulum oyunu bu klasörde buldu:
@@ -111,6 +122,11 @@ tr.GameRunning=Euro Truck Simulator 2 açık. Oyunu kapat, sonra Yeniden Dene'ye
 tr.WebViewInstalling=Microsoft WebView2 Runtime kuruluyor...
 tr.WebViewFailed=Microsoft WebView2 Runtime kurulamadı. CabinPlay sayfalarını göstermek için buna ihtiyaç duyar: oyunu başlatmadan önce https://go.microsoft.com/fwlink/p/?LinkId=2124703 adresinden kur.
 tr.DeleteUserData=CabinPlay ayarların, arka planların ve sitelerdeki oturumların (YouTube, Twitch...) da silinsin mi?
+tr.UpdateCaption=CabinPlay güncellemesi
+tr.UpdatingTitle=CabinPlay güncelleniyor
+tr.UpdatingText=%1 sürümünden %2 sürümüne. Bu pencere kendiliğinden kapanacak.
+tr.UpdatedTitle=CabinPlay güncellendi ✓
+tr.UpdatedText=%1 sürümü kuruldu.
 de.GameCaption=Euro Truck Simulator 2
 de.GameDescription=Wo ist das Spiel installiert?
 de.GameFound=Das Setup hat das Spiel in diesem Ordner gefunden:
@@ -120,6 +136,11 @@ de.GameRunning=Euro Truck Simulator 2 läuft. Schließe das Spiel und klicke dan
 de.WebViewInstalling=Die Microsoft WebView2 Runtime wird installiert...
 de.WebViewFailed=Die Microsoft WebView2 Runtime konnte nicht installiert werden. CabinPlay braucht sie, um seine Seiten anzuzeigen: Installiere sie vor dem Spielstart von https://go.microsoft.com/fwlink/p/?LinkId=2124703.
 de.DeleteUserData=Auch deine CabinPlay-Einstellungen, Hintergründe und Anmeldungen auf Websites (YouTube, Twitch...) löschen?
+de.UpdateCaption=CabinPlay-Update
+de.UpdatingTitle=CabinPlay wird aktualisiert
+de.UpdatingText=Von Version %1 auf %2. Dieses Fenster schließt sich von selbst.
+de.UpdatedTitle=CabinPlay ist aktualisiert ✓
+de.UpdatedText=Version %1 ist installiert.
 pl.GameCaption=Euro Truck Simulator 2
 pl.GameDescription=Gdzie jest zainstalowana gra?
 pl.GameFound=Instalator znalazł grę w tym folderze:
@@ -129,6 +150,11 @@ pl.GameRunning=Euro Truck Simulator 2 jest uruchomiony. Zamknij grę, a potem kl
 pl.WebViewInstalling=Instalowanie Microsoft WebView2 Runtime...
 pl.WebViewFailed=Nie udało się zainstalować Microsoft WebView2 Runtime. CabinPlay potrzebuje go do wyświetlania stron: zainstaluj go z https://go.microsoft.com/fwlink/p/?LinkId=2124703 przed uruchomieniem gry.
 pl.DeleteUserData=Usunąć także ustawienia CabinPlay, tła i zalogowania na stronach (YouTube, Twitch...)?
+pl.UpdateCaption=Aktualizacja CabinPlay
+pl.UpdatingTitle=Aktualizowanie CabinPlay
+pl.UpdatingText=Z wersji %1 do %2. To okno zamknie się samo.
+pl.UpdatedTitle=CabinPlay zaktualizowany ✓
+pl.UpdatedText=Zainstalowano wersję %1.
 fr.GameCaption=Euro Truck Simulator 2
 fr.GameDescription=Où le jeu est-il installé ?
 fr.GameFound=Le programme d'installation a trouvé le jeu dans ce dossier :
@@ -138,6 +164,11 @@ fr.GameRunning=Euro Truck Simulator 2 est en cours d'exécution. Fermez le jeu, 
 fr.WebViewInstalling=Installation de Microsoft WebView2 Runtime...
 fr.WebViewFailed=Microsoft WebView2 Runtime n'a pas pu être installé. CabinPlay en a besoin pour afficher ses pages : installez-le depuis https://go.microsoft.com/fwlink/p/?LinkId=2124703 avant de lancer le jeu.
 fr.DeleteUserData=Supprimer aussi vos réglages CabinPlay, vos arrière-plans et vos connexions aux sites (YouTube, Twitch...) ?
+fr.UpdateCaption=Mise à jour de CabinPlay
+fr.UpdatingTitle=Mise à jour de CabinPlay
+fr.UpdatingText=De la version %1 à la version %2. Cette fenêtre se ferme toute seule.
+fr.UpdatedTitle=CabinPlay est à jour ✓
+fr.UpdatedText=La version %1 est installée.
 es.GameCaption=Euro Truck Simulator 2
 es.GameDescription=¿Dónde está instalado el juego?
 es.GameFound=El instalador encontró el juego en esta carpeta:
@@ -147,6 +178,11 @@ es.GameRunning=Euro Truck Simulator 2 está abierto. Cierra el juego y pulsa Rei
 es.WebViewInstalling=Instalando Microsoft WebView2 Runtime...
 es.WebViewFailed=No se pudo instalar Microsoft WebView2 Runtime. CabinPlay lo necesita para mostrar sus páginas: instálalo desde https://go.microsoft.com/fwlink/p/?LinkId=2124703 antes de iniciar el juego.
 es.DeleteUserData=¿Borrar también tus ajustes de CabinPlay, tus fondos y tus sesiones en sitios web (YouTube, Twitch...)?
+es.UpdateCaption=Actualización de CabinPlay
+es.UpdatingTitle=Actualizando CabinPlay
+es.UpdatingText=De la versión %1 a la %2. Esta ventana se cierra sola.
+es.UpdatedTitle=CabinPlay está actualizado ✓
+es.UpdatedText=La versión %1 está instalada.
 ru.GameCaption=Euro Truck Simulator 2
 ru.GameDescription=Где установлена игра?
 ru.GameFound=Программа установки нашла игру в этой папке:
@@ -156,6 +192,11 @@ ru.GameRunning=Euro Truck Simulator 2 запущена. Закройте игр�
 ru.WebViewInstalling=Установка Microsoft WebView2 Runtime...
 ru.WebViewFailed=Не удалось установить Microsoft WebView2 Runtime. Он нужен CabinPlay для показа страниц: установите его с https://go.microsoft.com/fwlink/p/?LinkId=2124703 перед запуском игры.
 ru.DeleteUserData=Удалить также настройки CabinPlay, фоны и входы на сайтах (YouTube, Twitch...)?
+ru.UpdateCaption=Обновление CabinPlay
+ru.UpdatingTitle=Обновление CabinPlay
+ru.UpdatingText=С версии %1 на %2. Это окно закроется само.
+ru.UpdatedTitle=CabinPlay обновлён ✓
+ru.UpdatedText=Версия %1 установлена.
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
@@ -186,6 +227,11 @@ Name: "{userdesktop}\CabinPlay"; Filename: "{app}\CabinPlay.exe"; WorkingDir: "{
 [Registry]
 ; Written by the app (where it is, where the plugin is); removed with it.
 Root: HKCU; Subkey: "Software\CabinPlay"; Flags: uninsdeletekey
+
+[Run]
+; After an update the player started from the app's own Update button (with the game closed),
+; the app comes back by itself. Updates run when the game closes leave it to the game.
+Filename: "{app}\CabinPlay.exe"; Flags: nowait; Check: RestartApp
 
 [UninstallDelete]
 ; Also what an older version or the old install script left in the app's own folder.
@@ -342,6 +388,34 @@ begin
     SuppressibleMsgBox(CustomMessage('WebViewFailed'), mbInformation, MB_OK, IDOK);
 end;
 
+{ The app runs the setup with /UPDATE=<its version> to update itself; the window then says so. }
+function UpdatingFrom: String;
+begin
+  Result := ExpandConstant('{param:update|}');
+end;
+
+function RestartApp: Boolean;
+begin
+  Result := ExpandConstant('{param:restartapp|0}') = '1';
+end;
+
+{ Shows that the update is done for a moment before the window closes by itself. }
+procedure ShowUpdated;
+var
+  I: Integer;
+begin
+  WizardForm.PageNameLabel.Caption := CustomMessage('UpdatedTitle');
+  WizardForm.PageDescriptionLabel.Caption := FmtMessage(CustomMessage('UpdatedText'), ['{#AppVersion}']);
+  WizardForm.StatusLabel.Caption := '';
+  WizardForm.FilenameLabel.Caption := '';
+  WizardForm.ProgressGauge.Position := WizardForm.ProgressGauge.Max;
+  for I := 1 to 25 do
+  begin
+    WizardForm.Refresh;
+    Sleep(100);
+  end;
+end;
+
 procedure InitializeWizard;
 var
   Found: String;
@@ -365,6 +439,14 @@ begin
   { The tasks page is the last one before installing, so its button installs. }
   if CurPageID = wpSelectTasks then
     WizardForm.NextButton.Caption := SetupMessage(msgButtonInstall);
+  { An update from the app: not an install, and nothing technical to read. }
+  if ((CurPageID = wpPreparing) or (CurPageID = wpInstalling)) and (UpdatingFrom <> '') then
+  begin
+    WizardForm.Caption := CustomMessage('UpdateCaption');
+    WizardForm.PageNameLabel.Caption := CustomMessage('UpdatingTitle');
+    WizardForm.PageDescriptionLabel.Caption := FmtMessage(CustomMessage('UpdatingText'), [UpdatingFrom, '{#AppVersion}']);
+    WizardForm.FilenameLabel.Visible := False;
+  end;
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
@@ -456,6 +538,8 @@ begin
     { Lets the app find the plugin's log for error reports. }
     SaveStringsToUTF8File(ExpandConstant('{localappdata}\CabinPlay\install.json'), [
       '{ "gameDir": ' + JsonString(GameDir) + ' }'], False);
+    if UpdatingFrom <> '' then
+      ShowUpdated;
   end;
 end;
 

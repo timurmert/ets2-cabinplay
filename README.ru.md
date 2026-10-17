@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=%D0%97%D0%90%D0%93%D0%A0%D0%A3%D0%97%D0%9A%D0%98" alt="Загрузки"></a>
-  <a href="https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/67%20%D0%A7%D0%98%D0%A1%D0%A2%D0%9E" alt="VirusTotal: 0/67 чисто"></a>
+  <a href="https://www.virustotal.com/gui/file/468fd2ee5d0a35a9c45087a34f3be5ed2bea95f12796afad03c9cc5c95758d56"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/68%20%D0%A7%D0%98%D0%A1%D0%A2%D0%9E" alt="VirusTotal: 0/68 чисто"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/67 чисто"></a><br>
-  <sub>🛡️ Ни один из 67 антивирусов на VirusTotal не отметил CabinPlay. <a href="https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc">Открыть отчёт</a></sub>
+  <a href="https://www.virustotal.com/gui/file/468fd2ee5d0a35a9c45087a34f3be5ed2bea95f12796afad03c9cc5c95758d56"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/68 чисто"></a><br>
+  <sub>🛡️ Ни один из 68 антивирусов на VirusTotal не отметил CabinPlay. <a href="https://www.virustotal.com/gui/file/468fd2ee5d0a35a9c45087a34f3be5ed2bea95f12796afad03c9cc5c95758d56">Открыть отчёт</a></sub>
 </p>
 
 ## Скачать
 
 **[Скачайте последнюю версию](https://github.com/timurmert/ets2-cabinplay/releases/latest)** и возьмите файл `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Проверка на вирусы:** установщик проверен на VirusTotal 67 антивирусами, ни один ничего не нашёл. **[Открыть отчёт](https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc)**
+> 🛡️ **Проверка на вирусы:** установщик проверен на VirusTotal 68 антивирусами, ни один ничего не нашёл. **[Открыть отчёт](https://www.virustotal.com/gui/file/468fd2ee5d0a35a9c45087a34f3be5ed2bea95f12796afad03c9cc5c95758d56)**
 
 ## Установка
 
@@ -63,7 +63,7 @@
 2. В **Менеджере модификаций** включите **CabinPlay Screen**.
 3. В мастерской установите **CabinPlay Screen** в слот аксессуаров на лобовом стекле. Слева есть две версии: *Large* (11", на кронштейне) и *Compact* (10", у стекла); в среднем слоте есть *Centre*, повёрнутый к водителю (с отдельной версией для кабин с правым рулём).
 
-Готово. Экран включается вместе с зажиганием. Чтобы удалить CabinPlay, откройте в Windows *Параметры* > *Приложения* или запустите `Uninstall.exe` в `%LocalAppData%\Programs\CabinPlay`; если вы устанавливали вручную, удалите скопированные файлы.
+Готово. Экран включается вместе с зажиганием. Если CabinPlay установлен программой установки, он обновляется сам: скачивает новую версию во время игры и устанавливает её, когда вы закрываете игру и сообщает об этом на экране; в *Настройки* > *Обновления* можно включить вопрос перед установкой или отключить это. Чтобы удалить CabinPlay, откройте в Windows *Параметры* > *Приложения* или запустите `Uninstall.exe` в `%LocalAppData%\Programs\CabinPlay`; если вы устанавливали вручную, удалите скопированные файлы.
 
 ## Управление
 

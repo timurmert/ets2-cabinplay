@@ -60,6 +60,13 @@
       <div id="day-name"></div>
       <div id="day-date"></div>
     </div>
+    <!-- Takes the day's place while there is news about an update (shell.js). -->
+    <div id="update-card" class="card" hidden>
+      <div id="upd-icon"><svg viewBox="0 0 24 24"><path id="upd-icon-path" d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg></div>
+      <div class="upd-text"><div id="upd-title"></div><div id="upd-sub"></div></div>
+      <button id="upd-now" class="update-now" data-i18n="updNow" hidden></button>
+      <button id="upd-close">×</button>
+    </div>
   </section>
 
   <section id="grid"></section>
@@ -228,7 +235,16 @@
       </div>
     </div>
     <div class="tab" data-tab="general">
-      <label class="setting"><span data-i18n="language"></span><select id="settings-language"></select></label>
+      <!-- No <select>: its list opens as a window of its own, which the in-cabin screen does
+           not show. These lists and choices are drawn by the page itself (shell.js). -->
+      <div class="setting"><span data-i18n="language"></span>
+        <div id="settings-language" class="dropdown">
+          <button class="dropdown-button"><span></span><svg viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"/></svg></button>
+          <div class="dropdown-list" hidden></div>
+        </div></div>
+      <div class="setting"><span class="setting-text"><span data-i18n="updates"></span><small id="update-status"></small>
+        <button id="settings-update-now" class="update-now" data-i18n="updNow" hidden></button></span>
+        <span id="settings-updates" class="choice"><button data-value="auto" data-i18n="updatesOn"></button><button data-value="ask" data-i18n="updatesAsk"></button><button data-value="off" data-i18n="updatesOff"></button></span></div>
       <p data-i18n="hint"></p>
       <div class="tab-actions">
         <button id="settings-diagnostics" class="quiet" data-i18n="diagnostics"></button>

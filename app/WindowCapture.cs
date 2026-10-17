@@ -26,6 +26,7 @@ internal sealed unsafe class WindowCapture : IDisposable
     private GraphicsCaptureSession? _session;
     private SizeInt32 _poolSize;
     private bool _disposed;
+    private int _frameErrors;
 
     public long FramesCaptured;
 
@@ -90,6 +91,13 @@ internal sealed unsafe class WindowCapture : IDisposable
         Marshal.Release(itemPtr);
 
         _poolSize = _item.Size;
+        if (_poolSize.Width <= 0 || _poolSize.Height <= 0)
+        {
+            // A zero size is "the parameter is incorrect" for the pool. The window is meant
+            // to be screen-sized; the first frame corrects the pool if it is not.
+            Log.Write($"capture: window size {_poolSize.Width}x{_poolSize.Height}, using the screen size");
+            _poolSize = new SizeInt32 { Width = FrameWriter.Width, Height = FrameWriter.Height };
+        }
         _pool = Direct3D11CaptureFramePool.CreateFreeThreaded(
             _winrtDevice, DirectXPixelFormat.B8G8R8A8UIntNormalized, 2, _poolSize);
         _pool.FrameArrived += OnFrameArrived;
@@ -120,47 +128,65 @@ internal sealed unsafe class WindowCapture : IDisposable
         {
             if (_disposed)
                 return;
-            using Direct3D11CaptureFrame? frame = sender.TryGetNextFrame();
-            if (frame is null)
-                return;
-
-            SizeInt32 size = frame.ContentSize;
-            if (size.Width != _poolSize.Width || size.Height != _poolSize.Height)
-            {
-                _poolSize = size;
-                sender.Recreate(_winrtDevice, DirectXPixelFormat.B8G8R8A8UIntNormalized, 2, size);
-                return;
-            }
-
-            var access = frame.Surface.As<IDirect3DDxgiInterfaceAccess>();
-            Guid texIid = IID_ID3D11Texture2D;
-            IntPtr texture = access.GetInterface(ref texIid);
             try
             {
-                // The window is exactly screen-sized; clamp anyway in case it is not.
-                var box = new Box
-                {
-                    Right = (uint)Math.Min(size.Width, FrameWriter.Width),
-                    Bottom = (uint)Math.Min(size.Height, FrameWriter.Height),
-                    Back = 1,
-                };
-                ((delegate* unmanaged[Stdcall]<IntPtr, IntPtr, uint, uint, uint, uint, IntPtr, uint, Box*, void>)
-                    Vtbl(_context, 46))(_context, _staging, 0, 0, 0, 0, texture, 0, &box);
-
-                MappedSubresource mapped;
-                int hr = ((delegate* unmanaged[Stdcall]<IntPtr, IntPtr, uint, int, uint, MappedSubresource*, int>)
-                    Vtbl(_context, 14))(_context, _staging, 0, 1 /* read */, 0, &mapped);
-                if (hr >= 0)
-                {
-                    _writer.Write((byte*)mapped.Data, (int)mapped.RowPitch);
-                    ((delegate* unmanaged[Stdcall]<IntPtr, IntPtr, uint, void>)Vtbl(_context, 15))(_context, _staging, 0);
-                    FramesCaptured++;
-                }
+                CopyFrame(sender);
             }
-            finally
+            catch (Exception ex)
             {
-                Marshal.Release(texture);
+                // This runs for every frame: a repeating error would fill the log.
+                if (++_frameErrors <= 3)
+                    Log.Write($"capture error {_frameErrors}: {ex}");
+                if (_frameErrors == 3)
+                    Log.Write("capture: further errors are not logged");
             }
+        }
+    }
+
+    private void CopyFrame(Direct3D11CaptureFramePool sender)
+    {
+        using Direct3D11CaptureFrame? frame = sender.TryGetNextFrame();
+        if (frame is null)
+            return;
+
+        SizeInt32 size = frame.ContentSize;
+        if (size.Width <= 0 || size.Height <= 0)
+            return; // nothing to show, and a pool of that size is an invalid parameter
+        if (size.Width != _poolSize.Width || size.Height != _poolSize.Height)
+        {
+            sender.Recreate(_winrtDevice, DirectXPixelFormat.B8G8R8A8UIntNormalized, 2, size);
+            _poolSize = size;
+            return;
+        }
+
+        var access = frame.Surface.As<IDirect3DDxgiInterfaceAccess>();
+        Guid texIid = IID_ID3D11Texture2D;
+        IntPtr texture = access.GetInterface(ref texIid);
+        try
+        {
+            // The window is exactly screen-sized; clamp anyway in case it is not.
+            var box = new Box
+            {
+                Right = (uint)Math.Min(size.Width, FrameWriter.Width),
+                Bottom = (uint)Math.Min(size.Height, FrameWriter.Height),
+                Back = 1,
+            };
+            ((delegate* unmanaged[Stdcall]<IntPtr, IntPtr, uint, uint, uint, uint, IntPtr, uint, Box*, void>)
+                Vtbl(_context, 46))(_context, _staging, 0, 0, 0, 0, texture, 0, &box);
+
+            MappedSubresource mapped;
+            int hr = ((delegate* unmanaged[Stdcall]<IntPtr, IntPtr, uint, int, uint, MappedSubresource*, int>)
+                Vtbl(_context, 14))(_context, _staging, 0, 1 /* read */, 0, &mapped);
+            if (hr >= 0)
+            {
+                _writer.Write((byte*)mapped.Data, (int)mapped.RowPitch);
+                ((delegate* unmanaged[Stdcall]<IntPtr, IntPtr, uint, void>)Vtbl(_context, 15))(_context, _staging, 0);
+                FramesCaptured++;
+            }
+        }
+        finally
+        {
+            Marshal.Release(texture);
         }
     }
 

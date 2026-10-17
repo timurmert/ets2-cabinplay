@@ -6,7 +6,7 @@ Una pantalla multimedia que funciona de verdad en la cabina de tu camión en **E
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=DESCARGAS" alt="Descargas"></a>
-  <a href="https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/67%20LIMPIO" alt="VirusTotal: 0/67 limpio"></a>
+  <a href="https://www.virustotal.com/gui/file/468fd2ee5d0a35a9c45087a34f3be5ed2bea95f12796afad03c9cc5c95758d56"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/68%20LIMPIO" alt="VirusTotal: 0/68 limpio"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@ Una pantalla multimedia que funciona de verdad en la cabina de tu camión en **E
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/67 limpio"></a><br>
-  <sub>🛡️ Ninguno de los 67 antivirus de VirusTotal ha marcado CabinPlay. <a href="https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc">Ver el informe</a></sub>
+  <a href="https://www.virustotal.com/gui/file/468fd2ee5d0a35a9c45087a34f3be5ed2bea95f12796afad03c9cc5c95758d56"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/68 limpio"></a><br>
+  <sub>🛡️ Ninguno de los 68 antivirus de VirusTotal ha marcado CabinPlay. <a href="https://www.virustotal.com/gui/file/468fd2ee5d0a35a9c45087a34f3be5ed2bea95f12796afad03c9cc5c95758d56">Ver el informe</a></sub>
 </p>
 
 ## Descarga
 
 **[Descarga la última versión](https://github.com/timurmert/ets2-cabinplay/releases/latest)** y elige el archivo `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Análisis antivirus:** el instalador se ha analizado en VirusTotal con 67 antivirus y ninguno lo ha marcado. **[Ver el informe](https://www.virustotal.com/gui/file/413bbc4238e4b158a00563c00a311827dcc839d870e873479a05ac875f8770bc)**
+> 🛡️ **Análisis antivirus:** el instalador se ha analizado en VirusTotal con 68 antivirus y ninguno lo ha marcado. **[Ver el informe](https://www.virustotal.com/gui/file/468fd2ee5d0a35a9c45087a34f3be5ed2bea95f12796afad03c9cc5c95758d56)**
 
 ## Instalación
 
@@ -63,7 +63,7 @@ Cierra el juego y después elige una opción:
 2. En el **Gestor de mods**, activa **CabinPlay Screen**.
 3. En un taller, monta **CabinPlay Screen** en una ranura de accesorios del parabrisas. A la izquierda hay dos versiones: *Large* (11", en un brazo) y *Compact* (10", junto al cristal); en la ranura central está *Centre*, girada hacia el conductor (con una versión propia para cabinas con volante a la derecha).
 
-Eso es todo. La pantalla se enciende con el contacto del camión. Para quitar CabinPlay, abre *Configuración* > *Aplicaciones* en Windows o ejecuta `Uninstall.exe` en `%LocalAppData%\Programs\CabinPlay`; si lo instalaste a mano, borra los archivos que copiaste.
+Eso es todo. La pantalla se enciende con el contacto del camión. Si lo instalaste con el instalador, CabinPlay se actualiza solo: descarga la nueva versión mientras juegas y la instala al cerrar el juego y lo muestra en la pantalla; en *Ajustes* > *Actualizaciones* puedes hacer que pregunte antes o desactivarlo. Para quitar CabinPlay, abre *Configuración* > *Aplicaciones* en Windows o ejecuta `Uninstall.exe` en `%LocalAppData%\Programs\CabinPlay`; si lo instalaste a mano, borra los archivos que copiaste.
 
 ## Uso
 
