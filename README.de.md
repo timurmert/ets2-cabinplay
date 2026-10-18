@@ -115,6 +115,6 @@ Um ein Problem zu melden, öffne **Einstellungen** auf dem Bildschirm, drücke *
 
 ## Mitwirkende und Lizenz
 
-Entwickelt von **HydRaboN**, unserem Community-Server und Software-Team. CabinPlay ist kostenlos und quelloffen unter der [MIT-Lizenz](LICENSE). Enthält [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).
+Entwickelt von **HydRaboN**, unserem Community-Server und Software-Team. CabinPlay ist kostenlos und quelloffen unter der [GNU GPL v3.0 oder später](LICENSE): Du darfst es weitergeben und verändern, aber alles, was daraus entsteht, muss unter derselben Lizenz quelloffen bleiben und CabinPlay nennen. Nach Abschnitt 7 der Lizenz sind der Name *CabinPlay* und sein Logo nicht mitlizenziert; eine veränderte Version muss einen anderen Namen tragen. Enthält [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).
 
 CabinPlay ist ein inoffizielles Fanprojekt. Es steht in keiner Verbindung zu SCS Software, Google/YouTube, Twitch oder Apple und wird von ihnen nicht unterstützt.

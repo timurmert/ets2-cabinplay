@@ -115,6 +115,6 @@ Sorun bildirmek için ekrandaki **Ayarlar**'ı aç, **Hata raporu oluştur**'a b
 
 ## Emeği geçenler ve lisans
 
-Topluluk sunucumuz ve yazılım ekibimiz **HydRaboN** tarafından yapıldı. CabinPlay ücretsiz ve açık kaynaklıdır; [MIT lisansı](LICENSE) ile yayınlanır. İçinde [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause) kullanılır.
+Topluluk sunucumuz ve yazılım ekibimiz **HydRaboN** tarafından yapıldı. CabinPlay ücretsiz ve açık kaynaklıdır; [GNU GPL v3.0 veya sonrası](LICENSE) lisansıyla yayınlanır: paylaşabilir ve değiştirebilirsin, ama ondan yapılan her şey aynı lisansla açık kaynak kalmalı ve CabinPlay'i kaynak göstermelidir. Lisansın 7. bölümü uyarınca *CabinPlay* adı ve logosu lisansa dahil değildir; değiştirilmiş bir sürüm farklı bir adla yayınlanmalıdır. İçinde [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause) kullanılır.
 
 CabinPlay resmi olmayan bir hayran projesidir. SCS Software, Google/YouTube, Twitch veya Apple ile bağlantılı değildir ve onlar tarafından desteklenmez.

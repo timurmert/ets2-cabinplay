@@ -53,7 +53,8 @@ REMOVE
   Delete the files you copied. If you used the setup instead, open Windows
   Settings > Apps > CabinPlay > Uninstall.
 
-CabinPlay is free and open source (MIT licence, see LICENSE.txt):
+CabinPlay is free and open source (GNU GPL v3.0 or later, see LICENSE.txt). The
+name CabinPlay and its logo are not licensed: a modified version needs another name.
 https://github.com/timurmert/ets2-cabinplay
 It is an unofficial fan project, not affiliated with or endorsed by SCS Software,
 Google/YouTube, Twitch or Apple.

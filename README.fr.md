@@ -115,6 +115,6 @@ Pour signaler un problème, ouvrez **Réglages** à l'écran, appuyez sur **Cré
 
 ## Crédits et licence
 
-Réalisé par **HydRaboN**, notre serveur communautaire et équipe logicielle. CabinPlay est gratuit et open source sous [licence MIT](LICENSE). Il inclut [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).
+Réalisé par **HydRaboN**, notre serveur communautaire et équipe logicielle. CabinPlay est gratuit et open source sous [licence GNU GPL v3.0 ou ultérieure](LICENSE) : vous pouvez le partager et le modifier, mais tout ce qui en est tiré doit rester open source sous la même licence et citer CabinPlay. Selon la section 7 de la licence, le nom *CabinPlay* et son logo ne sont pas concédés ; une version modifiée doit porter un autre nom. Il inclut [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).
 
 CabinPlay est un projet de fans non officiel. Il n'est ni affilié à SCS Software, Google/YouTube, Twitch ou Apple, ni approuvé par eux.
