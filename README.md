@@ -134,6 +134,6 @@ The city and country names on the truck page come from the game's own files:
 
 ## Credits and licence
 
-Made by **HydRaboN**, our community server and software team. CabinPlay is free and open source under the [MIT licence](LICENSE). It includes [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).
+Made by **HydRaboN**, our community server and software team. CabinPlay is free and open source under the [GNU General Public License v3.0 or later](LICENSE): you may share and change it, but anything made from it must stay open source under the same licence and credit CabinPlay. Under section 7 of the licence, the name *CabinPlay* and its logo are not licensed, and a modified version must carry a different name. It includes [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).
 
 CabinPlay is an unofficial fan project. It is not affiliated with or endorsed by SCS Software, Google/YouTube, Twitch or Apple.

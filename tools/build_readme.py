@@ -135,7 +135,7 @@ TEXT = {
         business="Contact",
         business_body="**Collaboration and sponsorship:** write to **[{email}](mailto:{email})** or reach us on [Discord]({discord}).\n\n**Complaints and suggestions:** write to the same address or tell us on [Discord]({discord}).",
         credits="Credits and licence",
-        credits_body="Made by **HydRaboN**, our community server and software team. CabinPlay is free and open source under the [MIT licence](LICENSE). It includes [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).",
+        credits_body="Made by **HydRaboN**, our community server and software team. CabinPlay is free and open source under the [GNU General Public License v3.0 or later](LICENSE): you may share and change it, but anything made from it must stay open source under the same licence and credit CabinPlay. Under section 7 of the licence, the name *CabinPlay* and its logo are not licensed, and a modified version must carry a different name. It includes [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).",
         disclaimer="CabinPlay is an unofficial fan project. It is not affiliated with or endorsed by SCS Software, Google/YouTube, Twitch or Apple.",
     ),
     "tr": dict(
@@ -184,7 +184,7 @@ TEXT = {
         business="İletişim",
         business_body="**İş birliği ve sponsorluk için:** **[{email}](mailto:{email})** adresine yaz ya da bize [Discord]({discord}) üzerinden ulaş.\n\n**Şikayet ve önerilerin için:** aynı adrese yaz ya da [Discord]({discord}) sunucumuzda bize ilet.",
         credits="Emeği geçenler ve lisans",
-        credits_body="Topluluk sunucumuz ve yazılım ekibimiz **HydRaboN** tarafından yapıldı. CabinPlay ücretsiz ve açık kaynaklıdır; [MIT lisansı](LICENSE) ile yayınlanır. İçinde [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause) kullanılır.",
+        credits_body="Topluluk sunucumuz ve yazılım ekibimiz **HydRaboN** tarafından yapıldı. CabinPlay ücretsiz ve açık kaynaklıdır; [GNU GPL v3.0 veya sonrası](LICENSE) lisansıyla yayınlanır: paylaşabilir ve değiştirebilirsin, ama ondan yapılan her şey aynı lisansla açık kaynak kalmalı ve CabinPlay'i kaynak göstermelidir. Lisansın 7. bölümü uyarınca *CabinPlay* adı ve logosu lisansa dahil değildir; değiştirilmiş bir sürüm farklı bir adla yayınlanmalıdır. İçinde [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause) kullanılır.",
         disclaimer="CabinPlay resmi olmayan bir hayran projesidir. SCS Software, Google/YouTube, Twitch veya Apple ile bağlantılı değildir ve onlar tarafından desteklenmez.",
     ),
     "de": dict(
@@ -233,7 +233,7 @@ TEXT = {
         business="Kontakt",
         business_body="**Zusammenarbeit und Sponsoring:** schreib an **[{email}](mailto:{email})** oder erreiche uns auf [Discord]({discord}).\n\n**Beschwerden und Vorschläge:** schreib an dieselbe Adresse oder melde dich auf [Discord]({discord}).",
         credits="Mitwirkende und Lizenz",
-        credits_body="Entwickelt von **HydRaboN**, unserem Community-Server und Software-Team. CabinPlay ist kostenlos und quelloffen unter der [MIT-Lizenz](LICENSE). Enthält [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).",
+        credits_body="Entwickelt von **HydRaboN**, unserem Community-Server und Software-Team. CabinPlay ist kostenlos und quelloffen unter der [GNU GPL v3.0 oder später](LICENSE): Du darfst es weitergeben und verändern, aber alles, was daraus entsteht, muss unter derselben Lizenz quelloffen bleiben und CabinPlay nennen. Nach Abschnitt 7 der Lizenz sind der Name *CabinPlay* und sein Logo nicht mitlizenziert; eine veränderte Version muss einen anderen Namen tragen. Enthält [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).",
         disclaimer="CabinPlay ist ein inoffizielles Fanprojekt. Es steht in keiner Verbindung zu SCS Software, Google/YouTube, Twitch oder Apple und wird von ihnen nicht unterstützt.",
     ),
     "pl": dict(
@@ -282,7 +282,7 @@ TEXT = {
         business="Kontakt",
         business_body="**Współpraca i sponsoring:** napisz na **[{email}](mailto:{email})** albo odezwij się na [Discordzie]({discord}).\n\n**Skargi i sugestie:** napisz na ten sam adres albo daj nam znać na [Discordzie]({discord}).",
         credits="Autorzy i licencja",
-        credits_body="Stworzone przez **HydRaboN**, nasz serwer społeczności i zespół programistów. CabinPlay jest darmowy i otwartoźródłowy na [licencji MIT](LICENSE). Zawiera [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).",
+        credits_body="Stworzone przez **HydRaboN**, nasz serwer społeczności i zespół programistów. CabinPlay jest darmowy i otwartoźródłowy na [licencji GNU GPL v3.0 lub nowszej](LICENSE): możesz go udostępniać i zmieniać, ale wszystko, co z niego powstanie, musi pozostać otwartoźródłowe na tej samej licencji i wskazywać CabinPlay jako źródło. Zgodnie z sekcją 7 licencji nazwa *CabinPlay* i jej logo nie są objęte licencją; zmieniona wersja musi nosić inną nazwę. Zawiera [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).",
         disclaimer="CabinPlay to nieoficjalny projekt fanowski. Nie jest powiązany z SCS Software, Google/YouTube, Twitch ani Apple i nie jest przez nie wspierany.",
     ),
     "fr": dict(
@@ -331,7 +331,7 @@ TEXT = {
         business="Contact",
         business_body="**Collaboration et sponsoring :** écrivez à **[{email}](mailto:{email})** ou contactez-nous sur [Discord]({discord}).\n\n**Réclamations et suggestions :** écrivez à la même adresse ou dites-le-nous sur [Discord]({discord}).",
         credits="Crédits et licence",
-        credits_body="Réalisé par **HydRaboN**, notre serveur communautaire et équipe logicielle. CabinPlay est gratuit et open source sous [licence MIT](LICENSE). Il inclut [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).",
+        credits_body="Réalisé par **HydRaboN**, notre serveur communautaire et équipe logicielle. CabinPlay est gratuit et open source sous [licence GNU GPL v3.0 ou ultérieure](LICENSE) : vous pouvez le partager et le modifier, mais tout ce qui en est tiré doit rester open source sous la même licence et citer CabinPlay. Selon la section 7 de la licence, le nom *CabinPlay* et son logo ne sont pas concédés ; une version modifiée doit porter un autre nom. Il inclut [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).",
         disclaimer="CabinPlay est un projet de fans non officiel. Il n'est ni affilié à SCS Software, Google/YouTube, Twitch ou Apple, ni approuvé par eux.",
     ),
     "es": dict(
@@ -380,7 +380,7 @@ TEXT = {
         business="Contacto",
         business_body="**Colaboración y patrocinio:** escribe a **[{email}](mailto:{email})** o contáctanos en [Discord]({discord}).\n\n**Quejas y sugerencias:** escribe a la misma dirección o cuéntanoslo en [Discord]({discord}).",
         credits="Créditos y licencia",
-        credits_body="Hecho por **HydRaboN**, nuestro servidor de comunidad y equipo de software. CabinPlay es gratuito y de código abierto bajo la [licencia MIT](LICENSE). Incluye [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).",
+        credits_body="Hecho por **HydRaboN**, nuestro servidor de comunidad y equipo de software. CabinPlay es gratuito y de código abierto bajo la [licencia GNU GPL v3.0 o posterior](LICENSE): puedes compartirlo y modificarlo, pero todo lo que se haga a partir de él debe seguir siendo de código abierto con la misma licencia y citar a CabinPlay. Según la sección 7 de la licencia, el nombre *CabinPlay* y su logotipo no están incluidos, y una versión modificada debe llevar otro nombre. Incluye [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).",
         disclaimer="CabinPlay es un proyecto de fans no oficial. No está afiliado a SCS Software, Google/YouTube, Twitch ni Apple, ni cuenta con su respaldo.",
     ),
     "ru": dict(
@@ -429,7 +429,7 @@ TEXT = {
         business="Контакты",
         business_body="**Сотрудничество и спонсорство:** пишите на **[{email}](mailto:{email})** или свяжитесь с нами в [Discord]({discord}).\n\n**Жалобы и предложения:** пишите на тот же адрес или расскажите нам в [Discord]({discord}).",
         credits="Авторы и лицензия",
-        credits_body="Сделано **HydRaboN** — нашим сервером сообщества и командой разработчиков. CabinPlay бесплатен и распространяется с открытым исходным кодом по [лицензии MIT](LICENSE). Включает [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).",
+        credits_body="Сделано **HydRaboN** — нашим сервером сообщества и командой разработчиков. CabinPlay бесплатен и распространяется с открытым исходным кодом по [лицензии GNU GPL v3.0 или более поздней](LICENSE): его можно распространять и изменять, но всё, что сделано на его основе, должно оставаться открытым под той же лицензией и указывать CabinPlay. Согласно разделу 7 лицензии, название *CabinPlay* и его логотип не лицензируются, а изменённая версия должна называться иначе. Включает [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).",
         disclaimer="CabinPlay — неофициальный фанатский проект. Он не связан с SCS Software, Google/YouTube, Twitch или Apple и не одобрен ими.",
     ),
 }

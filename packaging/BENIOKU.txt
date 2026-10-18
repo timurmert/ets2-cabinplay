@@ -54,7 +54,8 @@ KALDIRMA
   Elle kurduysan kopyaladığın dosyaları sil. Kurulum programıyla kurduysan
   Windows Ayarlar > Uygulamalar > CabinPlay > Kaldır'ı kullan.
 
-CabinPlay ücretsiz ve açık kaynaklıdır (MIT lisansı, bkz. LICENSE.txt):
+CabinPlay ücretsiz ve açık kaynaklıdır (GNU GPL v3.0 veya sonrası, bkz. LICENSE.txt).
+CabinPlay adı ve logosu lisansa dahil değildir: değiştirilmiş sürüm başka bir ad almalı.
 https://github.com/timurmert/ets2-cabinplay
 Resmi olmayan bir hayran projesidir; SCS Software, Google/YouTube, Twitch veya Apple
 ile bağlantılı değildir ve onlar tarafından desteklenmez.

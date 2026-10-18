@@ -20,7 +20,7 @@ BEGIN
             VALUE "CompanyName", "HydRaboN"
             VALUE "FileDescription", "CabinPlay Uninstall"
             VALUE "FileVersion", STR(VER_TEXT)
-            VALUE "LegalCopyright", "MIT licence, HydRaboN"
+            VALUE "LegalCopyright", "Copyright (C) 2026 HydRaboN, GPL-3.0-or-later"
             VALUE "OriginalFilename", "Uninstall.exe"
             VALUE "ProductName", "CabinPlay"
             VALUE "ProductVersion", STR(VER_TEXT)
