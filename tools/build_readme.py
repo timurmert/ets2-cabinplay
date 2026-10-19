@@ -31,7 +31,7 @@ WHATS_NEW = {
 - **The browser side by side.** The browser can now take one half of the screen, next to the map for example, with its own address bar and start page.
 - The browser's start page has new shortcuts: Google, tabii, TRT Spor and sahibinden. Keep any other page there with the star.
 - **Close apps from the dock:** each open app has an x on its corner. It closes the app and stops what it plays.
-- **Control mode without the pause menu:** behind the enlarged screen you now see the game as it was when you pressed `Ctrl+Alt+C`, dimmed, instead of the game's pause menu. It also grows smoothly into place, and *Settings* > *Controls* now has its screen size and cursor speed.
+- **Control mode without the pause menu:** behind the enlarged screen you now see the game as it was when you pressed `Ctrl+Alt+C`, dimmed, instead of the game's pause menu. It also grows smoothly into place, and *Settings* > *Controls* now has its screen size and cursor sensitivity.
 
 **Already using CabinPlay 1.2.0?** The update comes by itself: it installs when you close the game. Using an older version? Close the game, download **CabinPlay-Setup-{version}.exe** below and run it.""",
     "tr": """### {version} sürümünde neler var
@@ -41,7 +41,7 @@ WHATS_NEW = {
 - **Tarayıcı yan yana.** Tarayıcı artık ekranın bir yarısını alabiliyor, örneğin haritanın yanında; kendi adres çubuğu ve başlangıç sayfasıyla.
 - Tarayıcının başlangıç sayfasında yeni kısayollar var: Google, tabii, TRT Spor ve sahibinden. İstediğin başka sayfayı yıldızla buraya ekleyebilirsin.
 - **Uygulamaları dock'tan kapat:** açık her uygulamanın köşesinde bir çarpı var. Uygulamayı kapatır, çalanı da durdurur.
-- **Kontrol modunda duraklatma menüsü yok:** büyütülmüş ekranın arkasında artık oyunun duraklatma menüsü değil, `Ctrl+Alt+C`'ye bastığın andaki oyun görüntüsü karartılmış olarak duruyor. Ekran artık yumuşak bir efektle açılıyor; boyutunu ve imleç hızını *Ayarlar* > *Kontroller*'den seçebilirsin.
+- **Kontrol modunda duraklatma menüsü yok:** büyütülmüş ekranın arkasında artık oyunun duraklatma menüsü değil, `Ctrl+Alt+C`'ye bastığın andaki oyun görüntüsü karartılmış olarak duruyor. Ekran artık yumuşak bir efektle açılıyor; boyutunu ve imleç hassasiyetini *Ayarlar* > *Kontroller*'den ayarlayabilirsin.
 
 **CabinPlay 1.2.0 mı kullanıyorsun?** Güncelleme kendiliğinden gelir, oyunu kapattığında kurulur. Daha eski bir sürümdeysen oyunu kapat, aşağıdan **CabinPlay-Setup-{version}.exe**'yi indir ve çalıştır.""",
     "de": """### Neu in {version}
@@ -51,7 +51,7 @@ WHATS_NEW = {
 - **Der Browser nebeneinander.** Der Browser kann jetzt eine Bildschirmhälfte einnehmen, zum Beispiel neben der Karte, mit eigener Adressleiste und Startseite.
 - Neue Verknüpfungen auf der Startseite des Browsers: Google, tabii, TRT Spor und sahibinden. Jede andere Seite behältst du dort mit dem Stern.
 - **Apps im Dock schließen:** Jede offene App hat ein x an der Ecke. Es schließt die App und beendet, was sie abspielt.
-- **Steuermodus ohne Pausenmenü:** Hinter dem vergrößerten Bildschirm siehst du jetzt das Spiel, wie es beim Drücken von `Ctrl+Alt+C` war, abgedunkelt, statt des Pausenmenüs. Er wächst jetzt sanft auf, und unter *Einstellungen* > *Steuerung* stellst du seine Größe und die Zeigergeschwindigkeit ein.
+- **Steuermodus ohne Pausenmenü:** Hinter dem vergrößerten Bildschirm siehst du jetzt das Spiel, wie es beim Drücken von `Ctrl+Alt+C` war, abgedunkelt, statt des Pausenmenüs. Er wächst jetzt sanft auf, und unter *Einstellungen* > *Steuerung* stellst du seine Größe und die Zeigerempfindlichkeit ein.
 
 **Du nutzt CabinPlay 1.2.0?** Das Update kommt von selbst und wird beim Schließen des Spiels installiert. Ältere Version? Schließe das Spiel, lade unten **CabinPlay-Setup-{version}.exe** herunter und starte es.""",
     "pl": """### Co nowego w {version}
@@ -61,7 +61,7 @@ WHATS_NEW = {
 - **Przeglądarka obok innej aplikacji.** Przeglądarka może teraz zająć połowę ekranu, na przykład obok mapy, z własnym paskiem adresu i stroną startową.
 - Nowe skróty na stronie startowej przeglądarki: Google, tabii, TRT Spor i sahibinden. Każdą inną stronę zachowasz tam gwiazdką.
 - **Zamykanie aplikacji z doku:** każda otwarta aplikacja ma x w rogu. Zamyka aplikację i zatrzymuje to, co odtwarza.
-- **Tryb sterowania bez menu pauzy:** za powiększonym ekranem widać teraz przyciemniony obraz gry z chwili naciśnięcia `Ctrl+Alt+C` zamiast menu pauzy. Ekran płynnie się teraz otwiera, a w *Ustawienia* > *Sterowanie* wybierzesz jego rozmiar i szybkość kursora.
+- **Tryb sterowania bez menu pauzy:** za powiększonym ekranem widać teraz przyciemniony obraz gry z chwili naciśnięcia `Ctrl+Alt+C` zamiast menu pauzy. Ekran płynnie się teraz otwiera, a w *Ustawienia* > *Sterowanie* wybierzesz jego rozmiar i czułość kursora.
 
 **Masz CabinPlay 1.2.0?** Aktualizacja przyjdzie sama i zainstaluje się po zamknięciu gry. Starsza wersja? Zamknij grę, pobierz poniżej **CabinPlay-Setup-{version}.exe** i uruchom go.""",
     "fr": """### Nouveautés de la version {version}
@@ -71,7 +71,7 @@ WHATS_NEW = {
 - **Le navigateur côte à côte.** Le navigateur peut maintenant occuper une moitié de l'écran, à côté de la carte par exemple, avec sa propre barre d'adresse et sa page de démarrage.
 - Nouveaux raccourcis sur la page de démarrage du navigateur : Google, tabii, TRT Spor et sahibinden. Gardez-y toute autre page avec l'étoile.
 - **Fermer les apps depuis le dock :** chaque app ouverte a un x dans son coin. Il ferme l'app et arrête ce qu'elle joue.
-- **Mode contrôle sans le menu de pause :** derrière l'écran agrandi, vous voyez maintenant le jeu tel qu'il était quand vous avez appuyé sur `Ctrl+Alt+C`, assombri, au lieu du menu de pause. Il s'ouvre maintenant en douceur, et *Réglages* > *Commandes* permet de choisir sa taille et la vitesse du curseur.
+- **Mode contrôle sans le menu de pause :** derrière l'écran agrandi, vous voyez maintenant le jeu tel qu'il était quand vous avez appuyé sur `Ctrl+Alt+C`, assombri, au lieu du menu de pause. Il s'ouvre maintenant en douceur, et *Réglages* > *Commandes* permet de choisir sa taille et la sensibilité du curseur.
 
 **Vous utilisez CabinPlay 1.2.0 ?** La mise à jour arrive toute seule et s'installe à la fermeture du jeu. Version plus ancienne ? Fermez le jeu, téléchargez **CabinPlay-Setup-{version}.exe** ci-dessous et lancez-le.""",
     "es": """### Novedades de la {version}
@@ -81,7 +81,7 @@ WHATS_NEW = {
 - **El navegador en paralelo.** El navegador puede ocupar ahora una mitad de la pantalla, junto al mapa por ejemplo, con su propia barra de direcciones y página de inicio.
 - Nuevos accesos en la página de inicio del navegador: Google, tabii, TRT Spor y sahibinden. Guarda cualquier otra página ahí con la estrella.
 - **Cierra las apps desde el dock:** cada app abierta tiene una x en la esquina. Cierra la app y detiene lo que reproduce.
-- **Modo de control sin el menú de pausa:** detrás de la pantalla ampliada ahora ves el juego como estaba al pulsar `Ctrl+Alt+C`, oscurecido, en lugar del menú de pausa. Ahora se abre con una animación suave, y en *Ajustes* > *Controles* eliges su tamaño y la velocidad del cursor.
+- **Modo de control sin el menú de pausa:** detrás de la pantalla ampliada ahora ves el juego como estaba al pulsar `Ctrl+Alt+C`, oscurecido, en lugar del menú de pausa. Ahora se abre con una animación suave, y en *Ajustes* > *Controles* eliges su tamaño y la sensibilidad del cursor.
 
 **¿Usas CabinPlay 1.2.0?** La actualización llega sola y se instala al cerrar el juego. ¿Una versión anterior? Cierra el juego, descarga **CabinPlay-Setup-{version}.exe** abajo y ejecútalo.""",
     "ru": """### Что нового в {version}
@@ -91,7 +91,7 @@ WHATS_NEW = {
 - **Браузер рядом с другим приложением.** Браузер теперь может занимать половину экрана, например рядом с картой, со своей адресной строкой и стартовой страницей.
 - Новые ярлыки на стартовой странице браузера: Google, tabii, TRT Spor и sahibinden. Любую другую страницу можно оставить там звездой.
 - **Закрытие приложений из дока:** у каждого открытого приложения в углу есть крестик. Он закрывает приложение и останавливает воспроизведение.
-- **Режим управления без меню паузы:** за увеличенным экраном теперь видна затемнённая картинка игры в момент нажатия `Ctrl+Alt+C`, а не меню паузы. Экран теперь плавно открывается, а в *Настройки* > *Управление* можно выбрать его размер и скорость курсора.
+- **Режим управления без меню паузы:** за увеличенным экраном теперь видна затемнённая картинка игры в момент нажатия `Ctrl+Alt+C`, а не меню паузы. Экран теперь плавно открывается, а в *Настройки* > *Управление* можно выбрать его размер и чувствительность курсора.
 
 **Пользуетесь CabinPlay 1.2.0?** Обновление придёт само и установится, когда вы закроете игру. Более старая версия? Закройте игру, скачайте ниже **CabinPlay-Setup-{version}.exe** и запустите.""",
 }

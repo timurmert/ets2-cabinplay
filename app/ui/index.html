@@ -260,11 +260,15 @@
     <!-- Shortcuts: one row per action (ACTIONS in shell.js), with its key and its
          controller button. -->
     <div class="tab" data-tab="controls" hidden>
-      <!-- control mode's screen size (percent of the game's width) and cursor speed (percent) -->
-      <div class="setting"><span data-i18n="ctlSize"></span>
-        <span id="settings-size" class="choice"><button data-value="45" data-i18n="sizeS"></button><button data-value="60" data-i18n="sizeM"></button><button data-value="75" data-i18n="sizeL"></button><button data-value="90" data-i18n="sizeXL"></button></span></div>
-      <div class="setting"><span data-i18n="ctlSpeed"></span>
-        <span id="settings-speed" class="choice"><button data-value="60" data-i18n="speedSlow"></button><button data-value="100" data-i18n="speedNormal"></button><button data-value="150" data-i18n="speedFast"></button><button data-value="200" data-i18n="speedFaster"></button></span></div>
+      <!-- control mode: its screen size (percent of the game's width) and cursor sensitivity
+           (cursor speed in percent, shown as 1.0 for 100) -->
+      <div class="ctl-group">
+        <div class="ctl-title" data-i18n="ctlGroup"></div>
+        <div class="setting"><span data-i18n="ctlSize"></span>
+          <span id="settings-size" class="choice"><button data-value="45" data-i18n="sizeS"></button><button data-value="60" data-i18n="sizeM"></button><button data-value="75" data-i18n="sizeL"></button><button data-value="90" data-i18n="sizeXL"></button></span></div>
+        <div class="setting"><span data-i18n="ctlSpeed"></span>
+          <span id="settings-speed" class="stepper"><button data-step="-10">&minus;</button><input type="range" min="30" max="400" step="10" value="100"><button data-step="10">+</button><b></b></span></div>
+      </div>
       <div class="bind-head"><span data-i18n="ctlAction"></span><span data-i18n="ctlKeyboard"></span><span data-i18n="ctlController"></span></div>
       <div id="binds"></div>
       <p data-i18n="ctlHint"></p>

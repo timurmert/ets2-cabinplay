@@ -426,6 +426,21 @@ svg.filled, svg .filled { fill: currentColor; stroke: none; }
 .wall:hover .wall-remove { display: grid; }
 .wall-remove:hover { background: #ff453a; }
 
+/* control mode's settings, in a box of their own above the shortcuts */
+.ctl-group { flex: none; margin-bottom: 18px; padding: 10px 16px 4px; border-radius: 16px; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .08); }
+.ctl-title { font-size: 12px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--fg-dim); margin-bottom: 2px; }
+.ctl-group .setting { padding: 7px 0; font-size: 16px; }
+.ctl-group .setting:last-child { border-bottom: none; }
+/* a number set with the slider or with - and + */
+.stepper { flex: none; display: flex; align-items: center; gap: 8px; }
+.stepper button { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: rgba(255, 255, 255, .10); font-size: 19px; font-weight: 700; line-height: 1; }
+.stepper button:hover { background: rgba(255, 255, 255, .18); }
+.stepper button:active { transform: scale(.92); }
+.stepper b { min-width: 34px; text-align: right; font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stepper input { -webkit-appearance: none; appearance: none; width: 190px; height: 30px; background: transparent; cursor: pointer; }
+.stepper input::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .16); }
+.stepper input::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; margin-top: -7px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .5); }
+
 /* shortcuts */
 .bind, .bind-head { display: grid; grid-template-columns: 1fr 166px 190px 28px; align-items: center; gap: 8px; }
 .bind-head { padding: 0 8px 5px 0; font-size: 12px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--fg-dim); }

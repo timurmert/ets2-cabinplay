@@ -174,20 +174,31 @@
   let config = { wallpaper: null, wallpapers: [], wallpaperHost: '', bindings: [], capturing: null, update: null,
     control: null };
 
-  // Control mode's screen size and cursor speed: kept by the host, used by the plugin. Until
-  // one is picked, the plugin's own (cabinplay.ini) applies, which is the middle one.
-  const CONTROL_OPTIONS = [['settings-size', 'overlaySize', 60], ['settings-speed', 'cursorSpeed', 100]];
-  for (const [list, name] of CONTROL_OPTIONS) {
-    for (const b of $(list).children) {
-      b.addEventListener('click', () => send({ type: 'control-option', name, value: Number(b.dataset.value) }));
-    }
+  // Control mode's screen size and cursor sensitivity: kept by the host, used by the plugin.
+  // Until one is picked, the plugin's own (cabinplay.ini) applies: medium size, 1.0.
+  for (const b of $('settings-size').children) {
+    b.addEventListener('click', () => send({ type: 'control-option', name: 'overlaySize', value: Number(b.dataset.value) }));
+  }
+  const speedRange = $('settings-speed').querySelector('input');
+  const showSpeed = (value) => { $('settings-speed').querySelector('b').textContent = fmtKm.format(value / 100); };
+  function setSpeed(value) {
+    value = Math.max(30, Math.min(400, Math.round(value / 10) * 10));
+    speedRange.value = value;
+    showSpeed(value);
+    send({ type: 'control-option', name: 'cursorSpeed', value });
+  }
+  speedRange.addEventListener('input', () => showSpeed(Number(speedRange.value))); // while it is dragged
+  speedRange.addEventListener('change', () => setSpeed(Number(speedRange.value)));
+  for (const b of $('settings-speed').querySelectorAll('button')) {
+    b.addEventListener('click', () => setSpeed(Number(speedRange.value) + Number(b.dataset.step)));
   }
   function layoutControlOptions() {
     const chosen = config.control || {};
-    for (const [list, name, standard] of CONTROL_OPTIONS) {
-      for (const b of $(list).children) b.classList.toggle('on', Number(b.dataset.value) === (chosen[name] || standard));
-    }
+    for (const b of $('settings-size').children) b.classList.toggle('on', Number(b.dataset.value) === (chosen.overlaySize || 60));
+    speedRange.value = chosen.cursorSpeed || 100;
+    showSpeed(Number(speedRange.value));
   }
+
 
   // Updates are downloaded while the game runs and installed by the host once it closes:
   // by themselves ("auto") or once the player has pressed Update ("ask").
