@@ -166,8 +166,8 @@ static volatile double g_overlay_opened_ms, g_overlay_closed_ms;
 #define OVERLAY_CLOSE_MS 150.0
 /* Closing, the game's picture stays over the game until the game runs again (see cover_left). */
 #define COVER_WAIT_MS 2000.0
-#define COVER_SETTLE_MS 60.0
-#define COVER_FADE_MS 120.0
+#define COVER_SETTLE_MS 350.0 /* the game's pause menu takes a moment to fade out after it runs again */
+#define COVER_FADE_MS 150.0
 static volatile double g_resumed_ms; /* when the game was seen running again after control mode closed */
 static volatile int g_freeze_state; /* control mode's frozen picture: 0 not taken yet, 1 taken, -1 not possible */
 
@@ -1068,7 +1068,7 @@ static float cover_left(void)
     }
     float t = (float)((now - g_resumed_ms - COVER_SETTLE_MS) / COVER_FADE_MS);
     if (t <= 0)
-        return 1.0f; /* the game's menu may still be in the frame that follows */
+        return 1.0f; /* the game's menu is still fading out */
     return t >= 1.0f ? 0.0f : 1.0f - t;
 }
 

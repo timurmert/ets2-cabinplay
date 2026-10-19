@@ -834,7 +834,12 @@ int main(int argc, char **argv)
         check(px[2] > 240 && px[1] < 10, "the game's picture stays over the pause menu until the game runs");
         g_event_cb[4](4, NULL, NULL); /* running again */
         present(hdr, 1);
-        Sleep(250);
+        Sleep(200);
+        ID3D11DeviceContext_ClearRenderTargetView(ctx, rtv, green); /* the menu fading out */
+        present(hdr, 1);
+        read_pixel(back, 0, 20, 20, px);
+        check(px[2] > 240 && px[1] < 10, "and a moment longer, while the game's menu fades out");
+        Sleep(400);
         ID3D11DeviceContext_ClearRenderTargetView(ctx, rtv, green);
         present(hdr, 1);
         read_pixel(back, 0, 20, 20, px);
