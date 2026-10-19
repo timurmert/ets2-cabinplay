@@ -31,9 +31,9 @@ WHATS_NEW = {
 - **A TV for the driver:** *CabinPlay TV (Windscreen, to the driver)* stands off the middle of the windscreen on an arm, turned to you. The 11 inch *Centre* screen now sits nearer the driver and faces them squarely in every truck.
 - **The browser side by side.** The browser can now take one half of the screen, next to the map for example, with its own address bar and start page.
 - The browser's start page has new shortcuts: Google, tabii, TRT Spor and sahibinden. Keep any other page there with the star.
-- **Fix:** quitting the game from its menu no longer lets a paused video play on for a few seconds.
 - **Close apps from the dock:** each open app has an x on its corner. It closes the app and stops what it plays.
 - **Control mode without the pause menu:** behind the enlarged screen you now see the game as it was when you pressed `Ctrl+Alt+C`, dimmed, instead of the game's pause menu. It also grows smoothly into place, and *Settings* > *Controls* now has its screen size and cursor sensitivity.
+- **Fix:** quitting the game from its menu no longer lets a paused video play on for a few seconds.
 
 **Already using CabinPlay 1.2.0?** The update comes by itself: it installs when you close the game. Using an older version? Close the game, download **CabinPlay-Setup-{version}.exe** below and run it.""",
     "tr": """### {version} sürümünde neler var
@@ -43,9 +43,9 @@ WHATS_NEW = {
 - **Sürücüye dönük TV:** *CabinPlay TV (Windscreen, to the driver)* ön camın ortasından bir kolla öne çıkıyor ve sana dönük duruyor. 11 inçlik *Centre* ekran da artık sürücüye daha yakın duruyor ve her tırda tam sürücüye bakıyor.
 - **Tarayıcı yan yana.** Tarayıcı artık ekranın bir yarısını alabiliyor, örneğin haritanın yanında; kendi adres çubuğu ve başlangıç sayfasıyla.
 - Tarayıcının başlangıç sayfasında yeni kısayollar var: Google, tabii, TRT Spor ve sahibinden. İstediğin başka sayfayı yıldızla buraya ekleyebilirsin.
-- **Düzeltme:** oyundan menü üzerinden çıkınca duraklatılmış video artık birkaç saniye kendiliğinden devam etmiyor.
 - **Uygulamaları dock'tan kapat:** açık her uygulamanın köşesinde bir çarpı var. Uygulamayı kapatır, çalanı da durdurur.
 - **Kontrol modunda duraklatma menüsü yok:** büyütülmüş ekranın arkasında artık oyunun duraklatma menüsü değil, `Ctrl+Alt+C`'ye bastığın andaki oyun görüntüsü karartılmış olarak duruyor. Ekran artık yumuşak bir efektle açılıyor; boyutunu ve imleç hassasiyetini *Ayarlar* > *Kontroller*'den ayarlayabilirsin.
+- **Düzeltme:** oyundan menü üzerinden çıkınca duraklatılmış video artık birkaç saniye kendiliğinden devam etmiyor.
 
 **CabinPlay 1.2.0 mı kullanıyorsun?** Güncelleme kendiliğinden gelir, oyunu kapattığında kurulur. Daha eski bir sürümdeysen oyunu kapat, aşağıdan **CabinPlay-Setup-{version}.exe**'yi indir ve çalıştır.""",
     "de": """### Neu in {version}
@@ -55,9 +55,9 @@ WHATS_NEW = {
 - **Ein Fernseher für den Fahrer:** *CabinPlay TV (Windscreen, to the driver)* steht an einem Arm vor der Mitte der Windschutzscheibe, zu dir gedreht. Der 11-Zoll-Bildschirm *Centre* schaut jetzt in jedem Lkw genau zum Fahrer.
 - **Der Browser nebeneinander.** Der Browser kann jetzt eine Bildschirmhälfte einnehmen, zum Beispiel neben der Karte, mit eigener Adressleiste und Startseite.
 - Neue Verknüpfungen auf der Startseite des Browsers: Google, tabii, TRT Spor und sahibinden. Jede andere Seite behältst du dort mit dem Stern.
-- **Behoben:** Beendest du das Spiel über sein Menü, läuft ein angehaltenes Video nicht mehr ein paar Sekunden weiter.
 - **Apps im Dock schließen:** Jede offene App hat ein x an der Ecke. Es schließt die App und beendet, was sie abspielt.
 - **Steuermodus ohne Pausenmenü:** Hinter dem vergrößerten Bildschirm siehst du jetzt das Spiel, wie es beim Drücken von `Ctrl+Alt+C` war, abgedunkelt, statt des Pausenmenüs. Er wächst jetzt sanft auf, und unter *Einstellungen* > *Steuerung* stellst du seine Größe und die Zeigerempfindlichkeit ein.
+- **Behoben:** Beendest du das Spiel über sein Menü, läuft ein angehaltenes Video nicht mehr ein paar Sekunden weiter.
 
 **Du nutzt CabinPlay 1.2.0?** Das Update kommt von selbst und wird beim Schließen des Spiels installiert. Ältere Version? Schließe das Spiel, lade unten **CabinPlay-Setup-{version}.exe** herunter und starte es.""",
     "pl": """### Co nowego w {version}
@@ -67,9 +67,9 @@ WHATS_NEW = {
 - **Telewizor dla kierowcy:** *CabinPlay TV (Windscreen, to the driver)* stoi na ramieniu przed środkiem szyby, zwrócony do ciebie. 11-calowy ekran *Centre* w każdej ciężarówce patrzy teraz prosto na kierowcę.
 - **Przeglądarka obok innej aplikacji.** Przeglądarka może teraz zająć połowę ekranu, na przykład obok mapy, z własnym paskiem adresu i stroną startową.
 - Nowe skróty na stronie startowej przeglądarki: Google, tabii, TRT Spor i sahibinden. Każdą inną stronę zachowasz tam gwiazdką.
-- **Poprawka:** po wyjściu z gry przez jej menu wstrzymane wideo nie gra już przez kilka sekund.
 - **Zamykanie aplikacji z doku:** każda otwarta aplikacja ma x w rogu. Zamyka aplikację i zatrzymuje to, co odtwarza.
 - **Tryb sterowania bez menu pauzy:** za powiększonym ekranem widać teraz przyciemniony obraz gry z chwili naciśnięcia `Ctrl+Alt+C` zamiast menu pauzy. Ekran płynnie się teraz otwiera, a w *Ustawienia* > *Sterowanie* wybierzesz jego rozmiar i czułość kursora.
+- **Poprawka:** po wyjściu z gry przez jej menu wstrzymane wideo nie gra już przez kilka sekund.
 
 **Masz CabinPlay 1.2.0?** Aktualizacja przyjdzie sama i zainstaluje się po zamknięciu gry. Starsza wersja? Zamknij grę, pobierz poniżej **CabinPlay-Setup-{version}.exe** i uruchom go.""",
     "fr": """### Nouveautés de la version {version}
@@ -79,9 +79,9 @@ WHATS_NEW = {
 - **Une télé pour le conducteur :** *CabinPlay TV (Windscreen, to the driver)* se tient sur un bras devant le milieu du pare-brise, tournée vers vous. L'écran *Centre* de 11 pouces fait maintenant face au conducteur dans chaque camion.
 - **Le navigateur côte à côte.** Le navigateur peut maintenant occuper une moitié de l'écran, à côté de la carte par exemple, avec sa propre barre d'adresse et sa page de démarrage.
 - Nouveaux raccourcis sur la page de démarrage du navigateur : Google, tabii, TRT Spor et sahibinden. Gardez-y toute autre page avec l'étoile.
-- **Correction :** quitter le jeu depuis son menu ne relance plus pendant quelques secondes une vidéo en pause.
 - **Fermer les apps depuis le dock :** chaque app ouverte a un x dans son coin. Il ferme l'app et arrête ce qu'elle joue.
 - **Mode contrôle sans le menu de pause :** derrière l'écran agrandi, vous voyez maintenant le jeu tel qu'il était quand vous avez appuyé sur `Ctrl+Alt+C`, assombri, au lieu du menu de pause. Il s'ouvre maintenant en douceur, et *Réglages* > *Commandes* permet de choisir sa taille et la sensibilité du curseur.
+- **Correction :** quitter le jeu depuis son menu ne relance plus pendant quelques secondes une vidéo en pause.
 
 **Vous utilisez CabinPlay 1.2.0 ?** La mise à jour arrive toute seule et s'installe à la fermeture du jeu. Version plus ancienne ? Fermez le jeu, téléchargez **CabinPlay-Setup-{version}.exe** ci-dessous et lancez-le.""",
     "es": """### Novedades de la {version}
@@ -91,9 +91,9 @@ WHATS_NEW = {
 - **Una tele para el conductor:** *CabinPlay TV (Windscreen, to the driver)* se sostiene en un brazo delante del centro del parabrisas, girada hacia ti. La pantalla *Centre* de 11 pulgadas mira ahora de frente al conductor en todos los camiones.
 - **El navegador en paralelo.** El navegador puede ocupar ahora una mitad de la pantalla, junto al mapa por ejemplo, con su propia barra de direcciones y página de inicio.
 - Nuevos accesos en la página de inicio del navegador: Google, tabii, TRT Spor y sahibinden. Guarda cualquier otra página ahí con la estrella.
-- **Corregido:** al salir del juego desde su menú, un vídeo en pausa ya no sigue reproduciéndose unos segundos.
 - **Cierra las apps desde el dock:** cada app abierta tiene una x en la esquina. Cierra la app y detiene lo que reproduce.
 - **Modo de control sin el menú de pausa:** detrás de la pantalla ampliada ahora ves el juego como estaba al pulsar `Ctrl+Alt+C`, oscurecido, en lugar del menú de pausa. Ahora se abre con una animación suave, y en *Ajustes* > *Controles* eliges su tamaño y la sensibilidad del cursor.
+- **Corregido:** al salir del juego desde su menú, un vídeo en pausa ya no sigue reproduciéndose unos segundos.
 
 **¿Usas CabinPlay 1.2.0?** La actualización llega sola y se instala al cerrar el juego. ¿Una versión anterior? Cierra el juego, descarga **CabinPlay-Setup-{version}.exe** abajo y ejecútalo.""",
     "ru": """### Что нового в {version}
@@ -103,9 +103,9 @@ WHATS_NEW = {
 - **Телевизор для водителя:** *CabinPlay TV (Windscreen, to the driver)* стоит на кронштейне перед серединой лобового стекла и повёрнут к вам. 11-дюймовый экран *Centre* теперь в каждом грузовике смотрит прямо на водителя.
 - **Браузер рядом с другим приложением.** Браузер теперь может занимать половину экрана, например рядом с картой, со своей адресной строкой и стартовой страницей.
 - Новые ярлыки на стартовой странице браузера: Google, tabii, TRT Spor и sahibinden. Любую другую страницу можно оставить там звездой.
-- **Исправлено:** при выходе из игры через её меню приостановленное видео больше не продолжает играть несколько секунд.
 - **Закрытие приложений из дока:** у каждого открытого приложения в углу есть крестик. Он закрывает приложение и останавливает воспроизведение.
 - **Режим управления без меню паузы:** за увеличенным экраном теперь видна затемнённая картинка игры в момент нажатия `Ctrl+Alt+C`, а не меню паузы. Экран теперь плавно открывается, а в *Настройки* > *Управление* можно выбрать его размер и чувствительность курсора.
+- **Исправлено:** при выходе из игры через её меню приостановленное видео больше не продолжает играть несколько секунд.
 
 **Пользуетесь CabinPlay 1.2.0?** Обновление придёт само и установится, когда вы закроете игру. Более старая версия? Закройте игру, скачайте ниже **CabinPlay-Setup-{version}.exe** и запустите.""",
 }
