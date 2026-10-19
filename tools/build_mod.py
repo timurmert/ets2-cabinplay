@@ -141,13 +141,16 @@ def centre_down(truck):
 def centre_variant(base, truck):
     down = centre_down(truck)
     cup = min(max(down - 0.02, 0.0), 0.10)  # as far down the glass as the game's own suction toys go
+    aside = 0.0  # towards the driver, along the glass
     if base.get("big"):
         # 13 inch: its lower edge where the 11 inch one has it, clear of the dashboard, and
-        # further off the glass, which its right edge comes towards as it turns: 19 cm keeps at
-        # least 2.7 cm between them in every truck.
+        # 15 cm nearer the driver, where it stays in view (the cup on the glass goes along).
+        # 19 cm off the glass, which its far edge comes towards as it turns, keeps at least
+        # 3 cm between them in every truck; its near edge stays right of the steering wheel.
         size = dict(screen=(0.1477, 0.0738), screen_r=0.0060, body=(0.1547, 0.0808, 0.0100, 0.0140))
         rise = 0.0108
-        center = (0.0, -down + rise, -GLASS_LEAN * (down - rise) + 0.190)
+        aside = math.copysign(0.15, base["yaw"])
+        center = (aside, -down + rise, -GLASS_LEAN * (down - rise) + 0.190)
     else:
         size = dict(screen=(0.1260, 0.0630), screen_r=0.0055, body=(0.1330, 0.0700, 0.0095, 0.0130))
         center = (0.0, -down, -GLASS_LEAN * down + 0.150)
@@ -158,7 +161,7 @@ def centre_variant(base, truck):
     turn = round(math.degrees(math.atan2(abs(at[0]), -at[2])))
     return dict(base, model="%s_%d_%d" % (base["model"], round(down * 100) + 3, turn),
                 yaw=math.copysign(turn, base["yaw"]), center=center, tilt=14.0, **size,
-                cup=(0.0, -cup, -GLASS_LEAN * cup - 0.002), glass=(0.0, -GLASS_LEAN, 1.0))
+                cup=(aside, -cup, -GLASS_LEAN * cup - 0.002), glass=(0.0, -GLASS_LEAN, 1.0))
 
 
 # Screen sizes: half width, half height of the picture, its corner radius, and the tablet body
