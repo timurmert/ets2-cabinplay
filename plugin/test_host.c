@@ -592,6 +592,17 @@ int main(int argc, char **argv)
         BYTE keys[256];
         DIMOUSESTATE ms;
         check(SUCCEEDED(IDirectInputDevice8_GetDeviceState(kb, sizeof(keys), keys)), "keyboard read passes through");
+        {
+            /* the game's picture as control mode opens: blue */
+            ID3D11Texture2D *back = NULL;
+            IDXGISwapChain_GetBuffer(sc, 0, &IID_ID3D11Texture2D, (void **)&back);
+            ID3D11RenderTargetView *rtv = NULL;
+            ID3D11Device_CreateRenderTargetView(dev, (ID3D11Resource *)back, NULL, &rtv);
+            const FLOAT blue[4] = {0, 0, 1, 1};
+            ID3D11DeviceContext_ClearRenderTargetView(ctx, rtv, blue);
+            ID3D11RenderTargetView_Release(rtv);
+            ID3D11Texture2D_Release(back);
+        }
         control(1);
         present(hdr, 2);
         check(state && (state->flags & CABINPLAY_STATE_CONTROL), "control mode switches on");
@@ -619,7 +630,8 @@ int main(int argc, char **argv)
         read_pixel(back, 0, 640 + 200, 360 + 60, px); /* RGBA back buffer, off the cursor */
         check(near_(px[0], 0x33, 2) && near_(px[1], 0x22, 2) && near_(px[2], 0x11, 2), "screen is drawn over the game");
         read_pixel(back, 0, 20, 20, px);
-        check(px[0] == 0 && px[1] >= 35 && px[1] <= 60 && px[2] == 0, "rest of the game picture is dimmed");
+        check(px[0] == 0 && px[1] == 0 && near_(px[2], 115, 4),
+              "behind it, the game's picture from when control mode opened, dimmed (not the pause menu)");
         ID3D11RenderTargetView *bound = NULL;
         ID3D11DeviceContext_OMGetRenderTargets(ctx, 1, &bound, NULL);
         check(bound == rtv, "game's render target is bound again afterwards");
