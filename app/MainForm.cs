@@ -527,6 +527,8 @@ internal sealed class MainForm : Form
             return;
         Controls.Remove(app.View);
         app.View.Dispose();
+        if (app.Bar && _shellView == "browser")
+            _shellView = "home"; // not the start page of a browser that is gone
         if (_split is { } s && (s.Left == id || s.Right == id))
             _split = null;
         if (_paneStart == id)

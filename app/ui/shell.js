@@ -72,6 +72,19 @@
     }
   }
 
+  // The dock's x: the app is closed for good (a site's page and whatever it plays) and its
+  // shortcut leaves the dock. If it was on the screen, the home screen takes its place.
+  function closeApp(app) {
+    const onScreen = state.split ? state.split.includes(app.id) : frontId() === app.id;
+    const wasOpen = state.open.includes(app.id);
+    usedViews.delete(app.id);
+    state = { ...state, open: state.open.filter((id) => id !== app.id) };
+    // Home first: the host's answer to the close must not find the app still in front.
+    if (onScreen) showView('home');
+    else render();
+    if (wasOpen) send({ type: 'close-app', id: app.id });
+  }
+
   function showView(view) {
     $('settings').hidden = true;
     // Applied at once so the screen does not wait for the host's next state message.
@@ -945,13 +958,24 @@
     dock.classList.toggle('crowded', shown.length >= 6);
     dock.replaceChildren();
     for (const app of shown) {
+      const item = document.createElement('div');
+      item.className = 'dock-item';
       const el = document.createElement('button');
       el.className = 'dock-app' + ((split ? split.includes(app.id) : app.id === front) ? ' active' : '')
         + (playing && media.app === app.id ? ' playing' : '');
       el.title = appName(app);
       el.innerHTML = app.icon;
       el.addEventListener('click', () => open(app));
-      dock.appendChild(el);
+      const close = document.createElement('button');
+      close.className = 'dock-close';
+      close.title = t('closeApp');
+      close.innerHTML = '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>';
+      close.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeApp(app);
+      });
+      item.append(el, close);
+      dock.appendChild(item);
     }
     const activeApp = apps.find((a) => a.id === state.active);
     $('dock-fullscreen').hidden = !(activeApp && activeApp.fullscreenKey);

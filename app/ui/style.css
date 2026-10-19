@@ -108,8 +108,30 @@ svg.filled, svg .filled { fill: currentColor; stroke: none; }
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  padding-top: 6px;
+  padding-top: 9px; /* room for the first app's x */
 }
+
+/* An open app's shortcut, with the x that closes it on its corner. */
+.dock-item { position: relative; flex: none; }
+.dock-close {
+  position: absolute;
+  top: -7px;
+  right: -9px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #3a3a46;
+  border: 1.5px solid rgba(8, 8, 14, .9);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .5);
+}
+.dock-close svg { width: 13px; height: 13px; stroke-width: 3.2; }
+.dock-close:hover { background: #ff453a; }
+.dock-close:active { transform: scale(.9); }
+#dock-apps.lots .dock-close, #dock-apps.crowded .dock-close { top: -6px; right: -8px; width: 18px; height: 18px; }
+#dock-apps.lots .dock-close svg, #dock-apps.crowded .dock-close svg { width: 11px; height: 11px; }
 
 .dock-app {
   position: relative;

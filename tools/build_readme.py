@@ -30,6 +30,7 @@ WHATS_NEW = {
 - **A bigger screen:** *CabinPlay Screen (Large)* is now 13 inch, on the same arm at the left of the windscreen. The 11 inch one you know is now called *Medium*; trucks that have it keep it.
 - **The browser side by side.** The browser can now take one half of the screen, next to the map for example, with its own address bar and start page.
 - The browser's start page has new shortcuts: Google, tabii, TRT Spor and sahibinden. Keep any other page there with the star.
+- **Close apps from the dock:** each open app has an x on its corner. It closes the app and stops what it plays.
 
 **Already using CabinPlay 1.2.0?** The update comes by itself: it installs when you close the game. Using an older version? Close the game, download **CabinPlay-Setup-{version}.exe** below and run it.""",
     "tr": """### {version} sürümünde neler var
@@ -38,6 +39,7 @@ WHATS_NEW = {
 - **Daha büyük ekran:** *CabinPlay Screen (Large)* artık 13 inç, ön camın solunda aynı kolda. Bildiğin 11 inçlik ekranın adı artık *Medium*; onu takmış tırlarda yerinde kalıyor.
 - **Tarayıcı yan yana.** Tarayıcı artık ekranın bir yarısını alabiliyor, örneğin haritanın yanında; kendi adres çubuğu ve başlangıç sayfasıyla.
 - Tarayıcının başlangıç sayfasında yeni kısayollar var: Google, tabii, TRT Spor ve sahibinden. İstediğin başka sayfayı yıldızla buraya ekleyebilirsin.
+- **Uygulamaları dock'tan kapat:** açık her uygulamanın köşesinde bir çarpı var. Uygulamayı kapatır, çalanı da durdurur.
 
 **CabinPlay 1.2.0 mı kullanıyorsun?** Güncelleme kendiliğinden gelir, oyunu kapattığında kurulur. Daha eski bir sürümdeysen oyunu kapat, aşağıdan **CabinPlay-Setup-{version}.exe**'yi indir ve çalıştır.""",
     "de": """### Neu in {version}
@@ -46,6 +48,7 @@ WHATS_NEW = {
 - **Ein größerer Bildschirm:** *CabinPlay Screen (Large)* hat jetzt 13 Zoll, am selben Arm links an der Windschutzscheibe. Der bekannte 11-Zoll-Bildschirm heißt jetzt *Medium*; Lkw, die ihn haben, behalten ihn.
 - **Der Browser nebeneinander.** Der Browser kann jetzt eine Bildschirmhälfte einnehmen, zum Beispiel neben der Karte, mit eigener Adressleiste und Startseite.
 - Neue Verknüpfungen auf der Startseite des Browsers: Google, tabii, TRT Spor und sahibinden. Jede andere Seite behältst du dort mit dem Stern.
+- **Apps im Dock schließen:** Jede offene App hat ein x an der Ecke. Es schließt die App und beendet, was sie abspielt.
 
 **Du nutzt CabinPlay 1.2.0?** Das Update kommt von selbst und wird beim Schließen des Spiels installiert. Ältere Version? Schließe das Spiel, lade unten **CabinPlay-Setup-{version}.exe** herunter und starte es.""",
     "pl": """### Co nowego w {version}
@@ -54,6 +57,7 @@ WHATS_NEW = {
 - **Większy ekran:** *CabinPlay Screen (Large)* ma teraz 13 cali, na tym samym ramieniu po lewej stronie szyby. Znany ekran 11-calowy nazywa się teraz *Medium*; ciężarówki, które go mają, zachowują go.
 - **Przeglądarka obok innej aplikacji.** Przeglądarka może teraz zająć połowę ekranu, na przykład obok mapy, z własnym paskiem adresu i stroną startową.
 - Nowe skróty na stronie startowej przeglądarki: Google, tabii, TRT Spor i sahibinden. Każdą inną stronę zachowasz tam gwiazdką.
+- **Zamykanie aplikacji z doku:** każda otwarta aplikacja ma x w rogu. Zamyka aplikację i zatrzymuje to, co odtwarza.
 
 **Masz CabinPlay 1.2.0?** Aktualizacja przyjdzie sama i zainstaluje się po zamknięciu gry. Starsza wersja? Zamknij grę, pobierz poniżej **CabinPlay-Setup-{version}.exe** i uruchom go.""",
     "fr": """### Nouveautés de la version {version}
@@ -62,6 +66,7 @@ WHATS_NEW = {
 - **Un écran plus grand :** *CabinPlay Screen (Large)* fait maintenant 13 pouces, sur le même bras à gauche du pare-brise. L'écran de 11 pouces que vous connaissez s'appelle maintenant *Medium* ; les camions qui l'ont le gardent.
 - **Le navigateur côte à côte.** Le navigateur peut maintenant occuper une moitié de l'écran, à côté de la carte par exemple, avec sa propre barre d'adresse et sa page de démarrage.
 - Nouveaux raccourcis sur la page de démarrage du navigateur : Google, tabii, TRT Spor et sahibinden. Gardez-y toute autre page avec l'étoile.
+- **Fermer les apps depuis le dock :** chaque app ouverte a un x dans son coin. Il ferme l'app et arrête ce qu'elle joue.
 
 **Vous utilisez CabinPlay 1.2.0 ?** La mise à jour arrive toute seule et s'installe à la fermeture du jeu. Version plus ancienne ? Fermez le jeu, téléchargez **CabinPlay-Setup-{version}.exe** ci-dessous et lancez-le.""",
     "es": """### Novedades de la {version}
@@ -70,6 +75,7 @@ WHATS_NEW = {
 - **Una pantalla más grande:** *CabinPlay Screen (Large)* tiene ahora 13 pulgadas, en el mismo brazo a la izquierda del parabrisas. La de 11 pulgadas que conoces se llama ahora *Medium*; los camiones que la tienen la conservan.
 - **El navegador en paralelo.** El navegador puede ocupar ahora una mitad de la pantalla, junto al mapa por ejemplo, con su propia barra de direcciones y página de inicio.
 - Nuevos accesos en la página de inicio del navegador: Google, tabii, TRT Spor y sahibinden. Guarda cualquier otra página ahí con la estrella.
+- **Cierra las apps desde el dock:** cada app abierta tiene una x en la esquina. Cierra la app y detiene lo que reproduce.
 
 **¿Usas CabinPlay 1.2.0?** La actualización llega sola y se instala al cerrar el juego. ¿Una versión anterior? Cierra el juego, descarga **CabinPlay-Setup-{version}.exe** abajo y ejecútalo.""",
     "ru": """### Что нового в {version}
@@ -78,6 +84,7 @@ WHATS_NEW = {
 - **Экран побольше:** *CabinPlay Screen (Large)* теперь 13 дюймов, на том же кронштейне слева на лобовом стекле. Привычный 11-дюймовый экран теперь называется *Medium*; в грузовиках, где он стоит, он остаётся.
 - **Браузер рядом с другим приложением.** Браузер теперь может занимать половину экрана, например рядом с картой, со своей адресной строкой и стартовой страницей.
 - Новые ярлыки на стартовой странице браузера: Google, tabii, TRT Spor и sahibinden. Любую другую страницу можно оставить там звездой.
+- **Закрытие приложений из дока:** у каждого открытого приложения в углу есть крестик. Он закрывает приложение и останавливает воспроизведение.
 
 **Пользуетесь CabinPlay 1.2.0?** Обновление придёт само и установится, когда вы закроете игру. Более старая версия? Закройте игру, скачайте ниже **CabinPlay-Setup-{version}.exe** и запустите.""",
 }
