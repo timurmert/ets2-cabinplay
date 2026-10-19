@@ -61,7 +61,7 @@ Close the game, then pick one:
 
 1. Start the game and accept the "SDK features" notice it shows once.
 2. In the **Mod Manager**, switch on **CabinPlay Screen**.
-3. In a truck workshop, fit **CabinPlay Screen** in a windscreen accessory slot. On the left there are three versions, *Large* (13") and *Medium* (11") on an arm, and *Compact* (10", at the glass); in the middle slot there is *Centre* (11") or *Centre, Large* (13"), turned towards the driver (each with a version of its own for right-hand-drive cabins).
+3. In a truck workshop, fit **CabinPlay Screen** in a windscreen accessory slot. On the left there are three versions, *Large* (13") and *Medium* (11") on an arm, and *Compact* (10", at the glass); in the middle slot there is *Centre* (11"), *Centre, Large* (13") or *Centre, X-Large* (15"), turned towards the driver (each with a version of its own for right-hand-drive cabins).
 
 That's it. The screen switches on with the truck's ignition. Installed with the setup, CabinPlay keeps itself up to date: it downloads a new version while you play and installs it when you close the game and shows it on the screen; under *Settings* > *Updates* you can have it ask first, or turn it off. To remove CabinPlay, open Windows *Settings* > *Apps*, or run `Uninstall.exe` in `%LocalAppData%\Programs\CabinPlay`; if you installed it by hand, delete the files you copied.
 

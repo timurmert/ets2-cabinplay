@@ -61,7 +61,7 @@ Cierra el juego y después elige una opción:
 
 1. Inicia el juego y acepta el aviso de "funciones del SDK" que aparece una vez.
 2. En el **Gestor de mods**, activa **CabinPlay Screen**.
-3. En un taller, monta **CabinPlay Screen** en una ranura de accesorios del parabrisas. A la izquierda hay tres versiones: *Large* (13") y *Medium* (11") en un brazo, y *Compact* (10", junto al cristal); en la ranura central están *Centre* (11") y *Centre, Large* (13"), giradas hacia el conductor (cada una con una versión propia para cabinas con volante a la derecha).
+3. En un taller, monta **CabinPlay Screen** en una ranura de accesorios del parabrisas. A la izquierda hay tres versiones: *Large* (13") y *Medium* (11") en un brazo, y *Compact* (10", junto al cristal); en la ranura central están *Centre* (11"), *Centre, Large* (13") y *Centre, X-Large* (15"), giradas hacia el conductor (cada una con una versión propia para cabinas con volante a la derecha).
 
 Eso es todo. La pantalla se enciende con el contacto del camión. Si lo instalaste con el instalador, CabinPlay se actualiza solo: descarga la nueva versión mientras juegas y la instala al cerrar el juego y lo muestra en la pantalla; en *Ajustes* > *Actualizaciones* puedes hacer que pregunte antes o desactivarlo. Para quitar CabinPlay, abre *Configuración* > *Aplicaciones* en Windows o ejecuta `Uninstall.exe` en `%LocalAppData%\Programs\CabinPlay`; si lo instalaste a mano, borra los archivos que copiaste.
 

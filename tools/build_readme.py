@@ -27,8 +27,8 @@ WHATS_NEW = {
     "en": """### What's new in {version}
 
 - **CabinPlay tells you why there is no screen.** If the CabinPlay mod is not switched on in the profile you play, or the truck has no CabinPlay screen fitted, a message now appears at the top of the game picture and on the CabinPlay window, saying what to do. It also warns when the game is a version CabinPlay was not tested with, and error reports now say whether the mod is active.
-- **A bigger screen:** *CabinPlay Screen (Large)* is now 13 inch, on the same arm at the left of the windscreen. The 11 inch one you know is now called *Medium*; trucks that have it keep it. The middle of the windscreen has a 13 inch one too: *CabinPlay Screen (Centre, Large)*.
-- **A TV for the driver:** *CabinPlay TV (Windscreen, to the driver)* stands off the middle of the windscreen on an arm, turned to you. The 11 inch *Centre* screen now faces the driver squarely in every truck.
+- **A bigger screen:** *CabinPlay Screen (Large)* is now 13 inch, on the same arm at the left of the windscreen. The 11 inch one you know is now called *Medium*; trucks that have it keep it. The middle of the windscreen has bigger ones too: *Centre, Large* (13 inch) and *Centre, X-Large* (15 inch).
+- **A TV for the driver:** *CabinPlay TV (Windscreen, to the driver)* stands off the middle of the windscreen on an arm, turned to you. The 11 inch *Centre* screen now sits nearer the driver and faces them squarely in every truck.
 - **The browser side by side.** The browser can now take one half of the screen, next to the map for example, with its own address bar and start page.
 - The browser's start page has new shortcuts: Google, tabii, TRT Spor and sahibinden. Keep any other page there with the star.
 - **Close apps from the dock:** each open app has an x on its corner. It closes the app and stops what it plays.
@@ -38,8 +38,8 @@ WHATS_NEW = {
     "tr": """### {version} sürümünde neler var
 
 - **Ekran çıkmıyorsa CabinPlay nedenini söylüyor.** CabinPlay modu oynadığın profilde açık değilse ya da tırda CabinPlay ekranı takılı değilse artık oyun görüntüsünün üstünde ve CabinPlay penceresinde ne yapman gerektiğini söyleyen bir uyarı çıkıyor. Oyunun sürümü CabinPlay'in denendiği sürümden farklıysa da uyarıyor; hata raporları da artık modun açık olup olmadığını yazıyor.
-- **Daha büyük ekran:** *CabinPlay Screen (Large)* artık 13 inç, ön camın solunda aynı kolda. Bildiğin 11 inçlik ekranın adı artık *Medium*; onu takmış tırlarda yerinde kalıyor. Ön camın ortasına da 13 inçlik bir ekran geldi: *CabinPlay Screen (Centre, Large)*.
-- **Sürücüye dönük TV:** *CabinPlay TV (Windscreen, to the driver)* ön camın ortasından bir kolla öne çıkıyor ve sana dönük duruyor. 11 inçlik *Centre* ekran da artık her tırda tam sürücüye bakıyor.
+- **Daha büyük ekran:** *CabinPlay Screen (Large)* artık 13 inç, ön camın solunda aynı kolda. Bildiğin 11 inçlik ekranın adı artık *Medium*; onu takmış tırlarda yerinde kalıyor. Ön camın ortasına da büyük ekranlar geldi: *Centre, Large* (13 inç) ve *Centre, X-Large* (15 inç).
+- **Sürücüye dönük TV:** *CabinPlay TV (Windscreen, to the driver)* ön camın ortasından bir kolla öne çıkıyor ve sana dönük duruyor. 11 inçlik *Centre* ekran da artık sürücüye daha yakın duruyor ve her tırda tam sürücüye bakıyor.
 - **Tarayıcı yan yana.** Tarayıcı artık ekranın bir yarısını alabiliyor, örneğin haritanın yanında; kendi adres çubuğu ve başlangıç sayfasıyla.
 - Tarayıcının başlangıç sayfasında yeni kısayollar var: Google, tabii, TRT Spor ve sahibinden. İstediğin başka sayfayı yıldızla buraya ekleyebilirsin.
 - **Uygulamaları dock'tan kapat:** açık her uygulamanın köşesinde bir çarpı var. Uygulamayı kapatır, çalanı da durdurur.
@@ -49,7 +49,7 @@ WHATS_NEW = {
     "de": """### Neu in {version}
 
 - **CabinPlay sagt dir, warum kein Bildschirm da ist.** Ist die CabinPlay-Mod im gespielten Profil nicht eingeschaltet oder hat der Lkw keinen CabinPlay-Bildschirm, erscheint jetzt oben im Spielbild und im CabinPlay-Fenster eine Meldung, was zu tun ist. Sie warnt auch, wenn das Spiel eine Version hat, mit der CabinPlay nicht getestet wurde, und Fehlerberichte sagen jetzt, ob die Mod aktiv ist.
-- **Ein größerer Bildschirm:** *CabinPlay Screen (Large)* hat jetzt 13 Zoll, am selben Arm links an der Windschutzscheibe. Der bekannte 11-Zoll-Bildschirm heißt jetzt *Medium*; Lkw, die ihn haben, behalten ihn. Auch für die Mitte der Windschutzscheibe gibt es jetzt 13 Zoll: *CabinPlay Screen (Centre, Large)*.
+- **Ein größerer Bildschirm:** *CabinPlay Screen (Large)* hat jetzt 13 Zoll, am selben Arm links an der Windschutzscheibe. Der bekannte 11-Zoll-Bildschirm heißt jetzt *Medium*; Lkw, die ihn haben, behalten ihn. Auch für die Mitte der Windschutzscheibe gibt es jetzt größere: *Centre, Large* (13 Zoll) und *Centre, X-Large* (15 Zoll).
 - **Ein Fernseher für den Fahrer:** *CabinPlay TV (Windscreen, to the driver)* steht an einem Arm vor der Mitte der Windschutzscheibe, zu dir gedreht. Der 11-Zoll-Bildschirm *Centre* schaut jetzt in jedem Lkw genau zum Fahrer.
 - **Der Browser nebeneinander.** Der Browser kann jetzt eine Bildschirmhälfte einnehmen, zum Beispiel neben der Karte, mit eigener Adressleiste und Startseite.
 - Neue Verknüpfungen auf der Startseite des Browsers: Google, tabii, TRT Spor und sahibinden. Jede andere Seite behältst du dort mit dem Stern.
@@ -60,7 +60,7 @@ WHATS_NEW = {
     "pl": """### Co nowego w {version}
 
 - **CabinPlay mówi, dlaczego nie ma ekranu.** Jeśli mod CabinPlay nie jest włączony w profilu, w którym grasz, albo ciężarówka nie ma zamontowanego ekranu CabinPlay, u góry obrazu gry i w oknie CabinPlay pojawia się teraz komunikat, co zrobić. Ostrzega też, gdy gra jest w wersji, z którą CabinPlay nie był sprawdzany, a raporty o błędach podają teraz, czy mod jest aktywny.
-- **Większy ekran:** *CabinPlay Screen (Large)* ma teraz 13 cali, na tym samym ramieniu po lewej stronie szyby. Znany ekran 11-calowy nazywa się teraz *Medium*; ciężarówki, które go mają, zachowują go. Na środek szyby jest teraz też ekran 13-calowy: *CabinPlay Screen (Centre, Large)*.
+- **Większy ekran:** *CabinPlay Screen (Large)* ma teraz 13 cali, na tym samym ramieniu po lewej stronie szyby. Znany ekran 11-calowy nazywa się teraz *Medium*; ciężarówki, które go mają, zachowują go. Na środek szyby są teraz też większe: *Centre, Large* (13 cali) i *Centre, X-Large* (15 cali).
 - **Telewizor dla kierowcy:** *CabinPlay TV (Windscreen, to the driver)* stoi na ramieniu przed środkiem szyby, zwrócony do ciebie. 11-calowy ekran *Centre* w każdej ciężarówce patrzy teraz prosto na kierowcę.
 - **Przeglądarka obok innej aplikacji.** Przeglądarka może teraz zająć połowę ekranu, na przykład obok mapy, z własnym paskiem adresu i stroną startową.
 - Nowe skróty na stronie startowej przeglądarki: Google, tabii, TRT Spor i sahibinden. Każdą inną stronę zachowasz tam gwiazdką.
@@ -71,7 +71,7 @@ WHATS_NEW = {
     "fr": """### Nouveautés de la version {version}
 
 - **CabinPlay vous dit pourquoi il n'y a pas d'écran.** Si le mod CabinPlay n'est pas activé dans le profil joué, ou si le camion n'a pas d'écran CabinPlay, un message apparaît désormais en haut de l'image du jeu et dans la fenêtre CabinPlay pour dire quoi faire. Il prévient aussi quand la version du jeu n'a pas été testée avec CabinPlay, et les rapports d'erreur indiquent maintenant si le mod est actif.
-- **Un écran plus grand :** *CabinPlay Screen (Large)* fait maintenant 13 pouces, sur le même bras à gauche du pare-brise. L'écran de 11 pouces que vous connaissez s'appelle maintenant *Medium* ; les camions qui l'ont le gardent. Le milieu du pare-brise a aussi son 13 pouces : *CabinPlay Screen (Centre, Large)*.
+- **Un écran plus grand :** *CabinPlay Screen (Large)* fait maintenant 13 pouces, sur le même bras à gauche du pare-brise. L'écran de 11 pouces que vous connaissez s'appelle maintenant *Medium* ; les camions qui l'ont le gardent. Le milieu du pare-brise en a aussi de plus grands : *Centre, Large* (13 pouces) et *Centre, X-Large* (15 pouces).
 - **Une télé pour le conducteur :** *CabinPlay TV (Windscreen, to the driver)* se tient sur un bras devant le milieu du pare-brise, tournée vers vous. L'écran *Centre* de 11 pouces fait maintenant face au conducteur dans chaque camion.
 - **Le navigateur côte à côte.** Le navigateur peut maintenant occuper une moitié de l'écran, à côté de la carte par exemple, avec sa propre barre d'adresse et sa page de démarrage.
 - Nouveaux raccourcis sur la page de démarrage du navigateur : Google, tabii, TRT Spor et sahibinden. Gardez-y toute autre page avec l'étoile.
@@ -82,7 +82,7 @@ WHATS_NEW = {
     "es": """### Novedades de la {version}
 
 - **CabinPlay te dice por qué no hay pantalla.** Si el mod CabinPlay no está activado en el perfil con el que juegas, o el camión no tiene una pantalla CabinPlay, ahora aparece un mensaje arriba en la imagen del juego y en la ventana de CabinPlay que dice qué hacer. También avisa cuando la versión del juego no se ha probado con CabinPlay, y los informes de error indican ahora si el mod está activo.
-- **Una pantalla más grande:** *CabinPlay Screen (Large)* tiene ahora 13 pulgadas, en el mismo brazo a la izquierda del parabrisas. La de 11 pulgadas que conoces se llama ahora *Medium*; los camiones que la tienen la conservan. El centro del parabrisas también tiene una de 13 pulgadas: *CabinPlay Screen (Centre, Large)*.
+- **Una pantalla más grande:** *CabinPlay Screen (Large)* tiene ahora 13 pulgadas, en el mismo brazo a la izquierda del parabrisas. La de 11 pulgadas que conoces se llama ahora *Medium*; los camiones que la tienen la conservan. El centro del parabrisas también tiene otras más grandes: *Centre, Large* (13 pulgadas) y *Centre, X-Large* (15 pulgadas).
 - **Una tele para el conductor:** *CabinPlay TV (Windscreen, to the driver)* se sostiene en un brazo delante del centro del parabrisas, girada hacia ti. La pantalla *Centre* de 11 pulgadas mira ahora de frente al conductor en todos los camiones.
 - **El navegador en paralelo.** El navegador puede ocupar ahora una mitad de la pantalla, junto al mapa por ejemplo, con su propia barra de direcciones y página de inicio.
 - Nuevos accesos en la página de inicio del navegador: Google, tabii, TRT Spor y sahibinden. Guarda cualquier otra página ahí con la estrella.
@@ -93,7 +93,7 @@ WHATS_NEW = {
     "ru": """### Что нового в {version}
 
 - **CabinPlay говорит, почему нет экрана.** Если мод CabinPlay не включён в профиле, в котором вы играете, или в грузовике не установлен экран CabinPlay, вверху изображения игры и в окне CabinPlay теперь появляется сообщение, что нужно сделать. Оно также предупреждает, если версия игры не проверялась с CabinPlay, а отчёты об ошибках теперь показывают, включён ли мод.
-- **Экран побольше:** *CabinPlay Screen (Large)* теперь 13 дюймов, на том же кронштейне слева на лобовом стекле. Привычный 11-дюймовый экран теперь называется *Medium*; в грузовиках, где он стоит, он остаётся. Для середины лобового стекла теперь тоже есть 13 дюймов: *CabinPlay Screen (Centre, Large)*.
+- **Экран побольше:** *CabinPlay Screen (Large)* теперь 13 дюймов, на том же кронштейне слева на лобовом стекле. Привычный 11-дюймовый экран теперь называется *Medium*; в грузовиках, где он стоит, он остаётся. Для середины лобового стекла теперь тоже есть экраны побольше: *Centre, Large* (13 дюймов) и *Centre, X-Large* (15 дюймов).
 - **Телевизор для водителя:** *CabinPlay TV (Windscreen, to the driver)* стоит на кронштейне перед серединой лобового стекла и повёрнут к вам. 11-дюймовый экран *Centre* теперь в каждом грузовике смотрит прямо на водителя.
 - **Браузер рядом с другим приложением.** Браузер теперь может занимать половину экрана, например рядом с картой, со своей адресной строкой и стартовой страницей.
 - Новые ярлыки на стартовой странице браузера: Google, tabii, TRT Spor и sahibinden. Любую другую страницу можно оставить там звездой.
@@ -137,7 +137,7 @@ TEXT = {
         then="**Then, in the game:**",
         game_1="Start the game and accept the \"SDK features\" notice it shows once.",
         game_2="In the **Mod Manager**, switch on **CabinPlay Screen**.",
-        game_3="In a truck workshop, fit **CabinPlay Screen** in a windscreen accessory slot. On the left there are three versions, *Large* (13\") and *Medium* (11\") on an arm, and *Compact* (10\", at the glass); in the middle slot there is *Centre* (11\") or *Centre, Large* (13\"), turned towards the driver (each with a version of its own for right-hand-drive cabins).",
+        game_3="In a truck workshop, fit **CabinPlay Screen** in a windscreen accessory slot. On the left there are three versions, *Large* (13\") and *Medium* (11\") on an arm, and *Compact* (10\", at the glass); in the middle slot there is *Centre* (11\"), *Centre, Large* (13\") or *Centre, X-Large* (15\"), turned towards the driver (each with a version of its own for right-hand-drive cabins).",
         done="That's it. The screen switches on with the truck's ignition. Installed with the setup, CabinPlay keeps itself up to date: it downloads a new version while you play and installs it when you close the game and shows it on the screen; under *Settings* > *Updates* you can have it ask first, or turn it off. To remove CabinPlay, open Windows *Settings* > *Apps*, or run `Uninstall.exe` in `%LocalAppData%\\Programs\\CabinPlay`; if you installed it by hand, delete the files you copied.",
         use="Use",
         shortcut="Shortcut", does="What it does", space="Space",
@@ -186,7 +186,7 @@ TEXT = {
         then="**Sonra, oyunda:**",
         game_1="Oyunu başlat ve bir kez çıkan \"SDK özellikleri\" uyarısını onayla.",
         game_2="**Mod Yöneticisi**'nde **CabinPlay Screen**'i etkinleştir.",
-        game_3="Serviste **CabinPlay Screen**'i ön camdaki bir aksesuar yuvasına tak. Sol yuvada üç sürüm var: kolda *Large* (13\") ve *Medium* (11\"), camın dibinde *Compact* (10\"); orta yuvada ise sürücüye dönük *Centre* (11\") ve *Centre, Large* (13\") var (ikisinin de sağdan direksiyonlu kabinler için ayrı bir sürümü var).",
+        game_3="Serviste **CabinPlay Screen**'i ön camdaki bir aksesuar yuvasına tak. Sol yuvada üç sürüm var: kolda *Large* (13\") ve *Medium* (11\"), camın dibinde *Compact* (10\"); orta yuvada ise sürücüye dönük *Centre* (11\"), *Centre, Large* (13\") ve *Centre, X-Large* (15\") var (hepsinin sağdan direksiyonlu kabinler için ayrı bir sürümü var).",
         done="Bu kadar. Ekran tırın kontağıyla birlikte açılır. Kurulum dosyasıyla kurduysan CabinPlay kendini güncel tutar: yeni sürümü sen oynarken indirir, oyunu kapattığında kurar ve bunu ekranda gösterir; ekrandaki *Ayarlar* > *Güncellemeler*'den önce sana sormasını seçebilir ya da kapatabilirsin. CabinPlay'i kaldırmak için Windows *Ayarlar* > *Uygulamalar*'ı aç ya da `%LocalAppData%\\Programs\\CabinPlay` klasöründeki `Uninstall.exe`'yi çalıştır; elle kurduysan kopyaladığın dosyaları sil.",
         use="Kullan",
         shortcut="Kısayol", does="Ne yapar", space="Boşluk",
@@ -235,7 +235,7 @@ TEXT = {
         then="**Danach im Spiel:**",
         game_1="Starte das Spiel und bestätige den Hinweis zu den \"SDK-Funktionen\", der einmal erscheint.",
         game_2="Aktiviere im **Mod-Manager** **CabinPlay Screen**.",
-        game_3="Baue in einer Lkw-Werkstatt **CabinPlay Screen** in einen Zubehörplatz an der Windschutzscheibe ein. Links gibt es drei Varianten, *Large* (13\") und *Medium* (11\") am Arm sowie *Compact* (10\", an der Scheibe); im mittleren Platz gibt es *Centre* (11\") und *Centre, Large* (13\"), zum Fahrer gedreht (jeweils mit einer eigenen Variante für Rechtslenker).",
+        game_3="Baue in einer Lkw-Werkstatt **CabinPlay Screen** in einen Zubehörplatz an der Windschutzscheibe ein. Links gibt es drei Varianten, *Large* (13\") und *Medium* (11\") am Arm sowie *Compact* (10\", an der Scheibe); im mittleren Platz gibt es *Centre* (11\"), *Centre, Large* (13\") und *Centre, X-Large* (15\"), zum Fahrer gedreht (jeweils mit einer eigenen Variante für Rechtslenker).",
         done="Das war's. Der Bildschirm schaltet sich mit der Zündung ein. Mit dem Setup installiert, hält sich CabinPlay selbst aktuell: Eine neue Version wird beim Spielen heruntergeladen und beim Schließen des Spiels installiert und zeigt das auf dem Bildschirm an; unter *Einstellungen* > *Updates* kannst du es vorher fragen lassen oder abschalten. Zum Entfernen öffne in Windows *Einstellungen* > *Apps* oder starte `Uninstall.exe` in `%LocalAppData%\\Programs\\CabinPlay`; hast du von Hand installiert, lösche die kopierten Dateien.",
         use="Bedienung",
         shortcut="Tastenkürzel", does="Funktion", space="Leertaste",
@@ -284,7 +284,7 @@ TEXT = {
         then="**Potem, w grze:**",
         game_1="Uruchom grę i zaakceptuj komunikat o \"funkcjach SDK\", który pojawia się raz.",
         game_2="W **Menedżerze modów** włącz **CabinPlay Screen**.",
-        game_3="W warsztacie zamontuj **CabinPlay Screen** w gnieździe akcesoriów na przedniej szybie. Po lewej są trzy wersje: *Large* (13\") i *Medium* (11\") na ramieniu oraz *Compact* (10\", przy szybie); w środkowym gnieździe są *Centre* (11\") i *Centre, Large* (13\"), zwrócone w stronę kierowcy (każdy z osobną wersją dla kabin z kierownicą po prawej).",
+        game_3="W warsztacie zamontuj **CabinPlay Screen** w gnieździe akcesoriów na przedniej szybie. Po lewej są trzy wersje: *Large* (13\") i *Medium* (11\") na ramieniu oraz *Compact* (10\", przy szybie); w środkowym gnieździe są *Centre* (11\"), *Centre, Large* (13\") i *Centre, X-Large* (15\"), zwrócone w stronę kierowcy (każdy z osobną wersją dla kabin z kierownicą po prawej).",
         done="To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Zainstalowany instalatorem CabinPlay sam się aktualizuje: nową wersję pobiera w trakcie gry i instaluje po jej zamknięciu i pokazuje to na ekranie; w *Ustawienia* > *Aktualizacje* możesz kazać mu najpierw pytać albo to wyłączyć. Aby usunąć CabinPlay, otwórz w Windows *Ustawienia* > *Aplikacje* albo uruchom `Uninstall.exe` w `%LocalAppData%\\Programs\\CabinPlay`; jeśli instalacja była ręczna, usuń skopiowane pliki.",
         use="Obsługa",
         shortcut="Skrót", does="Co robi", space="Spacja",
@@ -333,7 +333,7 @@ TEXT = {
         then="**Ensuite, dans le jeu :**",
         game_1="Lancez le jeu et acceptez l'avertissement sur les « fonctionnalités SDK », affiché une seule fois.",
         game_2="Dans le **Gestionnaire de mods**, activez **CabinPlay Screen**.",
-        game_3="Dans un garage, installez **CabinPlay Screen** dans un emplacement d'accessoire du pare-brise. À gauche, trois versions existent : *Large* (13\") et *Medium* (11\") sur un bras, et *Compact* (10\", contre la vitre) ; au milieu, il y a *Centre* (11\") et *Centre, Large* (13\"), tournés vers le conducteur (chacun avec une version à part pour les cabines à conduite à droite).",
+        game_3="Dans un garage, installez **CabinPlay Screen** dans un emplacement d'accessoire du pare-brise. À gauche, trois versions existent : *Large* (13\") et *Medium* (11\") sur un bras, et *Compact* (10\", contre la vitre) ; au milieu, il y a *Centre* (11\"), *Centre, Large* (13\") et *Centre, X-Large* (15\"), tournés vers le conducteur (chacun avec une version à part pour les cabines à conduite à droite).",
         done="C'est tout. L'écran s'allume avec le contact du camion. Installé avec le programme d'installation, CabinPlay se met à jour tout seul : il télécharge la nouvelle version pendant que vous jouez et l'installe quand vous fermez le jeu et l'indique sur l'écran ; dans *Réglages* > *Mises à jour*, vous pouvez lui demander de vous consulter d'abord, ou le désactiver. Pour désinstaller CabinPlay, ouvrez *Paramètres* > *Applications* dans Windows, ou lancez `Uninstall.exe` dans `%LocalAppData%\\Programs\\CabinPlay` ; si vous l'avez installé à la main, supprimez les fichiers copiés.",
         use="Utilisation",
         shortcut="Raccourci", does="Action", space="Espace",
@@ -382,7 +382,7 @@ TEXT = {
         then="**Después, en el juego:**",
         game_1="Inicia el juego y acepta el aviso de \"funciones del SDK\" que aparece una vez.",
         game_2="En el **Gestor de mods**, activa **CabinPlay Screen**.",
-        game_3="En un taller, monta **CabinPlay Screen** en una ranura de accesorios del parabrisas. A la izquierda hay tres versiones: *Large* (13\") y *Medium* (11\") en un brazo, y *Compact* (10\", junto al cristal); en la ranura central están *Centre* (11\") y *Centre, Large* (13\"), giradas hacia el conductor (cada una con una versión propia para cabinas con volante a la derecha).",
+        game_3="En un taller, monta **CabinPlay Screen** en una ranura de accesorios del parabrisas. A la izquierda hay tres versiones: *Large* (13\") y *Medium* (11\") en un brazo, y *Compact* (10\", junto al cristal); en la ranura central están *Centre* (11\"), *Centre, Large* (13\") y *Centre, X-Large* (15\"), giradas hacia el conductor (cada una con una versión propia para cabinas con volante a la derecha).",
         done="Eso es todo. La pantalla se enciende con el contacto del camión. Si lo instalaste con el instalador, CabinPlay se actualiza solo: descarga la nueva versión mientras juegas y la instala al cerrar el juego y lo muestra en la pantalla; en *Ajustes* > *Actualizaciones* puedes hacer que pregunte antes o desactivarlo. Para quitar CabinPlay, abre *Configuración* > *Aplicaciones* en Windows o ejecuta `Uninstall.exe` en `%LocalAppData%\\Programs\\CabinPlay`; si lo instalaste a mano, borra los archivos que copiaste.",
         use="Uso",
         shortcut="Atajo", does="Qué hace", space="Espacio",
@@ -431,7 +431,7 @@ TEXT = {
         then="**Затем в игре:**",
         game_1="Запустите игру и подтвердите уведомление о «функциях SDK», которое показывается один раз.",
         game_2="В **Менеджере модификаций** включите **CabinPlay Screen**.",
-        game_3="В мастерской установите **CabinPlay Screen** в слот аксессуаров на лобовом стекле. Слева есть три версии: *Large* (13\") и *Medium* (11\") на кронштейне и *Compact* (10\", у стекла); в среднем слоте есть *Centre* (11\") и *Centre, Large* (13\"), повёрнутые к водителю (каждый с отдельной версией для кабин с правым рулём).",
+        game_3="В мастерской установите **CabinPlay Screen** в слот аксессуаров на лобовом стекле. Слева есть три версии: *Large* (13\") и *Medium* (11\") на кронштейне и *Compact* (10\", у стекла); в среднем слоте есть *Centre* (11\"), *Centre, Large* (13\") и *Centre, X-Large* (15\"), повёрнутые к водителю (каждый с отдельной версией для кабин с правым рулём).",
         done="Готово. Экран включается вместе с зажиганием. Если CabinPlay установлен программой установки, он обновляется сам: скачивает новую версию во время игры и устанавливает её, когда вы закрываете игру и сообщает об этом на экране; в *Настройки* > *Обновления* можно включить вопрос перед установкой или отключить это. Чтобы удалить CabinPlay, откройте в Windows *Параметры* > *Приложения* или запустите `Uninstall.exe` в `%LocalAppData%\\Programs\\CabinPlay`; если вы устанавливали вручную, удалите скопированные файлы.",
         use="Управление",
         shortcut="Сочетание", does="Действие", space="Пробел",
