@@ -171,7 +171,23 @@
   });
 
   // ---- settings from the host: the background, the shortcuts and updates
-  let config = { wallpaper: null, wallpapers: [], wallpaperHost: '', bindings: [], capturing: null, update: null };
+  let config = { wallpaper: null, wallpapers: [], wallpaperHost: '', bindings: [], capturing: null, update: null,
+    control: null };
+
+  // Control mode's screen size and cursor speed: kept by the host, used by the plugin. Until
+  // one is picked, the plugin's own (cabinplay.ini) applies, which is the middle one.
+  const CONTROL_OPTIONS = [['settings-size', 'overlaySize', 60], ['settings-speed', 'cursorSpeed', 100]];
+  for (const [list, name] of CONTROL_OPTIONS) {
+    for (const b of $(list).children) {
+      b.addEventListener('click', () => send({ type: 'control-option', name, value: Number(b.dataset.value) }));
+    }
+  }
+  function layoutControlOptions() {
+    const chosen = config.control || {};
+    for (const [list, name, standard] of CONTROL_OPTIONS) {
+      for (const b of $(list).children) b.classList.toggle('on', Number(b.dataset.value) === (chosen[name] || standard));
+    }
+  }
 
   // Updates are downloaded while the game runs and installed by the host once it closes:
   // by themselves ("auto") or once the player has pressed Update ("ask").
@@ -1032,6 +1048,7 @@
         layoutWalls();
         layoutBinds();
         layoutUpdate();
+        layoutControlOptions();
         refreshTitles();
       }
       if (e.data && e.data.type === 'blur') address.blur();

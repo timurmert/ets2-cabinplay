@@ -260,6 +260,11 @@
     <!-- Shortcuts: one row per action (ACTIONS in shell.js), with its key and its
          controller button. -->
     <div class="tab" data-tab="controls" hidden>
+      <!-- control mode's screen size (percent of the game's width) and cursor speed (percent) -->
+      <div class="setting"><span data-i18n="ctlSize"></span>
+        <span id="settings-size" class="choice"><button data-value="45" data-i18n="sizeS"></button><button data-value="60" data-i18n="sizeM"></button><button data-value="75" data-i18n="sizeL"></button><button data-value="90" data-i18n="sizeXL"></button></span></div>
+      <div class="setting"><span data-i18n="ctlSpeed"></span>
+        <span id="settings-speed" class="choice"><button data-value="60" data-i18n="speedSlow"></button><button data-value="100" data-i18n="speedNormal"></button><button data-value="150" data-i18n="speedFast"></button><button data-value="200" data-i18n="speedFaster"></button></span></div>
       <div class="bind-head"><span data-i18n="ctlAction"></span><span data-i18n="ctlKeyboard"></span><span data-i18n="ctlController"></span></div>
       <div id="binds"></div>
       <p data-i18n="ctlHint"></p>

@@ -218,6 +218,7 @@ internal sealed class MainForm : Form
             core.Navigate($"https://{ShellHost}/index.html{query}");
 
             _writer = new FrameWriter();
+            ApplyControlOptions();
             _game = new GameLink();
             _notice = new GameNotice();
             _capture = new WindowCapture(_writer);
@@ -359,6 +360,9 @@ internal sealed class MainForm : Form
                 case "diagnostics":
                     Diagnostics.Export();
                     break;
+                case "control-option":
+                    SetControlOption((string?)msg!["name"], (int?)msg["value"] ?? 0);
+                    return;
                 case "update-mode":
                     if (_updater is null)
                         return;
@@ -1451,6 +1455,11 @@ internal sealed class MainForm : Form
                 ["bindings"] = bindings,
                 ["capturing"] = _capturing,
                 ["update"] = _updater?.ToJson(),
+                ["control"] = new JsonObject
+                {
+                    ["overlaySize"] = (int?)_settings["overlaySize"],
+                    ["cursorSpeed"] = (int?)_settings["cursorSpeed"],
+                },
             }.ToJsonString());
         }
         catch (Exception ex)
@@ -1545,6 +1554,27 @@ internal sealed class MainForm : Form
         }
         PushConfig();
     }
+
+    /// <summary>Control mode's screen size or cursor speed, as picked in the settings.</summary>
+    private void SetControlOption(string? name, int value)
+    {
+        bool valid = name switch
+        {
+            "overlaySize" => value is >= 20 and <= 100,
+            "cursorSpeed" => value is >= 25 and <= 400,
+            _ => false,
+        };
+        if (!valid)
+            return;
+        _settings[name!] = value;
+        SaveSettings();
+        ApplyControlOptions();
+        PushConfig();
+    }
+
+    /// <summary>Hands them to the plugin; unset, it keeps the ones in cabinplay.ini.</summary>
+    private void ApplyControlOptions() =>
+        _writer?.SetControlOptions((int?)_settings["overlaySize"] ?? 0, (int?)_settings["cursorSpeed"] ?? 0);
 
     // ------------------------------------------------------------------ window placement
 

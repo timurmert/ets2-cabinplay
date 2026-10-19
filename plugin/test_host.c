@@ -616,7 +616,8 @@ int main(int argc, char **argv)
                 blank &= keys[i] == 0;
         check(blank, "game sees no keys or mouse movement meanwhile");
 
-        /* overlay: the screen, enlarged, in the middle of the back buffer */
+        /* overlay: the screen, enlarged, in the middle of the back buffer, once it has grown into place */
+        Sleep(300);
         ID3D11Texture2D *back = NULL;
         IDXGISwapChain_GetBuffer(sc, 0, &IID_ID3D11Texture2D, (void **)&back);
         const FLOAT clear[4] = {0, 1, 0, 1};
@@ -635,6 +636,11 @@ int main(int argc, char **argv)
         ID3D11RenderTargetView *bound = NULL;
         ID3D11DeviceContext_OMGetRenderTargets(ctx, 1, &bound, NULL);
         check(bound == rtv, "game's render target is bound again afterwards");
+        hdr->overlay_percent = 30; /* chosen in the app: 384 pixels wide here */
+        present(hdr, 1);
+        read_pixel(back, 0, 640 + 200, 360 + 60, px);
+        check(px[0] == 0 && px[1] == 0 && near_(px[2], 115, 4), "the size chosen in the app is used");
+        hdr->overlay_percent = 0;
         if (bound)
             ID3D11RenderTargetView_Release(bound);
         ID3D11RenderTargetView_Release(rtv);

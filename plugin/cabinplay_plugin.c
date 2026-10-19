@@ -158,6 +158,12 @@ static int g_frame_rgba_valid;
 static HANDLE g_state_mapping;
 static cabinplay_state_t *g_state;
 
+/* Size and cursor speed of control mode as chosen in the app (frame header), 0 for cabinplay.ini's. */
+static volatile int g_app_overlay_percent, g_app_cursor_speed;
+/* When control mode last opened and closed, for its animation (now_ms). */
+static volatile double g_overlay_opened_ms, g_overlay_closed_ms;
+#define OVERLAY_OPEN_MS 220.0
+#define OVERLAY_CLOSE_MS 150.0
 static volatile int g_freeze_state; /* control mode's frozen picture: 0 not taken yet, 1 taken, -1 not possible */
 
 static HANDLE g_notice_mapping;
@@ -1011,6 +1017,35 @@ static void composite_with_map(ID3D11DeviceContext *ctx, video_t *v, const entry
     draw_rect(ctx, v->rtv, 0, 0, CABINPLAY_WIDTH, CABINPLAY_HEIGHT, g->frame_srv, nav->srv, &c, 0);
 }
 
+static double now_ms(void)
+{
+    static LARGE_INTEGER frequency;
+    LARGE_INTEGER count;
+    if (!frequency.QuadPart)
+        QueryPerformanceFrequency(&frequency);
+    QueryPerformanceCounter(&count);
+    return count.QuadPart * 1000.0 / frequency.QuadPart;
+}
+
+/* How far control mode's screen has come up: 0 not shown, 1 fully there. It grows into place
+ * as control mode opens and fades away as it closes. */
+static float overlay_shown(void)
+{
+    double now = now_ms();
+    if (g_control) {
+        float t = (float)((now - g_overlay_opened_ms) / OVERLAY_OPEN_MS);
+        if (t >= 1.0f)
+            return 1.0f;
+        t = t < 0 ? 0 : t;
+        return 1.0f - (1.0f - t) * (1.0f - t) * (1.0f - t); /* eases out */
+    }
+    float t = (float)((now - g_overlay_closed_ms) / OVERLAY_CLOSE_MS);
+    if (g_overlay_closed_ms <= 0 || t >= 1.0f)
+        return 0.0f;
+    t = t < 0 ? 0 : t;
+    return (1.0f - t) * (1.0f - t);
+}
+
 /* Keeps a copy of the game's picture in g_gfx.freeze_tex. 1 when it worked. */
 static int freeze_frame(ID3D11Device *dev, ID3D11DeviceContext *ctx, ID3D11Texture2D *back, const D3D11_TEXTURE2D_DESC *bd)
 {
@@ -1075,10 +1110,14 @@ static void draw_overlay(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceCont
         backdrop = 1;
     ID3D11RenderTargetView *rtv = NULL;
     if (SUCCEEDED(ID3D11Device_CreateRenderTargetView(dev, (ID3D11Resource *)back, NULL, &rtv)) && rtv) {
-        float scale = bd.Width * (g_cfg_overlay_percent / 100.0f) / CABINPLAY_WIDTH;
+        int percent = g_app_overlay_percent >= 20 && g_app_overlay_percent <= 100 ? g_app_overlay_percent
+                                                                                   : g_cfg_overlay_percent;
+        float scale = bd.Width * (percent / 100.0f) / CABINPLAY_WIDTH;
         float fit = bd.Height * 0.9f / CABINPLAY_HEIGHT;
         if (scale > fit)
             scale = fit;
+        float shown = overlay_shown();
+        scale *= 0.9f + 0.1f * shown;
         float w = CABINPLAY_WIDTH * scale, h = CABINPLAY_HEIGHT * scale;
         float x = (float)(int)((bd.Width - w) / 2), y = (float)(int)((bd.Height - h) / 2);
 
@@ -1086,22 +1125,22 @@ static void draw_overlay(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceCont
             shader_consts_t frozen; /* same format both sides: nothing to convert */
             memset(&frozen, 0, sizeof(frozen));
             frozen.uv_rect[2] = frozen.uv_rect[3] = 1.0f;
-            frozen.mode[3] = 1.0f;
+            frozen.mode[3] = shown;
             frozen.size[0] = (float)bd.Width;
             frozen.size[1] = (float)bd.Height;
-            draw_rect(ctx, rtv, 0, 0, (float)bd.Width, (float)bd.Height, g_gfx.freeze_srv, NULL, &frozen, 0);
+            draw_rect(ctx, rtv, 0, 0, (float)bd.Width, (float)bd.Height, g_gfx.freeze_srv, NULL, &frozen, 1);
         }
         shader_consts_t dim;
         memset(&dim, 0, sizeof(dim));
         dim.mode[0] = 2.0f;
-        dim.mode[3] = backdrop == 1 ? 1.0f : backdrop == 0 ? 0.55f : 0.82f;
+        dim.mode[3] = (backdrop == 1 ? 1.0f : backdrop == 0 ? 0.55f : 0.82f) * shown;
         draw_rect(ctx, rtv, 0, 0, (float)bd.Width, (float)bd.Height, v->srv, NULL, &dim, 1);
 
         shader_consts_t c;
         memset(&c, 0, sizeof(c));
         c.uv_rect[2] = c.uv_rect[3] = 1.0f;
         c.mode[1] = (float)transfer_between(v->srgb, format_is_srgb(bd.Format));
-        c.mode[3] = 1.0f;
+        c.mode[3] = shown;
         c.cursor[0] = g_cursor_x * scale;
         c.cursor[1] = g_cursor_y * scale;
         c.cursor[2] = 1.0f;
@@ -1643,6 +1682,7 @@ static void set_control(int on)
             memset(&g_routes, 0, sizeof(g_routes));
             inspect_raw_input();
             g_freeze_state = 0; /* taken at the next frame, before the pause shows */
+            g_overlay_opened_ms = now_ms();
             /* Pause the game so the truck does not drive on while someone types. */
             if (g_cfg_pause_game && g_telemetry_ok && !g_paused && g_pause_want < 0) {
                 g_pause_want = 1;
@@ -1656,6 +1696,7 @@ static void set_control(int on)
                 if (g_buttons[b])
                     push_event(CABINPLAY_EVENT_BUTTON, (int)g_cursor_x, (int)g_cursor_y, b);
             g_resume_on_exit = 1;
+            g_overlay_closed_ms = now_ms();
             logf_("input routes used: DirectInput mouse %ld keyboard %ld, raw message %ld buffer %ld data %ld, "
                   "cursor %ld, key state %ld, key messages %ld, mouse messages %ld",
                   g_routes.di_mouse, g_routes.di_keyboard, g_routes.raw_message, g_routes.raw_buffer,
@@ -1776,7 +1817,8 @@ static void __stdcall on_semantic_active(uint8_t active, void *context)
 static void on_mouse_move(long dx, long dy, long dz)
 {
     if (dx || dy) {
-        float k = g_cfg_cursor_speed / 100.0f;
+        int speed = g_app_cursor_speed >= 25 && g_app_cursor_speed <= 400 ? g_app_cursor_speed : g_cfg_cursor_speed;
+        float k = speed / 100.0f;
         g_cursor_x += dx * k;
         g_cursor_y += dy * k;
         if (g_cursor_x < 0) g_cursor_x = 0;
@@ -2474,6 +2516,11 @@ static void pump(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx
     static const unsigned screen_scan_age[] = {2, 30, 120, 600};
     entry_t *nav = NULL, *first_screen = NULL;
 
+    if (shared_valid()) {
+        g_app_overlay_percent = g_shared->overlay_percent;
+        g_app_cursor_speed = g_shared->cursor_speed;
+    }
+
     for (int i = 0; i < MAX_ENTRIES; i++) {
         entry_t *e = &g_entries[i];
         if (e->state == STATE_FREE || e->dev != dev)
@@ -2581,7 +2628,7 @@ static void pump(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx
         }
     }
 
-    if (g_control && g_video[first_screen->family].tex && ensure_gfx(dev))
+    if ((g_control || overlay_shown() > 0) && g_video[first_screen->family].tex && ensure_gfx(dev))
         draw_overlay(sc, dev, ctx, &g_video[first_screen->family]);
 }
 

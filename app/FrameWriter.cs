@@ -21,6 +21,7 @@ internal sealed unsafe class FrameWriter : IDisposable
     private const int HeartbeatOffset = 24;
     private const int NavSourceOffset = 32; // 4 x ushort, then the target's 4 x ushort
     private const int ControlRequestsOffset = 48;
+    private const int ControlOptionsOffset = 52; // overlay_percent, cursor_speed: 2 x ushort
 
     private readonly MemoryMappedFile _file;
     private readonly MemoryMappedViewAccessor _view;
@@ -92,6 +93,21 @@ internal sealed unsafe class FrameWriter : IDisposable
         {
             if (!_disposed)
                 ++*(uint*)(_base + ControlRequestsOffset);
+        }
+    }
+
+    /// <summary>
+    /// Control mode's screen size (percent of the game's width) and cursor speed (percent);
+    /// 0 leaves the plugin's own setting from cabinplay.ini.
+    /// </summary>
+    public void SetControlOptions(int overlayPercent, int cursorSpeed)
+    {
+        lock (_gate)
+        {
+            if (_disposed)
+                return;
+            *(ushort*)(_base + ControlOptionsOffset) = (ushort)overlayPercent;
+            *(ushort*)(_base + ControlOptionsOffset + 2) = (ushort)cursorSpeed;
         }
     }
 

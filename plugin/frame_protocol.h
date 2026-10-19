@@ -56,7 +56,9 @@ typedef struct cabinplay_frame_header {
     uint16_t nav_source[4];    /* x, y, width, height in the UI texture, top row first */
     uint16_t nav_target[4];    /* x, y, width, height on the screen it is stretched over */
     uint32_t control_requests; /* bumped to ask for control mode to be opened or closed */
-    uint8_t reserved1[12];
+    uint16_t overlay_percent;  /* control mode's screen, percent of the game's width; 0: cabinplay.ini's */
+    uint16_t cursor_speed;     /* control mode's cursor speed, percent; 0: cabinplay.ini's */
+    uint8_t reserved1[8];
 } cabinplay_frame_header_t;      /* followed by width * height BGRA pixels, top row first */
 #pragma pack(pop)
 
