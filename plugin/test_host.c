@@ -794,6 +794,56 @@ int main(int argc, char **argv)
     present(hdr, 200);
     check(state && !(state->flags & CABINPLAY_STATE_CONTROL), "the next request closes it");
 
+    printf("notice over the game\n");
+    HANDLE notice_map = CreateFileMappingW(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, CABINPLAY_NOTICE_MAPPING_SIZE,
+                                           CABINPLAY_NOTICE_MAPPING_NAME L".selftest");
+    cabinplay_notice_header_t *notice = (cabinplay_notice_header_t *)MapViewOfFile(notice_map, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+    uint8_t *notice_px = (uint8_t *)notice + CABINPLAY_NOTICE_HEADER_SIZE;
+    for (UINT y = 0; y < 160; y++)
+        for (UINT x = 0; x < 800; x++) {
+            uint8_t *p = notice_px + (y * CABINPLAY_NOTICE_MAX_W + x) * 4;
+            p[0] = 0x30; /* B */
+            p[1] = 0x60; /* G */
+            p[2] = 0x90; /* R */
+            p[3] = 0xFF;
+        }
+    notice->magic = CABINPLAY_NOTICE_MAGIC;
+    notice->version = CABINPLAY_NOTICE_VERSION;
+    notice->width = 800;
+    notice->height = 160;
+    notice->sequence = 2;
+    notice->visible = 1;
+    present(hdr, 130); /* the plugin looks for the notice every 120 frames */
+    {
+        ID3D11Texture2D *back = NULL;
+        IDXGISwapChain_GetBuffer(sc, 0, &IID_ID3D11Texture2D, (void **)&back);
+        const FLOAT clear[4] = {0, 1, 0, 1};
+        ID3D11RenderTargetView *rtv = NULL;
+        ID3D11Device_CreateRenderTargetView(dev, (ID3D11Resource *)back, NULL, &rtv);
+        ID3D11DeviceContext_ClearRenderTargetView(ctx, rtv, clear);
+        present(hdr, 1);
+        /* 1280x720: half the size it is made for, centred, 7% from the top */
+        read_pixel(back, 0, 640, 90, px);
+        check(near_(px[0], 0x8A, 3) && near_(px[1], 0x66, 3) && near_(px[2], 0x2E, 3), "notice is drawn at the top");
+        read_pixel(back, 0, 640, 20, px);
+        check(px[0] == 0 && px[1] == 255 && px[2] == 0, "game picture around it is untouched");
+        read_pixel(back, 0, 441, 51, px);
+        check(px[1] > 0x80, "its corners are rounded");
+        notice->visible = 0;
+        ID3D11DeviceContext_ClearRenderTargetView(ctx, rtv, clear);
+        present(hdr, 1);
+        read_pixel(back, 0, 640, 90, px);
+        check(px[0] == 0 && px[1] == 255 && px[2] == 0, "and gone when the app hides it");
+        notice->visible = 1;
+        hdr->heartbeat_ms = GetTickCount64() - 10000;
+        ID3D11DeviceContext_ClearRenderTargetView(ctx, rtv, clear);
+        IDXGISwapChain_Present(sc, 0, 0);
+        read_pixel(back, 0, 640, 90, px);
+        check(px[0] == 0 && px[1] == 255 && px[2] == 0, "not drawn once the app has stopped");
+        ID3D11RenderTargetView_Release(rtv);
+        ID3D11Texture2D_Release(back);
+    }
+
     printf("screen blanks when the companion stops\n");
     hdr->heartbeat_ms = GetTickCount64() - 10000;
     IDXGISwapChain_Present(sc, 0, 0);

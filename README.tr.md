@@ -61,7 +61,7 @@ Oyunu kapat, sonra birini seç:
 
 1. Oyunu başlat ve bir kez çıkan "SDK özellikleri" uyarısını onayla.
 2. **Mod Yöneticisi**'nde **CabinPlay Screen**'i etkinleştir.
-3. Serviste **CabinPlay Screen**'i ön camdaki bir aksesuar yuvasına tak. Sol yuvada iki sürüm var: *Large* (11", kolda) ve *Compact* (10", camın dibinde); orta yuvada ise sürücüye dönük *Centre* var (sağdan direksiyonlu kabinler için ayrı bir sürümüyle).
+3. Serviste **CabinPlay Screen**'i ön camdaki bir aksesuar yuvasına tak. Sol yuvada üç sürüm var: kolda *Large* (13") ve *Medium* (11"), camın dibinde *Compact* (10"); orta yuvada ise sürücüye dönük *Centre* var (sağdan direksiyonlu kabinler için ayrı bir sürümüyle).
 
 Bu kadar. Ekran tırın kontağıyla birlikte açılır. Kurulum dosyasıyla kurduysan CabinPlay kendini güncel tutar: yeni sürümü sen oynarken indirir, oyunu kapattığında kurar ve bunu ekranda gösterir; ekrandaki *Ayarlar* > *Güncellemeler*'den önce sana sormasını seçebilir ya da kapatabilirsin. CabinPlay'i kaldırmak için Windows *Ayarlar* > *Uygulamalar*'ı aç ya da `%LocalAppData%\Programs\CabinPlay` klasöründeki `Uninstall.exe`'yi çalıştır; elle kurduysan kopyaladığın dosyaları sil.
 
@@ -88,7 +88,7 @@ Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, 
 
 **Tarayıcı** uygulaması istediğin siteyi açar: üstteki çubuğa adres ya da arama yaz, bir sayfayı başlangıç sayfasında tutmak için yıldıza bas. Giriş yaptığın sitelerde oturumun açık kalır; `Ctrl+Alt+F` sayfadaki videoyu tam ekran yapar. Yazı yazmak için kontrol modu gerekir (`Ctrl+Alt+C`).
 
-**Yan yana** görünüm iki uygulamayı aynı anda gösterir; örneğin solda harita, sağda müzik: kenar çubuğundaki bölme düğmesine bas ve her yarı için uygulamayı seç. **Ayarlar**'dan arka planı (kendi resimlerinden de) seçebilir, kısayol tuşlarını değiştirebilir ve her birini direksiyonundaki ya da oyun kolundaki bir düğmeye atayabilirsin.
+**Yan yana** görünüm iki uygulamayı aynı anda gösterir; örneğin solda harita, sağda müzik ya da tarayıcı: kenar çubuğundaki bölme düğmesine bas ve her yarı için uygulamayı seç. **Ayarlar**'dan arka planı (kendi resimlerinden de) seçebilir, kısayol tuşlarını değiştirebilir ve her birini direksiyonundaki ya da oyun kolundaki bir düğmeye atayabilirsin.
 
 **Başka yerler:** Serviste ekranı ön camın dışında *Dashboard* (torpido), *Air vent* (havalandırma), *Overhead* (tavan), *Passenger seat* (yolcu koltuğu), *Console* (konsol), *Cup holder* (bardaklık, yeni tırlarda) ve *Passenger side* (camın yolcu tarafı) olarak da takabilirsin. Yatakta izlemek için 27" **CabinPlay TV** var: arka duvara (Işık Panosu yuvası) düz ya da yastığa doğru açılmış, veya ön cama düz ya da yatağa dönük. Scania S'te kafanı sağa çevirmeye arkaya baktıktan sonra da devam et: kamera yatağa geçer ve yastıkta, TV'ye bakarak durur.
 

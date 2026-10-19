@@ -21,7 +21,7 @@ DIST = os.path.join(ROOT, "dist")
 STATIC = os.path.join(ROOT, "mod_static")
 
 MOD_VERSION = os.environ.get("CABINPLAY_VERSION", "0.0.0")  # set by build.ps1 from the VERSION file
-GAME_VERSION = "1.61.*"
+GAME_VERSION = "1.61.*"  # keep in sync with GameLog.TestedVersions in app/GameLog.cs
 MODEL_DIR = "/vehicle/truck/upgrade/cabinplay"
 
 # Trucks whose interiors have the left-windshield accessory slot (the one the
@@ -97,9 +97,17 @@ MIRRORS = [
 #   yaw      degrees it turns right (negative: left)
 #   cup      where the suction cup sits on the glass (default: the mount point)
 #   glass    direction the glass faces there (default: as at the left mount point)
+#
+# The unit names stay as they are: trucks in players' saves have the screen by that name.
 VARIANTS = [
+    # 13 inch on the gooseneck arm. Its lower left corner is where the 11 inch one has it, so
+    # it is just as clear of the A-pillar and the dashboard and only grows up and to the right.
+    dict(unit="cabinplay_xl", model="cabinplay_xl", name="CabinPlay Screen (Large)", price=1800,
+         screen=(0.1477, 0.0738), screen_r=0.0060, body=(0.1547, 0.0808, 0.0100, 0.0140),
+         center=(0.061, 0.103, 0.238), tilt=12.0, yaw=-12.0),
     # 11 inch on the gooseneck arm: raised, clear of the A-pillar, squarely facing the driver.
-    dict(unit="cabinplay", model="cabinplay", name="CabinPlay Screen (Large)", price=1500,
+    # It was called Large before the 13 inch one came.
+    dict(unit="cabinplay", model="cabinplay", name="CabinPlay Screen (Medium)", price=1500,
          screen=(0.1260, 0.0630), screen_r=0.0055, body=(0.1330, 0.0700, 0.0095, 0.0130),
          center=(0.039, 0.092, 0.236), tilt=12.0, yaw=-12.0),
     # 10 inch right at the glass, where the stock navigator sits.
@@ -904,9 +912,9 @@ def main():
           '}\n}\n' % (MOD_VERSION, '\ticon: "mod_icon.jpg"\n' if has_icon else '', GAME_VERSION))
     write("/mod_description.txt",
           "CabinPlay Screen\n\n"
-          "Adds an in-cabin display to every truck. On the left of the windscreen in two versions,\n"
-          "Large (11 inch, on an arm) and Compact (10 inch, at the glass), or in the middle of the\n"
-          "windscreen (Centre), turned towards the driver. Also on the dashboard, the air vent, the\n"
+          "Adds an in-cabin display to every truck. On the left of the windscreen in three versions,\n"
+          "Large (13 inch) and Medium (11 inch) on an arm, and Compact (10 inch, at the glass), or in\n"
+          "the middle of the windscreen (Centre), turned towards the driver. Also on the dashboard, the air vent, the\n"
           "roof, the passenger seat, the console, the cup holder or the passenger's side of the\n"
           "windscreen. And a 27 inch TV to watch from the bunk, on the back wall or the windscreen.\n"
           "The picture comes from the CabinPlay companion app through the cabinplay plugin;\n"

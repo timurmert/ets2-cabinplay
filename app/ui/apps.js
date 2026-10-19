@@ -98,15 +98,11 @@ window.CABINPLAY_APPS = [
   },
 ];
 
-// Shortcuts on the browser's start page, next to the pages the user keeps with the star.
+// Shortcuts on the browser's start page, after the pages the user keeps with the star.
 //   lang   only shown in that screen language
 window.CABINPLAY_SITES = [
-  { name: 'TRT 1 Canlı', url: 'https://www.tabii.com/tr/watch/live/trt1?trackId=150002', lang: 'tr' },
+  { name: 'Google', url: 'https://www.google.com/' },
   { name: 'tabii', url: 'https://www.tabii.com/tr', lang: 'tr' },
   { name: 'TRT Spor', url: 'https://www.trtspor.com.tr/canli-yayin-izle/trt-spor', lang: 'tr' },
-  { name: 'beIN CONNECT', url: 'https://www.beinconnect.com.tr/', lang: 'tr' },
-  { name: 'TOD', url: 'https://www.todtv.com.tr/', lang: 'tr' },
-  { name: 'S Sport Plus', url: 'https://www.ssportplus.com/', lang: 'tr' },
-  { name: 'Exxen', url: 'https://www.exxen.com/', lang: 'tr' },
-  { name: 'Google', url: 'https://www.google.com/' },
+  { name: 'sahibinden', url: 'https://www.sahibinden.com/', lang: 'tr' },
 ];

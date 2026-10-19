@@ -37,6 +37,8 @@ internal static class Diagnostics
                 writer.WriteLine($"CabinPlay {typeof(Diagnostics).Assembly.GetName().Version}");
                 writer.WriteLine($"Windows {Environment.OSVersion.Version}");
                 writer.WriteLine($"Plugin folder: {plugins ?? "(unknown)"}");
+                // The usual reason for no screen in the cabin: the mod is off in the profile played.
+                writer.WriteLine(GameLog.Describe());
             }
             Process.Start("explorer.exe", $"/select,\"{zipPath}\"");
             Log.Write("error report written to " + zipPath);

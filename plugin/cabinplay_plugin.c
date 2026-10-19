@@ -93,6 +93,8 @@ typedef struct gfx {
     ID3D11DepthStencilState *depth;
     ID3D11Texture2D *frame_tex; /* the app's frame, bytes untouched */
     ID3D11ShaderResourceView *frame_srv;
+    ID3D11Texture2D *notice_tex; /* the app's notice (see draw_notice), made on first use */
+    ID3D11ShaderResourceView *notice_srv;
     int failed;
 } gfx_t;
 
@@ -153,6 +155,12 @@ static int g_frame_rgba_valid;
 
 static HANDLE g_state_mapping;
 static cabinplay_state_t *g_state;
+
+static HANDLE g_notice_mapping;
+static const cabinplay_notice_header_t *g_notice;
+static unsigned g_last_notice_try;
+static int32_t g_notice_sequence = -1; /* of the picture in notice_tex */
+static int g_notice_shown;             /* logged when it changes */
 
 /* telemetry, written by the game's main thread */
 static volatile int g_telemetry_ok;
@@ -700,6 +708,9 @@ static const char SHADER_SOURCE[] =
 static void release_gfx(void)
 {
     gfx_t *g = &g_gfx;
+    if (g->notice_srv) ID3D11ShaderResourceView_Release(g->notice_srv);
+    if (g->notice_tex) ID3D11Texture2D_Release(g->notice_tex);
+    g_notice_sequence = -1;
     if (g->frame_srv) ID3D11ShaderResourceView_Release(g->frame_srv);
     if (g->frame_tex) ID3D11Texture2D_Release(g->frame_tex);
     if (g->depth) ID3D11DepthStencilState_Release(g->depth);
@@ -1028,6 +1039,106 @@ static void draw_overlay(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceCont
         c.size[0] = w;
         c.size[1] = h;
         draw_rect(ctx, rtv, x, y, w, h, v->srv, NULL, &c, 1);
+        ID3D11RenderTargetView_Release(rtv);
+    }
+    ID3D11Texture2D_Release(back);
+}
+
+/* ------------------------------------------------------------------ notice over the game */
+
+static void try_open_notice(void)
+{
+    if (g_notice || (g_last_notice_try && g_frame_no - g_last_notice_try < 120))
+        return;
+    g_last_notice_try = g_frame_no ? g_frame_no : 1;
+    wchar_t name[128];
+    HANDLE h = OpenFileMappingW(FILE_MAP_READ, FALSE, mapping_name(CABINPLAY_NOTICE_MAPPING_NAME, name, 128));
+    if (!h)
+        return;
+    const cabinplay_notice_header_t *p = (const cabinplay_notice_header_t *)MapViewOfFile(
+        h, FILE_MAP_READ, 0, 0, CABINPLAY_NOTICE_MAPPING_SIZE);
+    if (!p) {
+        CloseHandle(h);
+        return;
+    }
+    g_notice_mapping = h;
+    g_notice = p;
+}
+
+/* The app's message at the top of the game's picture, for when there is no CabinPlay screen
+ * in the cabin to show it on. Only while the app is running: a notice it left behind when it
+ * was ended is not drawn. */
+static void draw_notice(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx)
+{
+    try_open_notice();
+    try_open_mapping(); /* with no screen in the cabin, nothing else has opened it */
+    const cabinplay_notice_header_t *n = g_notice;
+    int app_running = shared_valid() && GetTickCount64() - g_shared->heartbeat_ms < 3000;
+    int visible = n && n->magic == CABINPLAY_NOTICE_MAGIC && n->version == CABINPLAY_NOTICE_VERSION && n->visible &&
+                  app_running && !g_control && n->width && n->height && n->width <= CABINPLAY_NOTICE_MAX_W &&
+                  n->height <= CABINPLAY_NOTICE_MAX_H;
+    if (visible != g_notice_shown) {
+        g_notice_shown = visible;
+        logf_(visible ? "showing the app's notice over the game" : "notice over the game hidden");
+    }
+    if (!visible || !ensure_gfx(dev))
+        return;
+    gfx_t *g = &g_gfx;
+    if (!g->notice_tex) {
+        D3D11_TEXTURE2D_DESC td;
+        memset(&td, 0, sizeof(td));
+        td.Width = CABINPLAY_NOTICE_MAX_W;
+        td.Height = CABINPLAY_NOTICE_MAX_H;
+        td.MipLevels = 1;
+        td.ArraySize = 1;
+        td.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+        td.SampleDesc.Count = 1;
+        td.Usage = D3D11_USAGE_DEFAULT;
+        td.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+        if (FAILED(o_CreateTexture2D(dev, &td, NULL, &g->notice_tex)) ||
+            FAILED(ID3D11Device_CreateShaderResourceView(dev, (ID3D11Resource *)g->notice_tex, NULL, &g->notice_srv))) {
+            if (g->notice_tex) ID3D11Texture2D_Release(g->notice_tex);
+            g->notice_tex = NULL;
+            g->notice_srv = NULL;
+            return;
+        }
+        g_notice_sequence = -1;
+    }
+    int32_t seq = n->sequence;
+    if (!(seq & 1) && seq != g_notice_sequence) {
+        D3D11_BOX box = {0, 0, 0, n->width, n->height, 1};
+        ID3D11DeviceContext_UpdateSubresource(ctx, (ID3D11Resource *)g->notice_tex, 0, &box,
+                                              (const uint8_t *)n + CABINPLAY_NOTICE_HEADER_SIZE,
+                                              CABINPLAY_NOTICE_MAX_W * 4, 0);
+        /* rewritten meanwhile: take it again next frame */
+        g_notice_sequence = n->sequence == seq ? seq : -1;
+    }
+    if (g_notice_sequence < 0)
+        return;
+
+    ID3D11Texture2D *back = NULL;
+    if (FAILED(IDXGISwapChain_GetBuffer(sc, 0, &IID_ID3D11Texture2D, (void **)&back)) || !back)
+        return;
+    D3D11_TEXTURE2D_DESC bd;
+    ID3D11Texture2D_GetDesc(back, &bd);
+    ID3D11RenderTargetView *rtv = NULL;
+    if (SUCCEEDED(ID3D11Device_CreateRenderTargetView(dev, (ID3D11Resource *)back, NULL, &rtv)) && rtv) {
+        /* the picture is made for a 1440 pixel high game; never wider than most of the window */
+        float scale = bd.Height / 1440.0f;
+        if (n->width * scale > bd.Width * 0.9f)
+            scale = bd.Width * 0.9f / n->width;
+        float w = (float)(int)(n->width * scale), h = (float)(int)(n->height * scale);
+        float x = (float)(int)((bd.Width - w) / 2), y = (float)(int)(bd.Height * 0.07f);
+        shader_consts_t c;
+        memset(&c, 0, sizeof(c));
+        c.uv_rect[2] = (float)n->width / CABINPLAY_NOTICE_MAX_W;
+        c.uv_rect[3] = (float)n->height / CABINPLAY_NOTICE_MAX_H;
+        c.mode[1] = (float)transfer_between(0, format_is_srgb(bd.Format));
+        c.mode[3] = 0.96f;
+        c.cursor[3] = 22.0f * scale; /* rounded corners */
+        c.size[0] = w;
+        c.size[1] = h;
+        draw_rect(ctx, rtv, x, y, w, h, g->notice_srv, NULL, &c, 1);
         ID3D11RenderTargetView_Release(rtv);
     }
     ID3D11Texture2D_Release(back);
@@ -2420,6 +2531,7 @@ static void on_present(IDXGISwapChain *sc)
         EnterCriticalSection(&g_lock);
         g_frame_no++;
         pump(sc, dev, ctx);
+        draw_notice(sc, dev, ctx);
         LeaveCriticalSection(&g_lock);
         ID3D11DeviceContext_Release(ctx);
     }
@@ -3013,6 +3125,14 @@ __declspec(dllexport) void scs_telemetry_shutdown(void)
         release_gfx();
         LeaveCriticalSection(&g_lock);
     }
+    if (g_notice) {
+        UnmapViewOfFile(g_notice);
+        CloseHandle(g_notice_mapping);
+        g_notice = NULL;
+        g_notice_mapping = NULL;
+    }
+    g_last_notice_try = 0;
+    g_notice_shown = 0;
     if (g_shared) {
         UnmapViewOfFile(g_shared);
         CloseHandle(g_mapping);

@@ -224,6 +224,7 @@ svg.filled, svg .filled { fill: currentColor; stroke: none; }
 #update-card { padding: 10px 10px 10px 14px; display: flex; align-items: center; gap: 12px; }
 #upd-icon { width: 40px; height: 40px; flex: none; border-radius: 12px; display: grid; place-items: center; background: var(--accent); }
 #upd-icon.done { background: #30d158; }
+#upd-icon.warn { background: #ff9f0a; }
 #upd-icon svg { width: 24px; height: 24px; }
 .upd-text { flex: 1; min-width: 0; }
 #upd-title { font-size: 17px; font-weight: 650; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -454,8 +455,12 @@ kbd {
 :root { --pane-w: 467px; } /* (screen - dock - 2px gap) / 2; keep in sync with PaneBounds in MainForm.cs */
 #split-line { position: fixed; top: 0; bottom: 0; left: calc(var(--dock-w) + var(--pane-w)); width: 2px; background: #000; }
 body:not(.split) #split-line { display: none; }
-body.split #maps, body.split #truck { right: auto; width: var(--pane-w); }
-body.split #maps[data-pane="right"], body.split #truck[data-pane="right"] { left: calc(var(--dock-w) + var(--pane-w) + 2px); }
+body.split #maps, body.split #truck, body.split #browser { right: auto; width: var(--pane-w); }
+body.split #maps[data-pane="right"], body.split #truck[data-pane="right"], body.split #browser[data-pane="right"] {
+  left: calc(var(--dock-w) + var(--pane-w) + 2px);
+}
+body.split #browser-start { padding: 14px 16px; }
+body.split #browser-sites { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 body.split #map-status { padding: 0 36px; font-size: 19px; }
 body.split #truck { padding: 14px; }
 body.split #rig-card { display: none; }

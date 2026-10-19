@@ -63,10 +63,14 @@ internal sealed class MainForm : Form
     private FrameWriter? _writer;
     private WindowCapture? _capture;
     private GameLink? _game;
+    private GameNotice? _notice;
+    private readonly NoticeWatch _watch = new();
+    private readonly Dictionary<string, (string Title, string Text)> _noticeTexts = new(); // from the shell, in its language
     private string? _activeId;          // app shown right now, null while the shell is in front
     private string? _mediaId;           // app the media controls act on
     private string _shellView = "home"; // what the shell shows behind the apps: "home", "maps", "mirrors", "truck", "browser" or "split"
     private (string Left, string Right)? _split; // two apps side by side; _activeId is then the one with the keyboard
+    private string? _paneStart;         // side by side, the app whose half shows the shell's start page instead
     private bool _shellKeys;            // the shell's address field is being typed in
     private ushort[]? _navSource, _navTarget; // the mirror views' rectangles, from the shell
     private bool _stateBusy;
@@ -215,6 +219,7 @@ internal sealed class MainForm : Form
 
             _writer = new FrameWriter();
             _game = new GameLink();
+            _notice = new GameNotice();
             _capture = new WindowCapture(_writer);
             _capture.Start(Handle);
             _controllers = new Controllers();
@@ -322,6 +327,11 @@ internal sealed class MainForm : Form
                 case "bind-reset":
                     DefaultBindings();
                     return;
+                case "notice-text":
+                    if ((string?)msg!["id"] is string noticeId)
+                        _noticeTexts[noticeId] = ((string?)msg["title"] ?? "", (string?)msg["text"] ?? "");
+                    UpdateNotice();
+                    return;
                 case "shell-keys":
                     _shellKeys = (bool?)msg!["on"] ?? false;
                     return; // nothing the shell shows has changed
@@ -331,7 +341,7 @@ internal sealed class MainForm : Form
                     LayoutViews();
                     break;
                 case "browser":
-                    BrowserCommand((string?)msg!["action"]);
+                    BrowserCommand((string?)msg!["action"], (string?)msg["id"]);
                     break;
 
                 case "media":
@@ -379,6 +389,7 @@ internal sealed class MainForm : Form
         if (app.Bar)
             _shellView = "browser"; // the bar is the shell's
         _split = null;
+        _paneStart = null;
         _activeId = _mediaId = app.Id;
         LayoutViews();
     }
@@ -441,17 +452,26 @@ internal sealed class MainForm : Form
         string? l = (string?)left?["id"], r = (string?)right?["id"];
         if (l is null || r is null || l == r)
             return;
+        string? focus = null;
+        _paneStart = null;
         foreach (JsonNode side in new[] { left!, right! })
         {
             if (side["url"] is not null)
                 await EnsureAppAsync(side);
+            if ((bool?)side["navigate"] == true)
+                focus = (string?)side["id"]; // a page picked in that half: the keyboard goes there
+            if ((bool?)side["start"] == true)
+                _paneStart = (string?)side["id"];
         }
         _split = (l, r);
         _shellView = "home"; // where leaving the pair falls back to
-        if (_activeId != l && _activeId != r)
-            _activeId = _apps.ContainsKey(r) ? r : _apps.ContainsKey(l) ? l : null;
-        else if (!_apps.ContainsKey(_activeId!))
-            _activeId = null;
+        bool InView(string? id) => id is not null && _apps.ContainsKey(id) && id != _paneStart;
+        if (InView(focus))
+            _activeId = focus;
+        else if (_activeId != l && _activeId != r)
+            _activeId = InView(r) ? r : InView(l) ? l : null;
+        else if (!InView(_activeId))
+            _activeId = InView(l) ? l : InView(r) ? r : null;
         if (_activeId is not null && _mediaId != l && _mediaId != r)
             _mediaId = _activeId;
         LayoutViews();
@@ -459,7 +479,8 @@ internal sealed class MainForm : Form
 
     private void FocusPane(string id)
     {
-        if (_split is not { } s || (id != s.Left && id != s.Right) || _activeId == id || !_apps.ContainsKey(id))
+        if (_split is not { } s || (id != s.Left && id != s.Right) || _activeId == id || !_apps.ContainsKey(id) ||
+            id == _paneStart)
             return;
         _activeId = _mediaId = id;
         _ = PushStateAsync(withMedia: true);
@@ -475,10 +496,11 @@ internal sealed class MainForm : Form
     private static ushort[]? Rect(JsonNode? node) =>
         node is JsonArray { Count: 4 } a ? a.Select(v => (ushort)Math.Clamp((int?)v ?? 0, 0, 4096)).ToArray() : null;
 
-    /// <summary>The dock's back and forward buttons, for the app in front.</summary>
-    private void BrowserCommand(string? action)
+    /// <summary>The dock's back and forward buttons, for the app in front, or the address bar's for its page.</summary>
+    private void BrowserCommand(string? action, string? id)
     {
-        if (_activeId is null || !_apps.TryGetValue(_activeId, out AppView? app) || app.View.CoreWebView2 is null)
+        id ??= _activeId;
+        if (id is null || !_apps.TryGetValue(id, out AppView? app) || app.View.CoreWebView2 is null)
             return;
         CoreWebView2 core = app.View.CoreWebView2;
         if (action == "back" && core.CanGoBack)
@@ -494,6 +516,7 @@ internal sealed class MainForm : Form
     {
         _shellView = view;
         _split = null;
+        _paneStart = null;
         _activeId = null;
         LayoutViews();
     }
@@ -506,6 +529,8 @@ internal sealed class MainForm : Form
         app.View.Dispose();
         if (_split is { } s && (s.Left == id || s.Right == id))
             _split = null;
+        if (_paneStart == id)
+            _paneStart = null;
         if (_activeId == id)
             _activeId = null;
         if (_mediaId == id)
@@ -520,13 +545,18 @@ internal sealed class MainForm : Form
         foreach (AppView app in _apps.Values)
         {
             bool left = _split?.Left == app.Id, right = _split?.Right == app.Id;
-            bool shown = _split is null ? app.Id == _activeId : left || right;
+            bool shown = _split is null ? app.Id == _activeId : (left || right) && app.Id != _paneStart;
             if (shown)
             {
-                int top = app.Bar && _split is null ? BarHeight : 0;
-                app.View.Bounds = app.Fullscreen ? ClientRectangle
-                    : _split is not null ? PaneBounds(right)
-                    : new Rectangle(DockWidth, top, ClientSize.Width - DockWidth, ClientSize.Height - top);
+                Rectangle area = _split is not null ? PaneBounds(right)
+                    : new Rectangle(DockWidth, 0, ClientSize.Width - DockWidth, ClientSize.Height);
+                if (app.Bar)
+                {
+                    // under the shell's address bar, in its half side by side
+                    area.Y += BarHeight;
+                    area.Height -= BarHeight;
+                }
+                app.View.Bounds = app.Fullscreen ? ClientRectangle : area;
                 app.View.Visible = true;
                 app.View.BringToFront();
                 if (app.Fullscreen)
@@ -595,6 +625,12 @@ internal sealed class MainForm : Form
             RaisePriorities();
         if (_stateTick % 120 == 0)
             LogCaptureRate();
+        if (_game is not null)
+        {
+            GameState g = _game.Read();
+            _watch.Update(g, g.Connected ? _game.ReadVehicle() : null);
+            UpdateNotice();
+        }
         // The game state (speed, route) is cheap and refreshed every tick; asking the
         // page about its player is not, so that happens once a second.
         await PushStateAsync(withMedia: _stateTick++ % 4 == 0);
@@ -615,6 +651,15 @@ internal sealed class MainForm : Form
         {
             Log.Write("raising priority failed: " + ex.Message);
         }
+    }
+
+    /// <summary>Draws what the player has to know over the game, in the words the shell sent for it.</summary>
+    private void UpdateNotice()
+    {
+        if (_watch.InGame is { } id && _noticeTexts.TryGetValue(id, out var text))
+            _notice?.Show(text.Title, text.Text);
+        else
+            _notice?.Hide();
     }
 
     private long _rateFrames, _rateTick;
@@ -657,6 +702,7 @@ internal sealed class MainForm : Form
                 ["active"] = _activeId,
                 ["view"] = _shellView,
                 ["split"] = _split is { } pair ? new JsonArray(pair.Left, pair.Right) : null,
+                ["paneStart"] = _paneStart,
                 ["open"] = new JsonArray(_apps.Keys.Select(k => (JsonNode?)JsonValue.Create(k)).ToArray()),
                 ["media"] = _lastMedia?.DeepClone(),
                 ["browser"] = new JsonObject
@@ -666,7 +712,16 @@ internal sealed class MainForm : Form
                     ["url"] = front?.Source,
                     ["title"] = front?.DocumentTitle,
                 },
+                ["browserPage"] = BrowserPage(),
                 ["vehicle"] = g.Connected ? VehicleJson(_game?.ReadVehicle()) : null,
+                ["notice"] = _watch.Card is null && _watch.InGame is null ? null : new JsonObject
+                {
+                    ["card"] = _watch.Card,
+                    ["inGame"] = _watch.InGame,
+                    ["profile"] = _watch.Profile,
+                    ["version"] = _watch.GameVersion,
+                    ["tested"] = GameLog.TestedVersions,
+                },
                 ["game"] = new JsonObject
                 {
                     ["connected"] = g.Connected,
@@ -693,6 +748,14 @@ internal sealed class MainForm : Form
         {
             _stateBusy = false;
         }
+    }
+
+    /// <summary>The browser app's page, for its address bar side by side, where it need not be in front.</summary>
+    private JsonObject? BrowserPage()
+    {
+        AppView? browser = _apps.Values.FirstOrDefault(a => a.Bar);
+        CoreWebView2? core = browser?.View.CoreWebView2;
+        return core is null ? null : new JsonObject { ["url"] = core.Source, ["title"] = core.DocumentTitle };
     }
 
     /// <summary>What the truck page shows. Wear and damage in whole percent.</summary>
@@ -1572,6 +1635,7 @@ internal sealed class MainForm : Form
         _capture?.Dispose();
         _writer?.Dispose();
         _game?.Dispose();
+        _notice?.Dispose();
         // Last, with everything else let go: it may wait for the game's process to end.
         _updater?.InstallIfReady(gameClosed: _leftWithGame, _language);
         _updater?.Dispose();
