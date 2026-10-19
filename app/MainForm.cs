@@ -879,6 +879,10 @@ internal sealed class MainForm : Form
     private async Task HoldMediaForGameAsync()
     {
         GameState g = _game?.Read() ?? default;
+        // The game closing (or gone) is not the game running again: what was held for its
+        // pause menu stays held, rather than playing on until this app closes after it.
+        if (!g.Connected)
+            return;
         // Control mode pauses the game itself so the screen can be used in peace: that pause
         // must not stop what is playing.
         bool hold = g.Telemetry && ((g.Paused && !g.Control) || !g.Electric);
