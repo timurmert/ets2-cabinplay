@@ -90,7 +90,7 @@ The **Browser** app opens any website: type an address or a search in the bar at
 
 **Side by side** puts two apps next to each other, for example the map on the left and music or the browser on the right: press the split button in the dock and pick the app for each half. Under **Settings** you can choose a background, also from your own pictures, change the keys of the shortcuts, and put any of them on a button of your steering wheel or gamepad.
 
-**More places:** besides the windscreen, the workshop has the screen for the *Dashboard*, the *Air vent*, *Overhead*, the *Passenger seat*, the *Console*, the *Cup holder* (newer trucks) and the *Passenger side* of the windscreen. To watch from the bunk there is **CabinPlay TV**, a 27" set for the back wall (the light panel slot), flat or swung out towards the pillow, or for the windscreen, flat or turned to the bunk. In the Scania S, keep turning your head to the right past looking back: the camera moves onto the bunk and stops at the pillow, facing the TV.
+**More places:** besides the windscreen, the workshop has the screen for the *Dashboard*, the *Air vent*, *Overhead*, the *Passenger seat*, the *Console*, the *Cup holder* (newer trucks) and the *Passenger side* of the windscreen. To watch from the bunk there is **CabinPlay TV**, a 27" set for the back wall (the light panel slot), flat or swung out towards the pillow, or for the windscreen, flat or turned to the bunk or to the driver. In the Scania S, keep turning your head to the right past looking back: the camera moves onto the bunk and stops at the pillow, facing the TV.
 
 ## What you need
 

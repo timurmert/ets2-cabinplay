@@ -118,7 +118,8 @@ VARIANTS = [
 
 # The centre screen: 11 inch, on the middle of the windscreen, turned towards the driver.
 # The mount point there has the cabin's own axes, so the driver is to the left of it, or to
-# the right in a right-hand-drive cabin, which gets a version of its own.
+# the right in a right-hand-drive cabin, which gets a version of its own. yaw only gives the
+# side: centre_variant works out the angle for each truck.
 CENTRE_VARIANTS = [
     dict(unit="cabinplay_c", model="cabinplay_centre", name="CabinPlay Screen (Centre)", price=1500, yaw=-30.0),
     dict(unit="cabinplay_cr", model="cabinplay_centre_rhd", name="CabinPlay Screen (Centre, right-hand drive)",
@@ -133,11 +134,19 @@ def centre_down(truck):
     return round(min(max(CENTRE_DROP[truck] - 0.06, -0.03), 0.14), 2)
 
 
-def centre_variant(base, down):
+def centre_variant(base, truck):
+    down = centre_down(truck)
     cup = min(max(down - 0.02, 0.0), 0.10)  # as far down the glass as the game's own suction toys go
-    return dict(base, model="%s_%d" % (base["model"], round(down * 100) + 3),
+    center = (0.0, -down, -GLASS_LEAN * down + 0.150)
+    # Turned square to the driver's eyes (the cabin's origin), which are 35-45 degrees to the
+    # left of it depending on the truck; the other way round in a right-hand-drive cabin.
+    pos, rot = SLOTS[truck][CENTRE_SLOT]
+    at = vadd(pos, qrot(rot, center))
+    turn = round(math.degrees(math.atan2(abs(at[0]), -at[2])))
+    return dict(base, model="%s_%d_%d" % (base["model"], round(down * 100) + 3, turn),
+                yaw=math.copysign(turn, base["yaw"]),
                 screen=(0.1260, 0.0630), screen_r=0.0055, body=(0.1330, 0.0700, 0.0095, 0.0130),
-                center=(0.0, -down, -GLASS_LEAN * down + 0.150), tilt=14.0,
+                center=center, tilt=14.0,
                 cup=(0.0, -cup, -GLASS_LEAN * cup - 0.002), glass=(0.0, -GLASS_LEAN, 1.0))
 
 
@@ -208,6 +217,12 @@ PLACES = [
          price=3500, size=SIZE_TV, local=True, arm=1.6, face=("toybed", BUNK_EYES),
          foot=(0.0, 0.03, GLASS_LEAN * 0.03 - 0.002), normal=(0.0, -GLASS_LEAN, 1.0),
          centre=(0.0, 0.03, GLASS_LEAN * 0.03 + 0.10)),
+    # ... and turned to the driver. That swings its right edge towards the glass, so it stands
+    # further off it: 34 cm keeps every corner at least 3 cm clear of the glass in every truck.
+    dict(slot="set_glass", unit="cabinplay_dr", model="cp_tv_driver", name="CabinPlay TV (Windscreen, to the driver)",
+         price=3500, size=SIZE_TV, local=True, arm=1.6,
+         foot=(0.0, 0.03, GLASS_LEAN * 0.03 - 0.002), normal=(0.0, -GLASS_LEAN, 1.0),
+         centre=(0.0, 0.03, GLASS_LEAN * 0.03 + 0.34)),
 ]
 
 
@@ -752,7 +767,7 @@ def main():
     centre = {}
     for truck in TRUCKS:
         for base in CENTRE_VARIANTS:
-            variant = centre_variant(base, centre_down(truck))
+            variant = centre_variant(base, truck)
             centre[variant["model"]] = variant
     # the other places: one model per place and truck, shared by trucks where it comes out the same
     placed, models = {}, {}
@@ -872,7 +887,7 @@ def main():
     # one accessory definition per truck, mount point and version
     for truck in TRUCKS:
         fitted = [(SLOT, v) for v in VARIANTS]
-        fitted += [(CENTRE_SLOT, centre_variant(v, centre_down(truck))) for v in CENTRE_VARIANTS]
+        fitted += [(CENTRE_SLOT, centre_variant(v, truck)) for v in CENTRE_VARIANTS]
         fitted += [(p["slot"], placed[p["unit"], truck]) for p in PLACES if (p["unit"], truck) in placed]
         for slot, variant in fitted:
             write("/def/vehicle/truck/%s/accessory/%s/%s.sii" % (truck, slot, variant["unit"]),
