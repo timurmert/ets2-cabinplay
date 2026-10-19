@@ -164,6 +164,11 @@ static volatile int g_app_overlay_percent, g_app_cursor_speed;
 static volatile double g_overlay_opened_ms, g_overlay_closed_ms;
 #define OVERLAY_OPEN_MS 220.0
 #define OVERLAY_CLOSE_MS 150.0
+/* Closing, the game's picture stays over the game until the game runs again (see cover_left). */
+#define COVER_WAIT_MS 2000.0
+#define COVER_SETTLE_MS 60.0
+#define COVER_FADE_MS 120.0
+static volatile double g_resumed_ms; /* when the game was seen running again after control mode closed */
 static volatile int g_freeze_state; /* control mode's frozen picture: 0 not taken yet, 1 taken, -1 not possible */
 
 static HANDLE g_notice_mapping;
@@ -1046,6 +1051,27 @@ static float overlay_shown(void)
     return (1.0f - t) * (1.0f - t);
 }
 
+/* What is left of what covers the game behind control mode (its frozen picture, or black):
+ * 1 all of it, 0 none. Closing, it stays whole while the game is still paused, which would
+ * otherwise show its pause menu for a moment, and goes once the game runs again. */
+static float cover_left(void)
+{
+    if (g_control)
+        return overlay_shown();
+    if (g_overlay_closed_ms <= 0)
+        return 0.0f;
+    double now = now_ms();
+    if (g_resumed_ms <= 0) {
+        if (g_telemetry_ok && g_paused && now - g_overlay_closed_ms < COVER_WAIT_MS)
+            return 1.0f;
+        g_resumed_ms = now;
+    }
+    float t = (float)((now - g_resumed_ms - COVER_SETTLE_MS) / COVER_FADE_MS);
+    if (t <= 0)
+        return 1.0f; /* the game's menu may still be in the frame that follows */
+    return t >= 1.0f ? 0.0f : 1.0f - t;
+}
+
 /* Keeps a copy of the game's picture in g_gfx.freeze_tex. 1 when it worked. */
 static int freeze_frame(ID3D11Device *dev, ID3D11DeviceContext *ctx, ID3D11Texture2D *back, const D3D11_TEXTURE2D_DESC *bd)
 {
@@ -1116,7 +1142,7 @@ static void draw_overlay(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceCont
         float fit = bd.Height * 0.9f / CABINPLAY_HEIGHT;
         if (scale > fit)
             scale = fit;
-        float shown = overlay_shown();
+        float shown = overlay_shown(), cover = cover_left();
         scale *= 0.9f + 0.1f * shown;
         float w = CABINPLAY_WIDTH * scale, h = CABINPLAY_HEIGHT * scale;
         float x = (float)(int)((bd.Width - w) / 2), y = (float)(int)((bd.Height - h) / 2);
@@ -1125,7 +1151,7 @@ static void draw_overlay(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceCont
             shader_consts_t frozen; /* same format both sides: nothing to convert */
             memset(&frozen, 0, sizeof(frozen));
             frozen.uv_rect[2] = frozen.uv_rect[3] = 1.0f;
-            frozen.mode[3] = shown;
+            frozen.mode[3] = cover;
             frozen.size[0] = (float)bd.Width;
             frozen.size[1] = (float)bd.Height;
             draw_rect(ctx, rtv, 0, 0, (float)bd.Width, (float)bd.Height, g_gfx.freeze_srv, NULL, &frozen, 1);
@@ -1133,7 +1159,7 @@ static void draw_overlay(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceCont
         shader_consts_t dim;
         memset(&dim, 0, sizeof(dim));
         dim.mode[0] = 2.0f;
-        dim.mode[3] = (backdrop == 1 ? 1.0f : backdrop == 0 ? 0.55f : 0.82f) * shown;
+        dim.mode[3] = backdrop == 1 ? cover : (backdrop == 0 ? 0.55f : 0.82f) * shown;
         draw_rect(ctx, rtv, 0, 0, (float)bd.Width, (float)bd.Height, v->srv, NULL, &dim, 1);
 
         shader_consts_t c;
@@ -1697,6 +1723,7 @@ static void set_control(int on)
                     push_event(CABINPLAY_EVENT_BUTTON, (int)g_cursor_x, (int)g_cursor_y, b);
             g_resume_on_exit = 1;
             g_overlay_closed_ms = now_ms();
+            g_resumed_ms = 0;
             logf_("input routes used: DirectInput mouse %ld keyboard %ld, raw message %ld buffer %ld data %ld, "
                   "cursor %ld, key state %ld, key messages %ld, mouse messages %ld",
                   g_routes.di_mouse, g_routes.di_keyboard, g_routes.raw_message, g_routes.raw_buffer,
@@ -2628,7 +2655,7 @@ static void pump(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx
         }
     }
 
-    if ((g_control || overlay_shown() > 0) && g_video[first_screen->family].tex && ensure_gfx(dev))
+    if ((g_control || overlay_shown() > 0 || cover_left() > 0) && g_video[first_screen->family].tex && ensure_gfx(dev))
         draw_overlay(sc, dev, ctx, &g_video[first_screen->family]);
 }
 

@@ -812,6 +812,38 @@ int main(int argc, char **argv)
     present(hdr, 200);
     check(state && !(state->flags & CABINPLAY_STATE_CONTROL), "the next request closes it");
 
+    printf("closing control mode while the game is still paused\n");
+    {
+        ID3D11Texture2D *back = NULL;
+        IDXGISwapChain_GetBuffer(sc, 0, &IID_ID3D11Texture2D, (void **)&back);
+        ID3D11RenderTargetView *rtv = NULL;
+        ID3D11Device_CreateRenderTargetView(dev, (ID3D11Resource *)back, NULL, &rtv);
+        const FLOAT blue[4] = {0, 0, 1, 1}, green[4] = {0, 1, 0, 1};
+        ID3D11DeviceContext_ClearRenderTargetView(ctx, rtv, blue);
+        hdr->control_requests++;
+        present(hdr, 2); /* opens, keeping the blue picture */
+        g_event_cb[3](3, NULL, NULL); /* the game pauses for it */
+        Sleep(300);
+        present(hdr, 2);
+        hdr->control_requests++;
+        present(hdr, 1); /* closes while the game is still paused */
+        Sleep(250);
+        ID3D11DeviceContext_ClearRenderTargetView(ctx, rtv, green); /* green: the game's pause menu */
+        present(hdr, 1);
+        read_pixel(back, 0, 20, 20, px);
+        check(px[2] > 240 && px[1] < 10, "the game's picture stays over the pause menu until the game runs");
+        g_event_cb[4](4, NULL, NULL); /* running again */
+        present(hdr, 1);
+        Sleep(250);
+        ID3D11DeviceContext_ClearRenderTargetView(ctx, rtv, green);
+        present(hdr, 1);
+        read_pixel(back, 0, 20, 20, px);
+        check(px[1] == 255 && px[2] == 0, "then it goes");
+        ID3D11RenderTargetView_Release(rtv);
+        ID3D11Texture2D_Release(back);
+        present(hdr, 200);
+    }
+
     printf("notice over the game\n");
     HANDLE notice_map = CreateFileMappingW(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, CABINPLAY_NOTICE_MAPPING_SIZE,
                                            CABINPLAY_NOTICE_MAPPING_NAME L".selftest");
