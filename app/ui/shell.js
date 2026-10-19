@@ -192,6 +192,14 @@
   for (const b of $('settings-speed').querySelectorAll('button')) {
     b.addEventListener('click', () => setSpeed(Number(speedRange.value) + Number(b.dataset.step)));
   }
+  // Warnings over the game (the host's NoticeWatch): on unless switched off.
+  for (const b of $('settings-notices').children) {
+    b.addEventListener('click', () => send({ type: 'game-notices', on: b.dataset.value === 'on' }));
+  }
+  function layoutNoticeOption() {
+    for (const b of $('settings-notices').children) b.classList.toggle('on', b.dataset.value === (config.gameNotices === false ? 'off' : 'on'));
+  }
+
   function layoutControlOptions() {
     const chosen = config.control || {};
     for (const b of $('settings-size').children) b.classList.toggle('on', Number(b.dataset.value) === (chosen.overlaySize || 60));
@@ -1060,6 +1068,7 @@
         layoutBinds();
         layoutUpdate();
         layoutControlOptions();
+        layoutNoticeOption();
         refreshTitles();
       }
       if (e.data && e.data.type === 'blur') address.blur();

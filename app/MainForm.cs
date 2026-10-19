@@ -64,7 +64,7 @@ internal sealed class MainForm : Form
     private WindowCapture? _capture;
     private GameLink? _game;
     private GameNotice? _notice;
-    private readonly NoticeWatch _watch = new();
+    private readonly NoticeWatch _watch;
     private readonly Dictionary<string, (string Title, string Text)> _noticeTexts = new(); // from the shell, in its language
     private string? _activeId;          // app shown right now, null while the shell is in front
     private string? _mediaId;           // app the media controls act on
@@ -112,6 +112,15 @@ internal sealed class MainForm : Form
         Icon = CreateIcon();
         RestorePlacement();
         LoadBindings();
+        // What was drawn over the game on earlier runs is not drawn again.
+        _watch = new NoticeWatch(((_settings["noticesSeen"] as JsonArray) ?? new JsonArray())
+                                 .Select(n => (string?)n).OfType<string>());
+        _watch.InGameEnabled = (bool?)_settings["gameNotices"] ?? true;
+        _watch.Seen += () =>
+        {
+            _settings["noticesSeen"] = new JsonArray(_watch.SeenList.Select(k => (JsonNode?)k).ToArray());
+            SaveSettings();
+        };
         _restoreLocation = Location;
         if (_background)
         {
@@ -360,6 +369,12 @@ internal sealed class MainForm : Form
                 case "diagnostics":
                     Diagnostics.Export();
                     break;
+                case "game-notices":
+                    _watch.InGameEnabled = (bool?)msg!["on"] ?? true;
+                    _settings["gameNotices"] = _watch.InGameEnabled;
+                    SaveSettings();
+                    PushConfig();
+                    return;
                 case "control-option":
                     SetControlOption((string?)msg!["name"], (int?)msg["value"] ?? 0);
                     return;
@@ -1459,6 +1474,7 @@ internal sealed class MainForm : Form
                 ["bindings"] = bindings,
                 ["capturing"] = _capturing,
                 ["update"] = _updater?.ToJson(),
+                ["gameNotices"] = _watch.InGameEnabled,
                 ["control"] = new JsonObject
                 {
                     ["overlaySize"] = (int?)_settings["overlaySize"],

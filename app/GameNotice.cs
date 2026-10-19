@@ -152,7 +152,9 @@ internal sealed unsafe class GameNotice : IDisposable
 /// profile, the truck has no CabinPlay screen, or the game is a version CabinPlay was not
 /// tried with. The home screen shows the first that applies as a card (<see cref="Card"/>);
 /// the first two are also drawn over the game for a while (<see cref="InGame"/>), since
-/// without a screen in the cabin there is nowhere else to see them.
+/// without a screen in the cabin there is nowhere else to see them. That happens once for each
+/// profile and each truck, remembered across runs (<see cref="Seen"/>): someone who leaves the
+/// mod off in a profile, or drives a truck without the screen, on purpose, is told only once.
 /// </summary>
 internal sealed class NoticeWatch
 {
@@ -168,6 +170,31 @@ internal sealed class NoticeWatch
     private string? _truck;          // brand, model and plate of the truck being watched
     private long _unfittedPlayed;     // play time without the screen in this truck
     private long _unfittedShown;      // of it, how long it has been drawn over the game
+    private bool _modOffMuted;        // told about this profile on an earlier run
+    private bool? _unfittedMuted;     // the same for this truck, once it is known
+    private readonly List<string> _seen;
+
+    /// <param name="seen">What was drawn over the game before ("modOff|profile", "notFitted|truck").</param>
+    public NoticeWatch(IEnumerable<string> seen) => _seen = seen.ToList();
+
+    /// <summary>Raised when something is drawn over the game for the first time; save <see cref="SeenList"/>.</summary>
+    public event Action? Seen;
+    public IReadOnlyList<string> SeenList => _seen;
+
+    /// <summary>Off: nothing is drawn over the game (the home screen card stays).</summary>
+    public bool InGameEnabled { get; set; } = true;
+
+    /// <summary>True the first time; remembers the last 200.</summary>
+    private bool FirstTime(string key)
+    {
+        if (_seen.Contains(key))
+            return false;
+        _seen.Add(key);
+        if (_seen.Count > 200)
+            _seen.RemoveAt(0);
+        Seen?.Invoke();
+        return true;
+    }
 
     public string? Card { get; private set; }   // "modOff", "notFitted" or "version"
     public string? InGame { get; private set; } // "modOff" or "notFitted"
@@ -204,11 +231,14 @@ internal sealed class NoticeWatch
             _modList = _log.ModLists;
             _modOffSince = now;
             _modOffPlayed = 0;
-            Log.Write($"the CabinPlay mod is not active in profile '{_log.Profile}'");
+            _modOffMuted = !InGameEnabled || !FirstTime("modOff|" + _log.Profile);
+            Log.Write($"the CabinPlay mod is not active in profile '{_log.Profile}'" +
+                      (_modOffMuted ? " (not drawn over the game: told before, or switched off)" : ""));
         }
         if (modOff && playing)
             _modOffPlayed += dt;
-        bool modOffInGame = modOff && now - _modOffSince < ModOffInGameMaxMs && _modOffPlayed < ModOffInGameMs;
+        bool modOffInGame = modOff && !_modOffMuted && now - _modOffSince < ModOffInGameMaxMs &&
+                            _modOffPlayed < ModOffInGameMs;
 
         // no screen in this truck: after a while of play, once per truck
         string? truck = v?.Truck == true ? $"{v.TruckBrand} {v.TruckName} {v.TruckPlate}" : null;
@@ -216,8 +246,11 @@ internal sealed class NoticeWatch
         {
             _truck = truck;
             _unfittedPlayed = _unfittedShown = 0;
+            _unfittedMuted = null;
         }
         bool unfitted = !modOff && truck is not null && !g.Mounted && _unfittedPlayed >= UnfittedAfterMs;
+        if (unfitted && playing && _unfittedMuted is null)
+            _unfittedMuted = !InGameEnabled || !FirstTime("notFitted|" + truck);
         if (!modOff && truck is not null && !g.Mounted && playing)
         {
             if (_unfittedPlayed < UnfittedAfterMs && _unfittedPlayed + dt >= UnfittedAfterMs)
@@ -226,10 +259,10 @@ internal sealed class NoticeWatch
             if (unfitted)
                 _unfittedShown += dt;
         }
-        bool unfittedInGame = unfitted && playing && _unfittedShown < UnfittedInGameMs;
+        bool unfittedInGame = unfitted && playing && _unfittedMuted == false && _unfittedShown < UnfittedInGameMs;
 
         Card = modOff ? "modOff" : unfitted ? "notFitted" : !_log.VersionTested ? "version" : null;
-        InGame = modOffInGame ? "modOff" : unfittedInGame ? "notFitted" : null;
+        InGame = !InGameEnabled ? null : modOffInGame ? "modOff" : unfittedInGame ? "notFitted" : null;
         if (Card == "version" && before.Card != "version")
             Log.Write($"game version {_log.GameVersion} was not tested (CabinPlay is for {GameLog.TestedVersions})");
         return before != (Card, InGame);
