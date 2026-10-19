@@ -61,7 +61,7 @@ Fermez le jeu, puis choisissez une méthode :
 
 1. Lancez le jeu et acceptez l'avertissement sur les « fonctionnalités SDK », affiché une seule fois.
 2. Dans le **Gestionnaire de mods**, activez **CabinPlay Screen**.
-3. Dans un garage, installez **CabinPlay Screen** dans un emplacement d'accessoire du pare-brise. À gauche, trois versions existent : *Large* (13") et *Medium* (11") sur un bras, et *Compact* (10", contre la vitre) ; au milieu, il y a *Centre*, tourné vers le conducteur (avec une version à part pour les cabines à conduite à droite).
+3. Dans un garage, installez **CabinPlay Screen** dans un emplacement d'accessoire du pare-brise. À gauche, trois versions existent : *Large* (13") et *Medium* (11") sur un bras, et *Compact* (10", contre la vitre) ; au milieu, il y a *Centre* (11") et *Centre, Large* (13"), tournés vers le conducteur (chacun avec une version à part pour les cabines à conduite à droite).
 
 C'est tout. L'écran s'allume avec le contact du camion. Installé avec le programme d'installation, CabinPlay se met à jour tout seul : il télécharge la nouvelle version pendant que vous jouez et l'installe quand vous fermez le jeu et l'indique sur l'écran ; dans *Réglages* > *Mises à jour*, vous pouvez lui demander de vous consulter d'abord, ou le désactiver. Pour désinstaller CabinPlay, ouvrez *Paramètres* > *Applications* dans Windows, ou lancez `Uninstall.exe` dans `%LocalAppData%\Programs\CabinPlay` ; si vous l'avez installé à la main, supprimez les fichiers copiés.
 

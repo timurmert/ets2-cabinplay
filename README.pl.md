@@ -61,7 +61,7 @@ Zamknij grę, a potem wybierz jeden sposób:
 
 1. Uruchom grę i zaakceptuj komunikat o "funkcjach SDK", który pojawia się raz.
 2. W **Menedżerze modów** włącz **CabinPlay Screen**.
-3. W warsztacie zamontuj **CabinPlay Screen** w gnieździe akcesoriów na przedniej szybie. Po lewej są trzy wersje: *Large* (13") i *Medium* (11") na ramieniu oraz *Compact* (10", przy szybie); w środkowym gnieździe jest *Centre*, zwrócony w stronę kierowcy (z osobną wersją dla kabin z kierownicą po prawej).
+3. W warsztacie zamontuj **CabinPlay Screen** w gnieździe akcesoriów na przedniej szybie. Po lewej są trzy wersje: *Large* (13") i *Medium* (11") na ramieniu oraz *Compact* (10", przy szybie); w środkowym gnieździe są *Centre* (11") i *Centre, Large* (13"), zwrócone w stronę kierowcy (każdy z osobną wersją dla kabin z kierownicą po prawej).
 
 To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Zainstalowany instalatorem CabinPlay sam się aktualizuje: nową wersję pobiera w trakcie gry i instaluje po jej zamknięciu i pokazuje to na ekranie; w *Ustawienia* > *Aktualizacje* możesz kazać mu najpierw pytać albo to wyłączyć. Aby usunąć CabinPlay, otwórz w Windows *Ustawienia* > *Aplikacje* albo uruchom `Uninstall.exe` w `%LocalAppData%\Programs\CabinPlay`; jeśli instalacja była ręczna, usuń skopiowane pliki.
 

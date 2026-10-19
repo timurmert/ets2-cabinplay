@@ -116,14 +116,18 @@ VARIANTS = [
          center=(0.0, 0.025, 0.105), tilt=10.0, yaw=0.0),
 ]
 
-# The centre screen: 11 inch, on the middle of the windscreen, turned towards the driver.
-# The mount point there has the cabin's own axes, so the driver is to the left of it, or to
-# the right in a right-hand-drive cabin, which gets a version of its own. yaw only gives the
-# side: centre_variant works out the angle for each truck.
+# The centre screen: 11 inch, or 13 inch (big=True), on the middle of the windscreen, turned
+# towards the driver. The mount point there has the cabin's own axes, so the driver is to the
+# left of it, or to the right in a right-hand-drive cabin, which gets a version of its own. yaw
+# only gives the side: centre_variant works out the angle for each truck.
 CENTRE_VARIANTS = [
     dict(unit="cabinplay_c", model="cabinplay_centre", name="CabinPlay Screen (Centre)", price=1500, yaw=-30.0),
     dict(unit="cabinplay_cr", model="cabinplay_centre_rhd", name="CabinPlay Screen (Centre, right-hand drive)",
          price=1500, yaw=30.0),
+    dict(unit="cabinplay_cl", model="cabinplay_centre_xl", name="CabinPlay Screen (Centre, Large)", price=1800,
+         yaw=-30.0, big=True),
+    dict(unit="cabinplay_cz", model="cabinplay_centre_xl_rhd", name="CabinPlay Screen (Centre, Large, right-hand drive)",
+         price=1800, yaw=30.0, big=True),
 ]
 GLASS_LEAN = 0.2  # how far the glass comes towards the driver per metre of height, at its middle
 
@@ -137,16 +141,23 @@ def centre_down(truck):
 def centre_variant(base, truck):
     down = centre_down(truck)
     cup = min(max(down - 0.02, 0.0), 0.10)  # as far down the glass as the game's own suction toys go
-    center = (0.0, -down, -GLASS_LEAN * down + 0.150)
+    if base.get("big"):
+        # 13 inch: its lower edge where the 11 inch one has it, clear of the dashboard, and
+        # further off the glass, which its right edge comes towards as it turns: 19 cm keeps at
+        # least 2.7 cm between them in every truck.
+        size = dict(screen=(0.1477, 0.0738), screen_r=0.0060, body=(0.1547, 0.0808, 0.0100, 0.0140))
+        rise = 0.0108
+        center = (0.0, -down + rise, -GLASS_LEAN * (down - rise) + 0.190)
+    else:
+        size = dict(screen=(0.1260, 0.0630), screen_r=0.0055, body=(0.1330, 0.0700, 0.0095, 0.0130))
+        center = (0.0, -down, -GLASS_LEAN * down + 0.150)
     # Turned square to the driver's eyes (the cabin's origin), which are 35-45 degrees to the
     # left of it depending on the truck; the other way round in a right-hand-drive cabin.
     pos, rot = SLOTS[truck][CENTRE_SLOT]
     at = vadd(pos, qrot(rot, center))
     turn = round(math.degrees(math.atan2(abs(at[0]), -at[2])))
     return dict(base, model="%s_%d_%d" % (base["model"], round(down * 100) + 3, turn),
-                yaw=math.copysign(turn, base["yaw"]),
-                screen=(0.1260, 0.0630), screen_r=0.0055, body=(0.1330, 0.0700, 0.0095, 0.0130),
-                center=center, tilt=14.0,
+                yaw=math.copysign(turn, base["yaw"]), center=center, tilt=14.0, **size,
                 cup=(0.0, -cup, -GLASS_LEAN * cup - 0.002), glass=(0.0, -GLASS_LEAN, 1.0))
 
 
