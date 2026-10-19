@@ -821,8 +821,12 @@ int main(int argc, char **argv)
         const FLOAT blue[4] = {0, 0, 1, 1}, green[4] = {0, 1, 0, 1};
         ID3D11DeviceContext_ClearRenderTargetView(ctx, rtv, blue);
         hdr->control_requests++;
-        present(hdr, 2); /* opens, keeping the blue picture */
+        present(hdr, 1); /* opens, keeping the blue picture */
         g_event_cb[3](3, NULL, NULL); /* the game pauses for it */
+        ID3D11DeviceContext_ClearRenderTargetView(ctx, rtv, green); /* green: the game's pause menu */
+        present(hdr, 1); /* still opening */
+        read_pixel(back, 0, 20, 20, px);
+        check(px[1] < 10 && px[2] > 150, "opening, the pause menu does not show through");
         Sleep(300);
         present(hdr, 2);
         hdr->control_requests++;

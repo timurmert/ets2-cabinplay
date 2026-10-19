@@ -1052,12 +1052,13 @@ static float overlay_shown(void)
 }
 
 /* What is left of what covers the game behind control mode (its frozen picture, or black):
- * 1 all of it, 0 none. Closing, it stays whole while the game is still paused, which would
- * otherwise show its pause menu for a moment, and goes once the game runs again. */
+ * 1 all of it, 0 none. It is whole from the first frame: the frozen picture is that frame,
+ * and anything less would let the pause menu show through as the game pauses. Closing, it
+ * stays whole while the game is still paused and its menu fades out, then goes. */
 static float cover_left(void)
 {
     if (g_control)
-        return overlay_shown();
+        return 1.0f;
     if (g_overlay_closed_ms <= 0)
         return 0.0f;
     double now = now_ms();
@@ -1126,14 +1127,13 @@ static void draw_overlay(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceCont
     int backdrop = g_cfg_backdrop == 1 || g_cfg_backdrop == 2 ? g_cfg_backdrop : 0;
     if (backdrop == 0 && !g_cfg_pause_game)
         backdrop = 2; /* the game drives on: keep showing it */
-    if (backdrop == 0 && g_freeze_state == 0) {
+    if (backdrop != 2 && g_freeze_state == 0) { /* black fades in over it, too */
         g_freeze_state = freeze_frame(dev, ctx, back, &bd) ? 1 : -1;
         if (g_freeze_state < 0)
             logf_("could not keep the game's picture for control mode (%ux%u, format %d, %u samples): black instead",
                   bd.Width, bd.Height, (int)bd.Format, bd.SampleDesc.Count);
     }
-    if (backdrop == 0 && g_freeze_state < 0)
-        backdrop = 1;
+    int frozen_ok = backdrop != 2 && g_freeze_state > 0;
     ID3D11RenderTargetView *rtv = NULL;
     if (SUCCEEDED(ID3D11Device_CreateRenderTargetView(dev, (ID3D11Resource *)back, NULL, &rtv)) && rtv) {
         int percent = g_app_overlay_percent >= 20 && g_app_overlay_percent <= 100 ? g_app_overlay_percent
@@ -1147,7 +1147,7 @@ static void draw_overlay(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceCont
         float w = CABINPLAY_WIDTH * scale, h = CABINPLAY_HEIGHT * scale;
         float x = (float)(int)((bd.Width - w) / 2), y = (float)(int)((bd.Height - h) / 2);
 
-        if (backdrop == 0) {
+        if (frozen_ok) {
             shader_consts_t frozen; /* same format both sides: nothing to convert */
             memset(&frozen, 0, sizeof(frozen));
             frozen.uv_rect[2] = frozen.uv_rect[3] = 1.0f;
@@ -1159,7 +1159,12 @@ static void draw_overlay(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceCont
         shader_consts_t dim;
         memset(&dim, 0, sizeof(dim));
         dim.mode[0] = 2.0f;
-        dim.mode[3] = backdrop == 1 ? cover : (backdrop == 0 ? 0.55f : 0.82f) * shown;
+        if (backdrop == 2)
+            dim.mode[3] = 0.82f * shown;
+        else if (frozen_ok) /* dimming, or going black, over the frozen picture */
+            dim.mode[3] = (backdrop == 1 ? 1.0f : 0.55f) * shown;
+        else /* no frozen picture: black, whole like it would be */
+            dim.mode[3] = cover;
         draw_rect(ctx, rtv, 0, 0, (float)bd.Width, (float)bd.Height, v->srv, NULL, &dim, 1);
 
         shader_consts_t c;
