@@ -34,6 +34,7 @@ internal sealed class MainForm : Form
         public string? NextSelector, PrevSelector, FullscreenKey;
         public bool Fullscreen;
         public bool Bar; // the shell's address bar stays visible above the page
+        public bool ShortsShrunk; // a YouTube short the style could not fit (see FitShortsAsync)
     }
 
     private readonly WebView2 _shell = new();
@@ -295,31 +296,138 @@ internal sealed class MainForm : Form
         LayoutViews();
     }
 
-    /// <summary>
-    /// The height a YouTube short needs: the site's bar and a player it never makes smaller
-    /// than 576 pixels. The screen has 466, so a short loses its bottom part unless the page
-    /// is shrunk.
-    /// </summary>
-    private const double ShortsPageHeight = 648;
+    // ---- YouTube Shorts on a screen 466 pixels high
+    //
+    // YouTube never draws a short smaller than 576 pixels, under a 56 pixel bar, so the bottom
+    // of every short was cut off. While a short is open (unless switched off in the settings)
+    // the page gets a style without that bar and that minimum: the short then fills the
+    // screen's height and the writing keeps its size. Should YouTube change its page so the
+    // style no longer does it, the whole page is shrunk instead (smaller, but all there).
 
     private bool FitShorts => (bool?)_settings["fitShorts"] ?? true;
 
+    /// <summary>The height the page needs for a short when only shrinking can make it fit.</summary>
+    private const double ShortsPageHeight = 648;
+
+    private const string ShortsStyleId = "cabinplay-fit-shorts";
+
+    private const string ShortsStyleCss = """
+        #masthead-container, ytd-masthead { display: none !important; }
+        ytd-app { --ytd-masthead-height: 0px !important; --ytd-shorts-masthead-height: 0px !important; }
+        ytd-page-manager { margin-top: 0 !important; }
+        ytd-shorts, ytd-shorts #shorts-container, ytd-shorts #shorts-inner-container { height: 100vh !important; top: 0 !important; }
+        ytd-shorts .reel-video-in-sequence-new, ytd-shorts ytd-reel-video-renderer, ytd-shorts #player, ytd-shorts ytd-player {
+          min-height: 0 !important; height: calc(100vh - 16px) !important; }
+        """;
+
     /// <summary>
-    /// One CSS pixel per screen pixel, except on YouTube Shorts (unless switched off in the
-    /// settings): there the page is shrunk until the whole short fits on the screen.
+    /// Adds the style once the short's video is there (added while the page is still being
+    /// built it does not take): true if it was added now, false if it was there already, null
+    /// if there is no video yet.
+    /// </summary>
+    private static readonly string AddShortsStyle = $$"""
+        (() => {
+          if (document.getElementById('{{ShortsStyleId}}')) return false;
+          if (![...document.querySelectorAll('video')].some(x => x.getBoundingClientRect().height > 50)) return null;
+          const style = document.createElement('style');
+          style.id = '{{ShortsStyleId}}';
+          style.textContent = {{JsonSerializer.Serialize(ShortsStyleCss)}};
+          document.documentElement.appendChild(style);
+          dispatchEvent(new Event('resize'));
+          return true;
+        })()
+        """;
+
+    private const string RemoveShortsStyle =
+        $"(() => {{ const s = document.getElementById('{ShortsStyleId}'); if (s) {{ s.remove(); dispatchEvent(new Event('resize')); }} }})()";
+
+    /// <summary>
+    /// Whether the short playing is on the screen from top to bottom (null: no short yet). If
+    /// not, the player is asked to size itself again: added while the page was still being
+    /// built, the style can come after the player measured its place.
+    /// </summary>
+    private const string ShortFitsScript = """
+        (() => {
+          const v = [...document.querySelectorAll('video')].find(x => x.getBoundingClientRect().height > 50);
+          if (!v) return null;
+          const b = v.getBoundingClientRect();
+          const fits = b.top >= -2 && b.bottom <= innerHeight + 2;
+          if (!fits) dispatchEvent(new Event('resize'));
+          return fits;
+        })()
+        """;
+
+    /// <summary>
+    /// After every page change: the style on a short, off everywhere else, and a look a moment
+    /// later at whether the short fits with it.
+    /// </summary>
+    private async Task FitShortsAsync(AppView app)
+    {
+        CoreWebView2? core = app.View.CoreWebView2;
+        if (core is null)
+            return;
+        try
+        {
+            if (!FitShorts || !IsYouTubeShorts(core.Source))
+            {
+                app.ShortsShrunk = false;
+                ApplyZoom(app);
+                if (IsYouTube(core.Source))
+                    await core.ExecuteScriptAsync(RemoveShortsStyle);
+                return;
+            }
+            string added = await core.ExecuteScriptAsync(AddShortsStyle);
+            for (int i = 0; i < 15 && added == "null"; i++)
+            {
+                await Task.Delay(1000);
+                if (app.View.CoreWebView2 is null || !IsYouTubeShorts(core.Source))
+                    return;
+                added = await core.ExecuteScriptAsync(AddShortsStyle);
+            }
+            if (added != "true" || app.ShortsShrunk)
+                return;
+            int misses = 0;
+            for (int i = 0; i < 10; i++)
+            {
+                await Task.Delay(1000);
+                if (app.View.CoreWebView2 is null || !IsYouTubeShorts(core.Source))
+                    return;
+                string fits = await core.ExecuteScriptAsync(ShortFitsScript);
+                if (fits == "true")
+                    return;
+                if (fits == "false" && ++misses == 3)
+                {
+                    Log.Write("YouTube Shorts: the style did not make the short fit, shrinking the page instead");
+                    app.ShortsShrunk = true;
+                    ApplyZoom(app);
+                    return;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Write("fitting YouTube Shorts failed: " + ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// One CSS pixel per screen pixel, except on a short the style could not fit: there the
+    /// page is shrunk until the whole short is on the screen.
     /// </summary>
     private void ApplyZoom(AppView app)
     {
         double zoom = PixelZoom;
-        if (FitShorts && app.View.Height > 0 && IsYouTubeShorts(app.View.CoreWebView2?.Source))
+        if (app.ShortsShrunk && FitShorts && app.View.Height > 0 && IsYouTubeShorts(app.View.CoreWebView2?.Source))
             zoom *= Math.Min(1, app.View.Height / ShortsPageHeight);
         if (Math.Abs(app.View.ZoomFactor - zoom) > 0.001)
             app.View.ZoomFactor = zoom;
     }
 
+    private static bool IsYouTube(string? url) =>
+        Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) && (uri.Host == "youtube.com" || uri.Host.EndsWith(".youtube.com"));
+
     private static bool IsYouTubeShorts(string? url) =>
-        Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) &&
-        (uri.Host == "youtube.com" || uri.Host.EndsWith(".youtube.com")) && uri.AbsolutePath.StartsWith("/shorts");
+        IsYouTube(url) && new Uri(url!).AbsolutePath.StartsWith("/shorts");
 
     // ------------------------------------------------------------------ shell <-> host
 
@@ -415,7 +523,7 @@ internal sealed class MainForm : Form
                     _settings["fitShorts"] = (bool?)msg!["on"] ?? true;
                     SaveSettings();
                     foreach (AppView app in _apps.Values)
-                        ApplyZoom(app);
+                        _ = FitShortsAsync(app);
                     PushConfig();
                     return;
                 case "site-icons":
@@ -500,8 +608,14 @@ internal sealed class MainForm : Form
             };
             // Side by side, the app that was clicked last has the keyboard and the media keys.
             view.GotFocus += (_, _) => FocusPane(captured.Id);
-            // YouTube goes to Shorts and back without loading a page, so this is the moment to look.
-            core.SourceChanged += (_, _) => ApplyZoom(captured);
+            // YouTube goes to Shorts and back without loading a page, so this is the moment to
+            // look; a page that is loaded gets its style once it is there.
+            core.SourceChanged += async (_, a) =>
+            {
+                if (!a.IsNewDocument)
+                    await FitShortsAsync(captured);
+            };
+            core.DOMContentLoaded += async (_, _) => await FitShortsAsync(captured);
             view.ZoomFactor = PixelZoom;
             await PrepareForInjectedInputAsync(core);
             core.Navigate(url);
