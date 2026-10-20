@@ -198,6 +198,11 @@
   }
   function layoutNoticeOption() {
     for (const b of $('settings-notices').children) b.classList.toggle('on', b.dataset.value === (config.gameNotices === false ? 'off' : 'on'));
+    for (const b of $('settings-fit-shorts').children) b.classList.toggle('on', b.dataset.value === (config.fitShorts === false ? 'off' : 'on'));
+  }
+  // YouTube Shorts shrunk until the whole short fits (the host's ApplyZoom): on unless switched off.
+  for (const b of $('settings-fit-shorts').children) {
+    b.addEventListener('click', () => send({ type: 'fit-shorts', on: b.dataset.value === 'on' }));
   }
 
   // The wheel while driving: Ctrl+Alt + wheel until something else is picked.

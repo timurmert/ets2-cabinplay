@@ -291,9 +291,35 @@ internal sealed class MainForm : Form
         ClientSize = new Size(FrameWriter.Width, FrameWriter.Height);
         _shell.ZoomFactor = PixelZoom;
         foreach (AppView app in _apps.Values)
-            app.View.ZoomFactor = PixelZoom;
+            ApplyZoom(app);
         LayoutViews();
     }
+
+    /// <summary>
+    /// The height a YouTube short needs: the site's bar and a player it never makes smaller
+    /// than 576 pixels. The screen has 466, so a short loses its bottom part unless the page
+    /// is shrunk.
+    /// </summary>
+    private const double ShortsPageHeight = 648;
+
+    private bool FitShorts => (bool?)_settings["fitShorts"] ?? true;
+
+    /// <summary>
+    /// One CSS pixel per screen pixel, except on YouTube Shorts (unless switched off in the
+    /// settings): there the page is shrunk until the whole short fits on the screen.
+    /// </summary>
+    private void ApplyZoom(AppView app)
+    {
+        double zoom = PixelZoom;
+        if (FitShorts && app.View.Height > 0 && IsYouTubeShorts(app.View.CoreWebView2?.Source))
+            zoom *= Math.Min(1, app.View.Height / ShortsPageHeight);
+        if (Math.Abs(app.View.ZoomFactor - zoom) > 0.001)
+            app.View.ZoomFactor = zoom;
+    }
+
+    private static bool IsYouTubeShorts(string? url) =>
+        Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) &&
+        (uri.Host == "youtube.com" || uri.Host.EndsWith(".youtube.com")) && uri.AbsolutePath.StartsWith("/shorts");
 
     // ------------------------------------------------------------------ shell <-> host
 
@@ -385,6 +411,13 @@ internal sealed class MainForm : Form
                 case "drive-wheel":
                     SetDriveWheel((string?)msg!["mode"]);
                     return;
+                case "fit-shorts":
+                    _settings["fitShorts"] = (bool?)msg!["on"] ?? true;
+                    SaveSettings();
+                    foreach (AppView app in _apps.Values)
+                        ApplyZoom(app);
+                    PushConfig();
+                    return;
                 case "site-icons":
                     _icons?.Want(((msg!["urls"] as JsonArray) ?? new JsonArray()).Select(u => (string?)u).OfType<string>());
                     return;
@@ -467,6 +500,8 @@ internal sealed class MainForm : Form
             };
             // Side by side, the app that was clicked last has the keyboard and the media keys.
             view.GotFocus += (_, _) => FocusPane(captured.Id);
+            // YouTube goes to Shorts and back without loading a page, so this is the moment to look.
+            core.SourceChanged += (_, _) => ApplyZoom(captured);
             view.ZoomFactor = PixelZoom;
             await PrepareForInjectedInputAsync(core);
             core.Navigate(url);
@@ -594,6 +629,7 @@ internal sealed class MainForm : Form
                     area.Height -= BarHeight;
                 }
                 app.View.Bounds = app.Fullscreen ? ClientRectangle : area;
+                ApplyZoom(app); // it depends on the height
                 app.View.Visible = true;
                 app.View.BringToFront();
                 if (app.Fullscreen)
@@ -1009,8 +1045,16 @@ internal sealed class MainForm : Form
     private static readonly string[] ButtonNames = { "left", "right", "middle" };
     private static readonly int[] ButtonMasks = { 1, 2, 4 };
 
-    private static void Send(WebView2 view, string method, JsonObject parameters)
+    private void Send(WebView2 view, string method, JsonObject parameters)
     {
+        // Mouse positions are given in the page's own pixels, which are smaller than the
+        // screen's on a page shrunk to fit (see ApplyZoom).
+        double scale = PixelZoom / view.ZoomFactor;
+        if (Math.Abs(scale - 1) > 0.001 && parameters["x"] is JsonValue x && parameters["y"] is JsonValue y)
+        {
+            parameters["x"] = (int)Math.Round(x.GetValue<int>() * scale);
+            parameters["y"] = (int)Math.Round(y.GetValue<int>() * scale);
+        }
         if (view.CoreWebView2 is not null)
             _ = view.CoreWebView2.CallDevToolsProtocolMethodAsync(method, parameters.ToJsonString());
     }
@@ -1558,6 +1602,7 @@ internal sealed class MainForm : Form
                 ["capturing"] = _capturing,
                 ["update"] = _updater?.ToJson(),
                 ["gameNotices"] = _watch.InGameEnabled,
+                ["fitShorts"] = FitShorts,
                 ["icons"] = new JsonObject((_icons?.Addresses() ?? new())
                     .Select(i => KeyValuePair.Create(i.Key, (JsonNode?)i.Value))),
                 ["control"] = new JsonObject
