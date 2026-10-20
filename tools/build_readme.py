@@ -17,9 +17,9 @@ BADGE = ("https://img.shields.io/endpoint?url=" + quote("https://raw.githubuserc
          + "&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=")
 # VirusTotal report of the released setup and its result (also shown in
 # docs/media/virustotal.png); update them after a release.
-VIRUSTOTAL = "https://www.virustotal.com/gui/file/468fd2ee5d0a35a9c45087a34f3be5ed2bea95f12796afad03c9cc5c95758d56"
-VT_SCORE = "0/68"
-VT_ENGINES = "68"
+VIRUSTOTAL = "https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4"
+VT_SCORE = "0/67"
+VT_ENGINES = "67"
 VT_BADGE = "https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message="
 # What changed in this release: shown at the top of each language on the release page
 # only (not in the READMEs). Rewrite it for every release.
