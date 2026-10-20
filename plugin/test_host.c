@@ -233,11 +233,13 @@ static void hold(int vk, int down)
 }
 
 /* key presses that reached the "game" window */
-static int g_game_keys;
+static int g_game_keys, g_game_wheels;
 static LRESULT CALLBACK game_window_proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 {
     if (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN)
         g_game_keys++;
+    if (msg == WM_MOUSEWHEEL)
+        g_game_wheels++;
     return DefWindowProcW(w, msg, wp, lp);
 }
 
@@ -285,6 +287,16 @@ static int poll_input_api(void)
         flags = 0;
     }
     return pressed;
+}
+
+static int count_events(const cabinplay_state_t *state, uint32_t from, uint32_t type, int32_t data)
+{
+    int n = 0;
+    for (uint32_t i = from; state && i < state->event_write; i++) {
+        const cabinplay_event_t *e = &state->events[i % CABINPLAY_EVENT_CAPACITY];
+        n += e->type == type && e->data == data;
+    }
+    return n;
 }
 
 static void present(cabinplay_frame_header_t *hdr, int frames)
@@ -782,6 +794,43 @@ int main(int argc, char **argv)
     hold(VK_LCONTROL, 0);
     hold('W', 0);
     present(hdr, 2);
+
+    printf("scrolling while driving\n");
+    {
+        /* events of one type and delta pushed since `from` */
+        #define SCROLLS(from, delta) count_events(state, from, CABINPLAY_EVENT_SCROLL, delta)
+        int wheels = g_game_wheels;
+        uint32_t from = state->event_write;
+        SendMessageW(wnd, WM_MOUSEWHEEL, MAKEWPARAM(0, 120), 0);
+        check(g_game_wheels == wheels + 1 && SCROLLS(from, 120) == 0, "the wheel alone stays with the game (retarder, zoom)");
+        hold(VK_LMENU, 1);
+        hold(VK_LCONTROL, 1);
+        present(hdr, 1);
+        from = state->event_write;
+        SendMessageW(wnd, WM_MOUSEWHEEL, MAKEWPARAM(0, (WORD)-120), 0);
+        SendMessageW(wnd, WM_MOUSEWHEEL, MAKEWPARAM(0, (WORD)-120), 0);
+        check(g_game_wheels == wheels + 1, "turned with Ctrl+Alt held, the game does not see it");
+        check(SCROLLS(from, -120) == 2, "and it scrolls CabinPlay, once per notch");
+        hold(VK_LCONTROL, 0);
+        hold(VK_LMENU, 0);
+        hdr->drive_wheel = CABINPLAY_DRIVE_WHEEL_ALONE;
+        present(hdr, 1);
+        from = state->event_write;
+        SendMessageW(wnd, WM_MOUSEWHEEL, MAKEWPARAM(0, 240), 0);
+        check(g_game_wheels == wheels + 1 && SCROLLS(from, 240) == 1, "set to the wheel alone in the app, it needs no keys");
+        hdr->drive_wheel = CABINPLAY_DRIVE_WHEEL_OFF;
+        hold(VK_LMENU, 1);
+        hold(VK_LCONTROL, 1);
+        present(hdr, 1);
+        from = state->event_write;
+        SendMessageW(wnd, WM_MOUSEWHEEL, MAKEWPARAM(0, 120), 0);
+        check(g_game_wheels == wheels + 2 && SCROLLS(from, 120) == 0, "switched off, the game always has it");
+        hold(VK_LCONTROL, 0);
+        hold(VK_LMENU, 0);
+        hdr->drive_wheel = 0;
+        present(hdr, 2);
+        #undef SCROLLS
+    }
 
     printf("leaving control mode with Esc\n");
     control(1);

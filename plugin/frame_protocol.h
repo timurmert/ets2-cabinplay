@@ -58,8 +58,15 @@ typedef struct cabinplay_frame_header {
     uint32_t control_requests; /* bumped to ask for control mode to be opened or closed */
     uint16_t overlay_percent;  /* control mode's screen, percent of the game's width; 0: cabinplay.ini's */
     uint16_t cursor_speed;     /* control mode's cursor speed, percent; 0: cabinplay.ini's */
-    uint8_t reserved1[8];
+    uint8_t drive_wheel;       /* CABINPLAY_DRIVE_WHEEL_*; 0: cabinplay.ini's */
+    uint8_t reserved1[7];
 } cabinplay_frame_header_t;      /* followed by width * height BGRA pixels, top row first */
+
+/* What makes the mouse wheel scroll the CabinPlay screen while driving (outside control mode). */
+#define CABINPLAY_DRIVE_WHEEL_CTRL_ALT 1 /* turned while Ctrl and left Alt are held */
+#define CABINPLAY_DRIVE_WHEEL_ALT 2      /* turned while left Alt is held */
+#define CABINPLAY_DRIVE_WHEEL_ALONE 3    /* always: the game never sees the wheel */
+#define CABINPLAY_DRIVE_WHEEL_OFF 4
 #pragma pack(pop)
 
 /* ------------------------------------------------------------------ notice mapping */
@@ -98,6 +105,7 @@ typedef struct cabinplay_frame_header {
 #define CABINPLAY_EVENT_WHEEL 3u  /* data: wheel delta, 120 per notch */
 #define CABINPLAY_EVENT_KEY 4u    /* x: virtual key, y: down | modifiers << 8, data: UTF-16 char or 0 */
 #define CABINPLAY_EVENT_SHORTCUT 5u /* x: virtual key pressed with Ctrl + left Alt */
+#define CABINPLAY_EVENT_SCROLL 6u   /* the wheel while driving (see drive_wheel); data: delta, 120 per notch */
 
 #define CABINPLAY_MOD_SHIFT 0x1u
 #define CABINPLAY_MOD_CTRL 0x2u

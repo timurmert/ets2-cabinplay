@@ -200,8 +200,14 @@
     for (const b of $('settings-notices').children) b.classList.toggle('on', b.dataset.value === (config.gameNotices === false ? 'off' : 'on'));
   }
 
+  // The wheel while driving: Ctrl+Alt + wheel until something else is picked.
+  for (const b of $('settings-wheel').children) {
+    b.addEventListener('click', () => send({ type: 'drive-wheel', mode: b.dataset.value }));
+  }
+
   function layoutControlOptions() {
     const chosen = config.control || {};
+    for (const b of $('settings-wheel').children) b.classList.toggle('on', b.dataset.value === (chosen.driveWheel || 'ctrl-alt'));
     for (const b of $('settings-size').children) b.classList.toggle('on', Number(b.dataset.value) === (chosen.overlaySize || 60));
     speedRange.value = chosen.cursorSpeed || 100;
     showSpeed(Number(speedRange.value));
@@ -352,7 +358,8 @@
   const ACTIONS = [['playpause', 'actPlayPause'], ['next', 'actNext'], ['prev', 'actPrev'],
     ['seek-forward', 'actSeekForward'], ['seek-back', 'actSeekBack'], ['fullscreen', 'actFullscreen'],
     ['home', 'actHome'], ['maps', 'actMaps'], ['app-prev', 'actAppPrev'], ['app-next', 'actAppNext'],
-    ['split', 'actSplit'], ['split-swap', 'actSwap'], ['control', 'actControl']];
+    ['split', 'actSplit'], ['split-swap', 'actSwap'], ['scroll-up', 'actScrollUp'], ['scroll-down', 'actScrollDown'],
+    ['control', 'actControl']];
   const KEY_NAMES = { 0x21: 'PgUp', 0x22: 'PgDn', 0x23: 'End', 0x24: 'Home', 0x25: '←', 0x26: '↑', 0x27: '→',
     0x28: '↓', 0x2D: 'Ins', 0x2E: 'Del' };
   // Keys every keyboard layout has in the same place; C is control mode's.
@@ -566,10 +573,17 @@
     render();
   }
 
+  // Each site's logo is fetched and kept by the host (config.icons, by host); until it is
+  // there, or if the site has none, the tile shows the name's first letter.
+  let iconsAsked = '';
+  let iconsShown = '';
+
   function layoutSites() {
     const list = $('browser-sites');
     list.replaceChildren();
     const shown = [...favourites.map((f) => ({ ...f, kept: true })), ...SITES.filter((s) => !s.lang || s.lang === language)];
+    const icons = config.icons || {};
+    iconsShown = JSON.stringify(icons);
     for (const site of shown) {
       const el = document.createElement('button');
       el.className = 'site';
@@ -578,6 +592,18 @@
       const mark = el.querySelector('.site-mark');
       mark.textContent = (site.name || host).charAt(0).toLocaleUpperCase();
       mark.style.background = MARK_COLOURS[[...host].reduce((n, c) => n + c.charCodeAt(0), 0) % MARK_COLOURS.length];
+      if (icons[host]) {
+        const logo = new Image();
+        logo.alt = '';
+        logo.onload = () => {
+          mark.replaceChildren(logo);
+          mark.style.background = '';
+          mark.classList.add('logo');
+          // an app icon fills the tile; a small one sits in the middle of it
+          mark.classList.toggle('small', logo.naturalWidth < 96);
+        };
+        logo.src = icons[host];
+      }
       el.querySelector('b').textContent = site.name || host;
       el.querySelector('small').textContent = host;
       el.addEventListener('click', () => open(browserApp, site.url));
@@ -594,6 +620,11 @@
         el.appendChild(remove);
       }
       list.appendChild(el);
+    }
+    const urls = shown.map((s) => s.url);
+    if (urls.join('\n') !== iconsAsked) {
+      iconsAsked = urls.join('\n');
+      send({ type: 'site-icons', urls });
     }
   }
 
@@ -1070,6 +1101,7 @@
         layoutControlOptions();
         layoutNoticeOption();
         refreshTitles();
+        if (JSON.stringify(config.icons || {}) !== iconsShown) layoutSites();
       }
       if (e.data && e.data.type === 'blur') address.blur();
       if (e.data && e.data.type === 'state') {

@@ -10,6 +10,7 @@ internal enum GameEventType : uint
     Wheel = 3,  // Data: wheel delta, 120 per notch
     Key = 4,    // X: virtual key, Y: down | modifiers << 8, Data: UTF-16 char or 0
     Shortcut = 5, // X: virtual key pressed with Ctrl + left Alt while the game had the keyboard
+    Scroll = 6,   // the wheel while driving (Settings > Controls says with which keys); Data: delta, 120 per notch
 }
 
 internal readonly record struct GameEvent(GameEventType Type, int X, int Y, int Data);

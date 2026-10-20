@@ -64,6 +64,7 @@ internal sealed class MainForm : Form
     private WindowCapture? _capture;
     private GameLink? _game;
     private GameNotice? _notice;
+    private SiteIcons? _icons; // logos on the browser's start page
     private readonly NoticeWatch _watch;
     private readonly Dictionary<string, (string Title, string Text)> _noticeTexts = new(); // from the shell, in its language
     private string? _activeId;          // app shown right now, null while the shell is in front
@@ -216,6 +217,9 @@ internal sealed class MainForm : Form
             Directory.CreateDirectory(_wallpaperDir);
             core.SetVirtualHostNameToFolderMapping(
                 WallpaperHost, _wallpaperDir, CoreWebView2HostResourceAccessKind.Allow);
+            _icons = new SiteIcons(core.Settings.UserAgent);
+            _icons.Changed += () => BeginInvoke(PushConfig);
+            core.SetVirtualHostNameToFolderMapping(SiteIcons.Host, _icons.Folder, CoreWebView2HostResourceAccessKind.Allow);
             core.WebMessageReceived += OnShellMessage;
             _shell.ZoomFactor = PixelZoom;
             await PrepareForInjectedInputAsync(core);
@@ -378,6 +382,12 @@ internal sealed class MainForm : Form
                 case "control-option":
                     SetControlOption((string?)msg!["name"], (int?)msg["value"] ?? 0);
                     return;
+                case "drive-wheel":
+                    SetDriveWheel((string?)msg!["mode"]);
+                    return;
+                case "site-icons":
+                    _icons?.Want(((msg!["urls"] as JsonArray) ?? new JsonArray()).Select(u => (string?)u).OfType<string>());
+                    return;
                 case "update-mode":
                     if (_updater is null)
                         return;
@@ -449,6 +459,12 @@ internal sealed class MainForm : Form
             };
             // Keeps the dock's back and forward buttons current.
             core.HistoryChanged += async (_, _) => await PushStateAsync(withMedia: false);
+            // A start page logo the site would not hand out: the one the browser shows for it.
+            core.FaviconChanged += async (_, _) =>
+            {
+                if (_icons is not null)
+                    await _icons.TakeFromBrowserAsync(core);
+            };
             // Side by side, the app that was clicked last has the keyboard and the media keys.
             view.GotFocus += (_, _) => FocusPane(captured.Id);
             view.ZoomFactor = PixelZoom;
@@ -961,6 +977,9 @@ internal sealed class MainForm : Form
                     case GameEventType.Shortcut:
                         RunShortcut(e.X);
                         break;
+                    case GameEventType.Scroll:
+                        ScrollFront(e.Data);
+                        break;
                 }
             }
             catch (Exception ex)
@@ -1072,6 +1091,63 @@ internal sealed class MainForm : Form
             ["deltaX"] = 0,
             ["deltaY"] = -delta, // wheel up is a positive delta but scrolls the page up
         });
+    }
+
+    /// <summary>
+    /// Scrolling while driving, with no cursor on the screen: the app in front gets the wheel
+    /// in its middle. Side by side, that is the half with the keyboard (the last one clicked),
+    /// or else the one a site is in. A feed of short videos goes one video per notch instead.
+    /// </summary>
+    private void ScrollFront(int delta)
+    {
+        WebView2 view = _shell;
+        if (_activeId is not null && _apps.TryGetValue(_activeId, out AppView? active) && active.View.Visible)
+            view = active.View;
+        else if (_apps.Values.FirstOrDefault(a => a.View.Visible) is { } shown)
+            view = shown.View;
+        if (view != _shell && IsShortsFeed(view.CoreWebView2?.Source))
+        {
+            // A wheel spun fast sends many notches: one video for those that come together.
+            long now = Environment.TickCount64;
+            if (now - _lastFeedStep < 300)
+                return;
+            _lastFeedStep = now;
+            (string key, int vk) = delta < 0 ? ("ArrowDown", 0x28) : ("ArrowUp", 0x26);
+            foreach (string type in new[] { "rawKeyDown", "keyUp" })
+                Send(view, "Input.dispatchKeyEvent", new JsonObject
+                {
+                    ["type"] = type, ["key"] = key, ["code"] = key, ["windowsVirtualKeyCode"] = vk,
+                });
+            return;
+        }
+        Send(view, "Input.dispatchMouseEvent", new JsonObject
+        {
+            ["type"] = "mouseWheel",
+            ["x"] = view.Width / 2,
+            ["y"] = view.Height / 2,
+            ["deltaX"] = 0,
+            ["deltaY"] = -delta, // wheel up is a positive delta but scrolls the page up
+        });
+    }
+
+    private long _lastFeedStep;
+
+    /// <summary>
+    /// Feeds of short videos. Their pages take a wheel from here badly (YouTube Shorts misses
+    /// every other turn, TikTok and Instagram hardly move), but each goes to the next video
+    /// on the down arrow and back on the up arrow.
+    /// </summary>
+    private static bool IsShortsFeed(string? url)
+    {
+        if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri))
+            return false;
+        string host = uri.Host.ToLowerInvariant(), path = uri.AbsolutePath;
+        bool On(string site) => host == site || host.EndsWith("." + site);
+        return (On("youtube.com") && path.StartsWith("/shorts")) ||
+               (On("instagram.com") && path.StartsWith("/reel")) ||
+               // the For You and Following feeds and a video's own page, not a profile's grid
+               (On("tiktok.com") && (path == "/" || path.StartsWith("/foryou") || path.StartsWith("/following") ||
+                                     path.Contains("/video/")));
     }
 
     private static readonly Dictionary<int, string> SpecialKeys = new()
@@ -1245,8 +1321,13 @@ internal sealed class MainForm : Form
         ("app-next", Keys.PageDown),
         ("split", Keys.S),
         ("split-swap", Keys.X),
+        ("scroll-up", Keys.None),   // no key of their own: the arrows are taken
+        ("scroll-down", Keys.None),
         ("control", Keys.None),
     };
+
+    /// <summary>How far a scroll shortcut goes: three notches of the wheel, one short video.</summary>
+    private const int ScrollStep = 360;
 
     private static bool IsAction(string? action) => action is not null && Actions.Any(a => a.Action == action);
 
@@ -1427,6 +1508,8 @@ internal sealed class MainForm : Form
             else if (action is "split" or "split-swap")
                 // Which two apps go side by side is the shell's to say.
                 _shell.CoreWebView2?.PostWebMessageAsJson(new JsonObject { ["type"] = action }.ToJsonString());
+            else if (action is "scroll-up" or "scroll-down")
+                ScrollFront(action == "scroll-up" ? ScrollStep : -ScrollStep);
             else
                 await MediaCommandAsync(action);
             await PushStateAsync(withMedia: true);
@@ -1475,10 +1558,13 @@ internal sealed class MainForm : Form
                 ["capturing"] = _capturing,
                 ["update"] = _updater?.ToJson(),
                 ["gameNotices"] = _watch.InGameEnabled,
+                ["icons"] = new JsonObject((_icons?.Addresses() ?? new())
+                    .Select(i => KeyValuePair.Create(i.Key, (JsonNode?)i.Value))),
                 ["control"] = new JsonObject
                 {
                     ["overlaySize"] = (int?)_settings["overlaySize"],
                     ["cursorSpeed"] = (int?)_settings["cursorSpeed"],
+                    ["driveWheel"] = (string?)_settings["driveWheel"],
                 },
             }.ToJsonString());
         }
@@ -1592,9 +1678,23 @@ internal sealed class MainForm : Form
         PushConfig();
     }
 
+    /// <summary>What makes the wheel scroll the screen while driving, by the plugin's numbers.</summary>
+    private static readonly string[] DriveWheelModes = { "ctrl-alt", "alt", "wheel", "off" };
+
+    private void SetDriveWheel(string? mode)
+    {
+        if (mode is null || !DriveWheelModes.Contains(mode))
+            return;
+        _settings["driveWheel"] = mode;
+        SaveSettings();
+        ApplyControlOptions();
+        PushConfig();
+    }
+
     /// <summary>Hands them to the plugin; unset, it keeps the ones in cabinplay.ini.</summary>
     private void ApplyControlOptions() =>
-        _writer?.SetControlOptions((int?)_settings["overlaySize"] ?? 0, (int?)_settings["cursorSpeed"] ?? 0);
+        _writer?.SetControlOptions((int?)_settings["overlaySize"] ?? 0, (int?)_settings["cursorSpeed"] ?? 0,
+            Array.IndexOf(DriveWheelModes, (string?)_settings["driveWheel"]) + 1);
 
     // ------------------------------------------------------------------ window placement
 

@@ -222,6 +222,7 @@ static int g_cfg_control_mouse = 1; /* 1: the mouse moves the CabinPlay cursor, 
 static int g_cfg_autostart = 1;     /* start the companion app together with the game */
 static int g_cfg_pause_game = 1;    /* pause the game while control mode is open */
 static int g_cfg_pause_vk = VK_PAUSE; /* the key the game's "pause" control is bound to */
+static int g_cfg_drive_wheel = CABINPLAY_DRIVE_WHEEL_CTRL_ALT; /* what turns the wheel to CabinPlay while driving */
 static wchar_t g_cfg_app_path[MAX_PATH]; /* written by the installer */
 
 /* ------------------------------------------------------------------ logging */
@@ -262,6 +263,9 @@ static void open_log_and_config(void)
     g_cfg_autostart = GetPrivateProfileIntW(L"cabinplay", L"autostart", 1, path) != 0;
     g_cfg_pause_game = GetPrivateProfileIntW(L"cabinplay", L"pause_game", 1, path) != 0;
     g_cfg_pause_vk = GetPrivateProfileIntW(L"cabinplay", L"pause_key", VK_PAUSE, path) & 0xFF;
+    g_cfg_drive_wheel = GetPrivateProfileIntW(L"cabinplay", L"drive_wheel", CABINPLAY_DRIVE_WHEEL_CTRL_ALT, path);
+    if (g_cfg_drive_wheel < CABINPLAY_DRIVE_WHEEL_CTRL_ALT || g_cfg_drive_wheel > CABINPLAY_DRIVE_WHEEL_OFF)
+        g_cfg_drive_wheel = CABINPLAY_DRIVE_WHEEL_CTRL_ALT;
     GetPrivateProfileStringW(L"cabinplay", L"app_path", L"", g_cfg_app_path, MAX_PATH, path);
     if (g_cfg_overlay_percent < 20 || g_cfg_overlay_percent > 100)
         g_cfg_overlay_percent = 60;
@@ -1674,6 +1678,83 @@ static int chord_message(UINT msg, WPARAM wp)
     }
 }
 
+/* ---- scrolling while driving
+ *
+ * Outside control mode the mouse wheel can scroll what the CabinPlay screen shows (a page,
+ * the next short video) while the truck keeps going. Many players have the wheel on the
+ * retarder or the camera zoom, so by default only while Ctrl and left Alt are held; the app
+ * can make it left Alt, the wheel alone, or nothing (drive_wheel in the frame header). A
+ * wheel turn used for this is hidden from the game on every route it reads the mouse by. */
+
+enum { WHEEL_DI_STATE = 1, WHEEL_DI_DATA, WHEEL_RAW, WHEEL_MESSAGE };
+static const char *const WHEEL_ROUTE_NAME[] = {"", "DirectInput state", "DirectInput data", "raw input", "window message"};
+static volatile int g_app_drive_wheel; /* CABINPLAY_DRIVE_WHEEL_*, 0 for cabinplay.ini's */
+static volatile int g_screen_fitted;   /* the truck has a CabinPlay screen */
+static int g_wheel_route;              /* the route turns are counted from (see drive_wheel) */
+static ULONGLONG g_wheel_tick;
+static int g_wheel_logged;             /* routes already named in the log, one bit each */
+
+static int drive_wheel_mode(void)
+{
+    int mode = g_app_drive_wheel;
+    return mode >= CABINPLAY_DRIVE_WHEEL_CTRL_ALT && mode <= CABINPLAY_DRIVE_WHEEL_OFF ? mode : g_cfg_drive_wheel;
+}
+
+/* Whether a wheel turn now is for CabinPlay. */
+static int drive_wheel_now(void)
+{
+    if (g_control || !g_screen_fitted || !game_in_front() || !shared_valid() ||
+        GetTickCount64() - g_shared->heartbeat_ms > 3000)
+        return 0;
+    switch (drive_wheel_mode()) {
+    case CABINPLAY_DRIVE_WHEEL_CTRL_ALT:
+        return left_alt_only() && (real_async_key(VK_CONTROL) & 0x8000);
+    case CABINPLAY_DRIVE_WHEEL_ALT:
+        return left_alt_only();
+    case CABINPLAY_DRIVE_WHEEL_ALONE:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+/* A wheel turn the game is about to receive on one of its routes (WHEEL_*). Returns 1 when
+ * it is CabinPlay's and must not reach the game. The same turn can arrive on several routes,
+ * so it is counted only from the first route that had one, until the wheel rests a while.
+ * A peek (count 0) is hidden but not counted: the read that follows counts it. */
+static int drive_wheel(int route, long delta, int count)
+{
+    if (!delta || !drive_wheel_now())
+        return 0;
+    if (!count)
+        return 1;
+    ULONGLONG now = GetTickCount64();
+    EnterCriticalSection(&g_input_lock);
+    if (!g_wheel_route || g_wheel_route == route || now - g_wheel_tick > 1000) {
+        g_wheel_route = route;
+        g_wheel_tick = now;
+        push_event(CABINPLAY_EVENT_SCROLL, 0, 0, (int32_t)delta);
+    }
+    int first = !(g_wheel_logged & (1 << route));
+    g_wheel_logged |= 1 << route;
+    LeaveCriticalSection(&g_input_lock);
+    if (first)
+        logf_("scrolling while driving: the wheel comes through %s", WHEEL_ROUTE_NAME[route]);
+    return 1;
+}
+
+/* Outside control mode: takes the wheel out of a raw mouse record if it is CabinPlay's. The
+ * movement and buttons stay, since the mouse may be steering. */
+static void raw_drive_wheel(RAWINPUT *raw)
+{
+    if (raw->header.dwType != RIM_TYPEMOUSE || !(raw->data.mouse.usButtonFlags & RI_MOUSE_WHEEL))
+        return;
+    if (drive_wheel(WHEEL_RAW, (short)raw->data.mouse.usButtonData, 1)) {
+        raw->data.mouse.usButtonFlags &= (USHORT)~RI_MOUSE_WHEEL;
+        raw->data.mouse.usButtonData = 0;
+    }
+}
+
 static void subclass_window(HWND wnd);
 
 /* Looks at what raw input the game asked Windows for, and makes sure the window it is
@@ -2131,6 +2212,10 @@ static HRESULT di_state_common(di_state_fn original, void *dev, DWORD size, LPVO
         }
         LeaveCriticalSection(&g_input_lock);
         memset(data, 0, size);
+    } else if (kind == 1 && size >= sizeof(DIMOUSESTATE)) {
+        DIMOUSESTATE *m = (DIMOUSESTATE *)data;
+        if (m->lZ && drive_wheel(WHEEL_DI_STATE, m->lZ, 1))
+            m->lZ = 0;
     }
     return hr;
 }
@@ -2143,7 +2228,8 @@ static HRESULT di_data_common(di_data_fn original, void *dev, DWORD size, DIDEVI
     if (FAILED(hr) || !count)
         return hr;
     int chords = !g_control && items && *count && (g_chord_any || left_alt_only());
-    if (!g_control && g_di_pause_reads <= 0 && !chords)
+    int wheel = !g_control && items && *count && drive_wheel_mode() != CABINPLAY_DRIVE_WHEEL_OFF;
+    if (!g_control && g_di_pause_reads <= 0 && !chords && !wheel)
         return hr;
     int kind = device_kind(dev);
     if (!kind || size < sizeof(DIDEVICEOBJECTDATA) - sizeof(UINT_PTR))
@@ -2169,6 +2255,20 @@ static HRESULT di_data_common(di_data_fn original, void *dev, DWORD size, DIDEVI
             LeaveCriticalSection(&g_input_lock);
         }
         kept = 0;
+    } else if (kind == 1) {
+        if (!wheel)
+            return hr;
+        /* Drop the wheel turns that scroll CabinPlay. */
+        kept = 0;
+        for (DWORD i = 0; i < *count; i++) {
+            BYTE *d = (BYTE *)items + (size_t)i * size;
+            const DIDEVICEOBJECTDATA *o = (const DIDEVICEOBJECTDATA *)d;
+            if (o->dwOfs == DIMOFS_Z && drive_wheel(WHEEL_DI_DATA, (long)(int)o->dwData, !(flags & DIGDD_PEEK)))
+                continue;
+            if (kept != i)
+                memmove((BYTE *)items + (size_t)kept * size, d, size);
+            kept++;
+        }
     } else if (kind == 2) {
         if (g_control) {
             InterlockedIncrement(&g_routes.di_keyboard);
@@ -2335,6 +2435,9 @@ static UINT WINAPI hk_GetRawInputData(HRAWINPUT handle, UINT command, LPVOID dat
     if (!g_control && command == RID_INPUT && data && result != (UINT)-1 &&
         result >= sizeof(RAWINPUTHEADER) + sizeof(RAWKEYBOARD) && raw_chord((RAWINPUT *)data))
         blank_raw((RAWINPUT *)data);
+    if (!g_control && command == RID_INPUT && data && result != (UINT)-1 &&
+        result >= sizeof(RAWINPUTHEADER) + sizeof(RAWMOUSE))
+        raw_drive_wheel((RAWINPUT *)data);
     if (g_control && command == RID_INPUT && data && result != (UINT)-1 && result >= sizeof(RAWINPUTHEADER)) {
         RAWINPUT *raw = (RAWINPUT *)data;
         if (!raw_is_for_game(raw)) {
@@ -2357,6 +2460,7 @@ static UINT WINAPI hk_GetRawInputBuffer(PRAWINPUT data, PUINT size, UINT header)
         for (UINT i = 0; i < result; i++) {
             if (raw_chord(raw))
                 blank_raw(raw);
+            raw_drive_wheel(raw);
             raw = NEXTRAWINPUTBLOCK(raw);
         }
     }
@@ -2428,6 +2532,8 @@ static LRESULT CALLBACK hk_wndproc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp)
             return 0;
         }
     } else if (msg >= WM_KEYFIRST && msg <= WM_KEYLAST && chord_message(msg, wp)) {
+        return 0;
+    } else if (msg == WM_MOUSEWHEEL && drive_wheel(WHEEL_MESSAGE, GET_WHEEL_DELTA_WPARAM(wp), 1)) {
         return 0;
     }
     WNDPROC original = original_proc(wnd);
@@ -2551,6 +2657,7 @@ static void pump(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx
     if (shared_valid()) {
         g_app_overlay_percent = g_shared->overlay_percent;
         g_app_cursor_speed = g_shared->cursor_speed;
+        g_app_drive_wheel = g_shared->drive_wheel;
     }
 
     for (int i = 0; i < MAX_ENTRIES; i++) {
@@ -2594,6 +2701,7 @@ static void pump(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx
      * (a menu, the pause key) does, so the game is never left without its keyboard. */
     int our_pause = g_we_paused || g_pause_want == 1;
     int usable = first_screen && screen_on && !(g_telemetry_ok && g_paused && !our_pause);
+    g_screen_fitted = first_screen != NULL;
     if (!first_screen) {
         update_control(0);
         g_control_reported = g_control || g_pause_want == 0 || (g_resume_on_exit && g_we_paused);

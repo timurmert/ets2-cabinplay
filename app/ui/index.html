@@ -271,6 +271,13 @@
         <div class="setting"><span data-i18n="ctlSpeed"></span>
           <span id="settings-speed" class="stepper"><button data-step="-10">&minus;</button><input type="range" min="30" max="400" step="10" value="100"><button data-step="10">+</button><b></b></span></div>
       </div>
+      <!-- scrolling while driving: which keys turn the mouse wheel to CabinPlay (the plugin's
+           drive_wheel); the scroll shortcuts are in the table below -->
+      <div class="ctl-group">
+        <div class="ctl-title" data-i18n="scrollGroup"></div>
+        <div class="setting"><span class="setting-text"><span data-i18n="scrollWheel"></span><small data-i18n="scrollHint"></small></span>
+          <span id="settings-wheel" class="choice"><button data-value="ctrl-alt" data-i18n="wheelCtrlAlt"></button><button data-value="alt" data-i18n="wheelAlt"></button><button data-value="wheel" data-i18n="wheelAlone"></button><button data-value="off" data-i18n="wheelOff"></button></span></div>
+      </div>
       <div class="bind-head"><span data-i18n="ctlAction"></span><span data-i18n="ctlKeyboard"></span><span data-i18n="ctlController"></span></div>
       <div id="binds"></div>
       <p data-i18n="ctlHint"></p>
