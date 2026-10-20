@@ -45,7 +45,10 @@
   // active: id of the web app in front, or null. view: what this page shows behind it.
   // split: the two apps shown side by side (left, right), or null; active is then the
   // one of them that has the keyboard.
-  let state = { active: null, view: 'home', split: null, open: [], media: null, game: {}, browser: {}, vehicle: null };
+  // paneStart: the browser's half shows its start page instead of its page. browserPage: the
+  // browser's own page, wherever it is.
+  let state = { active: null, view: 'home', split: null, paneStart: null, open: [], media: null, game: {}, browser: {},
+    browserPage: {}, vehicle: null, notice: null };
   const usedViews = new Set(); // built-in views keep their dock shortcut once opened
   const VIEWS = ['home', 'maps', 'mirrors', 'truck', 'browser', 'split'];
   const byId = (id) => apps.find((a) => a.id === id);
@@ -54,7 +57,9 @@
   function open(app, url) {
     $('settings').hidden = true;
     address.blur();
-    if (app.builtin || (app.browser && !url && !state.open.includes(app.id))) {
+    if (app.browser && url && state.split && state.split.includes(app.id)) {
+      paneBrowse(url); // side by side the browser stays in its half
+    } else if (app.builtin || (app.browser && !url && !state.open.includes(app.id))) {
       showView(app.id); // the browser's start page until it has a page
     } else {
       if (state.split) {
@@ -65,6 +70,19 @@
       send({ type: 'open', id: app.id, url: url || app.url || 'about:blank', navigate: !!url, bar: !!app.browser,
              next: app.next, prev: app.prev, fullscreenKey: app.fullscreenKey });
     }
+  }
+
+  // The dock's x: the app is closed for good (a site's page and whatever it plays) and its
+  // shortcut leaves the dock. If it was on the screen, the home screen takes its place.
+  function closeApp(app) {
+    const onScreen = state.split ? state.split.includes(app.id) : frontId() === app.id;
+    const wasOpen = state.open.includes(app.id);
+    usedViews.delete(app.id);
+    state = { ...state, open: state.open.filter((id) => id !== app.id) };
+    // Home first: the host's answer to the close must not find the app still in front.
+    if (onScreen) showView('home');
+    else render();
+    if (wasOpen) send({ type: 'close-app', id: app.id });
   }
 
   function showView(view) {
@@ -153,7 +171,42 @@
   });
 
   // ---- settings from the host: the background, the shortcuts and updates
-  let config = { wallpaper: null, wallpapers: [], wallpaperHost: '', bindings: [], capturing: null, update: null };
+  let config = { wallpaper: null, wallpapers: [], wallpaperHost: '', bindings: [], capturing: null, update: null,
+    control: null };
+
+  // Control mode's screen size and cursor sensitivity: kept by the host, used by the plugin.
+  // Until one is picked, the plugin's own (cabinplay.ini) applies: medium size, 1.0.
+  for (const b of $('settings-size').children) {
+    b.addEventListener('click', () => send({ type: 'control-option', name: 'overlaySize', value: Number(b.dataset.value) }));
+  }
+  const speedRange = $('settings-speed').querySelector('input');
+  const showSpeed = (value) => { $('settings-speed').querySelector('b').textContent = fmtKm.format(value / 100); };
+  function setSpeed(value) {
+    value = Math.max(30, Math.min(400, Math.round(value / 10) * 10));
+    speedRange.value = value;
+    showSpeed(value);
+    send({ type: 'control-option', name: 'cursorSpeed', value });
+  }
+  speedRange.addEventListener('input', () => showSpeed(Number(speedRange.value))); // while it is dragged
+  speedRange.addEventListener('change', () => setSpeed(Number(speedRange.value)));
+  for (const b of $('settings-speed').querySelectorAll('button')) {
+    b.addEventListener('click', () => setSpeed(Number(speedRange.value) + Number(b.dataset.step)));
+  }
+  // Warnings over the game (the host's NoticeWatch): on unless switched off.
+  for (const b of $('settings-notices').children) {
+    b.addEventListener('click', () => send({ type: 'game-notices', on: b.dataset.value === 'on' }));
+  }
+  function layoutNoticeOption() {
+    for (const b of $('settings-notices').children) b.classList.toggle('on', b.dataset.value === (config.gameNotices === false ? 'off' : 'on'));
+  }
+
+  function layoutControlOptions() {
+    const chosen = config.control || {};
+    for (const b of $('settings-size').children) b.classList.toggle('on', Number(b.dataset.value) === (chosen.overlaySize || 60));
+    speedRange.value = chosen.cursorSpeed || 100;
+    showSpeed(Number(speedRange.value));
+  }
+
 
   // Updates are downloaded while the game runs and installed by the host once it closes:
   // by themselves ("auto") or once the player has pressed Update ("ask").
@@ -177,11 +230,42 @@
     layoutUpdateCard();
   }
 
-  // The home screen's card: an update is ready (or out), or CabinPlay has just been updated.
+  // What the player has to know about the game (the host's NoticeWatch): the mod is off in the
+  // profile, the truck has no screen, the game version is untested. Shown on the home screen in
+  // the update card's place, and the same words are drawn over the game while there is no
+  // screen in the cabin to read them on.
+  const NOTICES = { modOff: ['noticeModOff', 'noticeModOffSub'], notFitted: ['noticeNotFitted', 'noticeNotFittedSub'],
+    version: ['noticeVersion', 'noticeVersionSub'] };
+  const noticeText = (key, n) => t(key).replace('{profile}', n.profile || '?').replace('{version}', n.version || '?')
+    .replace('{tested}', n.tested || '');
+  let noticeKey = '';
+  let noticeSent = '';
+
+  function layoutNotice() {
+    const n = state.notice;
+    const key = JSON.stringify(n) + language;
+    if (key === noticeKey) return;
+    noticeKey = key;
+    if (n && NOTICES[n.inGame]) {
+      const [title, sub] = NOTICES[n.inGame];
+      const msg = { type: 'notice-text', id: n.inGame, title: noticeText(title, n), text: noticeText(sub, n) };
+      if (JSON.stringify(msg) !== noticeSent) {
+        noticeSent = JSON.stringify(msg);
+        send(msg);
+      }
+    }
+    layoutUpdateCard();
+  }
+
+  // The home screen's card: something about the game (above), an update is ready (or out), or
+  // CabinPlay has just been updated.
   function layoutUpdateCard() {
     const u = config.update;
+    const n = state.notice;
     let news = null;
-    if (u && u.updatedFrom && (!updatedShownAt || Date.now() - updatedShownAt < 60000)) {
+    if (n && NOTICES[n.card]) {
+      news = { id: `notice-${n.card}-${n.profile}-${n.version}`, notice: n, title: NOTICES[n.card][0], sub: NOTICES[n.card][1] };
+    } else if (u && u.updatedFrom && (!updatedShownAt || Date.now() - updatedShownAt < 60000)) {
       updatedShownAt = updatedShownAt || Date.now();
       news = { id: `updated-${u.current}`, title: 'cardUpdated', sub: 'cardUpdatedSub', done: true };
     } else if (u && u.state === 'ready') {
@@ -193,11 +277,13 @@
     $('update-card').hidden = !show;
     $('day-card').hidden = show;
     if (!show) return;
-    $('upd-title').textContent = fill(news.title, u);
-    $('upd-sub').textContent = fill(news.sub, u);
+    $('upd-title').textContent = news.notice ? noticeText(news.title, news.notice) : fill(news.title, u);
+    $('upd-sub').textContent = news.notice ? noticeText(news.sub, news.notice) : fill(news.sub, u);
     $('upd-now').hidden = !news.button;
     $('upd-icon').classList.toggle('done', !!news.done);
-    $('upd-icon-path').setAttribute('d', news.done ? 'M5 12.5l4.5 4.5L19 7.5' : 'M12 4v11M7 10.5l5 5 5-5M5 20h14');
+    $('upd-icon').classList.toggle('warn', !!news.notice);
+    $('upd-icon-path').setAttribute('d', news.notice ? 'M12 4.5L3 19.5h18zM12 10v4.5M12 17v.5'
+      : news.done ? 'M5 12.5l4.5 4.5L19 7.5' : 'M12 4v11M7 10.5l5 5 5-5M5 20h14');
     $('upd-close').onclick = () => {
       updateDismissed = news.id;
       layoutUpdateCard();
@@ -363,12 +449,12 @@
   }
 
   // ---- side by side: the map, the truck page and the sites can share the screen, one in
-  // each half. The pair is remembered; the browser can only take a half once it has a page.
+  // each half. The pair is remembered. The browser brings its address bar into its half,
+  // and its start page until it has a page.
   const PANE_APPS = apps.filter((a) => a.id === 'maps' || a.id === 'truck' || !a.builtin);
   let pair = { left: 'maps', right: 'ytmusic' };
   try { pair = { ...pair, ...JSON.parse(localStorage.getItem('cabinplay.split')) }; } catch (e) { /* none kept */ }
-  const paneReady = (app) => !app.browser || state.open.includes(app.id);
-  const canPane = (id) => PANE_APPS.some((a) => a.id === id && paneReady(a));
+  const canPane = (id) => PANE_APPS.some((a) => a.id === id);
 
   function savePair() {
     try { localStorage.setItem('cabinplay.split', JSON.stringify(pair)); } catch (e) { /* storage unavailable */ }
@@ -376,14 +462,28 @@
 
   // Two different apps that can be shown, whatever was saved.
   function fixPair() {
-    const other = (id) => PANE_APPS.find((a) => a.id !== id && paneReady(a)).id;
+    const other = (id) => PANE_APPS.find((a) => a.id !== id).id;
     if (!canPane(pair.left)) pair.left = other(pair.right);
     if (!canPane(pair.right) || pair.right === pair.left) pair.right = other(pair.left);
   }
 
-  const paneMessage = (app) => (app.builtin ? { id: app.id }
+  // A side the host puts a site in, or one this page draws itself (the browser without a page
+  // draws its start page here).
+  const paneMessage = (app) => (app.builtin || (app.browser && !state.open.includes(app.id)) ? { id: app.id }
     : { id: app.id, url: app.url || 'about:blank', bar: !!app.browser, next: app.next, prev: app.prev,
         fullscreenKey: app.fullscreenKey });
+
+  // The browser's half: go to a page (url), or back to its start page (url null).
+  function paneBrowse(url) {
+    const side = (msg) => (state.split[0] === browserApp.id ? { left: msg, right: paneMessage(byId(state.split[1])) }
+      : { left: paneMessage(byId(state.split[0])), right: msg });
+    const msg = url ? { id: browserApp.id, url, navigate: true, bar: true, fullscreenKey: browserApp.fullscreenKey }
+      : { id: browserApp.id, start: true };
+    if (!url && !state.open.includes(browserApp.id)) return; // already there
+    state = { ...state, paneStart: url ? null : browserApp.id };
+    render();
+    send({ type: 'split', ...side(msg) });
+  }
 
   function startSplit() {
     fixPair();
@@ -430,10 +530,6 @@
         // own gradient ids: the same icons elsewhere on the page may be hidden
         el.innerHTML = `${app.icon.replace(/\bg-(\w+)/g, `g-$1-${side}`)}<span></span>`;
         el.querySelector('span').textContent = appName(app);
-        if (!paneReady(app)) {
-          el.disabled = true;
-          el.title = t('splitNeedsPage');
-        }
         el.addEventListener('click', () => {
           if (pair[other] === app.id) pair[other] = pair[side]; // picked on the other side: they trade places
           pair[side] = app.id;
@@ -510,10 +606,13 @@
     const url = toUrl(address.value);
     if (url) open(browserApp, url);
   });
-  $('bar-start').addEventListener('click', () => showView('browser'));
-  $('bar-reload').addEventListener('click', () => send({ type: 'browser', action: 'reload' }));
+  $('bar-start').addEventListener('click', () => {
+    if (state.split && state.split.includes(browserApp.id)) paneBrowse(null);
+    else showView('browser');
+  });
+  $('bar-reload').addEventListener('click', () => send({ type: 'browser', action: 'reload', id: browserApp.id }));
   $('bar-star').addEventListener('click', () => {
-    const { url, title } = state.browser || {};
+    const { url, title } = browserPage();
     if (!isWeb(url)) return;
     favourites = favourites.some((f) => f.url === url)
       ? favourites.filter((f) => f.url !== url)
@@ -521,8 +620,14 @@
     saveFavourites();
   });
 
+  // The page under the bar: none while the start page is showing.
+  function browserPage() {
+    if (state.split) return state.split.includes(browserApp.id) && state.paneStart !== browserApp.id ? state.browserPage || {} : {};
+    return state.active === browserApp.id ? state.browser || {} : {};
+  }
+
   function renderBrowser() {
-    const page = state.active === browserApp.id ? state.browser || {} : {};
+    const page = browserPage();
     const url = isWeb(page.url) ? page.url : '';
     $('bar-reload').disabled = !url;
     const star = $('bar-star');
@@ -864,19 +969,20 @@
     $('maps').hidden = !shows('maps');
     $('mirrors').hidden = view !== 'mirrors';
     $('truck').hidden = !shows('truck');
-    $('browser').hidden = view !== 'browser';
+    $('browser').hidden = !shows('browser');
     $('split').hidden = view !== 'split';
-    for (const id of ['maps', 'truck']) {
+    for (const id of ['maps', 'truck', 'browser']) {
       if (split && split.includes(id)) $(id).dataset.pane = split[0] === id ? 'left' : 'right';
       else delete $(id).dataset.pane;
     }
-    if (view === 'browser') renderBrowser();
+    if (shows('browser')) renderBrowser();
     if (shows('maps')) renderMaps(game);
     if (view === 'mirrors') {
       if (!$('mirror-tiles').children.length) layoutMirrors(); // the host put us here
       renderMirrors(game);
     }
     if (shows('truck')) renderTruck(game, state.vehicle);
+    layoutNotice();
 
     // dock: one shortcut per open app
     const shown = dockApps();
@@ -887,13 +993,24 @@
     dock.classList.toggle('crowded', shown.length >= 6);
     dock.replaceChildren();
     for (const app of shown) {
+      const item = document.createElement('div');
+      item.className = 'dock-item';
       const el = document.createElement('button');
       el.className = 'dock-app' + ((split ? split.includes(app.id) : app.id === front) ? ' active' : '')
         + (playing && media.app === app.id ? ' playing' : '');
       el.title = appName(app);
       el.innerHTML = app.icon;
       el.addEventListener('click', () => open(app));
-      dock.appendChild(el);
+      const close = document.createElement('button');
+      close.className = 'dock-close';
+      close.title = t('closeApp');
+      close.innerHTML = '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>';
+      close.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeApp(app);
+      });
+      item.append(el, close);
+      dock.appendChild(item);
     }
     const activeApp = apps.find((a) => a.id === state.active);
     $('dock-fullscreen').hidden = !(activeApp && activeApp.fullscreenKey);
@@ -950,6 +1067,8 @@
         layoutWalls();
         layoutBinds();
         layoutUpdate();
+        layoutControlOptions();
+        layoutNoticeOption();
         refreshTitles();
       }
       if (e.data && e.data.type === 'blur') address.blur();
@@ -958,11 +1077,14 @@
           active: e.data.active || null,
           view: VIEWS.includes(e.data.view) ? e.data.view : 'home',
           split: Array.isArray(e.data.split) && e.data.split.length === 2 ? e.data.split : null,
+          paneStart: e.data.paneStart || null,
           open: e.data.open || [],
           media: e.data.media || null,
           game: e.data.game || {},
           browser: e.data.browser || {},
+          browserPage: e.data.browserPage || {},
           vehicle: e.data.vehicle || null,
+          notice: e.data.notice || null,
         };
         render();
       }

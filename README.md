@@ -6,7 +6,7 @@ A working media screen for your truck cabin in **Euro Truck Simulator 2**. Watch
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=DOWNLOADS" alt="Downloads"></a>
-  <a href="https://www.virustotal.com/gui/file/468fd2ee5d0a35a9c45087a34f3be5ed2bea95f12796afad03c9cc5c95758d56"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/68%20CLEAN" alt="VirusTotal: 0/68 clean"></a>
+  <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/67%20CLEAN" alt="VirusTotal: 0/67 clean"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@ A working media screen for your truck cabin in **Euro Truck Simulator 2**. Watch
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/468fd2ee5d0a35a9c45087a34f3be5ed2bea95f12796afad03c9cc5c95758d56"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/68 clean"></a><br>
-  <sub>🛡️ None of the 68 antivirus engines on VirusTotal flagged CabinPlay. <a href="https://www.virustotal.com/gui/file/468fd2ee5d0a35a9c45087a34f3be5ed2bea95f12796afad03c9cc5c95758d56">See the report</a></sub>
+  <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/67 clean"></a><br>
+  <sub>🛡️ None of the 67 antivirus engines on VirusTotal flagged CabinPlay. <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4">See the report</a></sub>
 </p>
 
 ## Download
 
 **[Download the latest version](https://github.com/timurmert/ets2-cabinplay/releases/latest)** and get the file named `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Virus scan:** the setup was checked by 68 antivirus engines on VirusTotal and none of them flagged it. **[See the report](https://www.virustotal.com/gui/file/468fd2ee5d0a35a9c45087a34f3be5ed2bea95f12796afad03c9cc5c95758d56)**
+> 🛡️ **Virus scan:** the setup was checked by 67 antivirus engines on VirusTotal and none of them flagged it. **[See the report](https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4)**
 
 ## Install
 
@@ -61,7 +61,7 @@ Close the game, then pick one:
 
 1. Start the game and accept the "SDK features" notice it shows once.
 2. In the **Mod Manager**, switch on **CabinPlay Screen**.
-3. In a truck workshop, fit **CabinPlay Screen** in a windscreen accessory slot. On the left there are two versions, *Large* (11", on an arm) and *Compact* (10", at the glass); in the middle slot there is *Centre*, turned towards the driver (with a version of its own for right-hand-drive cabins).
+3. In a truck workshop, fit **CabinPlay Screen** in a windscreen accessory slot. On the left there are three versions, *Large* (13") and *Medium* (11") on an arm, and *Compact* (10", at the glass); in the middle slot there is *Centre* (11"), *Centre, Large* (13") or *Centre, X-Large* (15"), turned towards the driver (each with a version of its own for right-hand-drive cabins).
 
 That's it. The screen switches on with the truck's ignition. Installed with the setup, CabinPlay keeps itself up to date: it downloads a new version while you play and installs it when you close the game and shows it on the screen; under *Settings* > *Updates* you can have it ask first, or turn it off. To remove CabinPlay, open Windows *Settings* > *Apps*, or run `Uninstall.exe` in `%LocalAppData%\Programs\CabinPlay`; if you installed it by hand, delete the files you copied.
 
@@ -88,9 +88,9 @@ The **Mirrors** app puts the truck's own mirrors on the screen: the left mirror,
 
 The **Browser** app opens any website: type an address or a search in the bar at the top, and press the star to keep a page on its start page. Sites you sign in to stay signed in, and `Ctrl+Alt+F` makes the video on a page fullscreen. Typing needs control mode (`Ctrl+Alt+C`).
 
-**Side by side** puts two apps next to each other, for example the map on the left and music on the right: press the split button in the dock and pick the app for each half. Under **Settings** you can choose a background, also from your own pictures, change the keys of the shortcuts, and put any of them on a button of your steering wheel or gamepad.
+**Side by side** puts two apps next to each other, for example the map on the left and music or the browser on the right: press the split button in the dock and pick the app for each half. Under **Settings** you can choose a background, also from your own pictures, change the keys of the shortcuts, and put any of them on a button of your steering wheel or gamepad.
 
-**More places:** besides the windscreen, the workshop has the screen for the *Dashboard*, the *Air vent*, *Overhead*, the *Passenger seat*, the *Console*, the *Cup holder* (newer trucks) and the *Passenger side* of the windscreen. To watch from the bunk there is **CabinPlay TV**, a 27" set for the back wall (the light panel slot), flat or swung out towards the pillow, or for the windscreen, flat or turned to the bunk. In the Scania S, keep turning your head to the right past looking back: the camera moves onto the bunk and stops at the pillow, facing the TV.
+**More places:** besides the windscreen, the workshop has the screen for the *Dashboard*, the *Air vent*, *Overhead*, the *Passenger seat*, the *Console*, the *Cup holder* (newer trucks) and the *Passenger side* of the windscreen. To watch from the bunk there is **CabinPlay TV**, a 27" set for the back wall (the light panel slot), flat or swung out towards the pillow, or for the windscreen, flat or turned to the bunk or to the driver. In the Scania S, keep turning your head to the right past looking back: the camera moves onto the bunk and stops at the pillow, facing the TV.
 
 ## What you need
 

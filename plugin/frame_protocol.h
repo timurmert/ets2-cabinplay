@@ -56,9 +56,25 @@ typedef struct cabinplay_frame_header {
     uint16_t nav_source[4];    /* x, y, width, height in the UI texture, top row first */
     uint16_t nav_target[4];    /* x, y, width, height on the screen it is stretched over */
     uint32_t control_requests; /* bumped to ask for control mode to be opened or closed */
-    uint8_t reserved1[12];
+    uint16_t overlay_percent;  /* control mode's screen, percent of the game's width; 0: cabinplay.ini's */
+    uint16_t cursor_speed;     /* control mode's cursor speed, percent; 0: cabinplay.ini's */
+    uint8_t reserved1[8];
 } cabinplay_frame_header_t;      /* followed by width * height BGRA pixels, top row first */
 #pragma pack(pop)
+
+/* ------------------------------------------------------------------ notice mapping */
+
+/* A message the app wants the player to see over the game itself, for when there is no
+ * CabinPlay screen in the cabin to show it on (the mod is off, or the truck has none). The
+ * plugin draws it at the top of the game's picture while it is visible and the app is
+ * running. Mirrored in app/GameNotice.cs. */
+#define CABINPLAY_NOTICE_MAPPING_NAME L"Local\\CabinPlayNotice"
+#define CABINPLAY_NOTICE_MAGIC 0x544E5043u /* "CPNT" */
+#define CABINPLAY_NOTICE_VERSION 1u
+#define CABINPLAY_NOTICE_MAX_W 1024u
+#define CABINPLAY_NOTICE_MAX_H 256u
+#define CABINPLAY_NOTICE_HEADER_SIZE 32u
+#define CABINPLAY_NOTICE_MAPPING_SIZE (CABINPLAY_NOTICE_HEADER_SIZE + CABINPLAY_NOTICE_MAX_W * CABINPLAY_NOTICE_MAX_H * 4u)
 
 /* ------------------------------------------------------------------ state mapping */
 
@@ -99,6 +115,16 @@ typedef struct cabinplay_frame_header {
 #define CABINPLAY_VEHICLE_ATS 0x100u           /* American Truck Simulator: dollars */
 
 #pragma pack(push, 1)
+typedef struct cabinplay_notice_header {
+    uint32_t magic;
+    uint32_t version;
+    volatile int32_t sequence; /* odd while the picture is being written, bumped to even after */
+    uint32_t visible;          /* 1: draw it over the game */
+    uint32_t width;            /* of the picture, at most CABINPLAY_NOTICE_MAX_W */
+    uint32_t height;           /* at most CABINPLAY_NOTICE_MAX_H */
+    uint32_t reserved[2];
+} cabinplay_notice_header_t;   /* followed by BGRA pixels in rows of CABINPLAY_NOTICE_MAX_W, top row first */
+
 typedef struct cabinplay_event {
     uint32_t type;
     int32_t x;

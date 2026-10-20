@@ -108,8 +108,30 @@ svg.filled, svg .filled { fill: currentColor; stroke: none; }
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  padding-top: 6px;
+  padding-top: 9px; /* room for the first app's x */
 }
+
+/* An open app's shortcut, with the x that closes it on its corner. */
+.dock-item { position: relative; flex: none; }
+.dock-close {
+  position: absolute;
+  top: -7px;
+  right: -9px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #3a3a46;
+  border: 1.5px solid rgba(8, 8, 14, .9);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .5);
+}
+.dock-close svg { width: 13px; height: 13px; stroke-width: 3.2; }
+.dock-close:hover { background: #ff453a; }
+.dock-close:active { transform: scale(.9); }
+#dock-apps.lots .dock-close, #dock-apps.crowded .dock-close { top: -6px; right: -8px; width: 18px; height: 18px; }
+#dock-apps.lots .dock-close svg, #dock-apps.crowded .dock-close svg { width: 11px; height: 11px; }
 
 .dock-app {
   position: relative;
@@ -224,6 +246,7 @@ svg.filled, svg .filled { fill: currentColor; stroke: none; }
 #update-card { padding: 10px 10px 10px 14px; display: flex; align-items: center; gap: 12px; }
 #upd-icon { width: 40px; height: 40px; flex: none; border-radius: 12px; display: grid; place-items: center; background: var(--accent); }
 #upd-icon.done { background: #30d158; }
+#upd-icon.warn { background: #ff9f0a; }
 #upd-icon svg { width: 24px; height: 24px; }
 .upd-text { flex: 1; min-width: 0; }
 #upd-title { font-size: 17px; font-weight: 650; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -403,6 +426,21 @@ svg.filled, svg .filled { fill: currentColor; stroke: none; }
 .wall:hover .wall-remove { display: grid; }
 .wall-remove:hover { background: #ff453a; }
 
+/* control mode's settings, in a box of their own above the shortcuts */
+.ctl-group { flex: none; margin-bottom: 18px; padding: 10px 16px 4px; border-radius: 16px; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .08); }
+.ctl-title { font-size: 12px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--fg-dim); margin-bottom: 2px; }
+.ctl-group .setting { padding: 7px 0; font-size: 16px; }
+.ctl-group .setting:last-child { border-bottom: none; }
+/* a number set with the slider or with - and + */
+.stepper { flex: none; display: flex; align-items: center; gap: 8px; }
+.stepper button { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: rgba(255, 255, 255, .10); font-size: 19px; font-weight: 700; line-height: 1; }
+.stepper button:hover { background: rgba(255, 255, 255, .18); }
+.stepper button:active { transform: scale(.92); }
+.stepper b { min-width: 34px; text-align: right; font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stepper input { -webkit-appearance: none; appearance: none; width: 190px; height: 30px; background: transparent; cursor: pointer; }
+.stepper input::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .16); }
+.stepper input::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; margin-top: -7px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .5); }
+
 /* shortcuts */
 .bind, .bind-head { display: grid; grid-template-columns: 1fr 166px 190px 28px; align-items: center; gap: 8px; }
 .bind-head { padding: 0 8px 5px 0; font-size: 12px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--fg-dim); }
@@ -454,8 +492,12 @@ kbd {
 :root { --pane-w: 467px; } /* (screen - dock - 2px gap) / 2; keep in sync with PaneBounds in MainForm.cs */
 #split-line { position: fixed; top: 0; bottom: 0; left: calc(var(--dock-w) + var(--pane-w)); width: 2px; background: #000; }
 body:not(.split) #split-line { display: none; }
-body.split #maps, body.split #truck { right: auto; width: var(--pane-w); }
-body.split #maps[data-pane="right"], body.split #truck[data-pane="right"] { left: calc(var(--dock-w) + var(--pane-w) + 2px); }
+body.split #maps, body.split #truck, body.split #browser { right: auto; width: var(--pane-w); }
+body.split #maps[data-pane="right"], body.split #truck[data-pane="right"], body.split #browser[data-pane="right"] {
+  left: calc(var(--dock-w) + var(--pane-w) + 2px);
+}
+body.split #browser-start { padding: 14px 16px; }
+body.split #browser-sites { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 body.split #map-status { padding: 0 36px; font-size: 19px; }
 body.split #truck { padding: 14px; }
 body.split #rig-card { display: none; }

@@ -93,6 +93,10 @@ typedef struct gfx {
     ID3D11DepthStencilState *depth;
     ID3D11Texture2D *frame_tex; /* the app's frame, bytes untouched */
     ID3D11ShaderResourceView *frame_srv;
+    ID3D11Texture2D *notice_tex; /* the app's notice (see draw_notice), made on first use */
+    ID3D11ShaderResourceView *notice_srv;
+    ID3D11Texture2D *freeze_tex; /* the game's picture as control mode opened (see draw_overlay) */
+    ID3D11ShaderResourceView *freeze_srv;
     int failed;
 } gfx_t;
 
@@ -154,6 +158,25 @@ static int g_frame_rgba_valid;
 static HANDLE g_state_mapping;
 static cabinplay_state_t *g_state;
 
+/* Size and cursor speed of control mode as chosen in the app (frame header), 0 for cabinplay.ini's. */
+static volatile int g_app_overlay_percent, g_app_cursor_speed;
+/* When control mode last opened and closed, for its animation (now_ms). */
+static volatile double g_overlay_opened_ms, g_overlay_closed_ms;
+#define OVERLAY_OPEN_MS 220.0
+#define OVERLAY_CLOSE_MS 150.0
+/* Closing, the game's picture stays over the game until the game runs again (see cover_left). */
+#define COVER_WAIT_MS 2000.0
+#define COVER_SETTLE_MS 350.0 /* the game's pause menu takes a moment to fade out after it runs again */
+#define COVER_FADE_MS 150.0
+static volatile double g_resumed_ms; /* when the game was seen running again after control mode closed */
+static volatile int g_freeze_state; /* control mode's frozen picture: 0 not taken yet, 1 taken, -1 not possible */
+
+static HANDLE g_notice_mapping;
+static const cabinplay_notice_header_t *g_notice;
+static unsigned g_last_notice_try;
+static int32_t g_notice_sequence = -1; /* of the picture in notice_tex */
+static int g_notice_shown;             /* logged when it changes */
+
 /* telemetry, written by the game's main thread */
 static volatile int g_telemetry_ok;
 static volatile int g_paused = 1;
@@ -194,6 +217,7 @@ static int g_cfg_flip_v = 0;
 static int g_cfg_toggle_vk = 'C';
 static int g_cfg_cursor_speed = 100; /* percent */
 static int g_cfg_overlay_percent = 60;
+static int g_cfg_backdrop = 0; /* behind control mode: 0 the game's picture as it paused, 1 black, 2 the live game, dimmed */
 static int g_cfg_control_mouse = 1; /* 1: the mouse moves the CabinPlay cursor, 0: the arrow keys do */
 static int g_cfg_autostart = 1;     /* start the companion app together with the game */
 static int g_cfg_pause_game = 1;    /* pause the game while control mode is open */
@@ -233,6 +257,7 @@ static void open_log_and_config(void)
     g_cfg_toggle_vk = GetPrivateProfileIntW(L"cabinplay", L"control_key", 'C', path) & 0xFF;
     g_cfg_cursor_speed = GetPrivateProfileIntW(L"cabinplay", L"cursor_speed", 100, path);
     g_cfg_overlay_percent = GetPrivateProfileIntW(L"cabinplay", L"overlay_size", 60, path);
+    g_cfg_backdrop = GetPrivateProfileIntW(L"cabinplay", L"control_backdrop", 0, path);
     g_cfg_control_mouse = GetPrivateProfileIntW(L"cabinplay", L"control_mouse", 1, path) != 0;
     g_cfg_autostart = GetPrivateProfileIntW(L"cabinplay", L"autostart", 1, path) != 0;
     g_cfg_pause_game = GetPrivateProfileIntW(L"cabinplay", L"pause_game", 1, path) != 0;
@@ -700,6 +725,11 @@ static const char SHADER_SOURCE[] =
 static void release_gfx(void)
 {
     gfx_t *g = &g_gfx;
+    if (g->freeze_srv) ID3D11ShaderResourceView_Release(g->freeze_srv);
+    if (g->freeze_tex) ID3D11Texture2D_Release(g->freeze_tex);
+    if (g->notice_srv) ID3D11ShaderResourceView_Release(g->notice_srv);
+    if (g->notice_tex) ID3D11Texture2D_Release(g->notice_tex);
+    g_notice_sequence = -1;
     if (g->frame_srv) ID3D11ShaderResourceView_Release(g->frame_srv);
     if (g->frame_tex) ID3D11Texture2D_Release(g->frame_tex);
     if (g->depth) ID3D11DepthStencilState_Release(g->depth);
@@ -992,8 +1022,101 @@ static void composite_with_map(ID3D11DeviceContext *ctx, video_t *v, const entry
     draw_rect(ctx, v->rtv, 0, 0, CABINPLAY_WIDTH, CABINPLAY_HEIGHT, g->frame_srv, nav->srv, &c, 0);
 }
 
-/* Control mode: the screen, enlarged, in the middle of the game's picture. The game behind
- * it is dimmed: paused, it shows its route advisor and other panels there. */
+static double now_ms(void)
+{
+    static LARGE_INTEGER frequency;
+    LARGE_INTEGER count;
+    if (!frequency.QuadPart)
+        QueryPerformanceFrequency(&frequency);
+    QueryPerformanceCounter(&count);
+    return count.QuadPart * 1000.0 / frequency.QuadPart;
+}
+
+/* How far control mode's screen has come up: 0 not shown, 1 fully there. It grows into place
+ * as control mode opens and fades away as it closes. */
+static float overlay_shown(void)
+{
+    double now = now_ms();
+    if (g_control) {
+        float t = (float)((now - g_overlay_opened_ms) / OVERLAY_OPEN_MS);
+        if (t >= 1.0f)
+            return 1.0f;
+        t = t < 0 ? 0 : t;
+        return 1.0f - (1.0f - t) * (1.0f - t) * (1.0f - t); /* eases out */
+    }
+    float t = (float)((now - g_overlay_closed_ms) / OVERLAY_CLOSE_MS);
+    if (g_overlay_closed_ms <= 0 || t >= 1.0f)
+        return 0.0f;
+    t = t < 0 ? 0 : t;
+    return (1.0f - t) * (1.0f - t);
+}
+
+/* What is left of what covers the game behind control mode (its frozen picture, or black):
+ * 1 all of it, 0 none. It is whole from the first frame: the frozen picture is that frame,
+ * and anything less would let the pause menu show through as the game pauses. Closing, it
+ * stays whole while the game is still paused and its menu fades out, then goes. */
+static float cover_left(void)
+{
+    if (g_control)
+        return 1.0f;
+    if (g_overlay_closed_ms <= 0)
+        return 0.0f;
+    double now = now_ms();
+    if (g_resumed_ms <= 0) {
+        if (g_telemetry_ok && g_paused && now - g_overlay_closed_ms < COVER_WAIT_MS)
+            return 1.0f;
+        g_resumed_ms = now;
+    }
+    float t = (float)((now - g_resumed_ms - COVER_SETTLE_MS) / COVER_FADE_MS);
+    if (t <= 0)
+        return 1.0f; /* the game's menu is still fading out */
+    return t >= 1.0f ? 0.0f : 1.0f - t;
+}
+
+/* Keeps a copy of the game's picture in g_gfx.freeze_tex. 1 when it worked. */
+static int freeze_frame(ID3D11Device *dev, ID3D11DeviceContext *ctx, ID3D11Texture2D *back, const D3D11_TEXTURE2D_DESC *bd)
+{
+    gfx_t *g = &g_gfx;
+    if (bd->SampleDesc.Count != 1 || bd->ArraySize != 1)
+        return 0;
+    D3D11_TEXTURE2D_DESC have;
+    if (g->freeze_tex) {
+        ID3D11Texture2D_GetDesc(g->freeze_tex, &have);
+        if (have.Width != bd->Width || have.Height != bd->Height || have.Format != bd->Format) {
+            ID3D11ShaderResourceView_Release(g->freeze_srv);
+            ID3D11Texture2D_Release(g->freeze_tex);
+            g->freeze_srv = NULL;
+            g->freeze_tex = NULL;
+        }
+    }
+    if (!g->freeze_tex) {
+        D3D11_TEXTURE2D_DESC td = *bd;
+        td.MipLevels = 1;
+        td.Usage = D3D11_USAGE_DEFAULT;
+        td.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+        td.CPUAccessFlags = 0;
+        td.MiscFlags = 0;
+        D3D11_SHADER_RESOURCE_VIEW_DESC vd;
+        memset(&vd, 0, sizeof(vd));
+        vd.Format = view_format(bd->Format);
+        vd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+        vd.Texture2D.MipLevels = 1;
+        if (FAILED(o_CreateTexture2D(dev, &td, NULL, &g->freeze_tex)) ||
+            FAILED(ID3D11Device_CreateShaderResourceView(dev, (ID3D11Resource *)g->freeze_tex, &vd, &g->freeze_srv))) {
+            if (g->freeze_tex) ID3D11Texture2D_Release(g->freeze_tex);
+            g->freeze_tex = NULL;
+            g->freeze_srv = NULL;
+            return 0;
+        }
+    }
+    ID3D11DeviceContext_CopyResource(ctx, (ID3D11Resource *)g->freeze_tex, (ID3D11Resource *)back);
+    return 1;
+}
+
+/* Control mode: the screen, enlarged, in the middle of the game's picture. Paused, the game
+ * shows its menu with the route advisor and other panels there, so behind the screen goes the
+ * game's picture as it was the moment control mode opened, dimmed (or black, or the live game
+ * when it does not pause: control_backdrop and pause_game in cabinplay.ini). */
 static void draw_overlay(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx, video_t *v)
 {
     ID3D11Texture2D *back = NULL;
@@ -1001,26 +1124,54 @@ static void draw_overlay(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceCont
         return;
     D3D11_TEXTURE2D_DESC bd;
     ID3D11Texture2D_GetDesc(back, &bd);
+    int backdrop = g_cfg_backdrop == 1 || g_cfg_backdrop == 2 ? g_cfg_backdrop : 0;
+    if (backdrop == 0 && !g_cfg_pause_game)
+        backdrop = 2; /* the game drives on: keep showing it */
+    if (backdrop != 2 && g_freeze_state == 0) { /* black fades in over it, too */
+        g_freeze_state = freeze_frame(dev, ctx, back, &bd) ? 1 : -1;
+        if (g_freeze_state < 0)
+            logf_("could not keep the game's picture for control mode (%ux%u, format %d, %u samples): black instead",
+                  bd.Width, bd.Height, (int)bd.Format, bd.SampleDesc.Count);
+    }
+    int frozen_ok = backdrop != 2 && g_freeze_state > 0;
     ID3D11RenderTargetView *rtv = NULL;
     if (SUCCEEDED(ID3D11Device_CreateRenderTargetView(dev, (ID3D11Resource *)back, NULL, &rtv)) && rtv) {
-        float scale = bd.Width * (g_cfg_overlay_percent / 100.0f) / CABINPLAY_WIDTH;
+        int percent = g_app_overlay_percent >= 20 && g_app_overlay_percent <= 100 ? g_app_overlay_percent
+                                                                                   : g_cfg_overlay_percent;
+        float scale = bd.Width * (percent / 100.0f) / CABINPLAY_WIDTH;
         float fit = bd.Height * 0.9f / CABINPLAY_HEIGHT;
         if (scale > fit)
             scale = fit;
+        float shown = overlay_shown(), cover = cover_left();
+        scale *= 0.9f + 0.1f * shown;
         float w = CABINPLAY_WIDTH * scale, h = CABINPLAY_HEIGHT * scale;
         float x = (float)(int)((bd.Width - w) / 2), y = (float)(int)((bd.Height - h) / 2);
 
+        if (frozen_ok) {
+            shader_consts_t frozen; /* same format both sides: nothing to convert */
+            memset(&frozen, 0, sizeof(frozen));
+            frozen.uv_rect[2] = frozen.uv_rect[3] = 1.0f;
+            frozen.mode[3] = cover;
+            frozen.size[0] = (float)bd.Width;
+            frozen.size[1] = (float)bd.Height;
+            draw_rect(ctx, rtv, 0, 0, (float)bd.Width, (float)bd.Height, g_gfx.freeze_srv, NULL, &frozen, 1);
+        }
         shader_consts_t dim;
         memset(&dim, 0, sizeof(dim));
         dim.mode[0] = 2.0f;
-        dim.mode[3] = 0.82f;
+        if (backdrop == 2)
+            dim.mode[3] = 0.82f * shown;
+        else if (frozen_ok) /* dimming, or going black, over the frozen picture */
+            dim.mode[3] = (backdrop == 1 ? 1.0f : 0.55f) * shown;
+        else /* no frozen picture: black, whole like it would be */
+            dim.mode[3] = cover;
         draw_rect(ctx, rtv, 0, 0, (float)bd.Width, (float)bd.Height, v->srv, NULL, &dim, 1);
 
         shader_consts_t c;
         memset(&c, 0, sizeof(c));
         c.uv_rect[2] = c.uv_rect[3] = 1.0f;
         c.mode[1] = (float)transfer_between(v->srgb, format_is_srgb(bd.Format));
-        c.mode[3] = 1.0f;
+        c.mode[3] = shown;
         c.cursor[0] = g_cursor_x * scale;
         c.cursor[1] = g_cursor_y * scale;
         c.cursor[2] = 1.0f;
@@ -1028,6 +1179,106 @@ static void draw_overlay(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceCont
         c.size[0] = w;
         c.size[1] = h;
         draw_rect(ctx, rtv, x, y, w, h, v->srv, NULL, &c, 1);
+        ID3D11RenderTargetView_Release(rtv);
+    }
+    ID3D11Texture2D_Release(back);
+}
+
+/* ------------------------------------------------------------------ notice over the game */
+
+static void try_open_notice(void)
+{
+    if (g_notice || (g_last_notice_try && g_frame_no - g_last_notice_try < 120))
+        return;
+    g_last_notice_try = g_frame_no ? g_frame_no : 1;
+    wchar_t name[128];
+    HANDLE h = OpenFileMappingW(FILE_MAP_READ, FALSE, mapping_name(CABINPLAY_NOTICE_MAPPING_NAME, name, 128));
+    if (!h)
+        return;
+    const cabinplay_notice_header_t *p = (const cabinplay_notice_header_t *)MapViewOfFile(
+        h, FILE_MAP_READ, 0, 0, CABINPLAY_NOTICE_MAPPING_SIZE);
+    if (!p) {
+        CloseHandle(h);
+        return;
+    }
+    g_notice_mapping = h;
+    g_notice = p;
+}
+
+/* The app's message at the top of the game's picture, for when there is no CabinPlay screen
+ * in the cabin to show it on. Only while the app is running: a notice it left behind when it
+ * was ended is not drawn. */
+static void draw_notice(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx)
+{
+    try_open_notice();
+    try_open_mapping(); /* with no screen in the cabin, nothing else has opened it */
+    const cabinplay_notice_header_t *n = g_notice;
+    int app_running = shared_valid() && GetTickCount64() - g_shared->heartbeat_ms < 3000;
+    int visible = n && n->magic == CABINPLAY_NOTICE_MAGIC && n->version == CABINPLAY_NOTICE_VERSION && n->visible &&
+                  app_running && !g_control && n->width && n->height && n->width <= CABINPLAY_NOTICE_MAX_W &&
+                  n->height <= CABINPLAY_NOTICE_MAX_H;
+    if (visible != g_notice_shown) {
+        g_notice_shown = visible;
+        logf_(visible ? "showing the app's notice over the game" : "notice over the game hidden");
+    }
+    if (!visible || !ensure_gfx(dev))
+        return;
+    gfx_t *g = &g_gfx;
+    if (!g->notice_tex) {
+        D3D11_TEXTURE2D_DESC td;
+        memset(&td, 0, sizeof(td));
+        td.Width = CABINPLAY_NOTICE_MAX_W;
+        td.Height = CABINPLAY_NOTICE_MAX_H;
+        td.MipLevels = 1;
+        td.ArraySize = 1;
+        td.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+        td.SampleDesc.Count = 1;
+        td.Usage = D3D11_USAGE_DEFAULT;
+        td.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+        if (FAILED(o_CreateTexture2D(dev, &td, NULL, &g->notice_tex)) ||
+            FAILED(ID3D11Device_CreateShaderResourceView(dev, (ID3D11Resource *)g->notice_tex, NULL, &g->notice_srv))) {
+            if (g->notice_tex) ID3D11Texture2D_Release(g->notice_tex);
+            g->notice_tex = NULL;
+            g->notice_srv = NULL;
+            return;
+        }
+        g_notice_sequence = -1;
+    }
+    int32_t seq = n->sequence;
+    if (!(seq & 1) && seq != g_notice_sequence) {
+        D3D11_BOX box = {0, 0, 0, n->width, n->height, 1};
+        ID3D11DeviceContext_UpdateSubresource(ctx, (ID3D11Resource *)g->notice_tex, 0, &box,
+                                              (const uint8_t *)n + CABINPLAY_NOTICE_HEADER_SIZE,
+                                              CABINPLAY_NOTICE_MAX_W * 4, 0);
+        /* rewritten meanwhile: take it again next frame */
+        g_notice_sequence = n->sequence == seq ? seq : -1;
+    }
+    if (g_notice_sequence < 0)
+        return;
+
+    ID3D11Texture2D *back = NULL;
+    if (FAILED(IDXGISwapChain_GetBuffer(sc, 0, &IID_ID3D11Texture2D, (void **)&back)) || !back)
+        return;
+    D3D11_TEXTURE2D_DESC bd;
+    ID3D11Texture2D_GetDesc(back, &bd);
+    ID3D11RenderTargetView *rtv = NULL;
+    if (SUCCEEDED(ID3D11Device_CreateRenderTargetView(dev, (ID3D11Resource *)back, NULL, &rtv)) && rtv) {
+        /* the picture is made for a 1440 pixel high game; never wider than most of the window */
+        float scale = bd.Height / 1440.0f;
+        if (n->width * scale > bd.Width * 0.9f)
+            scale = bd.Width * 0.9f / n->width;
+        float w = (float)(int)(n->width * scale), h = (float)(int)(n->height * scale);
+        float x = (float)(int)((bd.Width - w) / 2), y = (float)(int)(bd.Height * 0.07f);
+        shader_consts_t c;
+        memset(&c, 0, sizeof(c));
+        c.uv_rect[2] = (float)n->width / CABINPLAY_NOTICE_MAX_W;
+        c.uv_rect[3] = (float)n->height / CABINPLAY_NOTICE_MAX_H;
+        c.mode[1] = (float)transfer_between(0, format_is_srgb(bd.Format));
+        c.mode[3] = 0.96f;
+        c.cursor[3] = 22.0f * scale; /* rounded corners */
+        c.size[0] = w;
+        c.size[1] = h;
+        draw_rect(ctx, rtv, x, y, w, h, g->notice_srv, NULL, &c, 1);
         ID3D11RenderTargetView_Release(rtv);
     }
     ID3D11Texture2D_Release(back);
@@ -1461,6 +1712,8 @@ static void set_control(int on)
             g_resume_on_exit = 0;
             memset(&g_routes, 0, sizeof(g_routes));
             inspect_raw_input();
+            g_freeze_state = 0; /* taken at the next frame, before the pause shows */
+            g_overlay_opened_ms = now_ms();
             /* Pause the game so the truck does not drive on while someone types. */
             if (g_cfg_pause_game && g_telemetry_ok && !g_paused && g_pause_want < 0) {
                 g_pause_want = 1;
@@ -1474,6 +1727,8 @@ static void set_control(int on)
                 if (g_buttons[b])
                     push_event(CABINPLAY_EVENT_BUTTON, (int)g_cursor_x, (int)g_cursor_y, b);
             g_resume_on_exit = 1;
+            g_overlay_closed_ms = now_ms();
+            g_resumed_ms = 0;
             logf_("input routes used: DirectInput mouse %ld keyboard %ld, raw message %ld buffer %ld data %ld, "
                   "cursor %ld, key state %ld, key messages %ld, mouse messages %ld",
                   g_routes.di_mouse, g_routes.di_keyboard, g_routes.raw_message, g_routes.raw_buffer,
@@ -1594,7 +1849,8 @@ static void __stdcall on_semantic_active(uint8_t active, void *context)
 static void on_mouse_move(long dx, long dy, long dz)
 {
     if (dx || dy) {
-        float k = g_cfg_cursor_speed / 100.0f;
+        int speed = g_app_cursor_speed >= 25 && g_app_cursor_speed <= 400 ? g_app_cursor_speed : g_cfg_cursor_speed;
+        float k = speed / 100.0f;
         g_cursor_x += dx * k;
         g_cursor_y += dy * k;
         if (g_cursor_x < 0) g_cursor_x = 0;
@@ -2292,6 +2548,11 @@ static void pump(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx
     static const unsigned screen_scan_age[] = {2, 30, 120, 600};
     entry_t *nav = NULL, *first_screen = NULL;
 
+    if (shared_valid()) {
+        g_app_overlay_percent = g_shared->overlay_percent;
+        g_app_cursor_speed = g_shared->cursor_speed;
+    }
+
     for (int i = 0; i < MAX_ENTRIES; i++) {
         entry_t *e = &g_entries[i];
         if (e->state == STATE_FREE || e->dev != dev)
@@ -2399,7 +2660,7 @@ static void pump(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx
         }
     }
 
-    if (g_control && g_video[first_screen->family].tex && ensure_gfx(dev))
+    if ((g_control || overlay_shown() > 0 || cover_left() > 0) && g_video[first_screen->family].tex && ensure_gfx(dev))
         draw_overlay(sc, dev, ctx, &g_video[first_screen->family]);
 }
 
@@ -2420,6 +2681,7 @@ static void on_present(IDXGISwapChain *sc)
         EnterCriticalSection(&g_lock);
         g_frame_no++;
         pump(sc, dev, ctx);
+        draw_notice(sc, dev, ctx);
         LeaveCriticalSection(&g_lock);
         ID3D11DeviceContext_Release(ctx);
     }
@@ -3013,6 +3275,14 @@ __declspec(dllexport) void scs_telemetry_shutdown(void)
         release_gfx();
         LeaveCriticalSection(&g_lock);
     }
+    if (g_notice) {
+        UnmapViewOfFile(g_notice);
+        CloseHandle(g_notice_mapping);
+        g_notice = NULL;
+        g_notice_mapping = NULL;
+    }
+    g_last_notice_try = 0;
+    g_notice_shown = 0;
     if (g_shared) {
         UnmapViewOfFile(g_shared);
         CloseHandle(g_mapping);

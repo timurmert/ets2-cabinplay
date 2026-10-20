@@ -6,7 +6,7 @@ Działający ekran multimedialny w kabinie ciężarówki w **Euro Truck Simulato
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=POBRANIA" alt="Pobrania"></a>
-  <a href="https://www.virustotal.com/gui/file/468fd2ee5d0a35a9c45087a34f3be5ed2bea95f12796afad03c9cc5c95758d56"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/68%20CZYSTY" alt="VirusTotal: 0/68 czysty"></a>
+  <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/67%20CZYSTY" alt="VirusTotal: 0/67 czysty"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@ Działający ekran multimedialny w kabinie ciężarówki w **Euro Truck Simulato
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/468fd2ee5d0a35a9c45087a34f3be5ed2bea95f12796afad03c9cc5c95758d56"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/68 czysty"></a><br>
-  <sub>🛡️ Żaden z 68 silników antywirusowych na VirusTotal nie oznaczył CabinPlay. <a href="https://www.virustotal.com/gui/file/468fd2ee5d0a35a9c45087a34f3be5ed2bea95f12796afad03c9cc5c95758d56">Zobacz raport</a></sub>
+  <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/67 czysty"></a><br>
+  <sub>🛡️ Żaden z 67 silników antywirusowych na VirusTotal nie oznaczył CabinPlay. <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4">Zobacz raport</a></sub>
 </p>
 
 ## Pobieranie
 
 **[Pobierz najnowszą wersję](https://github.com/timurmert/ets2-cabinplay/releases/latest)** i weź plik `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Skan antywirusowy:** instalator został sprawdzony na VirusTotal przez 68 silników antywirusowych i żaden go nie oznaczył. **[Zobacz raport](https://www.virustotal.com/gui/file/468fd2ee5d0a35a9c45087a34f3be5ed2bea95f12796afad03c9cc5c95758d56)**
+> 🛡️ **Skan antywirusowy:** instalator został sprawdzony na VirusTotal przez 67 silników antywirusowych i żaden go nie oznaczył. **[Zobacz raport](https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4)**
 
 ## Instalacja
 
@@ -61,7 +61,7 @@ Zamknij grę, a potem wybierz jeden sposób:
 
 1. Uruchom grę i zaakceptuj komunikat o "funkcjach SDK", który pojawia się raz.
 2. W **Menedżerze modów** włącz **CabinPlay Screen**.
-3. W warsztacie zamontuj **CabinPlay Screen** w gnieździe akcesoriów na przedniej szybie. Po lewej są dwie wersje: *Large* (11", na ramieniu) i *Compact* (10", przy szybie); w środkowym gnieździe jest *Centre*, zwrócony w stronę kierowcy (z osobną wersją dla kabin z kierownicą po prawej).
+3. W warsztacie zamontuj **CabinPlay Screen** w gnieździe akcesoriów na przedniej szybie. Po lewej są trzy wersje: *Large* (13") i *Medium* (11") na ramieniu oraz *Compact* (10", przy szybie); w środkowym gnieździe są *Centre* (11"), *Centre, Large* (13") i *Centre, X-Large* (15"), zwrócone w stronę kierowcy (każdy z osobną wersją dla kabin z kierownicą po prawej).
 
 To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Zainstalowany instalatorem CabinPlay sam się aktualizuje: nową wersję pobiera w trakcie gry i instaluje po jej zamknięciu i pokazuje to na ekranie; w *Ustawienia* > *Aktualizacje* możesz kazać mu najpierw pytać albo to wyłączyć. Aby usunąć CabinPlay, otwórz w Windows *Ustawienia* > *Aplikacje* albo uruchom `Uninstall.exe` w `%LocalAppData%\Programs\CabinPlay`; jeśli instalacja była ręczna, usuń skopiowane pliki.
 
@@ -88,9 +88,9 @@ Aplikacja **Lusterka** pokazuje na ekranie lusterka ciężarówki: lewe, lewe sz
 
 Aplikacja **Przeglądarka** otwiera dowolną stronę: wpisz adres lub wyszukiwanie w pasku u góry i naciśnij gwiazdkę, aby zachować stronę na stronie startowej. W serwisach pozostajesz zalogowany, a `Ctrl+Alt+F` włącza pełny ekran dla wideo na stronie. Do pisania potrzebny jest tryb sterowania (`Ctrl+Alt+C`).
 
-Widok **obok siebie** pokazuje dwie aplikacje naraz, na przykład mapę po lewej i muzykę po prawej: naciśnij przycisk podziału w doku i wybierz aplikację dla każdej połowy. W **Ustawieniach** możesz wybrać tło, także z własnych obrazów, zmienić klawisze skrótów i przypisać każdy z nich do przycisku na kierownicy lub padzie.
+Widok **obok siebie** pokazuje dwie aplikacje naraz, na przykład mapę po lewej i muzykę lub przeglądarkę po prawej: naciśnij przycisk podziału w doku i wybierz aplikację dla każdej połowy. W **Ustawieniach** możesz wybrać tło, także z własnych obrazów, zmienić klawisze skrótów i przypisać każdy z nich do przycisku na kierownicy lub padzie.
 
-**Więcej miejsc:** poza przednią szybą warsztat ma ekran także na *Dashboard* (deska rozdzielcza), *Air vent* (kratka nawiewu), *Overhead* (sufit), *Passenger seat* (fotel pasażera), *Console* (konsola), *Cup holder* (uchwyt na kubek, nowsze ciężarówki) i *Passenger side* (strona pasażera na szybie). Do oglądania z leżanki jest 27-calowy **CabinPlay TV**: na tylnej ścianie (gniazdo panelu świetlnego), płasko lub wysunięty w stronę poduszki, albo na przedniej szybie, płasko lub zwrócony do leżanki. W Scanii S obracaj głowę w prawo dalej, za widok do tyłu: kamera przesunie się na leżankę i zatrzyma przy poduszce, zwrócona do telewizora.
+**Więcej miejsc:** poza przednią szybą warsztat ma ekran także na *Dashboard* (deska rozdzielcza), *Air vent* (kratka nawiewu), *Overhead* (sufit), *Passenger seat* (fotel pasażera), *Console* (konsola), *Cup holder* (uchwyt na kubek, nowsze ciężarówki) i *Passenger side* (strona pasażera na szybie). Do oglądania z leżanki jest 27-calowy **CabinPlay TV**: na tylnej ścianie (gniazdo panelu świetlnego), płasko lub wysunięty w stronę poduszki, albo na przedniej szybie, płasko lub zwrócony do leżanki albo do kierowcy. W Scanii S obracaj głowę w prawo dalej, za widok do tyłu: kamera przesunie się na leżankę i zatrzyma przy poduszce, zwrócona do telewizora.
 
 ## Wymagania
 

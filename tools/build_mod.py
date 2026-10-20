@@ -21,7 +21,7 @@ DIST = os.path.join(ROOT, "dist")
 STATIC = os.path.join(ROOT, "mod_static")
 
 MOD_VERSION = os.environ.get("CABINPLAY_VERSION", "0.0.0")  # set by build.ps1 from the VERSION file
-GAME_VERSION = "1.61.*"
+GAME_VERSION = "1.61.*"  # keep in sync with GameLog.TestedVersions in app/GameLog.cs
 MODEL_DIR = "/vehicle/truck/upgrade/cabinplay"
 
 # Trucks whose interiors have the left-windshield accessory slot (the one the
@@ -97,9 +97,17 @@ MIRRORS = [
 #   yaw      degrees it turns right (negative: left)
 #   cup      where the suction cup sits on the glass (default: the mount point)
 #   glass    direction the glass faces there (default: as at the left mount point)
+#
+# The unit names stay as they are: trucks in players' saves have the screen by that name.
 VARIANTS = [
+    # 13 inch on the gooseneck arm. Its lower left corner is where the 11 inch one has it, so
+    # it is just as clear of the A-pillar and the dashboard and only grows up and to the right.
+    dict(unit="cabinplay_xl", model="cabinplay_xl", name="CabinPlay Screen (Large)", price=1800,
+         screen=(0.1477, 0.0738), screen_r=0.0060, body=(0.1547, 0.0808, 0.0100, 0.0140),
+         center=(0.061, 0.103, 0.238), tilt=12.0, yaw=-12.0),
     # 11 inch on the gooseneck arm: raised, clear of the A-pillar, squarely facing the driver.
-    dict(unit="cabinplay", model="cabinplay", name="CabinPlay Screen (Large)", price=1500,
+    # It was called Large before the 13 inch one came.
+    dict(unit="cabinplay", model="cabinplay", name="CabinPlay Screen (Medium)", price=1500,
          screen=(0.1260, 0.0630), screen_r=0.0055, body=(0.1330, 0.0700, 0.0095, 0.0130),
          center=(0.039, 0.092, 0.236), tilt=12.0, yaw=-12.0),
     # 10 inch right at the glass, where the stock navigator sits.
@@ -108,13 +116,22 @@ VARIANTS = [
          center=(0.0, 0.025, 0.105), tilt=10.0, yaw=0.0),
 ]
 
-# The centre screen: 11 inch, on the middle of the windscreen, turned towards the driver.
-# The mount point there has the cabin's own axes, so the driver is to the left of it, or to
-# the right in a right-hand-drive cabin, which gets a version of its own.
+# The centre screen: 11, 13 (size="large") or 15 inch (size="xlarge"), on the middle of the
+# windscreen, turned towards the driver. The mount point there has the cabin's own axes, so the driver is to the
+# left of it, or to the right in a right-hand-drive cabin, which gets a version of its own. yaw
+# only gives the side: centre_variant works out the angle for each truck.
 CENTRE_VARIANTS = [
     dict(unit="cabinplay_c", model="cabinplay_centre", name="CabinPlay Screen (Centre)", price=1500, yaw=-30.0),
     dict(unit="cabinplay_cr", model="cabinplay_centre_rhd", name="CabinPlay Screen (Centre, right-hand drive)",
          price=1500, yaw=30.0),
+    dict(unit="cabinplay_cl", model="cabinplay_centre_xl", name="CabinPlay Screen (Centre, Large)", price=1800,
+         yaw=-30.0, size="large"),
+    dict(unit="cabinplay_cz", model="cabinplay_centre_xl_rhd", name="CabinPlay Screen (Centre, Large, right-hand drive)",
+         price=1800, yaw=30.0, size="large"),
+    dict(unit="cabinplay_cx", model="cabinplay_centre_xxl", name="CabinPlay Screen (Centre, X-Large)", price=2100,
+         yaw=-30.0, size="xlarge"),
+    dict(unit="cabinplay_cy", model="cabinplay_centre_xxl_rhd",
+         name="CabinPlay Screen (Centre, X-Large, right-hand drive)", price=2100, yaw=30.0, size="xlarge"),
 ]
 GLASS_LEAN = 0.2  # how far the glass comes towards the driver per metre of height, at its middle
 
@@ -125,12 +142,32 @@ def centre_down(truck):
     return round(min(max(CENTRE_DROP[truck] - 0.06, -0.03), 0.14), 2)
 
 
-def centre_variant(base, down):
+def centre_variant(base, truck):
+    down = centre_down(truck)
     cup = min(max(down - 0.02, 0.0), 0.10)  # as far down the glass as the game's own suction toys go
-    return dict(base, model="%s_%d" % (base["model"], round(down * 100) + 3),
-                screen=(0.1260, 0.0630), screen_r=0.0055, body=(0.1330, 0.0700, 0.0095, 0.0130),
-                center=(0.0, -down, -GLASS_LEAN * down + 0.150), tilt=14.0,
-                cup=(0.0, -cup, -GLASS_LEAN * cup - 0.002), glass=(0.0, -GLASS_LEAN, 1.0))
+    # Size, how far the middle of the screen sits towards the driver from the mount point (the
+    # cup on the glass goes along) and how far off the glass. 15 cm towards the driver keeps it in
+    # view; the 15 inch one goes a little further, so that it only grows towards the driver. The
+    # far edge comes towards the glass as the screen turns: these distances keep at least 1.5 cm
+    # (11 inch) and 3 cm (13 and 15 inch) between them in every truck. The near edge stays right
+    # of the steering wheel.
+    size, aside, off = {
+        "large": (dict(screen=(0.1477, 0.0738), screen_r=0.0060, body=(0.1547, 0.0808, 0.0100, 0.0140)), 0.15, 0.19),
+        "xlarge": (dict(screen=(0.1704, 0.0852), screen_r=0.0065, body=(0.1774, 0.0922, 0.0105, 0.0150)), 0.1727, 0.21),
+    }.get(base.get("size"), (dict(screen=(0.1260, 0.0630), screen_r=0.0055, body=(0.1330, 0.0700, 0.0095, 0.0130)),
+                             0.15, 0.15))
+    rise = size["body"][1] - 0.0700  # the lower edge where the 11 inch one has it, clear of the dashboard
+    aside = math.copysign(aside, base["yaw"])
+    center = (aside, -down + rise, -GLASS_LEAN * (down - rise) + off)
+    # Turned square to the driver's eyes (the cabin's origin), which are 30-45 degrees to the
+    # left of it depending on the truck; the other way round in a right-hand-drive cabin, the
+    # mirror image of the left-hand-drive one the slot positions come from.
+    pos, rot = SLOTS[truck][CENTRE_SLOT]
+    at = vadd(pos, qrot(rot, (-abs(aside),) + center[1:]))
+    turn = round(math.degrees(math.atan2(abs(at[0]), -at[2])))
+    return dict(base, model="%s_%d_%d" % (base["model"], round(down * 100) + 3, turn),
+                yaw=math.copysign(turn, base["yaw"]), center=center, tilt=14.0, **size,
+                cup=(aside, -cup, -GLASS_LEAN * cup - 0.002), glass=(0.0, -GLASS_LEAN, 1.0))
 
 
 # Screen sizes: half width, half height of the picture, its corner radius, and the tablet body
@@ -200,6 +237,12 @@ PLACES = [
          price=3500, size=SIZE_TV, local=True, arm=1.6, face=("toybed", BUNK_EYES),
          foot=(0.0, 0.03, GLASS_LEAN * 0.03 - 0.002), normal=(0.0, -GLASS_LEAN, 1.0),
          centre=(0.0, 0.03, GLASS_LEAN * 0.03 + 0.10)),
+    # ... and turned to the driver. That swings its right edge towards the glass, so it stands
+    # further off it: 34 cm keeps every corner at least 3 cm clear of the glass in every truck.
+    dict(slot="set_glass", unit="cabinplay_dr", model="cp_tv_driver", name="CabinPlay TV (Windscreen, to the driver)",
+         price=3500, size=SIZE_TV, local=True, arm=1.6,
+         foot=(0.0, 0.03, GLASS_LEAN * 0.03 - 0.002), normal=(0.0, -GLASS_LEAN, 1.0),
+         centre=(0.0, 0.03, GLASS_LEAN * 0.03 + 0.34)),
 ]
 
 
@@ -744,7 +787,7 @@ def main():
     centre = {}
     for truck in TRUCKS:
         for base in CENTRE_VARIANTS:
-            variant = centre_variant(base, centre_down(truck))
+            variant = centre_variant(base, truck)
             centre[variant["model"]] = variant
     # the other places: one model per place and truck, shared by trucks where it comes out the same
     placed, models = {}, {}
@@ -864,7 +907,7 @@ def main():
     # one accessory definition per truck, mount point and version
     for truck in TRUCKS:
         fitted = [(SLOT, v) for v in VARIANTS]
-        fitted += [(CENTRE_SLOT, centre_variant(v, centre_down(truck))) for v in CENTRE_VARIANTS]
+        fitted += [(CENTRE_SLOT, centre_variant(v, truck)) for v in CENTRE_VARIANTS]
         fitted += [(p["slot"], placed[p["unit"], truck]) for p in PLACES if (p["unit"], truck) in placed]
         for slot, variant in fitted:
             write("/def/vehicle/truck/%s/accessory/%s/%s.sii" % (truck, slot, variant["unit"]),
@@ -904,9 +947,9 @@ def main():
           '}\n}\n' % (MOD_VERSION, '\ticon: "mod_icon.jpg"\n' if has_icon else '', GAME_VERSION))
     write("/mod_description.txt",
           "CabinPlay Screen\n\n"
-          "Adds an in-cabin display to every truck. On the left of the windscreen in two versions,\n"
-          "Large (11 inch, on an arm) and Compact (10 inch, at the glass), or in the middle of the\n"
-          "windscreen (Centre), turned towards the driver. Also on the dashboard, the air vent, the\n"
+          "Adds an in-cabin display to every truck. On the left of the windscreen in three versions,\n"
+          "Large (13 inch) and Medium (11 inch) on an arm, and Compact (10 inch, at the glass), or in\n"
+          "the middle of the windscreen (Centre), turned towards the driver. Also on the dashboard, the air vent, the\n"
           "roof, the passenger seat, the console, the cup holder or the passenger's side of the\n"
           "windscreen. And a 27 inch TV to watch from the bunk, on the back wall or the windscreen.\n"
           "The picture comes from the CabinPlay companion app through the cabinplay plugin;\n"
