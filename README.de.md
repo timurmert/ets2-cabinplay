@@ -6,7 +6,7 @@ Ein funktionierender Medienbildschirm für deine Lkw-Kabine in **Euro Truck Simu
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=DOWNLOADS" alt="Downloads"></a>
-  <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/67%20SAUBER" alt="VirusTotal: 0/67 sauber"></a>
+  <a href="https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/68%20SAUBER" alt="VirusTotal: 0/68 sauber"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@ Ein funktionierender Medienbildschirm für deine Lkw-Kabine in **Euro Truck Simu
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/67 sauber"></a><br>
-  <sub>🛡️ Keine der 67 Antiviren-Engines auf VirusTotal hat CabinPlay beanstandet. <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4">Zum Bericht</a></sub>
+  <a href="https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/68 sauber"></a><br>
+  <sub>🛡️ Keine der 68 Antiviren-Engines auf VirusTotal hat CabinPlay beanstandet. <a href="https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1">Zum Bericht</a></sub>
 </p>
 
 ## Download
 
 **[Lade die neueste Version herunter](https://github.com/timurmert/ets2-cabinplay/releases/latest)** und nimm die Datei `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Virenscan:** Das Setup wurde auf VirusTotal von 67 Antivirenprogrammen geprüft, keines hat es beanstandet. **[Zum Bericht](https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4)**
+> 🛡️ **Virenscan:** Das Setup wurde auf VirusTotal von 68 Antivirenprogrammen geprüft, keines hat es beanstandet. **[Zum Bericht](https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1)**
 
 ## Installation
 
@@ -80,17 +80,17 @@ Das war's. Der Bildschirm schaltet sich mit der Zündung ein. Mit dem Setup inst
 | `Ctrl+Alt+S` | Zwei Apps nebeneinander, ein / aus |
 | `Ctrl+Alt+X` | Die beiden Seiten tauschen |
 
-Die Wiedergabe pausiert, wenn du das Spiel pausierst oder die Zündung ausschaltest. Die Sprache findest du unter **Einstellungen** auf dem Bildschirm. Hast du CabinPlay in den Einstellungen beendet, startet `Ctrl+Alt+C` es wieder.
+Die Wiedergabe pausiert, wenn du das Spiel pausierst oder die Zündung ausschaltest. Die Sprache findest du unter **Einstellungen** auf dem Bildschirm. Hast du CabinPlay in den Einstellungen beendet, startet `Ctrl+Alt+C` (oder die Taste deines Steuermodus) es wieder.
 
 Die App **Lkw** zeigt die Schäden an Lkw und Auflieger, die Ladung, den Kraftstoff und die Anzeigen. Die Ctrl+Alt-Tastenkürzel funktionieren auch, wenn das Spiel im Vordergrund ist, und ihre Tasten erreichen das Spiel nicht: Ein Tastenkürzel hupt nicht und schaltet nichts am Lkw.
 
 Die App **Spiegel** zeigt die Spiegel des Lkw auf dem Bildschirm: den linken Spiegel, seinen Weitwinkelspiegel und, falls vorhanden, den Frontspiegel. Tippe auf einen, um ihn zu vergrößern.
 
-Die App **Browser** öffnet jede Website: Gib oben in der Leiste eine Adresse oder eine Suche ein und tippe auf den Stern, um eine Seite auf der Startseite zu behalten. Auf Websites bleibst du angemeldet, und `Ctrl+Alt+F` zeigt das Video einer Seite im Vollbild. Zum Tippen brauchst du den Steuermodus (`Ctrl+Alt+C`).
+Die App **Browser** öffnet jede Website: Gib oben in der Leiste eine Adresse oder eine Suche ein und tippe auf den Stern, um eine Seite auf der Startseite zu behalten. Auf Websites bleibst du angemeldet, und `Ctrl+Alt+F` zeigt das Video einer Seite im Vollbild. Zum Tippen brauchst du den Steuermodus (`Ctrl+Alt+C`). Beim Fahren hältst du `Ctrl+Alt` und drehst das Mausrad, um die Seite zu scrollen, ohne das Spiel anzuhalten (das Spiel bekommt diese Drehung nicht, ein Retarder auf dem Rad bleibt unberührt); bei YouTube Shorts, Instagram Reels und TikTok ist jede Raste das nächste Video, und YouTube Shorts passen ganz auf den Bildschirm.
 
-**Nebeneinander** zeigt zwei Apps gleichzeitig, zum Beispiel links die Karte und rechts Musik oder den Browser: Tippe im Dock auf die Teilen-Taste und wähle für jede Hälfte eine App. Unter **Einstellungen** kannst du einen Hintergrund wählen, auch aus eigenen Bildern, die Tasten der Tastenkürzel ändern und jedes davon auf einen Knopf deines Lenkrads oder Gamepads legen.
+**Nebeneinander** zeigt zwei Apps gleichzeitig, zum Beispiel links die Karte und rechts Musik oder den Browser: Tippe im Dock auf die Teilen-Taste und wähle für jede Hälfte eine App. Unter **Einstellungen** kannst du einen Hintergrund wählen, auch aus eigenen Bildern, die Tasten der Tastenkürzel ändern und jedes davon auf einen Knopf deines Lenkrads oder Gamepads legen. Der Startbildschirm zeigt das Wetter am Ort deines Lkw und am Ziel, mit der Spielzeit. Unter *Einstellungen* > *Allgemein* > *Darstellung* ist der Bildschirm dunkel (voreingestellt), hell oder automatisch: dunkel bei eingeschaltetem Abblendlicht.
 
-**Weitere Plätze:** Außer an der Windschutzscheibe gibt es den Bildschirm in der Werkstatt auch für das *Dashboard* (Armaturenbrett), den *Air vent* (Lüftungsgitter), *Overhead* (Dach), den *Passenger seat* (Beifahrersitz), die *Console* (Mittelkonsole), den *Cup holder* (Getränkehalter, neuere Lkw) und die *Passenger side* (Beifahrerseite der Scheibe). Zum Zuschauen von der Liege gibt es den 27"-**CabinPlay TV**: an der Rückwand (Platz des Lichtpaneels), flach oder zum Kopfkissen ausgeschwenkt, oder an der Windschutzscheibe, flach oder zur Liege bzw. zum Fahrer gedreht. Im Scania S dreh den Kopf über den Blick nach hinten hinaus weiter nach rechts: Die Kamera wandert auf die Liege und bleibt am Kopfkissen stehen, mit Blick auf den Fernseher.
+**Weitere Plätze:** Außer an der Windschutzscheibe gibt es den Bildschirm in der Werkstatt auch für das *Dashboard* (Armaturenbrett), den *Air vent* (Lüftungsgitter), *Overhead* (Dach), den *Passenger seat* (Beifahrersitz), die *Console* (Mittelkonsole), den *Cup holder* (Getränkehalter, neuere Lkw) und die *Passenger side* (Beifahrerseite der Scheibe). Zum Zuschauen von der Liege gibt es den 27"-**CabinPlay TV**: an der Rückwand (Platz des Lichtpaneels), flach oder zum Kopfkissen ausgeschwenkt, oder an der Windschutzscheibe, flach oder zur Liege bzw. zum Fahrer gedreht. In jedem Lkw dreh den Kopf über den Blick nach hinten hinaus weiter nach rechts: Die Kamera wandert auf die Liege und bleibt am Kopfkissen stehen, mit Blick auf den Fernseher.
 
 ## Voraussetzungen
 

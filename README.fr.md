@@ -6,7 +6,7 @@ Un écran multimédia fonctionnel pour la cabine de votre camion dans **Euro Tru
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=T%C3%89L%C3%89CHARGEMENTS" alt="Téléchargements"></a>
-  <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/67%20SAIN" alt="VirusTotal: 0/67 sain"></a>
+  <a href="https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/68%20SAIN" alt="VirusTotal: 0/68 sain"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@ Un écran multimédia fonctionnel pour la cabine de votre camion dans **Euro Tru
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/67 sain"></a><br>
-  <sub>🛡️ Aucun des 67 antivirus de VirusTotal n'a signalé CabinPlay. <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4">Voir le rapport</a></sub>
+  <a href="https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/68 sain"></a><br>
+  <sub>🛡️ Aucun des 68 antivirus de VirusTotal n'a signalé CabinPlay. <a href="https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1">Voir le rapport</a></sub>
 </p>
 
 ## Téléchargement
 
 **[Téléchargez la dernière version](https://github.com/timurmert/ets2-cabinplay/releases/latest)** et prenez le fichier `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Analyse antivirus :** le programme d'installation a été analysé sur VirusTotal par 67 antivirus, et aucun ne l'a signalé. **[Voir le rapport](https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4)**
+> 🛡️ **Analyse antivirus :** le programme d'installation a été analysé sur VirusTotal par 68 antivirus, et aucun ne l'a signalé. **[Voir le rapport](https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1)**
 
 ## Installation
 
@@ -80,17 +80,17 @@ C'est tout. L'écran s'allume avec le contact du camion. Installé avec le progr
 | `Ctrl+Alt+S` | Deux apps côte à côte, activer / désactiver |
 | `Ctrl+Alt+X` | Échanger les deux côtés |
 
-La lecture se met en pause quand vous mettez le jeu en pause ou coupez le contact. La langue se règle dans **Réglages**, à l'écran. Si vous avez fermé CabinPlay depuis ses réglages, `Ctrl+Alt+C` le relance.
+La lecture se met en pause quand vous mettez le jeu en pause ou coupez le contact. La langue se règle dans **Réglages**, à l'écran. Si vous avez fermé CabinPlay depuis ses réglages, `Ctrl+Alt+C` (ou la touche choisie pour le mode contrôle) le relance.
 
 L'app **Camion** affiche les dégâts du camion et de la remorque, la cargaison, le carburant et les indicateurs. Les raccourcis Ctrl+Alt fonctionnent aussi quand le jeu est au premier plan, et leurs touches n'atteignent jamais le jeu : un raccourci ne déclenche ni le klaxon ni rien d'autre sur le camion.
 
 L'app **Rétroviseurs** affiche les rétroviseurs du camion à l'écran : le rétro gauche, son grand angle et, s'il y en a un, le rétro avant. Touchez-en un pour l'agrandir.
 
-L'app **Navigateur** ouvre n'importe quel site : saisissez une adresse ou une recherche dans la barre du haut, et touchez l'étoile pour garder une page sur la page de démarrage. Vous restez connecté aux sites, et `Ctrl+Alt+F` passe la vidéo d'une page en plein écran. La saisie nécessite le mode contrôle (`Ctrl+Alt+C`).
+L'app **Navigateur** ouvre n'importe quel site : saisissez une adresse ou une recherche dans la barre du haut, et touchez l'étoile pour garder une page sur la page de démarrage. Vous restez connecté aux sites, et `Ctrl+Alt+F` passe la vidéo d'une page en plein écran. La saisie nécessite le mode contrôle (`Ctrl+Alt+C`). En roulant, maintenez `Ctrl+Alt` et tournez la molette pour faire défiler la page sans mettre le jeu en pause (le jeu ne reçoit pas ce cran, un ralentisseur sur la molette ne bouge pas) ; sur YouTube Shorts, Instagram Reels et TikTok, chaque cran passe à la vidéo suivante, et les YouTube Shorts tiennent entiers à l'écran.
 
-La vue **côte à côte** affiche deux apps en même temps, par exemple la carte à gauche et la musique ou le navigateur à droite : touchez le bouton de partage dans le dock et choisissez l'app de chaque moitié. Dans **Réglages**, vous pouvez choisir un arrière-plan, y compris parmi vos propres images, changer les touches des raccourcis et placer chacun d'eux sur un bouton de votre volant ou de votre manette.
+La vue **côte à côte** affiche deux apps en même temps, par exemple la carte à gauche et la musique ou le navigateur à droite : touchez le bouton de partage dans le dock et choisissez l'app de chaque moitié. Dans **Réglages**, vous pouvez choisir un arrière-plan, y compris parmi vos propres images, changer les touches des raccourcis et placer chacun d'eux sur un bouton de votre volant ou de votre manette. L'écran d'accueil montre la météo là où est votre camion et à destination, avec l'heure du jeu. Dans *Réglages* > *Général* > *Apparence*, l'écran est sombre (par défaut), clair ou automatique : sombre quand les feux de croisement sont allumés.
 
-**Autres emplacements :** en plus du pare-brise, le garage propose l'écran pour le *Dashboard* (tableau de bord), l'*Air vent* (aérateur), *Overhead* (plafond), le *Passenger seat* (siège passager), la *Console* (console centrale), le *Cup holder* (porte-gobelet, camions récents) et le *Passenger side* (côté passager du pare-brise). Pour regarder depuis la couchette, il y a la **CabinPlay TV** de 27" : sur la paroi arrière (emplacement du panneau lumineux), à plat ou sortie vers l'oreiller, ou sur le pare-brise, à plat ou tournée vers la couchette ou vers le conducteur. Dans le Scania S, continuez à tourner la tête vers la droite au-delà de la vue arrière : la caméra passe sur la couchette et s'arrête à l'oreiller, face à la télé.
+**Autres emplacements :** en plus du pare-brise, le garage propose l'écran pour le *Dashboard* (tableau de bord), l'*Air vent* (aérateur), *Overhead* (plafond), le *Passenger seat* (siège passager), la *Console* (console centrale), le *Cup holder* (porte-gobelet, camions récents) et le *Passenger side* (côté passager du pare-brise). Pour regarder depuis la couchette, il y a la **CabinPlay TV** de 27" : sur la paroi arrière (emplacement du panneau lumineux), à plat ou sortie vers l'oreiller, ou sur le pare-brise, à plat ou tournée vers la couchette ou vers le conducteur. Dans chaque camion, continuez à tourner la tête vers la droite au-delà de la vue arrière : la caméra passe sur la couchette et s'arrête à l'oreiller, face à la télé.
 
 ## Prérequis
 

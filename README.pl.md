@@ -6,7 +6,7 @@ Działający ekran multimedialny w kabinie ciężarówki w **Euro Truck Simulato
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=POBRANIA" alt="Pobrania"></a>
-  <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/67%20CZYSTY" alt="VirusTotal: 0/67 czysty"></a>
+  <a href="https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/68%20CZYSTY" alt="VirusTotal: 0/68 czysty"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@ Działający ekran multimedialny w kabinie ciężarówki w **Euro Truck Simulato
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/67 czysty"></a><br>
-  <sub>🛡️ Żaden z 67 silników antywirusowych na VirusTotal nie oznaczył CabinPlay. <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4">Zobacz raport</a></sub>
+  <a href="https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/68 czysty"></a><br>
+  <sub>🛡️ Żaden z 68 silników antywirusowych na VirusTotal nie oznaczył CabinPlay. <a href="https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1">Zobacz raport</a></sub>
 </p>
 
 ## Pobieranie
 
 **[Pobierz najnowszą wersję](https://github.com/timurmert/ets2-cabinplay/releases/latest)** i weź plik `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Skan antywirusowy:** instalator został sprawdzony na VirusTotal przez 67 silników antywirusowych i żaden go nie oznaczył. **[Zobacz raport](https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4)**
+> 🛡️ **Skan antywirusowy:** instalator został sprawdzony na VirusTotal przez 68 silników antywirusowych i żaden go nie oznaczył. **[Zobacz raport](https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1)**
 
 ## Instalacja
 
@@ -80,17 +80,17 @@ To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Zainstalowany 
 | `Ctrl+Alt+S` | Dwie aplikacje obok siebie, wł. / wył. |
 | `Ctrl+Alt+X` | Zamień strony miejscami |
 
-Odtwarzanie wstrzymuje się, gdy zatrzymasz grę lub wyłączysz zapłon. Język zmienisz w **Ustawieniach** na ekranie. Jeśli zamkniesz CabinPlay w ustawieniach, `Ctrl+Alt+C` uruchomi go ponownie.
+Odtwarzanie wstrzymuje się, gdy zatrzymasz grę lub wyłączysz zapłon. Język zmienisz w **Ustawieniach** na ekranie. Jeśli zamkniesz CabinPlay w ustawieniach, `Ctrl+Alt+C` (lub klawisz przypisany do trybu sterowania) uruchomi go ponownie.
 
 Aplikacja **Ciężarówka** pokazuje uszkodzenia ciężarówki i naczepy, ładunek, paliwo i wskaźniki. Skróty Ctrl+Alt działają także wtedy, gdy gra jest na pierwszym planie, a ich klawisze nie trafiają do gry, więc skrót nie włączy klaksonu ani niczego w ciężarówce.
 
 Aplikacja **Lusterka** pokazuje na ekranie lusterka ciężarówki: lewe, lewe szerokokątne oraz, jeśli jest, przednie. Dotknij jednego, aby je powiększyć.
 
-Aplikacja **Przeglądarka** otwiera dowolną stronę: wpisz adres lub wyszukiwanie w pasku u góry i naciśnij gwiazdkę, aby zachować stronę na stronie startowej. W serwisach pozostajesz zalogowany, a `Ctrl+Alt+F` włącza pełny ekran dla wideo na stronie. Do pisania potrzebny jest tryb sterowania (`Ctrl+Alt+C`).
+Aplikacja **Przeglądarka** otwiera dowolną stronę: wpisz adres lub wyszukiwanie w pasku u góry i naciśnij gwiazdkę, aby zachować stronę na stronie startowej. W serwisach pozostajesz zalogowany, a `Ctrl+Alt+F` włącza pełny ekran dla wideo na stronie. Do pisania potrzebny jest tryb sterowania (`Ctrl+Alt+C`). W czasie jazdy przytrzymaj `Ctrl+Alt` i kręć kółkiem myszy, aby przewijać stronę bez pauzowania gry (gra nie dostaje tego ruchu, więc retarder na kółku zostaje nietknięty); w YouTube Shorts, Instagram Reels i TikToku każdy ząbek to następny film, a YouTube Shorts mieszczą się na ekranie w całości.
 
-Widok **obok siebie** pokazuje dwie aplikacje naraz, na przykład mapę po lewej i muzykę lub przeglądarkę po prawej: naciśnij przycisk podziału w doku i wybierz aplikację dla każdej połowy. W **Ustawieniach** możesz wybrać tło, także z własnych obrazów, zmienić klawisze skrótów i przypisać każdy z nich do przycisku na kierownicy lub padzie.
+Widok **obok siebie** pokazuje dwie aplikacje naraz, na przykład mapę po lewej i muzykę lub przeglądarkę po prawej: naciśnij przycisk podziału w doku i wybierz aplikację dla każdej połowy. W **Ustawieniach** możesz wybrać tło, także z własnych obrazów, zmienić klawisze skrótów i przypisać każdy z nich do przycisku na kierownicy lub padzie. Ekran główny pokazuje pogodę tam, gdzie jest ciężarówka, i w miejscu docelowym, z czasem gry. W *Ustawienia* > *Ogólne* > *Wygląd* ekran może być ciemny (domyślnie), jasny lub automatyczny: ciemny przy włączonych światłach mijania.
 
-**Więcej miejsc:** poza przednią szybą warsztat ma ekran także na *Dashboard* (deska rozdzielcza), *Air vent* (kratka nawiewu), *Overhead* (sufit), *Passenger seat* (fotel pasażera), *Console* (konsola), *Cup holder* (uchwyt na kubek, nowsze ciężarówki) i *Passenger side* (strona pasażera na szybie). Do oglądania z leżanki jest 27-calowy **CabinPlay TV**: na tylnej ścianie (gniazdo panelu świetlnego), płasko lub wysunięty w stronę poduszki, albo na przedniej szybie, płasko lub zwrócony do leżanki albo do kierowcy. W Scanii S obracaj głowę w prawo dalej, za widok do tyłu: kamera przesunie się na leżankę i zatrzyma przy poduszce, zwrócona do telewizora.
+**Więcej miejsc:** poza przednią szybą warsztat ma ekran także na *Dashboard* (deska rozdzielcza), *Air vent* (kratka nawiewu), *Overhead* (sufit), *Passenger seat* (fotel pasażera), *Console* (konsola), *Cup holder* (uchwyt na kubek, nowsze ciężarówki) i *Passenger side* (strona pasażera na szybie). Do oglądania z leżanki jest 27-calowy **CabinPlay TV**: na tylnej ścianie (gniazdo panelu świetlnego), płasko lub wysunięty w stronę poduszki, albo na przedniej szybie, płasko lub zwrócony do leżanki albo do kierowcy. W każdej ciężarówce obracaj głowę w prawo dalej, za widok do tyłu: kamera przesunie się na leżankę i zatrzyma przy poduszce, zwrócona do telewizora.
 
 ## Wymagania
 
