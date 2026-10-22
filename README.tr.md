@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=%C4%B0ND%C4%B0RME" alt="İndirme"></a>
-  <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/67%20TEM%C4%B0Z" alt="VirusTotal: 0/67 temiz"></a>
+  <a href="https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/68%20TEM%C4%B0Z" alt="VirusTotal: 0/68 temiz"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/67 temiz"></a><br>
-  <sub>🛡️ VirusTotal'daki 67 antivirüs motorunun hiçbiri CabinPlay'i zararlı bulmadı. <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4">Raporu gör</a></sub>
+  <a href="https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/68 temiz"></a><br>
+  <sub>🛡️ VirusTotal'daki 68 antivirüs motorunun hiçbiri CabinPlay'i zararlı bulmadı. <a href="https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1">Raporu gör</a></sub>
 </p>
 
 ## İndir
 
 **[Son sürümü indir](https://github.com/timurmert/ets2-cabinplay/releases/latest)**; `CabinPlay-Setup-x.y.z.exe` adlı dosyayı al.
 
-> 🛡️ **Virüs taraması:** Kurulum dosyası VirusTotal'da 67 antivirüs motoruyla tarandı, hiçbiri zararlı bulmadı. **[Raporu gör](https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4)**
+> 🛡️ **Virüs taraması:** Kurulum dosyası VirusTotal'da 68 antivirüs motoruyla tarandı, hiçbiri zararlı bulmadı. **[Raporu gör](https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1)**
 
 ## Kur
 
@@ -80,17 +80,17 @@ Bu kadar. Ekran tırın kontağıyla birlikte açılır. Kurulum dosyasıyla kur
 | `Ctrl+Alt+S` | İki uygulamayı yan yana aç / kapat |
 | `Ctrl+Alt+X` | İki tarafı değiştir |
 
-Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, ekrandaki **Ayarlar**'dan değişir. CabinPlay'i ayarlardan kapattıysan `Ctrl+Alt+C` onu yeniden başlatır.
+Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, ekrandaki **Ayarlar**'dan değişir. CabinPlay'i ayarlardan kapattıysan `Ctrl+Alt+C` (ya da kontrol moduna verdiğin tuş) onu yeniden başlatır.
 
 **Tır** uygulaması tırın ve dorsenin hasarını, yükü, yakıtı ve göstergeleri gösterir. Ctrl+Alt kısayolları oyun öndeyken de çalışır ve tuşları oyuna gitmez; bu yüzden kısayollar korna çalmaz, tırda hiçbir şeyi açıp kapatmaz.
 
 **Aynalar** uygulaması tırın kendi aynalarını ekrana getirir: sol ayna, sol geniş açı aynası ve tırda varsa ön ayna. Büyütmek için birine dokun.
 
-**Tarayıcı** uygulaması istediğin siteyi açar: üstteki çubuğa adres ya da arama yaz, bir sayfayı başlangıç sayfasında tutmak için yıldıza bas. Giriş yaptığın sitelerde oturumun açık kalır; `Ctrl+Alt+F` sayfadaki videoyu tam ekran yapar. Yazı yazmak için kontrol modu gerekir (`Ctrl+Alt+C`).
+**Tarayıcı** uygulaması istediğin siteyi açar: üstteki çubuğa adres ya da arama yaz, bir sayfayı başlangıç sayfasında tutmak için yıldıza bas. Giriş yaptığın sitelerde oturumun açık kalır; `Ctrl+Alt+F` sayfadaki videoyu tam ekran yapar. Yazı yazmak için kontrol modu gerekir (`Ctrl+Alt+C`). Sürerken `Ctrl+Alt` basılı tutup fare tekerleğini çevirerek oyunu durdurmadan sayfayı kaydırabilirsin (o dönüş oyuna gitmez, tekerleğe bağlı retarder etkilenmez); YouTube Shorts, Instagram Reels ve TikTok'ta her tık bir sonraki video, YouTube Shorts da ekrana tam sığar.
 
-**Yan yana** görünüm iki uygulamayı aynı anda gösterir; örneğin solda harita, sağda müzik ya da tarayıcı: kenar çubuğundaki bölme düğmesine bas ve her yarı için uygulamayı seç. **Ayarlar**'dan arka planı (kendi resimlerinden de) seçebilir, kısayol tuşlarını değiştirebilir ve her birini direksiyonundaki ya da oyun kolundaki bir düğmeye atayabilirsin.
+**Yan yana** görünüm iki uygulamayı aynı anda gösterir; örneğin solda harita, sağda müzik ya da tarayıcı: kenar çubuğundaki bölme düğmesine bas ve her yarı için uygulamayı seç. **Ayarlar**'dan arka planı (kendi resimlerinden de) seçebilir, kısayol tuşlarını değiştirebilir ve her birini direksiyonundaki ya da oyun kolundaki bir düğmeye atayabilirsin. Ana ekran, tırının bulunduğu yerin ve varış şehrinin havasını oyun saatiyle gösterir. *Ayarlar* > *Genel* > *Görünüm*'den ekran koyu (varsayılan), açık ya da otomatik olabilir: otomatikte kısa farlar açıkken koyu.
 
-**Başka yerler:** Serviste ekranı ön camın dışında *Dashboard* (torpido), *Air vent* (havalandırma), *Overhead* (tavan), *Passenger seat* (yolcu koltuğu), *Console* (konsol), *Cup holder* (bardaklık, yeni tırlarda) ve *Passenger side* (camın yolcu tarafı) olarak da takabilirsin. Yatakta izlemek için 27" **CabinPlay TV** var: arka duvara (Işık Panosu yuvası) düz ya da yastığa doğru açılmış, veya ön cama düz, yatağa dönük ya da sürücüye dönük. Scania S'te kafanı sağa çevirmeye arkaya baktıktan sonra da devam et: kamera yatağa geçer ve yastıkta, TV'ye bakarak durur.
+**Başka yerler:** Serviste ekranı ön camın dışında *Dashboard* (torpido), *Air vent* (havalandırma), *Overhead* (tavan), *Passenger seat* (yolcu koltuğu), *Console* (konsol), *Cup holder* (bardaklık, yeni tırlarda) ve *Passenger side* (camın yolcu tarafı) olarak da takabilirsin. Yatakta izlemek için 27" **CabinPlay TV** var: arka duvara (Işık Panosu yuvası) düz ya da yastığa doğru açılmış, veya ön cama düz, yatağa dönük ya da sürücüye dönük. Her tırda kafanı sağa çevirmeye arkaya baktıktan sonra da devam et: kamera yatağa geçer ve yastıkta, TV'ye bakarak durur.
 
 ## Gerekenler
 

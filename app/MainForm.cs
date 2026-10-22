@@ -34,6 +34,7 @@ internal sealed class MainForm : Form
         public string? NextSelector, PrevSelector, FullscreenKey;
         public bool Fullscreen;
         public bool Bar; // the shell's address bar stays visible above the page
+        public bool ShortsShrunk; // a YouTube short the style could not fit (see FitShortsAsync)
     }
 
     private readonly WebView2 _shell = new();
@@ -64,6 +65,7 @@ internal sealed class MainForm : Form
     private WindowCapture? _capture;
     private GameLink? _game;
     private GameNotice? _notice;
+    private SiteIcons? _icons; // logos on the browser's start page
     private readonly NoticeWatch _watch;
     private readonly Dictionary<string, (string Title, string Text)> _noticeTexts = new(); // from the shell, in its language
     private string? _activeId;          // app shown right now, null while the shell is in front
@@ -216,7 +218,11 @@ internal sealed class MainForm : Form
             Directory.CreateDirectory(_wallpaperDir);
             core.SetVirtualHostNameToFolderMapping(
                 WallpaperHost, _wallpaperDir, CoreWebView2HostResourceAccessKind.Allow);
+            _icons = new SiteIcons(core.Settings.UserAgent);
+            _icons.Changed += () => BeginInvoke(PushConfig);
+            core.SetVirtualHostNameToFolderMapping(SiteIcons.Host, _icons.Folder, CoreWebView2HostResourceAccessKind.Allow);
             core.WebMessageReceived += OnShellMessage;
+            ApplyTheme();
             _shell.ZoomFactor = PixelZoom;
             await PrepareForInjectedInputAsync(core);
             string query = _startApp is null ? "" : "?open=" + Uri.EscapeDataString(_startApp);
@@ -287,9 +293,208 @@ internal sealed class MainForm : Form
         ClientSize = new Size(FrameWriter.Width, FrameWriter.Height);
         _shell.ZoomFactor = PixelZoom;
         foreach (AppView app in _apps.Values)
-            app.View.ZoomFactor = PixelZoom;
+            ApplyZoom(app);
         LayoutViews();
     }
+
+    // ---- day and night
+    //
+    // Settings > General > Appearance: dark (as CabinPlay always was, and the default), light,
+    // or automatic, like a car's screen: dark at night, which is while the low beam is on. The
+    // parking lights alone are not enough, and neither is the high beam (a flash of it
+    // included): the game reports the low beam on its own. With light or automatic the sites
+    // are told which colour scheme to prefer; with dark they follow Windows, as before.
+
+    private static readonly string[] ThemeModes = { "dark", "light", "auto" };
+    private string ThemeMode => (string?)_settings["theme"] is string m && ThemeModes.Contains(m) ? m : "dark";
+    private bool _night = true;
+    private CoreWebView2PreferredColorScheme? _scheme; // the one the sites were last told
+    private long _beamOffSince; // the low beam went off while it was night; 0 while it is on
+
+    /// <summary>How long the night look stays after the low beam goes off: stepping through the
+    /// light switch passes "off" on its way round, and should not flash the screen.</summary>
+    private const int BeamOffGraceMs = 1500;
+
+    private void UpdateTheme(Vehicle? vehicle)
+    {
+        bool night = ThemeMode switch
+        {
+            "dark" => true,
+            "light" => false,
+            _ => AutoNight(vehicle?.LowBeam ?? false),
+        };
+        _night = night;
+        ApplyTheme();
+    }
+
+    private bool AutoNight(bool lowBeam)
+    {
+        if (lowBeam)
+        {
+            _beamOffSince = 0;
+            return true;
+        }
+        if (!_night)
+            return false;
+        long now = Environment.TickCount64;
+        if (_beamOffSince == 0)
+            _beamOffSince = now;
+        return now - _beamOffSince < BeamOffGraceMs;
+    }
+
+    /// <summary>The sites' side of it; the shell's comes with the state (see PushStateAsync).</summary>
+    private void ApplyTheme()
+    {
+        CoreWebView2PreferredColorScheme scheme = ThemeMode == "dark" ? CoreWebView2PreferredColorScheme.Auto
+            : _night ? CoreWebView2PreferredColorScheme.Dark : CoreWebView2PreferredColorScheme.Light;
+        if (scheme == _scheme)
+            return;
+        try
+        {
+            if (_shell.CoreWebView2 is { } core)
+            {
+                core.Profile.PreferredColorScheme = scheme;
+                _scheme = scheme;
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Write("colour scheme not set: " + ex.Message);
+        }
+    }
+
+    // ---- YouTube Shorts on a screen 466 pixels high
+    //
+    // YouTube never draws a short smaller than 576 pixels, under a 56 pixel bar, so the bottom
+    // of every short was cut off. While a short is open (unless switched off in the settings)
+    // the page gets a style without that bar and that minimum: the short then fills the
+    // screen's height and the writing keeps its size. Should YouTube change its page so the
+    // style no longer does it, the whole page is shrunk instead (smaller, but all there).
+
+    private bool FitShorts => (bool?)_settings["fitShorts"] ?? true;
+
+    /// <summary>The height the page needs for a short when only shrinking can make it fit.</summary>
+    private const double ShortsPageHeight = 648;
+
+    private const string ShortsStyleId = "cabinplay-fit-shorts";
+
+    private const string ShortsStyleCss = """
+        #masthead-container, ytd-masthead { display: none !important; }
+        ytd-app { --ytd-masthead-height: 0px !important; --ytd-shorts-masthead-height: 0px !important; }
+        ytd-page-manager { margin-top: 0 !important; }
+        ytd-shorts, ytd-shorts #shorts-container, ytd-shorts #shorts-inner-container { height: 100vh !important; top: 0 !important; }
+        ytd-shorts .reel-video-in-sequence-new, ytd-shorts ytd-reel-video-renderer, ytd-shorts #player, ytd-shorts ytd-player {
+          min-height: 0 !important; height: calc(100vh - 16px) !important; }
+        """;
+
+    /// <summary>
+    /// Adds the style once the short's video is there (added while the page is still being
+    /// built it does not take): true if it was added now, false if it was there already, null
+    /// if there is no video yet.
+    /// </summary>
+    private static readonly string AddShortsStyle = $$"""
+        (() => {
+          if (document.getElementById('{{ShortsStyleId}}')) return false;
+          if (![...document.querySelectorAll('video')].some(x => x.getBoundingClientRect().height > 50)) return null;
+          const style = document.createElement('style');
+          style.id = '{{ShortsStyleId}}';
+          style.textContent = {{JsonSerializer.Serialize(ShortsStyleCss)}};
+          document.documentElement.appendChild(style);
+          dispatchEvent(new Event('resize'));
+          return true;
+        })()
+        """;
+
+    private const string RemoveShortsStyle =
+        $"(() => {{ const s = document.getElementById('{ShortsStyleId}'); if (s) {{ s.remove(); dispatchEvent(new Event('resize')); }} }})()";
+
+    /// <summary>
+    /// Whether the short playing is on the screen from top to bottom (null: no short yet). If
+    /// not, the player is asked to size itself again: added while the page was still being
+    /// built, the style can come after the player measured its place.
+    /// </summary>
+    private const string ShortFitsScript = """
+        (() => {
+          const v = [...document.querySelectorAll('video')].find(x => x.getBoundingClientRect().height > 50);
+          if (!v) return null;
+          const b = v.getBoundingClientRect();
+          const fits = b.top >= -2 && b.bottom <= innerHeight + 2;
+          if (!fits) dispatchEvent(new Event('resize'));
+          return fits;
+        })()
+        """;
+
+    /// <summary>
+    /// After every page change: the style on a short, off everywhere else, and a look a moment
+    /// later at whether the short fits with it.
+    /// </summary>
+    private async Task FitShortsAsync(AppView app)
+    {
+        CoreWebView2? core = app.View.CoreWebView2;
+        if (core is null)
+            return;
+        try
+        {
+            if (!FitShorts || !IsYouTubeShorts(core.Source))
+            {
+                app.ShortsShrunk = false;
+                ApplyZoom(app);
+                if (IsYouTube(core.Source))
+                    await core.ExecuteScriptAsync(RemoveShortsStyle);
+                return;
+            }
+            string added = await core.ExecuteScriptAsync(AddShortsStyle);
+            for (int i = 0; i < 15 && added == "null"; i++)
+            {
+                await Task.Delay(1000);
+                if (app.View.CoreWebView2 is null || !IsYouTubeShorts(core.Source))
+                    return;
+                added = await core.ExecuteScriptAsync(AddShortsStyle);
+            }
+            if (added != "true" || app.ShortsShrunk)
+                return;
+            int misses = 0;
+            for (int i = 0; i < 10; i++)
+            {
+                await Task.Delay(1000);
+                if (app.View.CoreWebView2 is null || !IsYouTubeShorts(core.Source))
+                    return;
+                string fits = await core.ExecuteScriptAsync(ShortFitsScript);
+                if (fits == "true")
+                    return;
+                if (fits == "false" && ++misses == 3)
+                {
+                    Log.Write("YouTube Shorts: the style did not make the short fit, shrinking the page instead");
+                    app.ShortsShrunk = true;
+                    ApplyZoom(app);
+                    return;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Write("fitting YouTube Shorts failed: " + ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// One CSS pixel per screen pixel, except on a short the style could not fit: there the
+    /// page is shrunk until the whole short is on the screen.
+    /// </summary>
+    private void ApplyZoom(AppView app)
+    {
+        double zoom = PixelZoom;
+        if (app.ShortsShrunk && FitShorts && app.View.Height > 0 && IsYouTubeShorts(app.View.CoreWebView2?.Source))
+            zoom *= Math.Min(1, app.View.Height / ShortsPageHeight);
+        if (Math.Abs(app.View.ZoomFactor - zoom) > 0.001)
+            app.View.ZoomFactor = zoom;
+    }
+
+    private static bool IsYouTube(string? url) =>
+        Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) && (uri.Host == "youtube.com" || uri.Host.EndsWith(".youtube.com"));
+
+    private static bool IsYouTubeShorts(string? url) =>
+        IsYouTube(url) && new Uri(url!).AbsolutePath.StartsWith("/shorts");
 
     // ------------------------------------------------------------------ shell <-> host
 
@@ -378,6 +583,28 @@ internal sealed class MainForm : Form
                 case "control-option":
                     SetControlOption((string?)msg!["name"], (int?)msg["value"] ?? 0);
                     return;
+                case "drive-wheel":
+                    SetDriveWheel((string?)msg!["mode"]);
+                    return;
+                case "theme":
+                    if ((string?)msg!["mode"] is string mode && ThemeModes.Contains(mode))
+                    {
+                        _settings["theme"] = mode;
+                        SaveSettings();
+                        UpdateTheme(_game?.Read().Connected == true ? _game.ReadVehicle() : null);
+                        PushConfig();
+                    }
+                    break; // the state carries the new look
+                case "fit-shorts":
+                    _settings["fitShorts"] = (bool?)msg!["on"] ?? true;
+                    SaveSettings();
+                    foreach (AppView app in _apps.Values)
+                        _ = FitShortsAsync(app);
+                    PushConfig();
+                    return;
+                case "site-icons":
+                    _icons?.Want(((msg!["urls"] as JsonArray) ?? new JsonArray()).Select(u => (string?)u).OfType<string>());
+                    return;
                 case "update-mode":
                     if (_updater is null)
                         return;
@@ -449,8 +676,22 @@ internal sealed class MainForm : Form
             };
             // Keeps the dock's back and forward buttons current.
             core.HistoryChanged += async (_, _) => await PushStateAsync(withMedia: false);
+            // A start page logo the site would not hand out: the one the browser shows for it.
+            core.FaviconChanged += async (_, _) =>
+            {
+                if (_icons is not null)
+                    await _icons.TakeFromBrowserAsync(core);
+            };
             // Side by side, the app that was clicked last has the keyboard and the media keys.
             view.GotFocus += (_, _) => FocusPane(captured.Id);
+            // YouTube goes to Shorts and back without loading a page, so this is the moment to
+            // look; a page that is loaded gets its style once it is there.
+            core.SourceChanged += async (_, a) =>
+            {
+                if (!a.IsNewDocument)
+                    await FitShortsAsync(captured);
+            };
+            core.DOMContentLoaded += async (_, _) => await FitShortsAsync(captured);
             view.ZoomFactor = PixelZoom;
             await PrepareForInjectedInputAsync(core);
             core.Navigate(url);
@@ -578,6 +819,7 @@ internal sealed class MainForm : Form
                     area.Height -= BarHeight;
                 }
                 app.View.Bounds = app.Fullscreen ? ClientRectangle : area;
+                ApplyZoom(app); // it depends on the height
                 app.View.Visible = true;
                 app.View.BringToFront();
                 if (app.Fullscreen)
@@ -649,8 +891,10 @@ internal sealed class MainForm : Form
         if (_game is not null)
         {
             GameState g = _game.Read();
-            _watch.Update(g, g.Connected ? _game.ReadVehicle() : null);
+            Vehicle? vehicle = g.Connected ? _game.ReadVehicle() : null;
+            _watch.Update(g, vehicle);
             UpdateNotice();
+            UpdateTheme(vehicle);
         }
         // The game state (speed, route) is cheap and refreshed every tick; asking the
         // page about its player is not, so that happens once a second.
@@ -720,6 +964,7 @@ internal sealed class MainForm : Form
             var state = new JsonObject
             {
                 ["type"] = "state",
+                ["theme"] = _night ? "dark" : "light",
                 ["active"] = _activeId,
                 ["view"] = _shellView,
                 ["split"] = _split is { } pair ? new JsonArray(pair.Left, pair.Right) : null,
@@ -803,6 +1048,8 @@ internal sealed class MainForm : Form
             ["waterTemperature"] = Math.Round(v.WaterTemperatureC),
             ["battery"] = Math.Round(v.BatteryVoltage, 1),
             ["currency"] = v.Dollars ? "USD" : "EUR",
+            // where the truck is in the game's world, for the weather card (Europe's map only)
+            ["place"] = v.Placed && !v.Dollars ? new JsonObject { ["x"] = Math.Round(v.X), ["z"] = Math.Round(v.Z) } : null,
             ["wear"] = new JsonObject
             {
                 ["cabin"] = Percent(v.WearCabin),
@@ -961,6 +1208,9 @@ internal sealed class MainForm : Form
                     case GameEventType.Shortcut:
                         RunShortcut(e.X);
                         break;
+                    case GameEventType.Scroll:
+                        ScrollFront(e.Data);
+                        break;
                 }
             }
             catch (Exception ex)
@@ -990,8 +1240,16 @@ internal sealed class MainForm : Form
     private static readonly string[] ButtonNames = { "left", "right", "middle" };
     private static readonly int[] ButtonMasks = { 1, 2, 4 };
 
-    private static void Send(WebView2 view, string method, JsonObject parameters)
+    private void Send(WebView2 view, string method, JsonObject parameters)
     {
+        // Mouse positions are given in the page's own pixels, which are smaller than the
+        // screen's on a page shrunk to fit (see ApplyZoom).
+        double scale = PixelZoom / view.ZoomFactor;
+        if (Math.Abs(scale - 1) > 0.001 && parameters["x"] is JsonValue x && parameters["y"] is JsonValue y)
+        {
+            parameters["x"] = (int)Math.Round(x.GetValue<int>() * scale);
+            parameters["y"] = (int)Math.Round(y.GetValue<int>() * scale);
+        }
         if (view.CoreWebView2 is not null)
             _ = view.CoreWebView2.CallDevToolsProtocolMethodAsync(method, parameters.ToJsonString());
     }
@@ -1072,6 +1330,63 @@ internal sealed class MainForm : Form
             ["deltaX"] = 0,
             ["deltaY"] = -delta, // wheel up is a positive delta but scrolls the page up
         });
+    }
+
+    /// <summary>
+    /// Scrolling while driving, with no cursor on the screen: the app in front gets the wheel
+    /// in its middle. Side by side, that is the half with the keyboard (the last one clicked),
+    /// or else the one a site is in. A feed of short videos goes one video per notch instead.
+    /// </summary>
+    private void ScrollFront(int delta)
+    {
+        WebView2 view = _shell;
+        if (_activeId is not null && _apps.TryGetValue(_activeId, out AppView? active) && active.View.Visible)
+            view = active.View;
+        else if (_apps.Values.FirstOrDefault(a => a.View.Visible) is { } shown)
+            view = shown.View;
+        if (view != _shell && IsShortsFeed(view.CoreWebView2?.Source))
+        {
+            // A wheel spun fast sends many notches: one video for those that come together.
+            long now = Environment.TickCount64;
+            if (now - _lastFeedStep < 300)
+                return;
+            _lastFeedStep = now;
+            (string key, int vk) = delta < 0 ? ("ArrowDown", 0x28) : ("ArrowUp", 0x26);
+            foreach (string type in new[] { "rawKeyDown", "keyUp" })
+                Send(view, "Input.dispatchKeyEvent", new JsonObject
+                {
+                    ["type"] = type, ["key"] = key, ["code"] = key, ["windowsVirtualKeyCode"] = vk,
+                });
+            return;
+        }
+        Send(view, "Input.dispatchMouseEvent", new JsonObject
+        {
+            ["type"] = "mouseWheel",
+            ["x"] = view.Width / 2,
+            ["y"] = view.Height / 2,
+            ["deltaX"] = 0,
+            ["deltaY"] = -delta, // wheel up is a positive delta but scrolls the page up
+        });
+    }
+
+    private long _lastFeedStep;
+
+    /// <summary>
+    /// Feeds of short videos. Their pages take a wheel from here badly (YouTube Shorts misses
+    /// every other turn, TikTok and Instagram hardly move), but each goes to the next video
+    /// on the down arrow and back on the up arrow.
+    /// </summary>
+    private static bool IsShortsFeed(string? url)
+    {
+        if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri))
+            return false;
+        string host = uri.Host.ToLowerInvariant(), path = uri.AbsolutePath;
+        bool On(string site) => host == site || host.EndsWith("." + site);
+        return (On("youtube.com") && path.StartsWith("/shorts")) ||
+               (On("instagram.com") && path.StartsWith("/reel")) ||
+               // the For You and Following feeds and a video's own page, not a profile's grid
+               (On("tiktok.com") && (path == "/" || path.StartsWith("/foryou") || path.StartsWith("/following") ||
+                                     path.Contains("/video/")));
     }
 
     private static readonly Dictionary<int, string> SpecialKeys = new()
@@ -1227,9 +1542,9 @@ internal sealed class MainForm : Form
 
     /// <summary>
     /// What a shortcut can do, with the key that goes with Ctrl+Alt unless the user picked
-    /// another. Control mode's key is the plugin's own (control_key in cabinplay.ini); here
-    /// it can only be put on a controller button. Keep the list the same as ACTIONS in
-    /// ui/shell.js.
+    /// another. Control mode's key is handed to the plugin, which watches for it while the
+    /// game is in front (with nothing picked it uses control_key in cabinplay.ini). Keep the
+    /// list the same as ACTIONS in ui/shell.js.
     /// </summary>
     private static readonly (string Action, Keys Key)[] Actions =
     {
@@ -1245,8 +1560,13 @@ internal sealed class MainForm : Form
         ("app-next", Keys.PageDown),
         ("split", Keys.S),
         ("split-swap", Keys.X),
-        ("control", Keys.None),
+        ("scroll-up", Keys.None),   // no key of their own: the arrows are taken
+        ("scroll-down", Keys.None),
+        ("control", Keys.C),
     };
+
+    /// <summary>How far a scroll shortcut goes: three notches of the wheel, one short video.</summary>
+    private const int ScrollStep = 360;
 
     private static bool IsAction(string? action) => action is not null && Actions.Any(a => a.Action == action);
 
@@ -1266,7 +1586,8 @@ internal sealed class MainForm : Form
         {
             JsonObject? b = saved?[action] as JsonObject;
             int vk = b?["key"] is JsonValue v && v.TryGetValue(out int n) ? n : (int)key;
-            _keys[action] = action != "control" && (vk == 0 || IsBindableKey(vk)) ? vk : (int)key;
+            // control mode always has a key
+            _keys[action] = (vk == 0 && action != "control") || IsBindableKey(vk) ? vk : (int)key;
             if (b?["pad"] is JsonObject p)
             {
                 _pads[action] = (new PadButton((int?)p["vendor"] ?? 0, (int?)p["product"] ?? 0, (int?)p["button"] ?? 0),
@@ -1297,8 +1618,10 @@ internal sealed class MainForm : Form
 
     private void BindKey(string? action, int vk)
     {
-        // C stays control mode's: the plugin takes it before any shortcut.
-        if (!IsAction(action) || action == "control" || vk == 'C' || (vk != 0 && !IsBindableKey(vk)))
+        // Control mode's key stays its own (the plugin takes it before any shortcut), and
+        // control mode always keeps one.
+        if (!IsAction(action) || (vk != 0 && !IsBindableKey(vk)) || (action == "control" && vk == 0) ||
+            (action != "control" && vk == _keys.GetValueOrDefault("control")))
             return;
         // One key, one action: whoever had it loses it.
         foreach (string other in _keys.Keys.ToArray())
@@ -1309,6 +1632,7 @@ internal sealed class MainForm : Form
         _keys[action!] = vk;
         SaveBindings();
         RegisterHotkeys();
+        ApplyControlOptions();
         PushConfig();
     }
 
@@ -1337,6 +1661,7 @@ internal sealed class MainForm : Form
         LoadBindings();
         SaveBindings();
         RegisterHotkeys();
+        ApplyControlOptions();
         PushConfig();
     }
 
@@ -1378,7 +1703,9 @@ internal sealed class MainForm : Form
         for (int i = 0; i < Actions.Length; i++)
         {
             UnregisterHotKey(Handle, i);
-            int vk = _keys.GetValueOrDefault(Actions[i].Action);
+            // Control mode only means something while the game is in front, where the plugin
+            // watches for its key; taking it from every other program would be for nothing.
+            int vk = Actions[i].Action == "control" ? 0 : _keys.GetValueOrDefault(Actions[i].Action);
             if (vk != 0 && !RegisterHotKey(Handle, i, ModControl | ModAlt | ModNoRepeat, (uint)vk))
                 Log.Write($"hotkey Ctrl+Alt+{(Keys)vk} is taken by another program");
         }
@@ -1404,7 +1731,8 @@ internal sealed class MainForm : Form
     {
         foreach ((string action, int key) in _keys)
         {
-            if (key == vk && vk != 0)
+            // control mode's own key the plugin handles itself
+            if (key == vk && vk != 0 && action != "control")
             {
                 RunHotkey(action);
                 return;
@@ -1427,6 +1755,8 @@ internal sealed class MainForm : Form
             else if (action is "split" or "split-swap")
                 // Which two apps go side by side is the shell's to say.
                 _shell.CoreWebView2?.PostWebMessageAsJson(new JsonObject { ["type"] = action }.ToJsonString());
+            else if (action is "scroll-up" or "scroll-down")
+                ScrollFront(action == "scroll-up" ? ScrollStep : -ScrollStep);
             else
                 await MediaCommandAsync(action);
             await PushStateAsync(withMedia: true);
@@ -1475,10 +1805,15 @@ internal sealed class MainForm : Form
                 ["capturing"] = _capturing,
                 ["update"] = _updater?.ToJson(),
                 ["gameNotices"] = _watch.InGameEnabled,
+                ["fitShorts"] = FitShorts,
+                ["theme"] = ThemeMode,
+                ["icons"] = new JsonObject((_icons?.Addresses() ?? new())
+                    .Select(i => KeyValuePair.Create(i.Key, (JsonNode?)i.Value))),
                 ["control"] = new JsonObject
                 {
                     ["overlaySize"] = (int?)_settings["overlaySize"],
                     ["cursorSpeed"] = (int?)_settings["cursorSpeed"],
+                    ["driveWheel"] = (string?)_settings["driveWheel"],
                 },
             }.ToJsonString());
         }
@@ -1592,9 +1927,23 @@ internal sealed class MainForm : Form
         PushConfig();
     }
 
+    /// <summary>What makes the wheel scroll the screen while driving, by the plugin's numbers.</summary>
+    private static readonly string[] DriveWheelModes = { "ctrl-alt", "alt", "wheel", "off" };
+
+    private void SetDriveWheel(string? mode)
+    {
+        if (mode is null || !DriveWheelModes.Contains(mode))
+            return;
+        _settings["driveWheel"] = mode;
+        SaveSettings();
+        ApplyControlOptions();
+        PushConfig();
+    }
+
     /// <summary>Hands them to the plugin; unset, it keeps the ones in cabinplay.ini.</summary>
     private void ApplyControlOptions() =>
-        _writer?.SetControlOptions((int?)_settings["overlaySize"] ?? 0, (int?)_settings["cursorSpeed"] ?? 0);
+        _writer?.SetControlOptions((int?)_settings["overlaySize"] ?? 0, (int?)_settings["cursorSpeed"] ?? 0,
+            Array.IndexOf(DriveWheelModes, (string?)_settings["driveWheel"]) + 1, _keys.GetValueOrDefault("control"));
 
     // ------------------------------------------------------------------ window placement
 

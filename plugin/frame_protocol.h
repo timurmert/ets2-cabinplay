@@ -58,8 +58,16 @@ typedef struct cabinplay_frame_header {
     uint32_t control_requests; /* bumped to ask for control mode to be opened or closed */
     uint16_t overlay_percent;  /* control mode's screen, percent of the game's width; 0: cabinplay.ini's */
     uint16_t cursor_speed;     /* control mode's cursor speed, percent; 0: cabinplay.ini's */
-    uint8_t reserved1[8];
+    uint8_t drive_wheel;       /* CABINPLAY_DRIVE_WHEEL_*; 0: cabinplay.ini's */
+    uint8_t control_key;       /* virtual key that opens control mode with Ctrl+Alt; 0: cabinplay.ini's */
+    uint8_t reserved1[6];
 } cabinplay_frame_header_t;      /* followed by width * height BGRA pixels, top row first */
+
+/* What makes the mouse wheel scroll the CabinPlay screen while driving (outside control mode). */
+#define CABINPLAY_DRIVE_WHEEL_CTRL_ALT 1 /* turned while Ctrl and left Alt are held */
+#define CABINPLAY_DRIVE_WHEEL_ALT 2      /* turned while left Alt is held */
+#define CABINPLAY_DRIVE_WHEEL_ALONE 3    /* always: the game never sees the wheel */
+#define CABINPLAY_DRIVE_WHEEL_OFF 4
 #pragma pack(pop)
 
 /* ------------------------------------------------------------------ notice mapping */
@@ -98,6 +106,7 @@ typedef struct cabinplay_frame_header {
 #define CABINPLAY_EVENT_WHEEL 3u  /* data: wheel delta, 120 per notch */
 #define CABINPLAY_EVENT_KEY 4u    /* x: virtual key, y: down | modifiers << 8, data: UTF-16 char or 0 */
 #define CABINPLAY_EVENT_SHORTCUT 5u /* x: virtual key pressed with Ctrl + left Alt */
+#define CABINPLAY_EVENT_SCROLL 6u   /* the wheel while driving (see drive_wheel); data: delta, 120 per notch */
 
 #define CABINPLAY_MOD_SHIFT 0x1u
 #define CABINPLAY_MOD_CTRL 0x2u
@@ -113,6 +122,8 @@ typedef struct cabinplay_frame_header {
 #define CABINPLAY_VEHICLE_CARGO_LOADED 0x40u
 #define CABINPLAY_VEHICLE_SPECIAL 0x80u        /* special transport */
 #define CABINPLAY_VEHICLE_ATS 0x100u           /* American Truck Simulator: dollars */
+#define CABINPLAY_VEHICLE_LOW_BEAM 0x200u      /* the low beam headlights are on (not just the parking lights) */
+#define CABINPLAY_VEHICLE_PLACED 0x400u        /* position_* hold where the truck is */
 
 #pragma pack(push, 1)
 typedef struct cabinplay_notice_header {
@@ -176,7 +187,8 @@ typedef struct cabinplay_vehicle {
     char job_market[32];
     char source_city_id[32];       /* the game's city names are in the local language; the */
     char destination_city_id[32];  /* app looks these ids up in its own (see app/ui/places.js) */
-} cabinplay_vehicle_t;             /* 632 bytes */
+    double position_x, position_y, position_z; /* the truck in the game's world, metres (y is up) */
+} cabinplay_vehicle_t;             /* 656 bytes */
 
 /* The state mapping: version 2 adds the vehicle block after the events. */
 typedef struct cabinplay_state_mapping {

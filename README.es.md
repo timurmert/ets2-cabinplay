@@ -6,7 +6,7 @@ Una pantalla multimedia que funciona de verdad en la cabina de tu camión en **E
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=DESCARGAS" alt="Descargas"></a>
-  <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/67%20LIMPIO" alt="VirusTotal: 0/67 limpio"></a>
+  <a href="https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/68%20LIMPIO" alt="VirusTotal: 0/68 limpio"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@ Una pantalla multimedia que funciona de verdad en la cabina de tu camión en **E
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/67 limpio"></a><br>
-  <sub>🛡️ Ninguno de los 67 antivirus de VirusTotal ha marcado CabinPlay. <a href="https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4">Ver el informe</a></sub>
+  <a href="https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/68 limpio"></a><br>
+  <sub>🛡️ Ninguno de los 68 antivirus de VirusTotal ha marcado CabinPlay. <a href="https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1">Ver el informe</a></sub>
 </p>
 
 ## Descarga
 
 **[Descarga la última versión](https://github.com/timurmert/ets2-cabinplay/releases/latest)** y elige el archivo `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Análisis antivirus:** el instalador se ha analizado en VirusTotal con 67 antivirus y ninguno lo ha marcado. **[Ver el informe](https://www.virustotal.com/gui/file/4d4bf8aae4a2714569eb0db62143b27d0291072036a0c88b47a427547ca023d4)**
+> 🛡️ **Análisis antivirus:** el instalador se ha analizado en VirusTotal con 68 antivirus y ninguno lo ha marcado. **[Ver el informe](https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1)**
 
 ## Instalación
 
@@ -80,17 +80,17 @@ Eso es todo. La pantalla se enciende con el contacto del camión. Si lo instalas
 | `Ctrl+Alt+S` | Dos apps en paralelo, sí / no |
 | `Ctrl+Alt+X` | Intercambiar los dos lados |
 
-La reproducción se pausa cuando pausas el juego o quitas el contacto. El idioma está en **Ajustes**, en la pantalla. Si cerraste CabinPlay desde sus ajustes, `Ctrl+Alt+C` lo vuelve a iniciar.
+La reproducción se pausa cuando pausas el juego o quitas el contacto. El idioma está en **Ajustes**, en la pantalla. Si cerraste CabinPlay desde sus ajustes, `Ctrl+Alt+C` (o la tecla que elegiste para el modo de control) lo vuelve a iniciar.
 
 La app **Camión** muestra los daños del camión y del remolque, la carga, el combustible y los indicadores. Los atajos Ctrl+Alt también funcionan con el juego en primer plano, y sus teclas nunca llegan al juego: un atajo no hace sonar la bocina ni acciona nada del camión.
 
 La app **Retrovisores** muestra en la pantalla los retrovisores del camión: el izquierdo, su gran angular y, si lo tiene, el frontal. Toca uno para ampliarlo.
 
-La app **Navegador** abre cualquier sitio web: escribe una dirección o una búsqueda en la barra superior y pulsa la estrella para guardar una página en la página de inicio. Las sesiones de los sitios se mantienen iniciadas, y `Ctrl+Alt+F` pone el vídeo de una página a pantalla completa. Para escribir hace falta el modo de control (`Ctrl+Alt+C`).
+La app **Navegador** abre cualquier sitio web: escribe una dirección o una búsqueda en la barra superior y pulsa la estrella para guardar una página en la página de inicio. Las sesiones de los sitios se mantienen iniciadas, y `Ctrl+Alt+F` pone el vídeo de una página a pantalla completa. Para escribir hace falta el modo de control (`Ctrl+Alt+C`). Mientras conduces, mantén `Ctrl+Alt` y gira la rueda del ratón para desplazar la página sin pausar el juego (el juego no recibe ese giro, así que un retardador en la rueda no cambia); en YouTube Shorts, Instagram Reels y TikTok cada paso es el siguiente vídeo, y los YouTube Shorts caben enteros en la pantalla.
 
-La vista **en paralelo** muestra dos apps a la vez, por ejemplo el mapa a la izquierda y la música o el navegador a la derecha: pulsa el botón de división del dock y elige la app de cada mitad. En **Ajustes** puedes elegir un fondo, también entre tus propias imágenes, cambiar las teclas de los atajos y asignar cualquiera de ellos a un botón de tu volante o mando.
+La vista **en paralelo** muestra dos apps a la vez, por ejemplo el mapa a la izquierda y la música o el navegador a la derecha: pulsa el botón de división del dock y elige la app de cada mitad. En **Ajustes** puedes elegir un fondo, también entre tus propias imágenes, cambiar las teclas de los atajos y asignar cualquiera de ellos a un botón de tu volante o mando. La pantalla de inicio muestra el tiempo donde está tu camión y en el destino, con la hora del juego. En *Ajustes* > *General* > *Apariencia* la pantalla es oscura (por defecto), clara o automática: oscura con las luces de cruce encendidas.
 
-**Más sitios:** además del parabrisas, el taller tiene la pantalla para el *Dashboard* (salpicadero), el *Air vent* (rejilla de ventilación), *Overhead* (techo), el *Passenger seat* (asiento del acompañante), la *Console* (consola), el *Cup holder* (portavasos, camiones nuevos) y el *Passenger side* (lado del acompañante del parabrisas). Para ver desde la litera está la **CabinPlay TV** de 27": en la pared trasera (ranura del panel de luces), plana o abierta hacia la almohada, o en el parabrisas, plana o girada hacia la litera o hacia el conductor. En el Scania S, sigue girando la cabeza a la derecha después de mirar atrás: la cámara pasa a la litera y se detiene en la almohada, frente a la tele.
+**Más sitios:** además del parabrisas, el taller tiene la pantalla para el *Dashboard* (salpicadero), el *Air vent* (rejilla de ventilación), *Overhead* (techo), el *Passenger seat* (asiento del acompañante), la *Console* (consola), el *Cup holder* (portavasos, camiones nuevos) y el *Passenger side* (lado del acompañante del parabrisas). Para ver desde la litera está la **CabinPlay TV** de 27": en la pared trasera (ranura del panel de luces), plana o abierta hacia la almohada, o en el parabrisas, plana o girada hacia la litera o hacia el conductor. En cualquier camión, sigue girando la cabeza a la derecha después de mirar atrás: la cámara pasa a la litera y se detiene en la almohada, frente a la tele.
 
 ## Requisitos
 

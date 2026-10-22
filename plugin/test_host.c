@@ -233,11 +233,13 @@ static void hold(int vk, int down)
 }
 
 /* key presses that reached the "game" window */
-static int g_game_keys;
+static int g_game_keys, g_game_wheels;
 static LRESULT CALLBACK game_window_proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 {
     if (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN)
         g_game_keys++;
+    if (msg == WM_MOUSEWHEEL)
+        g_game_wheels++;
     return DefWindowProcW(w, msg, wp, lp);
 }
 
@@ -285,6 +287,16 @@ static int poll_input_api(void)
         flags = 0;
     }
     return pressed;
+}
+
+static int count_events(const cabinplay_state_t *state, uint32_t from, uint32_t type, int32_t data)
+{
+    int n = 0;
+    for (uint32_t i = from; state && i < state->event_write; i++) {
+        const cabinplay_event_t *e = &state->events[i % CABINPLAY_EVENT_CAPACITY];
+        n += e->type == type && e->data == data;
+    }
+    return n;
 }
 
 static void present(cabinplay_frame_header_t *hdr, int frames)
@@ -470,6 +482,26 @@ int main(int argc, char **argv)
     check(vehicle && near_((int)vehicle->fuel_l, 350, 0) && near_((int)(vehicle->wear_engine * 100), 25, 0) &&
               near_((int)(vehicle->trailer_wear_body * 100), 50, 0) && !strcmp(vehicle->trailer_name, "Curtainsider"),
           "fuel, wear and trailer passed on");
+    check(vehicle && !(vehicle->flags & (CABINPLAY_VEHICLE_LOW_BEAM | CABINPLAY_VEHICLE_PLACED)),
+          "no low beam and no position until the game says so");
+    send_bool("truck.light.beam.low", 1);
+    {
+        value_t v;
+        memset(&v, 0, sizeof(v));
+        v.type = 11; /* dplacement: x, y, z as doubles, then the heading */
+        const double where[3] = {-31140.5, 52.25, -5505.75};
+        memcpy(v.v.raw, where, sizeof(where));
+        for (int i = 0; i < g_channel_count; i++)
+            if (!strcmp(g_channels[i].name, "truck.world.placement"))
+                g_channels[i].cb("truck.world.placement", 0xFFFFFFFFu, &v, g_channels[i].context);
+    }
+    present(hdr, 1);
+    check(vehicle && (vehicle->flags & CABINPLAY_VEHICLE_LOW_BEAM) && (vehicle->flags & CABINPLAY_VEHICLE_PLACED) &&
+              vehicle->position_x == -31140.5 && vehicle->position_z == -5505.75,
+          "low beam and the truck's position passed on");
+    send_bool("truck.light.beam.low", 0);
+    present(hdr, 1);
+    check(vehicle && !(vehicle->flags & CABINPLAY_VEHICLE_LOW_BEAM), "and the low beam going off");
     char long_name[200] = "";
     for (int i = 0; i < 70; i++)
         strcat(long_name, "ğ"); /* two bytes each */
@@ -782,6 +814,72 @@ int main(int argc, char **argv)
     hold(VK_LCONTROL, 0);
     hold('W', 0);
     present(hdr, 2);
+
+    printf("scrolling while driving\n");
+    {
+        /* events of one type and delta pushed since `from` */
+        #define SCROLLS(from, delta) count_events(state, from, CABINPLAY_EVENT_SCROLL, delta)
+        int wheels = g_game_wheels;
+        uint32_t from = state->event_write;
+        SendMessageW(wnd, WM_MOUSEWHEEL, MAKEWPARAM(0, 120), 0);
+        check(g_game_wheels == wheels + 1 && SCROLLS(from, 120) == 0, "the wheel alone stays with the game (retarder, zoom)");
+        hold(VK_LMENU, 1);
+        hold(VK_LCONTROL, 1);
+        present(hdr, 1);
+        from = state->event_write;
+        SendMessageW(wnd, WM_MOUSEWHEEL, MAKEWPARAM(0, (WORD)-120), 0);
+        SendMessageW(wnd, WM_MOUSEWHEEL, MAKEWPARAM(0, (WORD)-120), 0);
+        check(g_game_wheels == wheels + 1, "turned with Ctrl+Alt held, the game does not see it");
+        check(SCROLLS(from, -120) == 2, "and it scrolls CabinPlay, once per notch");
+        hold(VK_LCONTROL, 0);
+        hold(VK_LMENU, 0);
+        hdr->drive_wheel = CABINPLAY_DRIVE_WHEEL_ALONE;
+        present(hdr, 1);
+        from = state->event_write;
+        SendMessageW(wnd, WM_MOUSEWHEEL, MAKEWPARAM(0, 240), 0);
+        check(g_game_wheels == wheels + 1 && SCROLLS(from, 240) == 1, "set to the wheel alone in the app, it needs no keys");
+        hdr->drive_wheel = CABINPLAY_DRIVE_WHEEL_OFF;
+        hold(VK_LMENU, 1);
+        hold(VK_LCONTROL, 1);
+        present(hdr, 1);
+        from = state->event_write;
+        SendMessageW(wnd, WM_MOUSEWHEEL, MAKEWPARAM(0, 120), 0);
+        check(g_game_wheels == wheels + 2 && SCROLLS(from, 120) == 0, "switched off, the game always has it");
+        hold(VK_LCONTROL, 0);
+        hold(VK_LMENU, 0);
+        hdr->drive_wheel = 0;
+        present(hdr, 2);
+        #undef SCROLLS
+    }
+
+    printf("control mode on a key chosen in the app\n");
+    {
+        hdr->control_key = 'V';
+        present(hdr, 1);
+        hold(VK_LMENU, 1);
+        hold(VK_LCONTROL, 1);
+        present(hdr, 1);
+        uint32_t from = state->event_write;
+        hold('C', 1);
+        present(hdr, 2);
+        check(state && !(state->flags & CABINPLAY_STATE_CONTROL) && count_events(state, from, CABINPLAY_EVENT_SHORTCUT, 0) >= 1,
+              "Ctrl+Alt+C is then an ordinary shortcut");
+        hold('C', 0);
+        present(hdr, 1);
+        hold('V', 1);
+        present(hdr, 2);
+        check(state && (state->flags & CABINPLAY_STATE_CONTROL), "and Ctrl+Alt+V opens control mode");
+        hold('V', 0);
+        present(hdr, 1);
+        hold('V', 1);
+        present(hdr, 2);
+        hold('V', 0);
+        hold(VK_LCONTROL, 0);
+        hold(VK_LMENU, 0);
+        hdr->control_key = 0;
+        present(hdr, 200); /* let the pause attempt of that control session run out */
+        check(state && !(state->flags & CABINPLAY_STATE_CONTROL), "the same keys close it");
+    }
 
     printf("leaving control mode with Esc\n");
     control(1);

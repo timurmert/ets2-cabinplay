@@ -198,10 +198,26 @@
   }
   function layoutNoticeOption() {
     for (const b of $('settings-notices').children) b.classList.toggle('on', b.dataset.value === (config.gameNotices === false ? 'off' : 'on'));
+    for (const b of $('settings-fit-shorts').children) b.classList.toggle('on', b.dataset.value === (config.fitShorts === false ? 'off' : 'on'));
+    for (const b of $('settings-theme').children) b.classList.toggle('on', b.dataset.value === (config.theme || 'dark'));
+  }
+  // Dark, light, or by the low beam (the host's UpdateTheme); dark unless picked otherwise.
+  for (const b of $('settings-theme').children) {
+    b.addEventListener('click', () => send({ type: 'theme', mode: b.dataset.value }));
+  }
+  // YouTube Shorts shrunk until the whole short fits (the host's ApplyZoom): on unless switched off.
+  for (const b of $('settings-fit-shorts').children) {
+    b.addEventListener('click', () => send({ type: 'fit-shorts', on: b.dataset.value === 'on' }));
+  }
+
+  // The wheel while driving: Ctrl+Alt + wheel until something else is picked.
+  for (const b of $('settings-wheel').children) {
+    b.addEventListener('click', () => send({ type: 'drive-wheel', mode: b.dataset.value }));
   }
 
   function layoutControlOptions() {
     const chosen = config.control || {};
+    for (const b of $('settings-wheel').children) b.classList.toggle('on', b.dataset.value === (chosen.driveWheel || 'ctrl-alt'));
     for (const b of $('settings-size').children) b.classList.toggle('on', Number(b.dataset.value) === (chosen.overlaySize || 60));
     speedRange.value = chosen.cursorSpeed || 100;
     showSpeed(Number(speedRange.value));
@@ -275,7 +291,8 @@
     }
     const show = !!news && news.id !== updateDismissed;
     $('update-card').hidden = !show;
-    $('day-card').hidden = show;
+    newsShown = show;
+    layoutBottomCard();
     if (!show) return;
     $('upd-title').textContent = news.notice ? noticeText(news.title, news.notice) : fill(news.title, u);
     $('upd-sub').textContent = news.notice ? noticeText(news.sub, news.notice) : fill(news.sub, u);
@@ -348,15 +365,17 @@
 
   // ---- shortcuts: every action has a key that goes with Ctrl+Alt and, if the user gave
   // it one, a button on a steering wheel or gamepad. Keep the list the same as Actions in
-  // MainForm.cs. Control mode's key belongs to the plugin and is not changed here.
+  // MainForm.cs. Control mode always has a key, and no other action can take it.
   const ACTIONS = [['playpause', 'actPlayPause'], ['next', 'actNext'], ['prev', 'actPrev'],
     ['seek-forward', 'actSeekForward'], ['seek-back', 'actSeekBack'], ['fullscreen', 'actFullscreen'],
     ['home', 'actHome'], ['maps', 'actMaps'], ['app-prev', 'actAppPrev'], ['app-next', 'actAppNext'],
-    ['split', 'actSplit'], ['split-swap', 'actSwap'], ['control', 'actControl']];
+    ['split', 'actSplit'], ['split-swap', 'actSwap'], ['scroll-up', 'actScrollUp'], ['scroll-down', 'actScrollDown'],
+    ['control', 'actControl']];
   const KEY_NAMES = { 0x21: 'PgUp', 0x22: 'PgDn', 0x23: 'End', 0x24: 'Home', 0x25: '←', 0x26: '↑', 0x27: '→',
     0x28: '↓', 0x2D: 'Ins', 0x2E: 'Del' };
-  // Keys every keyboard layout has in the same place; C is control mode's.
-  const bindable = (vk) => vk !== 0x43 && ((vk >= 0x30 && vk <= 0x39) || (vk >= 0x41 && vk <= 0x5A)
+  // Keys every keyboard layout has in the same place; control mode's stays its own.
+  const bindable = (vk, action) => (action === 'control' || vk !== bindingOf('control').key)
+    && ((vk >= 0x30 && vk <= 0x39) || (vk >= 0x41 && vk <= 0x5A)
     || (vk >= 0x70 && vk <= 0x7B) || (vk >= 0x20 && vk <= 0x28) || vk === 0x2D || vk === 0x2E || (vk >= 0x60 && vk <= 0x69));
   function keyLabel(vk) {
     if (vk === 0x20) return t('keySpace');
@@ -383,10 +402,7 @@
       row.querySelector('.name').textContent = row.querySelector('.name').title = t(nameKey);
 
       const key = row.querySelector('.bind-key');
-      if (action === 'control') {
-        key.disabled = true;
-        keys(key, 'Ctrl', 'Alt', 'C');
-      } else if (keyCapture === action) {
+      if (keyCapture === action) {
         key.classList.add('wait');
         key.textContent = t('ctlPressKey');
       } else if (binding.key) {
@@ -434,7 +450,7 @@
     if (e.keyCode === 27) {
       keyCapture = null;
       layoutBinds();
-    } else if (bindable(e.keyCode)) {
+    } else if (bindable(e.keyCode, keyCapture)) {
       send({ type: 'bind-key', action: keyCapture, vk: e.keyCode });
       keyCapture = null; // the row is redrawn when the host answers
     }
@@ -566,10 +582,17 @@
     render();
   }
 
+  // Each site's logo is fetched and kept by the host (config.icons, by host); until it is
+  // there, or if the site has none, the tile shows the name's first letter.
+  let iconsAsked = '';
+  let iconsShown = '';
+
   function layoutSites() {
     const list = $('browser-sites');
     list.replaceChildren();
     const shown = [...favourites.map((f) => ({ ...f, kept: true })), ...SITES.filter((s) => !s.lang || s.lang === language)];
+    const icons = config.icons || {};
+    iconsShown = JSON.stringify(icons);
     for (const site of shown) {
       const el = document.createElement('button');
       el.className = 'site';
@@ -578,6 +601,18 @@
       const mark = el.querySelector('.site-mark');
       mark.textContent = (site.name || host).charAt(0).toLocaleUpperCase();
       mark.style.background = MARK_COLOURS[[...host].reduce((n, c) => n + c.charCodeAt(0), 0) % MARK_COLOURS.length];
+      if (icons[host]) {
+        const logo = new Image();
+        logo.alt = '';
+        logo.onload = () => {
+          mark.replaceChildren(logo);
+          mark.style.background = '';
+          mark.classList.add('logo');
+          // an app icon fills the tile; a small one sits in the middle of it
+          mark.classList.toggle('small', logo.naturalWidth < 96);
+        };
+        logo.src = icons[host];
+      }
       el.querySelector('b').textContent = site.name || host;
       el.querySelector('small').textContent = host;
       el.addEventListener('click', () => open(browserApp, site.url));
@@ -594,6 +629,11 @@
         el.appendChild(remove);
       }
       list.appendChild(el);
+    }
+    const urls = shown.map((s) => s.url);
+    if (urls.join('\n') !== iconsAsked) {
+      iconsAsked = urls.join('\n');
+      send({ type: 'site-icons', urls });
     }
   }
 
@@ -639,6 +679,64 @@
     if (document.activeElement !== address && address.dataset.shown !== url) {
       address.value = address.dataset.shown = url;
     }
+  }
+
+  // ---- weather card: the city the truck is in (or near), the weather there at the hour the
+  // game's clock shows, the game's clock, and the job's destination. It takes the day card's
+  // place while the game says where the truck is; news about an update goes over both.
+  const WEATHER = window.CabinPlayWeather;
+  const CITIES = window.CABINPLAY_CITIES || {};
+  let newsShown = false;
+  let weatherShown = false;
+  let here = null;
+  let hereAt = 0;
+
+  function layoutBottomCard() {
+    $('day-card').hidden = newsShown || weatherShown;
+    $('weather-card').hidden = newsShown || !weatherShown;
+  }
+
+  // the card is redrawn on every state, but only what changed is written to the page
+  const setText = (id, text) => { if ($(id).textContent !== text) $(id).textContent = text; };
+
+  function cityName(id) {
+    const city = PLACES.cities[id];
+    return city ? inLanguage(city[1], id) : id;
+  }
+
+  function layoutWeather() {
+    const game = state.game || {};
+    const v = state.vehicle;
+    const spot = game.connected && v && v.place;
+    if (!spot || !WEATHER) {
+      here = null;
+      if (weatherShown) { weatherShown = false; layoutBottomCard(); }
+      return;
+    }
+    // the nearest city is looked for every few seconds, not on every state
+    if (!here || Date.now() - hereAt > 3000) {
+      here = WEATHER.nearestCity(spot.x, spot.z);
+      hereAt = Date.now();
+    }
+    if (!here) return;
+    const minutes = ((game.gameTime || 0) % 1440 + 1440) % 1440;
+    const hour = Math.floor(minutes / 60);
+    const sky = WEATHER.at(here.at, hour, layoutWeather);
+    const country = PLACES.cities[here.id] && PLACES.countries[PLACES.cities[here.id][0]];
+    // more than 15 km out of the city: on the road near it
+    setText('wx-place', here.km > 15 ? t('wxNear').replace('{city}', cityName(here.id))
+      : country ? `${cityName(here.id)}, ${inLanguage(country, '')}` : cityName(here.id));
+    setText('wx-time', `${two(Math.floor(minutes / 60))}:${two(minutes % 60)}`);
+    setText('wx-icon', sky ? sky.icon : '');
+    setText('wx-temp', sky ? `${sky.temp}°` : '');
+    const parts = [sky ? t(`wx_${sky.kind}`) : ''];
+    const to = v.job && v.job.toId && v.job.toId.toLowerCase();
+    if (to && CITIES[to] && to !== here.id) {
+      const there = WEATHER.at(CITIES[to], hour, layoutWeather);
+      if (there) parts.push(`→ ${cityName(to)} ${there.icon} ${there.temp}°`);
+    }
+    setText('wx-sky', parts.filter(Boolean).join(' · '));
+    if (!weatherShown) { weatherShown = true; layoutBottomCard(); }
   }
 
   // ---- truck page: damage lists, one row per part
@@ -982,6 +1080,7 @@
       renderMirrors(game);
     }
     if (shows('truck')) renderTruck(game, state.vehicle);
+    if (view === 'home') layoutWeather();
     layoutNotice();
 
     // dock: one shortcut per open app
@@ -1070,9 +1169,11 @@
         layoutControlOptions();
         layoutNoticeOption();
         refreshTitles();
+        if (JSON.stringify(config.icons || {}) !== iconsShown) layoutSites();
       }
       if (e.data && e.data.type === 'blur') address.blur();
       if (e.data && e.data.type === 'state') {
+        document.body.dataset.theme = e.data.theme === 'dark' ? 'dark' : 'light';
         state = {
           active: e.data.active || null,
           view: VIEWS.includes(e.data.view) ? e.data.view : 'home',

@@ -20,7 +20,20 @@ OUT = os.path.join(ROOT, "tools", "cabin_slots.py")
 # /def/camera/units extracted from def.scs
 CAMERA_DIR = os.path.join(ROOT, "tools", "extracted", "cam", "def", "camera", "units")
 # Trucks whose interior camera gets the pillow view, and the file the game defines it in.
-CAMERAS = {"scania.s_2016": "interior_scania_s_2016"}
+# scania.s_2024e drives with the S 2016's camera, so it gets that one's pillow view.
+CAMERAS = {
+    "daf.2021": "interior_daf_2021", "daf.xd": "interior_daf_xd", "daf.xf": "interior_daf_xf",
+    "daf.xf_electric": "interior_daf_xf_electric", "daf.xf_euro6": "interior_daf_xf_euro6",
+    "iveco.hiway": "interior_iveco_hiway", "iveco.stralis": "interior_iveco_stralis", "iveco.sway": "interior_iveco_sway",
+    "man.tgx": "interior_man_tgx", "man.tgx_2020": "interior_man_tgx_2020", "man.tgx_euro6": "interior_man_tgx_euro6",
+    "mercedes.actros": "interior_mercedes_actros_2009", "mercedes.actros2014": "interior_mercedes_actros_2014",
+    "renault.magnum": "interior_renault_magnum_2009", "renault.premium": "interior_renault_premium",
+    "renault.t": "interior_renault_t",
+    "scania.r": "interior_scania_rcab_2009", "scania.r_2016": "interior_scania_r_2016",
+    "scania.s_2016": "interior_scania_s_2016", "scania.streamline": "interior_scania_streamline",
+    "volvo.fh16": "interior_volvo_fh16_2009", "volvo.fh16_2012": "interior_volvo_fh16_2012",
+    "volvo.fh_2021": "interior_volvo_fh_2021", "volvo.fh_2024": "interior_volvo_fh_2024",
+}
 
 # Each truck's left-hand-drive interior model, relative to vehicle/truck/. Where a truck has
 # several cabins the first one stands for all: the slots sit in the same places in each.

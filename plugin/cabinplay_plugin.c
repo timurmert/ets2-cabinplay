@@ -41,7 +41,8 @@ _Static_assert(offsetof(cabinplay_vehicle_t, truck_brand) == 104, "vehicle layou
 _Static_assert(offsetof(cabinplay_vehicle_t, cargo) == 280, "vehicle layout");
 _Static_assert(offsetof(cabinplay_vehicle_t, job_market) == 536, "vehicle layout");
 _Static_assert(offsetof(cabinplay_vehicle_t, source_city_id) == 568, "vehicle layout");
-_Static_assert(sizeof(cabinplay_vehicle_t) == 632, "vehicle size");
+_Static_assert(offsetof(cabinplay_vehicle_t, position_x) == 632, "vehicle layout");
+_Static_assert(sizeof(cabinplay_vehicle_t) == 656, "vehicle size");
 
 /* Where the plugin and the app leave each other their locations. */
 #define REGISTRY_KEY L"Software\\CabinPlay"
@@ -187,7 +188,9 @@ static volatile uint32_t g_game_time;
 /* truck, trailer and job: numbers straight from the channels, strings from the
  * configuration events; copied to the app in publish_vehicle */
 static cabinplay_vehicle_t g_vehicle;
-static volatile int g_engine_on, g_parking_brake, g_trailer_coupled;
+static volatile int g_engine_on, g_parking_brake, g_trailer_coupled, g_low_beam;
+static volatile double g_position[3]; /* truck.world.placement, copied to the app in publish_vehicle */
+static volatile int g_placed;
 static int g_have_truck, g_have_trailer, g_have_job, g_job_loaded, g_job_special;
 static int g_is_ats;
 
@@ -215,6 +218,7 @@ static int g_arrow_frames;         /* how long an arrow key has been held (keybo
 static int g_cfg_enabled = 1;
 static int g_cfg_flip_v = 0;
 static int g_cfg_toggle_vk = 'C';
+static volatile int g_app_control_key; /* control mode's key as chosen in the app, 0 for cabinplay.ini's */
 static int g_cfg_cursor_speed = 100; /* percent */
 static int g_cfg_overlay_percent = 60;
 static int g_cfg_backdrop = 0; /* behind control mode: 0 the game's picture as it paused, 1 black, 2 the live game, dimmed */
@@ -222,6 +226,7 @@ static int g_cfg_control_mouse = 1; /* 1: the mouse moves the CabinPlay cursor, 
 static int g_cfg_autostart = 1;     /* start the companion app together with the game */
 static int g_cfg_pause_game = 1;    /* pause the game while control mode is open */
 static int g_cfg_pause_vk = VK_PAUSE; /* the key the game's "pause" control is bound to */
+static int g_cfg_drive_wheel = CABINPLAY_DRIVE_WHEEL_CTRL_ALT; /* what turns the wheel to CabinPlay while driving */
 static wchar_t g_cfg_app_path[MAX_PATH]; /* written by the installer */
 
 /* ------------------------------------------------------------------ logging */
@@ -262,6 +267,9 @@ static void open_log_and_config(void)
     g_cfg_autostart = GetPrivateProfileIntW(L"cabinplay", L"autostart", 1, path) != 0;
     g_cfg_pause_game = GetPrivateProfileIntW(L"cabinplay", L"pause_game", 1, path) != 0;
     g_cfg_pause_vk = GetPrivateProfileIntW(L"cabinplay", L"pause_key", VK_PAUSE, path) & 0xFF;
+    g_cfg_drive_wheel = GetPrivateProfileIntW(L"cabinplay", L"drive_wheel", CABINPLAY_DRIVE_WHEEL_CTRL_ALT, path);
+    if (g_cfg_drive_wheel < CABINPLAY_DRIVE_WHEEL_CTRL_ALT || g_cfg_drive_wheel > CABINPLAY_DRIVE_WHEEL_OFF)
+        g_cfg_drive_wheel = CABINPLAY_DRIVE_WHEEL_CTRL_ALT;
     GetPrivateProfileStringW(L"cabinplay", L"app_path", L"", g_cfg_app_path, MAX_PATH, path);
     if (g_cfg_overlay_percent < 20 || g_cfg_overlay_percent > 100)
         g_cfg_overlay_percent = 60;
@@ -1324,7 +1332,12 @@ static void publish_vehicle(void)
     if (g_have_job && g_job_loaded) flags |= CABINPLAY_VEHICLE_CARGO_LOADED;
     if (g_have_job && g_job_special) flags |= CABINPLAY_VEHICLE_SPECIAL;
     if (g_is_ats) flags |= CABINPLAY_VEHICLE_ATS;
+    if (g_low_beam) flags |= CABINPLAY_VEHICLE_LOW_BEAM;
+    if (g_placed) flags |= CABINPLAY_VEHICLE_PLACED;
     g_vehicle.flags = flags;
+    g_vehicle.position_x = g_position[0];
+    g_vehicle.position_y = g_position[1];
+    g_vehicle.position_z = g_position[2];
     memcpy((uint8_t *)out + sizeof(out->sequence), (const uint8_t *)&g_vehicle + sizeof(g_vehicle.sequence),
            sizeof(g_vehicle) - sizeof(g_vehicle.sequence));
     LeaveCriticalSection(&g_vehicle_lock);
@@ -1503,6 +1516,13 @@ static void build_key_table(void)
     }
 }
 
+/* The key that goes with Ctrl+Alt for control mode: the app's choice, or cabinplay.ini's. */
+static int toggle_vk(void)
+{
+    int vk = g_app_control_key;
+    return vk > 0 && vk < 0xFF ? vk : g_cfg_toggle_vk;
+}
+
 static int left_alt_only(void)
 {
     return (real_async_key(VK_LMENU) & 0x8000) && !(real_async_key(VK_RMENU) & 0x8000);
@@ -1598,7 +1618,7 @@ static void chord_scan(void)
             if (down && g_chord_scanning && !g_chord_prev[vk] && chord_starts(vk, 1, ctrl)) {
                 chord_hide(vk);
                 /* Ctrl+Alt+<control_key> is control mode, handled here in update_control. */
-                if (vk != VK_CONTROL && vk != (UINT)g_cfg_toggle_vk && shortcut_count < 4)
+                if (vk != VK_CONTROL && vk != (UINT)toggle_vk() && shortcut_count < 4)
                     shortcuts[shortcut_count++] = vk;
             }
             g_chord_prev[vk] = (uint8_t)down;
@@ -1671,6 +1691,83 @@ static int chord_message(UINT msg, WPARAM wp)
         return (g_chord_any || g_chord_scanning) && left_alt_only() && (real_async_key(VK_CONTROL) & 0x8000);
     default:
         return 0;
+    }
+}
+
+/* ---- scrolling while driving
+ *
+ * Outside control mode the mouse wheel can scroll what the CabinPlay screen shows (a page,
+ * the next short video) while the truck keeps going. Many players have the wheel on the
+ * retarder or the camera zoom, so by default only while Ctrl and left Alt are held; the app
+ * can make it left Alt, the wheel alone, or nothing (drive_wheel in the frame header). A
+ * wheel turn used for this is hidden from the game on every route it reads the mouse by. */
+
+enum { WHEEL_DI_STATE = 1, WHEEL_DI_DATA, WHEEL_RAW, WHEEL_MESSAGE };
+static const char *const WHEEL_ROUTE_NAME[] = {"", "DirectInput state", "DirectInput data", "raw input", "window message"};
+static volatile int g_app_drive_wheel; /* CABINPLAY_DRIVE_WHEEL_*, 0 for cabinplay.ini's */
+static volatile int g_screen_fitted;   /* the truck has a CabinPlay screen */
+static int g_wheel_route;              /* the route turns are counted from (see drive_wheel) */
+static ULONGLONG g_wheel_tick;
+static int g_wheel_logged;             /* routes already named in the log, one bit each */
+
+static int drive_wheel_mode(void)
+{
+    int mode = g_app_drive_wheel;
+    return mode >= CABINPLAY_DRIVE_WHEEL_CTRL_ALT && mode <= CABINPLAY_DRIVE_WHEEL_OFF ? mode : g_cfg_drive_wheel;
+}
+
+/* Whether a wheel turn now is for CabinPlay. */
+static int drive_wheel_now(void)
+{
+    if (g_control || !g_screen_fitted || !game_in_front() || !shared_valid() ||
+        GetTickCount64() - g_shared->heartbeat_ms > 3000)
+        return 0;
+    switch (drive_wheel_mode()) {
+    case CABINPLAY_DRIVE_WHEEL_CTRL_ALT:
+        return left_alt_only() && (real_async_key(VK_CONTROL) & 0x8000);
+    case CABINPLAY_DRIVE_WHEEL_ALT:
+        return left_alt_only();
+    case CABINPLAY_DRIVE_WHEEL_ALONE:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+/* A wheel turn the game is about to receive on one of its routes (WHEEL_*). Returns 1 when
+ * it is CabinPlay's and must not reach the game. The same turn can arrive on several routes,
+ * so it is counted only from the first route that had one, until the wheel rests a while.
+ * A peek (count 0) is hidden but not counted: the read that follows counts it. */
+static int drive_wheel(int route, long delta, int count)
+{
+    if (!delta || !drive_wheel_now())
+        return 0;
+    if (!count)
+        return 1;
+    ULONGLONG now = GetTickCount64();
+    EnterCriticalSection(&g_input_lock);
+    if (!g_wheel_route || g_wheel_route == route || now - g_wheel_tick > 1000) {
+        g_wheel_route = route;
+        g_wheel_tick = now;
+        push_event(CABINPLAY_EVENT_SCROLL, 0, 0, (int32_t)delta);
+    }
+    int first = !(g_wheel_logged & (1 << route));
+    g_wheel_logged |= 1 << route;
+    LeaveCriticalSection(&g_input_lock);
+    if (first)
+        logf_("scrolling while driving: the wheel comes through %s", WHEEL_ROUTE_NAME[route]);
+    return 1;
+}
+
+/* Outside control mode: takes the wheel out of a raw mouse record if it is CabinPlay's. The
+ * movement and buttons stay, since the mouse may be steering. */
+static void raw_drive_wheel(RAWINPUT *raw)
+{
+    if (raw->header.dwType != RIM_TYPEMOUSE || !(raw->data.mouse.usButtonFlags & RI_MOUSE_WHEEL))
+        return;
+    if (drive_wheel(WHEEL_RAW, (short)raw->data.mouse.usButtonData, 1)) {
+        raw->data.mouse.usButtonFlags &= (USHORT)~RI_MOUSE_WHEEL;
+        raw->data.mouse.usButtonData = 0;
     }
 }
 
@@ -2131,6 +2228,10 @@ static HRESULT di_state_common(di_state_fn original, void *dev, DWORD size, LPVO
         }
         LeaveCriticalSection(&g_input_lock);
         memset(data, 0, size);
+    } else if (kind == 1 && size >= sizeof(DIMOUSESTATE)) {
+        DIMOUSESTATE *m = (DIMOUSESTATE *)data;
+        if (m->lZ && drive_wheel(WHEEL_DI_STATE, m->lZ, 1))
+            m->lZ = 0;
     }
     return hr;
 }
@@ -2143,7 +2244,8 @@ static HRESULT di_data_common(di_data_fn original, void *dev, DWORD size, DIDEVI
     if (FAILED(hr) || !count)
         return hr;
     int chords = !g_control && items && *count && (g_chord_any || left_alt_only());
-    if (!g_control && g_di_pause_reads <= 0 && !chords)
+    int wheel = !g_control && items && *count && drive_wheel_mode() != CABINPLAY_DRIVE_WHEEL_OFF;
+    if (!g_control && g_di_pause_reads <= 0 && !chords && !wheel)
         return hr;
     int kind = device_kind(dev);
     if (!kind || size < sizeof(DIDEVICEOBJECTDATA) - sizeof(UINT_PTR))
@@ -2169,6 +2271,20 @@ static HRESULT di_data_common(di_data_fn original, void *dev, DWORD size, DIDEVI
             LeaveCriticalSection(&g_input_lock);
         }
         kept = 0;
+    } else if (kind == 1) {
+        if (!wheel)
+            return hr;
+        /* Drop the wheel turns that scroll CabinPlay. */
+        kept = 0;
+        for (DWORD i = 0; i < *count; i++) {
+            BYTE *d = (BYTE *)items + (size_t)i * size;
+            const DIDEVICEOBJECTDATA *o = (const DIDEVICEOBJECTDATA *)d;
+            if (o->dwOfs == DIMOFS_Z && drive_wheel(WHEEL_DI_DATA, (long)(int)o->dwData, !(flags & DIGDD_PEEK)))
+                continue;
+            if (kept != i)
+                memmove((BYTE *)items + (size_t)kept * size, d, size);
+            kept++;
+        }
     } else if (kind == 2) {
         if (g_control) {
             InterlockedIncrement(&g_routes.di_keyboard);
@@ -2335,6 +2451,9 @@ static UINT WINAPI hk_GetRawInputData(HRAWINPUT handle, UINT command, LPVOID dat
     if (!g_control && command == RID_INPUT && data && result != (UINT)-1 &&
         result >= sizeof(RAWINPUTHEADER) + sizeof(RAWKEYBOARD) && raw_chord((RAWINPUT *)data))
         blank_raw((RAWINPUT *)data);
+    if (!g_control && command == RID_INPUT && data && result != (UINT)-1 &&
+        result >= sizeof(RAWINPUTHEADER) + sizeof(RAWMOUSE))
+        raw_drive_wheel((RAWINPUT *)data);
     if (g_control && command == RID_INPUT && data && result != (UINT)-1 && result >= sizeof(RAWINPUTHEADER)) {
         RAWINPUT *raw = (RAWINPUT *)data;
         if (!raw_is_for_game(raw)) {
@@ -2357,6 +2476,7 @@ static UINT WINAPI hk_GetRawInputBuffer(PRAWINPUT data, PUINT size, UINT header)
         for (UINT i = 0; i < result; i++) {
             if (raw_chord(raw))
                 blank_raw(raw);
+            raw_drive_wheel(raw);
             raw = NEXTRAWINPUTBLOCK(raw);
         }
     }
@@ -2428,6 +2548,8 @@ static LRESULT CALLBACK hk_wndproc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp)
             return 0;
         }
     } else if (msg >= WM_KEYFIRST && msg <= WM_KEYLAST && chord_message(msg, wp)) {
+        return 0;
+    } else if (msg == WM_MOUSEWHEEL && drive_wheel(WHEEL_MESSAGE, GET_WHEEL_DELTA_WPARAM(wp), 1)) {
         return 0;
     }
     WNDPROC original = original_proc(wnd);
@@ -2508,7 +2630,7 @@ static void update_control(int allowed)
 {
     chord_scan();
     int down = (real_async_key(VK_CONTROL) & 0x8000) && (real_async_key(VK_MENU) & 0x8000) &&
-               (real_async_key(g_cfg_toggle_vk) & 0x8000);
+               (real_async_key(toggle_vk()) & 0x8000);
     int asked = control_requested();
     /* If the player closed the app from its settings, the same key brings it back. */
     if ((down && !g_toggle_was_down && !start_companion(1)) || asked)
@@ -2551,6 +2673,8 @@ static void pump(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx
     if (shared_valid()) {
         g_app_overlay_percent = g_shared->overlay_percent;
         g_app_cursor_speed = g_shared->cursor_speed;
+        g_app_drive_wheel = g_shared->drive_wheel;
+        g_app_control_key = g_shared->control_key;
     }
 
     for (int i = 0; i < MAX_ENTRIES; i++) {
@@ -2594,6 +2718,7 @@ static void pump(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx
      * (a menu, the pause key) does, so the game is never left without its keyboard. */
     int our_pause = g_we_paused || g_pause_want == 1;
     int usable = first_screen && screen_on && !(g_telemetry_ok && g_paused && !our_pause);
+    g_screen_fitted = first_screen != NULL;
     if (!first_screen) {
         update_control(0);
         g_control_reported = g_control || g_pause_want == 0 || (g_resume_on_exit && g_we_paused);
@@ -2929,7 +3054,7 @@ typedef struct scs_telemetry_init_params {
 
 enum { SCS_EVENT_PAUSED = 3, SCS_EVENT_STARTED = 4, SCS_EVENT_CONFIGURATION = 5 };
 enum { SCS_TYPE_BOOL = 1, SCS_TYPE_S32 = 2, SCS_TYPE_U32 = 3, SCS_TYPE_U64 = 4, SCS_TYPE_FLOAT = 5, SCS_TYPE_DOUBLE = 6,
-       SCS_TYPE_STRING = 12 };
+       SCS_TYPE_DPLACEMENT = 11, SCS_TYPE_STRING = 12 };
 enum { SCS_CHANNEL_ON_CHANGE = 0, SCS_CHANNEL_EACH_FRAME = 1 };
 
 static void __stdcall on_scs_event(uint32_t event, const void *info, void *context)
@@ -2956,6 +3081,21 @@ static void __stdcall on_scs_float(const char *name, uint32_t index, const scs_v
     (void)index;
     if (value && value->type == SCS_TYPE_FLOAT)
         *(volatile float *)context = value->v.f;
+}
+
+/* truck.world.placement: the position comes first, three doubles (x, y, z). */
+static void __stdcall on_scs_placement(const char *name, uint32_t index, const scs_value_t *value, void *context)
+{
+    (void)name;
+    (void)index;
+    (void)context;
+    if (!value || value->type != SCS_TYPE_DPLACEMENT)
+        return;
+    const double *p = (const double *)value->v.raw;
+    g_position[0] = p[0];
+    g_position[1] = p[1];
+    g_position[2] = p[2];
+    g_placed = 1;
 }
 
 static void __stdcall on_scs_u32(const char *name, uint32_t index, const scs_value_t *value, void *context)
@@ -3106,6 +3246,12 @@ static void register_vehicle_channels(const scs_telemetry_init_params_t *p)
                             (void *)&g_trailer_coupled);
     p->register_for_channel("trailer.0.connected", none, SCS_TYPE_BOOL, SCS_CHANNEL_ON_CHANGE, on_scs_bool,
                             (void *)&g_trailer_coupled);
+    /* the day / night look of the screen, and the place the weather card is about */
+    p->register_for_channel("truck.light.beam.low", none, SCS_TYPE_BOOL, SCS_CHANNEL_ON_CHANGE, on_scs_bool,
+                            (void *)&g_low_beam);
+    if (p->register_for_channel("truck.world.placement", none, SCS_TYPE_DPLACEMENT, SCS_CHANNEL_ON_CHANGE,
+                                on_scs_placement, NULL) != 0)
+        logf_("telemetry: no truck position, the weather card shows the job's cities only");
     if (p->register_for_event(SCS_EVENT_CONFIGURATION, on_scs_configuration, NULL) != 0)
         logf_("telemetry: no configuration events, truck and job details are unavailable");
 }
