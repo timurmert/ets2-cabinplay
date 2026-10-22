@@ -96,7 +96,7 @@ The **Browser** app opens any website: type an address or a search in the bar at
 
 - Euro Truck Simulator 2 **1.61**, Windows 10 or 11
 - No DLC needed
-- Single player: it does not work with TruckersMP
+- Works in single player and on TruckersMP
 - Fits 25 trucks; not the Renault E-Tech T
 
 ## Help and community

@@ -96,7 +96,7 @@ La vue **côte à côte** affiche deux apps en même temps, par exemple la carte
 
 - Euro Truck Simulator 2 **1.61**, Windows 10 ou 11
 - Aucun DLC requis
-- Solo uniquement : ne fonctionne pas avec TruckersMP
+- Fonctionne en solo et sur TruckersMP
 - Compatible avec 25 camions ; pas avec le Renault E-Tech T
 
 ## Aide et communauté

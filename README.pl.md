@@ -96,7 +96,7 @@ Widok **obok siebie** pokazuje dwie aplikacje naraz, na przykład mapę po lewej
 
 - Euro Truck Simulator 2 **1.61**, Windows 10 lub 11
 - Nie wymaga DLC
-- Tryb jednoosobowy: nie działa z TruckersMP
+- Działa w trybie jednoosobowym i na TruckersMP
 - Pasuje do 25 ciężarówek; nie do Renault E-Tech T
 
 ## Pomoc i społeczność

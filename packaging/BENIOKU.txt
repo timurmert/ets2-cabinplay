@@ -39,7 +39,7 @@ KULLANIM
 
 GEREKENLER
   Euro Truck Simulator 2 1.61, Windows 10 veya 11. DLC gerekmez.
-  Yalnızca tek oyunculu: TruckersMP ile çalışmaz.
+  Tek oyunculuda da TruckersMP'de de çalışır.
 
 YARDIM
   Discord sunucumuza katıl: https://discord.gg/hydrabon

@@ -96,7 +96,7 @@ Die App **Browser** öffnet jede Website: Gib oben in der Leiste eine Adresse od
 
 - Euro Truck Simulator 2 **1.61**, Windows 10 oder 11
 - Kein DLC nötig
-- Einzelspieler: funktioniert nicht mit TruckersMP
+- Funktioniert im Einzelspieler und auf TruckersMP
 - Passt in 25 Lkw; nicht in den Renault E-Tech T
 
 ## Hilfe und Community

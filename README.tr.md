@@ -96,7 +96,7 @@ Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, 
 
 - Euro Truck Simulator 2 **1.61**, Windows 10 veya 11
 - DLC gerekmez
-- Tek oyunculu: TruckersMP ile çalışmaz
+- Tek oyunculuda da TruckersMP'de de çalışır
 - 25 tıra uyar; Renault E-Tech T'ye uymaz
 
 ## Yardım ve topluluk

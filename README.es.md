@@ -96,7 +96,7 @@ La vista **en paralelo** muestra dos apps a la vez, por ejemplo el mapa a la izq
 
 - Euro Truck Simulator 2 **1.61**, Windows 10 u 11
 - No requiere DLC
-- Un jugador: no funciona con TruckersMP
+- Funciona en un jugador y en TruckersMP
 - Compatible con 25 camiones; no con el Renault E-Tech T
 
 ## Ayuda y comunidad
