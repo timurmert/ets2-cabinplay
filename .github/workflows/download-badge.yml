@@ -15,6 +15,12 @@ on:
 permissions:
   contents: write
 
+# One run at a time: two runs started together (a release edited and its file
+# uploaded) both force-push the badges branch and the later one is rejected.
+concurrency:
+  group: download-badge
+  cancel-in-progress: false
+
 jobs:
   badge:
     runs-on: ubuntu-latest
