@@ -27,7 +27,8 @@ internal sealed record Vehicle(
     float CargoMassKg, uint DeliveryTimeMin, uint PlannedDistanceKm, ulong Income,
     string TruckBrand, string TruckName, string TruckPlate, string TrailerName, string TrailerPlate,
     string Cargo, string SourceCity, string SourceCompany, string DestinationCity, string DestinationCompany,
-    string JobMarket, string SourceCityId, string DestinationCityId);
+    string JobMarket, string SourceCityId, string DestinationCityId,
+    bool LowBeam, bool Placed, double X, double Z); // X, Z: the truck in the game's world, metres
 
 internal readonly record struct GameState(
     bool Connected,   // the plugin is rendering frames right now
@@ -56,7 +57,7 @@ internal sealed unsafe class GameLink : IDisposable
     private const int EventsOffset = 64;
     private const int EventSize = 16;
     private const int VehicleOffset = EventsOffset + EventCapacity * EventSize; // CABINPLAY_VEHICLE_OFFSET
-    private const int VehicleSize = 632;
+    private const int VehicleSize = 656;
     private const int Size = VehicleOffset + VehicleSize;
 
     private const uint FlagTelemetry = 0x01, FlagPaused = 0x02, FlagElectric = 0x04, FlagMounted = 0x08,
@@ -65,7 +66,7 @@ internal sealed unsafe class GameLink : IDisposable
     // CABINPLAY_VEHICLE_*
     private const uint VehicleTruck = 0x01, VehicleEngine = 0x02, VehicleParkingBrake = 0x04, VehicleTrailer = 0x08,
                        VehicleTrailerCoupled = 0x10, VehicleJob = 0x20, VehicleCargoLoaded = 0x40,
-                       VehicleSpecial = 0x80, VehicleAts = 0x100;
+                       VehicleSpecial = 0x80, VehicleAts = 0x100, VehicleLowBeam = 0x200, VehiclePlaced = 0x400;
 
     private readonly MemoryMappedFile _file;
     private readonly MemoryMappedViewAccessor _view;
@@ -145,7 +146,8 @@ internal sealed unsafe class GameLink : IDisposable
             F(84), *(uint*)(v + 88), *(uint*)(v + 92), *(ulong*)(v + 96),
             Text(v + 104, 32), Text(v + 136, 48), Text(v + 184, 24), Text(v + 208, 48), Text(v + 256, 24),
             Text(v + 280, 64), Text(v + 344, 48), Text(v + 392, 48), Text(v + 440, 48), Text(v + 488, 48),
-            Text(v + 536, 32), Text(v + 568, 32), Text(v + 600, 32));
+            Text(v + 536, 32), Text(v + 568, 32), Text(v + 600, 32),
+            (flags & VehicleLowBeam) != 0, (flags & VehiclePlaced) != 0, *(double*)(v + 632), *(double*)(v + 648));
     }
 
     private static string Text(byte* p, int capacity)

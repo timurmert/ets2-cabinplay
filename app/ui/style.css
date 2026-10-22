@@ -242,6 +242,17 @@ svg.filled, svg .filled { fill: currentColor; stroke: none; }
 #day-name { font-size: 22px; font-weight: 650; }
 #day-date { font-size: 18px; font-weight: 600; color: var(--fg-dim); }
 
+/* the weather where the truck is, in the day card's place */
+#weather-card { padding: 9px 16px 9px 12px; display: flex; align-items: center; gap: 10px; }
+#wx-icon { width: 36px; flex: none; text-align: center; font-size: 30px; line-height: 1; }
+#wx-temp { min-width: 42px; flex: none; font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.wx-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.wx-text b { font-size: 16px; font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wx-text small { font-size: 13px; font-weight: 600; color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wx-clock { flex: none; display: flex; flex-direction: column; align-items: flex-end; }
+.wx-clock b { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.wx-clock small { font-size: 11px; font-weight: 650; letter-spacing: .4px; text-transform: uppercase; color: var(--fg-dim); white-space: nowrap; }
+
 /* news about an update, in the day card's place */
 #update-card { padding: 10px 10px 10px 14px; display: flex; align-items: center; gap: 12px; }
 #upd-icon { width: 40px; height: 40px; flex: none; border-radius: 12px; display: grid; place-items: center; background: var(--accent); }
@@ -447,6 +458,13 @@ svg.filled, svg .filled { fill: currentColor; stroke: none; }
 #binds { padding-right: 8px; }
 /* the option boxes and the shortcut table scroll as one */
 .tab[data-tab="controls"] { overflow-y: auto; padding-right: 4px; }
+/* General has the most rows: a little tighter, the error report's note beside its button,
+   and should a language's longer words still not fit, it scrolls */
+.tab[data-tab="general"] { overflow-y: auto; }
+.tab[data-tab="general"] .setting { padding: 5px 0; }
+.tab[data-tab="general"] .setting small { font-size: 12px; line-height: 1.3; }
+.tab[data-tab="general"] .tab-actions { align-items: center; padding-top: 8px; }
+.tab[data-tab="general"] .tab-actions .sheet-note { flex: 1; min-width: 0; margin: 0; font-size: 12px; line-height: 1.3; }
 .bind { padding: 4px 0; border-top: 1px solid rgba(255, 255, 255, .08); font-size: 16px; font-weight: 600; }
 .bind .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bind-key, .bind-pad {
@@ -773,3 +791,142 @@ body.split #truck-side { width: auto; flex: 1; }
 .site:hover .site-remove { display: grid; }
 .site-remove:hover { background: #ff453a; }
 #browser-hint { margin-top: 14px; font-size: 14px; font-weight: 600; color: var(--fg-dim); }
+
+/* ---------------------------------------------------------------- day look
+
+   Everything above is the night look. By day (the low beam off, or picked in Settings >
+   General) body carries data-theme="light" and these take over: light backgrounds and
+   cards, dark writing. The map key colour is never touched. */
+
+body[data-theme="light"] {
+  --fg: #16161a;
+  --fg-dim: rgba(28, 28, 34, .6);
+  --card: rgba(255, 255, 255, .74);
+  --card-border: rgba(0, 0, 0, .07);
+}
+
+/* the built-in backgrounds by day, on the screen and on their tiles in Settings */
+[data-theme="light"][data-wall="aurora"], [data-theme="light"] [data-wall="aurora"] {
+  background:
+    radial-gradient(51% 74% at 78% 18%, rgba(94, 92, 230, .26), transparent 70%),
+    radial-gradient(45% 70% at 30% 92%, rgba(10, 132, 255, .20), transparent 70%),
+    radial-gradient(41% 59% at 96% 96%, rgba(191, 90, 242, .20), transparent 70%),
+    linear-gradient(140deg, #eef0ff 0%, #f3efff 55%, #fbeefa 100%);
+}
+[data-theme="light"][data-wall="dusk"], [data-theme="light"] [data-wall="dusk"] {
+  background:
+    radial-gradient(55% 80% at 82% 12%, rgba(255, 149, 0, .28), transparent 70%),
+    radial-gradient(48% 74% at 18% 94%, rgba(255, 45, 85, .20), transparent 70%),
+    linear-gradient(140deg, #fff4e8 0%, #ffeef1 55%, #fdeae4 100%);
+}
+[data-theme="light"][data-wall="forest"], [data-theme="light"] [data-wall="forest"] {
+  background:
+    radial-gradient(52% 76% at 76% 16%, rgba(48, 209, 88, .22), transparent 70%),
+    radial-gradient(46% 72% at 22% 92%, rgba(100, 210, 255, .20), transparent 70%),
+    linear-gradient(140deg, #e8f6ee 0%, #eef8f2 55%, #e9f4ea 100%);
+}
+[data-theme="light"][data-wall="ocean"], [data-theme="light"] [data-wall="ocean"] {
+  background:
+    radial-gradient(54% 78% at 80% 14%, rgba(100, 210, 255, .30), transparent 70%),
+    radial-gradient(46% 72% at 24% 94%, rgba(10, 132, 255, .20), transparent 70%),
+    linear-gradient(140deg, #e7f3ff 0%, #eaf3fd 55%, #e5eefa 100%);
+}
+[data-theme="light"][data-wall="graphite"], [data-theme="light"] [data-wall="graphite"] {
+  background:
+    radial-gradient(60% 90% at 80% 10%, rgba(255, 255, 255, .7), transparent 70%),
+    linear-gradient(140deg, #efeff2 0%, #e6e6eb 55%, #f4f4f6 100%);
+}
+/* the user's own picture under a light veil, so dark writing stays readable */
+[data-theme="light"][data-wall="photo"] {
+  background:
+    linear-gradient(rgba(255, 255, 255, .38), rgba(255, 255, 255, .38)),
+    #fff var(--photo, none) center / cover no-repeat;
+}
+
+/* white on a colour stays white */
+[data-theme="light"] #upd-icon, [data-theme="light"] .update-now, [data-theme="light"] .sheet-actions button,
+[data-theme="light"] .tab-actions button, [data-theme="light"] .split-actions button,
+[data-theme="light"] .dropdown-list button.on, [data-theme="light"] .site-mark:not(.logo) { color: #fff; }
+[data-theme="light"] .sheet button.quiet, [data-theme="light"] .split-actions button.quiet { color: var(--fg); background: rgba(0, 0, 0, .07); }
+[data-theme="light"] .sheet button.danger { background: rgba(255, 59, 48, .12); color: #d70015; }
+
+/* dock */
+[data-theme="light"] #dock { background: rgba(250, 250, 252, .84); border-right-color: rgba(0, 0, 0, .08); }
+[data-theme="light"] .dock-close { background: #e5e5ea; border-color: rgba(255, 255, 255, .9); color: #1c1c1e; box-shadow: 0 2px 6px rgba(0, 0, 0, .18); }
+[data-theme="light"] .dock-close:hover { background: #ff453a; color: #fff; }
+[data-theme="light"] .dock-app { box-shadow: 0 4px 12px rgba(0, 0, 0, .16); }
+[data-theme="light"] .dock-app.active { outline-color: #16161a; }
+[data-theme="light"] .dock-app.playing::after { border-color: rgba(255, 255, 255, .85); }
+[data-theme="light"] .dock-btn, [data-theme="light"] .dock-seg { color: rgba(0, 0, 0, .78); background: rgba(0, 0, 0, .06); }
+[data-theme="light"] .dock-btn:hover { background: rgba(0, 0, 0, .10); }
+[data-theme="light"] .dock-seg button { color: rgba(0, 0, 0, .8); }
+[data-theme="light"] .dock-seg button:hover { background: rgba(0, 0, 0, .06); }
+[data-theme="light"] .dock-seg button:active { background: rgba(0, 0, 0, .12); }
+[data-theme="light"] .dock-seg button:disabled { color: rgba(0, 0, 0, .22); }
+[data-theme="light"] .dock-seg button.on { background: rgba(0, 0, 0, .14); }
+[data-theme="light"] .seg-line { background: rgba(0, 0, 0, .12); }
+[data-theme="light"] #link-dot { background: #aeaeb2; }
+
+/* home */
+[data-theme="light"] .card { box-shadow: 0 8px 24px rgba(0, 0, 0, .08); }
+[data-theme="light"] #np-art { box-shadow: 0 6px 16px rgba(0, 0, 0, .16); color: #fff; }
+[data-theme="light"] .np-progress { background: rgba(0, 0, 0, .12); }
+[data-theme="light"] #np-bar { background: #16161a; }
+[data-theme="light"] .np-controls button:hover, [data-theme="light"] #upd-close:hover { background: rgba(0, 0, 0, .07); }
+[data-theme="light"] .app-icon { box-shadow: 0 8px 20px rgba(0, 0, 0, .16); }
+[data-theme="light"] .app-name { text-shadow: none; }
+
+/* maps and mirrors: the cards over the game's picture are solid, so they turn white */
+[data-theme="light"] .map-card, [data-theme="light"] #mirror-name, [data-theme="light"] .mirror-tile span { background: #fff; border-color: #d1d1d6; }
+[data-theme="light"] #map-status, [data-theme="light"] #mirror-note { color: #6e6e73; }
+[data-theme="light"] #mirrors, [data-theme="light"] #mirror-status { background: #e9e9ee; color: #6e6e73; }
+[data-theme="light"] #mirror-title, [data-theme="light"] #mirror-hint { color: var(--fg); }
+
+/* settings */
+[data-theme="light"] #settings { background: rgba(255, 255, 255, .42); }
+[data-theme="light"] .sheet { background: rgba(248, 248, 250, .97); box-shadow: 0 20px 60px rgba(0, 0, 0, .18); }
+[data-theme="light"] .tabs, [data-theme="light"] .choice { background: rgba(0, 0, 0, .06); }
+[data-theme="light"] .tabs button.on, [data-theme="light"] .choice button.on { background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .14); }
+[data-theme="light"] .setting, [data-theme="light"] .bind { border-color: rgba(0, 0, 0, .08); }
+[data-theme="light"] .dropdown-button, [data-theme="light"] .dropdown-list { background: #fff; }
+[data-theme="light"] .dropdown-list { box-shadow: 0 12px 30px rgba(0, 0, 0, .16); }
+[data-theme="light"] .dropdown-list button:hover { background: rgba(0, 0, 0, .06); }
+[data-theme="light"] .sheet ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, .2); }
+[data-theme="light"] .wall.on { outline-color: #16161a; }
+[data-theme="light"] .wall.add { background: rgba(0, 0, 0, .05); }
+[data-theme="light"] .wall.add:hover { background: rgba(0, 0, 0, .09); }
+[data-theme="light"] .wall-remove, [data-theme="light"] .site-remove { background: #e5e5ea; }
+[data-theme="light"] .wall-remove:hover, [data-theme="light"] .site-remove:hover { background: #ff453a; color: #fff; }
+[data-theme="light"] .ctl-group { background: rgba(0, 0, 0, .035); border-color: rgba(0, 0, 0, .06); }
+[data-theme="light"] .stepper button, [data-theme="light"] .bind-key, [data-theme="light"] .bind-pad { background: rgba(0, 0, 0, .06); }
+[data-theme="light"] .stepper button:hover, [data-theme="light"] .bind-key:hover, [data-theme="light"] .bind-pad:hover { background: rgba(0, 0, 0, .10); }
+[data-theme="light"] .stepper input::-webkit-slider-runnable-track { background: rgba(0, 0, 0, .14); }
+[data-theme="light"] .stepper input::-webkit-slider-thumb { box-shadow: 0 1px 4px rgba(0, 0, 0, .35); }
+[data-theme="light"] kbd { background: rgba(0, 0, 0, .08); }
+
+/* side by side */
+[data-theme="light"] #split-line { background: #d1d1d6; }
+[data-theme="light"] .split-app:hover { background: rgba(0, 0, 0, .06); }
+[data-theme="light"] .split-app.on { background: rgba(0, 0, 0, .09); outline-color: #16161a; }
+[data-theme="light"] .split-app svg { box-shadow: 0 4px 12px rgba(0, 0, 0, .16); }
+
+/* truck */
+[data-theme="light"] .chip { background: rgba(0, 0, 0, .06); }
+[data-theme="light"] #rig [data-part] { stroke: #3a3a40; }
+[data-theme="light"] #rig-trailer.absent [data-part] { stroke: rgba(0, 0, 0, .25); }
+[data-theme="light"] #truck.offline #rig [data-part] { fill: #d1d1d6; }
+[data-theme="light"] .damage .bar, [data-theme="light"] .fuel-bar { background: rgba(0, 0, 0, .08); }
+[data-theme="light"] .job-route::before { border-left-color: rgba(0, 0, 0, .25); }
+[data-theme="light"] .pin { background: #fff; }
+
+/* browser */
+[data-theme="light"] #browser-bar { background: #f7f7f9; border-bottom-color: rgba(0, 0, 0, .08); }
+[data-theme="light"] #browser-bar button { color: rgba(0, 0, 0, .78); }
+[data-theme="light"] #browser-bar button:hover { background: rgba(0, 0, 0, .07); }
+[data-theme="light"] #browser-bar button:active { background: rgba(0, 0, 0, .12); }
+[data-theme="light"] #browser-bar button:disabled { color: rgba(0, 0, 0, .22); }
+[data-theme="light"] #bar-star.on { color: #f5b400; }
+[data-theme="light"] #bar-address { background: rgba(0, 0, 0, .06); }
+[data-theme="light"] #bar-address:focus { background: #fff; }
+[data-theme="light"] .site:hover { background: rgba(255, 255, 255, .95); }
+[data-theme="light"] .site-mark.logo { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .08); }

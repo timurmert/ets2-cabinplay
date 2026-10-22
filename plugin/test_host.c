@@ -482,6 +482,26 @@ int main(int argc, char **argv)
     check(vehicle && near_((int)vehicle->fuel_l, 350, 0) && near_((int)(vehicle->wear_engine * 100), 25, 0) &&
               near_((int)(vehicle->trailer_wear_body * 100), 50, 0) && !strcmp(vehicle->trailer_name, "Curtainsider"),
           "fuel, wear and trailer passed on");
+    check(vehicle && !(vehicle->flags & (CABINPLAY_VEHICLE_LOW_BEAM | CABINPLAY_VEHICLE_PLACED)),
+          "no low beam and no position until the game says so");
+    send_bool("truck.light.beam.low", 1);
+    {
+        value_t v;
+        memset(&v, 0, sizeof(v));
+        v.type = 11; /* dplacement: x, y, z as doubles, then the heading */
+        const double where[3] = {-31140.5, 52.25, -5505.75};
+        memcpy(v.v.raw, where, sizeof(where));
+        for (int i = 0; i < g_channel_count; i++)
+            if (!strcmp(g_channels[i].name, "truck.world.placement"))
+                g_channels[i].cb("truck.world.placement", 0xFFFFFFFFu, &v, g_channels[i].context);
+    }
+    present(hdr, 1);
+    check(vehicle && (vehicle->flags & CABINPLAY_VEHICLE_LOW_BEAM) && (vehicle->flags & CABINPLAY_VEHICLE_PLACED) &&
+              vehicle->position_x == -31140.5 && vehicle->position_z == -5505.75,
+          "low beam and the truck's position passed on");
+    send_bool("truck.light.beam.low", 0);
+    present(hdr, 1);
+    check(vehicle && !(vehicle->flags & CABINPLAY_VEHICLE_LOW_BEAM), "and the low beam going off");
     char long_name[200] = "";
     for (int i = 0; i < 70; i++)
         strcat(long_name, "ğ"); /* two bytes each */
@@ -830,6 +850,35 @@ int main(int argc, char **argv)
         hdr->drive_wheel = 0;
         present(hdr, 2);
         #undef SCROLLS
+    }
+
+    printf("control mode on a key chosen in the app\n");
+    {
+        hdr->control_key = 'V';
+        present(hdr, 1);
+        hold(VK_LMENU, 1);
+        hold(VK_LCONTROL, 1);
+        present(hdr, 1);
+        uint32_t from = state->event_write;
+        hold('C', 1);
+        present(hdr, 2);
+        check(state && !(state->flags & CABINPLAY_STATE_CONTROL) && count_events(state, from, CABINPLAY_EVENT_SHORTCUT, 0) >= 1,
+              "Ctrl+Alt+C is then an ordinary shortcut");
+        hold('C', 0);
+        present(hdr, 1);
+        hold('V', 1);
+        present(hdr, 2);
+        check(state && (state->flags & CABINPLAY_STATE_CONTROL), "and Ctrl+Alt+V opens control mode");
+        hold('V', 0);
+        present(hdr, 1);
+        hold('V', 1);
+        present(hdr, 2);
+        hold('V', 0);
+        hold(VK_LCONTROL, 0);
+        hold(VK_LMENU, 0);
+        hdr->control_key = 0;
+        present(hdr, 200); /* let the pause attempt of that control session run out */
+        check(state && !(state->flags & CABINPLAY_STATE_CONTROL), "the same keys close it");
     }
 
     printf("leaving control mode with Esc\n");

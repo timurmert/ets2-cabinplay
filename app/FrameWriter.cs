@@ -23,6 +23,7 @@ internal sealed unsafe class FrameWriter : IDisposable
     private const int ControlRequestsOffset = 48;
     private const int ControlOptionsOffset = 52; // overlay_percent, cursor_speed: 2 x ushort
     private const int DriveWheelOffset = 56;     // drive_wheel: byte
+    private const int ControlKeyOffset = 57;     // control_key: byte
 
     private readonly MemoryMappedFile _file;
     private readonly MemoryMappedViewAccessor _view;
@@ -99,10 +100,11 @@ internal sealed unsafe class FrameWriter : IDisposable
 
     /// <summary>
     /// Control mode's screen size (percent of the game's width) and cursor speed (percent),
-    /// and what makes the wheel scroll the screen while driving (1 Ctrl+Alt, 2 Alt, 3 the
-    /// wheel alone, 4 never); 0 leaves the plugin's own setting from cabinplay.ini.
+    /// what makes the wheel scroll the screen while driving (1 Ctrl+Alt, 2 Alt, 3 the wheel
+    /// alone, 4 never) and the key that opens control mode with Ctrl+Alt; 0 leaves the
+    /// plugin's own setting from cabinplay.ini.
     /// </summary>
-    public void SetControlOptions(int overlayPercent, int cursorSpeed, int driveWheel)
+    public void SetControlOptions(int overlayPercent, int cursorSpeed, int driveWheel, int controlKey)
     {
         lock (_gate)
         {
@@ -111,6 +113,7 @@ internal sealed unsafe class FrameWriter : IDisposable
             *(ushort*)(_base + ControlOptionsOffset) = (ushort)overlayPercent;
             *(ushort*)(_base + ControlOptionsOffset + 2) = (ushort)cursorSpeed;
             *(_base + DriveWheelOffset) = (byte)driveWheel;
+            *(_base + ControlKeyOffset) = (byte)controlKey;
         }
     }
 

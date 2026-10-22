@@ -222,6 +222,7 @@ internal sealed class MainForm : Form
             _icons.Changed += () => BeginInvoke(PushConfig);
             core.SetVirtualHostNameToFolderMapping(SiteIcons.Host, _icons.Folder, CoreWebView2HostResourceAccessKind.Allow);
             core.WebMessageReceived += OnShellMessage;
+            ApplyTheme();
             _shell.ZoomFactor = PixelZoom;
             await PrepareForInjectedInputAsync(core);
             string query = _startApp is null ? "" : "?open=" + Uri.EscapeDataString(_startApp);
@@ -294,6 +295,72 @@ internal sealed class MainForm : Form
         foreach (AppView app in _apps.Values)
             ApplyZoom(app);
         LayoutViews();
+    }
+
+    // ---- day and night
+    //
+    // Settings > General > Appearance: dark (as CabinPlay always was, and the default), light,
+    // or automatic, like a car's screen: dark at night, which is while the low beam is on. The
+    // parking lights alone are not enough, and neither is the high beam (a flash of it
+    // included): the game reports the low beam on its own. With light or automatic the sites
+    // are told which colour scheme to prefer; with dark they follow Windows, as before.
+
+    private static readonly string[] ThemeModes = { "dark", "light", "auto" };
+    private string ThemeMode => (string?)_settings["theme"] is string m && ThemeModes.Contains(m) ? m : "dark";
+    private bool _night = true;
+    private CoreWebView2PreferredColorScheme? _scheme; // the one the sites were last told
+    private long _beamOffSince; // the low beam went off while it was night; 0 while it is on
+
+    /// <summary>How long the night look stays after the low beam goes off: stepping through the
+    /// light switch passes "off" on its way round, and should not flash the screen.</summary>
+    private const int BeamOffGraceMs = 1500;
+
+    private void UpdateTheme(Vehicle? vehicle)
+    {
+        bool night = ThemeMode switch
+        {
+            "dark" => true,
+            "light" => false,
+            _ => AutoNight(vehicle?.LowBeam ?? false),
+        };
+        _night = night;
+        ApplyTheme();
+    }
+
+    private bool AutoNight(bool lowBeam)
+    {
+        if (lowBeam)
+        {
+            _beamOffSince = 0;
+            return true;
+        }
+        if (!_night)
+            return false;
+        long now = Environment.TickCount64;
+        if (_beamOffSince == 0)
+            _beamOffSince = now;
+        return now - _beamOffSince < BeamOffGraceMs;
+    }
+
+    /// <summary>The sites' side of it; the shell's comes with the state (see PushStateAsync).</summary>
+    private void ApplyTheme()
+    {
+        CoreWebView2PreferredColorScheme scheme = ThemeMode == "dark" ? CoreWebView2PreferredColorScheme.Auto
+            : _night ? CoreWebView2PreferredColorScheme.Dark : CoreWebView2PreferredColorScheme.Light;
+        if (scheme == _scheme)
+            return;
+        try
+        {
+            if (_shell.CoreWebView2 is { } core)
+            {
+                core.Profile.PreferredColorScheme = scheme;
+                _scheme = scheme;
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Write("colour scheme not set: " + ex.Message);
+        }
     }
 
     // ---- YouTube Shorts on a screen 466 pixels high
@@ -519,6 +586,15 @@ internal sealed class MainForm : Form
                 case "drive-wheel":
                     SetDriveWheel((string?)msg!["mode"]);
                     return;
+                case "theme":
+                    if ((string?)msg!["mode"] is string mode && ThemeModes.Contains(mode))
+                    {
+                        _settings["theme"] = mode;
+                        SaveSettings();
+                        UpdateTheme(_game?.Read().Connected == true ? _game.ReadVehicle() : null);
+                        PushConfig();
+                    }
+                    break; // the state carries the new look
                 case "fit-shorts":
                     _settings["fitShorts"] = (bool?)msg!["on"] ?? true;
                     SaveSettings();
@@ -815,8 +891,10 @@ internal sealed class MainForm : Form
         if (_game is not null)
         {
             GameState g = _game.Read();
-            _watch.Update(g, g.Connected ? _game.ReadVehicle() : null);
+            Vehicle? vehicle = g.Connected ? _game.ReadVehicle() : null;
+            _watch.Update(g, vehicle);
             UpdateNotice();
+            UpdateTheme(vehicle);
         }
         // The game state (speed, route) is cheap and refreshed every tick; asking the
         // page about its player is not, so that happens once a second.
@@ -886,6 +964,7 @@ internal sealed class MainForm : Form
             var state = new JsonObject
             {
                 ["type"] = "state",
+                ["theme"] = _night ? "dark" : "light",
                 ["active"] = _activeId,
                 ["view"] = _shellView,
                 ["split"] = _split is { } pair ? new JsonArray(pair.Left, pair.Right) : null,
@@ -969,6 +1048,8 @@ internal sealed class MainForm : Form
             ["waterTemperature"] = Math.Round(v.WaterTemperatureC),
             ["battery"] = Math.Round(v.BatteryVoltage, 1),
             ["currency"] = v.Dollars ? "USD" : "EUR",
+            // where the truck is in the game's world, for the weather card (Europe's map only)
+            ["place"] = v.Placed && !v.Dollars ? new JsonObject { ["x"] = Math.Round(v.X), ["z"] = Math.Round(v.Z) } : null,
             ["wear"] = new JsonObject
             {
                 ["cabin"] = Percent(v.WearCabin),
@@ -1461,9 +1542,9 @@ internal sealed class MainForm : Form
 
     /// <summary>
     /// What a shortcut can do, with the key that goes with Ctrl+Alt unless the user picked
-    /// another. Control mode's key is the plugin's own (control_key in cabinplay.ini); here
-    /// it can only be put on a controller button. Keep the list the same as ACTIONS in
-    /// ui/shell.js.
+    /// another. Control mode's key is handed to the plugin, which watches for it while the
+    /// game is in front (with nothing picked it uses control_key in cabinplay.ini). Keep the
+    /// list the same as ACTIONS in ui/shell.js.
     /// </summary>
     private static readonly (string Action, Keys Key)[] Actions =
     {
@@ -1481,7 +1562,7 @@ internal sealed class MainForm : Form
         ("split-swap", Keys.X),
         ("scroll-up", Keys.None),   // no key of their own: the arrows are taken
         ("scroll-down", Keys.None),
-        ("control", Keys.None),
+        ("control", Keys.C),
     };
 
     /// <summary>How far a scroll shortcut goes: three notches of the wheel, one short video.</summary>
@@ -1505,7 +1586,8 @@ internal sealed class MainForm : Form
         {
             JsonObject? b = saved?[action] as JsonObject;
             int vk = b?["key"] is JsonValue v && v.TryGetValue(out int n) ? n : (int)key;
-            _keys[action] = action != "control" && (vk == 0 || IsBindableKey(vk)) ? vk : (int)key;
+            // control mode always has a key
+            _keys[action] = (vk == 0 && action != "control") || IsBindableKey(vk) ? vk : (int)key;
             if (b?["pad"] is JsonObject p)
             {
                 _pads[action] = (new PadButton((int?)p["vendor"] ?? 0, (int?)p["product"] ?? 0, (int?)p["button"] ?? 0),
@@ -1536,8 +1618,10 @@ internal sealed class MainForm : Form
 
     private void BindKey(string? action, int vk)
     {
-        // C stays control mode's: the plugin takes it before any shortcut.
-        if (!IsAction(action) || action == "control" || vk == 'C' || (vk != 0 && !IsBindableKey(vk)))
+        // Control mode's key stays its own (the plugin takes it before any shortcut), and
+        // control mode always keeps one.
+        if (!IsAction(action) || (vk != 0 && !IsBindableKey(vk)) || (action == "control" && vk == 0) ||
+            (action != "control" && vk == _keys.GetValueOrDefault("control")))
             return;
         // One key, one action: whoever had it loses it.
         foreach (string other in _keys.Keys.ToArray())
@@ -1548,6 +1632,7 @@ internal sealed class MainForm : Form
         _keys[action!] = vk;
         SaveBindings();
         RegisterHotkeys();
+        ApplyControlOptions();
         PushConfig();
     }
 
@@ -1576,6 +1661,7 @@ internal sealed class MainForm : Form
         LoadBindings();
         SaveBindings();
         RegisterHotkeys();
+        ApplyControlOptions();
         PushConfig();
     }
 
@@ -1617,7 +1703,9 @@ internal sealed class MainForm : Form
         for (int i = 0; i < Actions.Length; i++)
         {
             UnregisterHotKey(Handle, i);
-            int vk = _keys.GetValueOrDefault(Actions[i].Action);
+            // Control mode only means something while the game is in front, where the plugin
+            // watches for its key; taking it from every other program would be for nothing.
+            int vk = Actions[i].Action == "control" ? 0 : _keys.GetValueOrDefault(Actions[i].Action);
             if (vk != 0 && !RegisterHotKey(Handle, i, ModControl | ModAlt | ModNoRepeat, (uint)vk))
                 Log.Write($"hotkey Ctrl+Alt+{(Keys)vk} is taken by another program");
         }
@@ -1643,7 +1731,8 @@ internal sealed class MainForm : Form
     {
         foreach ((string action, int key) in _keys)
         {
-            if (key == vk && vk != 0)
+            // control mode's own key the plugin handles itself
+            if (key == vk && vk != 0 && action != "control")
             {
                 RunHotkey(action);
                 return;
@@ -1717,6 +1806,7 @@ internal sealed class MainForm : Form
                 ["update"] = _updater?.ToJson(),
                 ["gameNotices"] = _watch.InGameEnabled,
                 ["fitShorts"] = FitShorts,
+                ["theme"] = ThemeMode,
                 ["icons"] = new JsonObject((_icons?.Addresses() ?? new())
                     .Select(i => KeyValuePair.Create(i.Key, (JsonNode?)i.Value))),
                 ["control"] = new JsonObject
@@ -1853,7 +1943,7 @@ internal sealed class MainForm : Form
     /// <summary>Hands them to the plugin; unset, it keeps the ones in cabinplay.ini.</summary>
     private void ApplyControlOptions() =>
         _writer?.SetControlOptions((int?)_settings["overlaySize"] ?? 0, (int?)_settings["cursorSpeed"] ?? 0,
-            Array.IndexOf(DriveWheelModes, (string?)_settings["driveWheel"]) + 1);
+            Array.IndexOf(DriveWheelModes, (string?)_settings["driveWheel"]) + 1, _keys.GetValueOrDefault("control"));
 
     // ------------------------------------------------------------------ window placement
 

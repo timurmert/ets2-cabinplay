@@ -5,7 +5,7 @@
 <title>CabinPlay</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<body data-wall="aurora">
+<body data-wall="aurora" data-theme="dark">
 
 <!-- Texts are filled in by shell.js from i18n.js: data-i18n sets the content,
      data-i18n-title the tooltip. -->
@@ -59,6 +59,13 @@
     <div id="day-card" class="card">
       <div id="day-name"></div>
       <div id="day-date"></div>
+    </div>
+    <!-- In the day's place while the game says where the truck is (layoutWeather in shell.js). -->
+    <div id="weather-card" class="card" hidden>
+      <div id="wx-icon"></div>
+      <div id="wx-temp"></div>
+      <div class="wx-text"><b id="wx-place"></b><small id="wx-sky"></small></div>
+      <div class="wx-clock"><b id="wx-time"></b><small data-i18n="wxGameTime"></small></div>
     </div>
     <!-- Takes the day's place while there is news about an update (shell.js). -->
     <div id="update-card" class="card" hidden>
@@ -247,14 +254,15 @@
         <span id="settings-updates" class="choice"><button data-value="auto" data-i18n="updatesOn"></button><button data-value="ask" data-i18n="updatesAsk"></button><button data-value="off" data-i18n="updatesOff"></button></span></div>
       <div class="setting"><span class="setting-text"><span data-i18n="noticesSetting"></span><small data-i18n="noticesHint"></small></span>
         <span id="settings-notices" class="choice"><button data-value="on" data-i18n="noticesOn"></button><button data-value="off" data-i18n="noticesOff"></button></span></div>
+      <div class="setting"><span class="setting-text"><span data-i18n="themeSetting"></span><small data-i18n="themeHint"></small></span>
+        <span id="settings-theme" class="choice"><button data-value="dark" data-i18n="themeDark"></button><button data-value="light" data-i18n="themeLight"></button><button data-value="auto" data-i18n="themeAuto"></button></span></div>
       <div class="setting"><span class="setting-text"><span data-i18n="fitShortsSetting"></span><small data-i18n="fitShortsHint"></small></span>
         <span id="settings-fit-shorts" class="choice"><button data-value="on" data-i18n="fitOn"></button><button data-value="off" data-i18n="fitOff"></button></span></div>
-      <p data-i18n="hint"></p>
       <div class="tab-actions">
         <button id="settings-diagnostics" class="quiet" data-i18n="diagnostics"></button>
         <button id="settings-quit" class="danger" data-i18n="quit"></button>
+        <p class="sheet-note" data-i18n="diagnosticsHint"></p>
       </div>
-      <p class="sheet-note" data-i18n="diagnosticsHint"></p>
     </div>
     <!-- Backgrounds: the built-in ones and the user's own pictures, filled in by shell.js. -->
     <div class="tab" data-tab="background" hidden>
@@ -283,6 +291,7 @@
       <div class="bind-head"><span data-i18n="ctlAction"></span><span data-i18n="ctlKeyboard"></span><span data-i18n="ctlController"></span></div>
       <div id="binds"></div>
       <p data-i18n="ctlHint"></p>
+      <p data-i18n="hint"></p>
     </div>
     <div class="sheet-actions">
       <button id="settings-reset" class="quiet" data-i18n="ctlReset" hidden></button>
@@ -294,6 +303,8 @@
 <script src="i18n.js"></script>
 <script src="apps.js"></script>
 <script src="places.js"></script>
+<script src="cities.js"></script>
+<script src="weather.js"></script>
 <script src="shell.js"></script>
 </body>
 </html>

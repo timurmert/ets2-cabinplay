@@ -41,7 +41,8 @@ _Static_assert(offsetof(cabinplay_vehicle_t, truck_brand) == 104, "vehicle layou
 _Static_assert(offsetof(cabinplay_vehicle_t, cargo) == 280, "vehicle layout");
 _Static_assert(offsetof(cabinplay_vehicle_t, job_market) == 536, "vehicle layout");
 _Static_assert(offsetof(cabinplay_vehicle_t, source_city_id) == 568, "vehicle layout");
-_Static_assert(sizeof(cabinplay_vehicle_t) == 632, "vehicle size");
+_Static_assert(offsetof(cabinplay_vehicle_t, position_x) == 632, "vehicle layout");
+_Static_assert(sizeof(cabinplay_vehicle_t) == 656, "vehicle size");
 
 /* Where the plugin and the app leave each other their locations. */
 #define REGISTRY_KEY L"Software\\CabinPlay"
@@ -187,7 +188,9 @@ static volatile uint32_t g_game_time;
 /* truck, trailer and job: numbers straight from the channels, strings from the
  * configuration events; copied to the app in publish_vehicle */
 static cabinplay_vehicle_t g_vehicle;
-static volatile int g_engine_on, g_parking_brake, g_trailer_coupled;
+static volatile int g_engine_on, g_parking_brake, g_trailer_coupled, g_low_beam;
+static volatile double g_position[3]; /* truck.world.placement, copied to the app in publish_vehicle */
+static volatile int g_placed;
 static int g_have_truck, g_have_trailer, g_have_job, g_job_loaded, g_job_special;
 static int g_is_ats;
 
@@ -215,6 +218,7 @@ static int g_arrow_frames;         /* how long an arrow key has been held (keybo
 static int g_cfg_enabled = 1;
 static int g_cfg_flip_v = 0;
 static int g_cfg_toggle_vk = 'C';
+static volatile int g_app_control_key; /* control mode's key as chosen in the app, 0 for cabinplay.ini's */
 static int g_cfg_cursor_speed = 100; /* percent */
 static int g_cfg_overlay_percent = 60;
 static int g_cfg_backdrop = 0; /* behind control mode: 0 the game's picture as it paused, 1 black, 2 the live game, dimmed */
@@ -1328,7 +1332,12 @@ static void publish_vehicle(void)
     if (g_have_job && g_job_loaded) flags |= CABINPLAY_VEHICLE_CARGO_LOADED;
     if (g_have_job && g_job_special) flags |= CABINPLAY_VEHICLE_SPECIAL;
     if (g_is_ats) flags |= CABINPLAY_VEHICLE_ATS;
+    if (g_low_beam) flags |= CABINPLAY_VEHICLE_LOW_BEAM;
+    if (g_placed) flags |= CABINPLAY_VEHICLE_PLACED;
     g_vehicle.flags = flags;
+    g_vehicle.position_x = g_position[0];
+    g_vehicle.position_y = g_position[1];
+    g_vehicle.position_z = g_position[2];
     memcpy((uint8_t *)out + sizeof(out->sequence), (const uint8_t *)&g_vehicle + sizeof(g_vehicle.sequence),
            sizeof(g_vehicle) - sizeof(g_vehicle.sequence));
     LeaveCriticalSection(&g_vehicle_lock);
@@ -1507,6 +1516,13 @@ static void build_key_table(void)
     }
 }
 
+/* The key that goes with Ctrl+Alt for control mode: the app's choice, or cabinplay.ini's. */
+static int toggle_vk(void)
+{
+    int vk = g_app_control_key;
+    return vk > 0 && vk < 0xFF ? vk : g_cfg_toggle_vk;
+}
+
 static int left_alt_only(void)
 {
     return (real_async_key(VK_LMENU) & 0x8000) && !(real_async_key(VK_RMENU) & 0x8000);
@@ -1602,7 +1618,7 @@ static void chord_scan(void)
             if (down && g_chord_scanning && !g_chord_prev[vk] && chord_starts(vk, 1, ctrl)) {
                 chord_hide(vk);
                 /* Ctrl+Alt+<control_key> is control mode, handled here in update_control. */
-                if (vk != VK_CONTROL && vk != (UINT)g_cfg_toggle_vk && shortcut_count < 4)
+                if (vk != VK_CONTROL && vk != (UINT)toggle_vk() && shortcut_count < 4)
                     shortcuts[shortcut_count++] = vk;
             }
             g_chord_prev[vk] = (uint8_t)down;
@@ -2614,7 +2630,7 @@ static void update_control(int allowed)
 {
     chord_scan();
     int down = (real_async_key(VK_CONTROL) & 0x8000) && (real_async_key(VK_MENU) & 0x8000) &&
-               (real_async_key(g_cfg_toggle_vk) & 0x8000);
+               (real_async_key(toggle_vk()) & 0x8000);
     int asked = control_requested();
     /* If the player closed the app from its settings, the same key brings it back. */
     if ((down && !g_toggle_was_down && !start_companion(1)) || asked)
@@ -2658,6 +2674,7 @@ static void pump(IDXGISwapChain *sc, ID3D11Device *dev, ID3D11DeviceContext *ctx
         g_app_overlay_percent = g_shared->overlay_percent;
         g_app_cursor_speed = g_shared->cursor_speed;
         g_app_drive_wheel = g_shared->drive_wheel;
+        g_app_control_key = g_shared->control_key;
     }
 
     for (int i = 0; i < MAX_ENTRIES; i++) {
@@ -3037,7 +3054,7 @@ typedef struct scs_telemetry_init_params {
 
 enum { SCS_EVENT_PAUSED = 3, SCS_EVENT_STARTED = 4, SCS_EVENT_CONFIGURATION = 5 };
 enum { SCS_TYPE_BOOL = 1, SCS_TYPE_S32 = 2, SCS_TYPE_U32 = 3, SCS_TYPE_U64 = 4, SCS_TYPE_FLOAT = 5, SCS_TYPE_DOUBLE = 6,
-       SCS_TYPE_STRING = 12 };
+       SCS_TYPE_DPLACEMENT = 11, SCS_TYPE_STRING = 12 };
 enum { SCS_CHANNEL_ON_CHANGE = 0, SCS_CHANNEL_EACH_FRAME = 1 };
 
 static void __stdcall on_scs_event(uint32_t event, const void *info, void *context)
@@ -3064,6 +3081,21 @@ static void __stdcall on_scs_float(const char *name, uint32_t index, const scs_v
     (void)index;
     if (value && value->type == SCS_TYPE_FLOAT)
         *(volatile float *)context = value->v.f;
+}
+
+/* truck.world.placement: the position comes first, three doubles (x, y, z). */
+static void __stdcall on_scs_placement(const char *name, uint32_t index, const scs_value_t *value, void *context)
+{
+    (void)name;
+    (void)index;
+    (void)context;
+    if (!value || value->type != SCS_TYPE_DPLACEMENT)
+        return;
+    const double *p = (const double *)value->v.raw;
+    g_position[0] = p[0];
+    g_position[1] = p[1];
+    g_position[2] = p[2];
+    g_placed = 1;
 }
 
 static void __stdcall on_scs_u32(const char *name, uint32_t index, const scs_value_t *value, void *context)
@@ -3214,6 +3246,12 @@ static void register_vehicle_channels(const scs_telemetry_init_params_t *p)
                             (void *)&g_trailer_coupled);
     p->register_for_channel("trailer.0.connected", none, SCS_TYPE_BOOL, SCS_CHANNEL_ON_CHANGE, on_scs_bool,
                             (void *)&g_trailer_coupled);
+    /* the day / night look of the screen, and the place the weather card is about */
+    p->register_for_channel("truck.light.beam.low", none, SCS_TYPE_BOOL, SCS_CHANNEL_ON_CHANGE, on_scs_bool,
+                            (void *)&g_low_beam);
+    if (p->register_for_channel("truck.world.placement", none, SCS_TYPE_DPLACEMENT, SCS_CHANNEL_ON_CHANGE,
+                                on_scs_placement, NULL) != 0)
+        logf_("telemetry: no truck position, the weather card shows the job's cities only");
     if (p->register_for_event(SCS_EVENT_CONFIGURATION, on_scs_configuration, NULL) != 0)
         logf_("telemetry: no configuration events, truck and job details are unavailable");
 }
