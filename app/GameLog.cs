@@ -10,8 +10,11 @@ namespace CabinPlay;
 /// </summary>
 internal sealed partial class GameLog
 {
-    /// <summary>The game versions CabinPlay was tried with. Keep in sync with GAME_VERSION in tools/build_mod.py.</summary>
-    public const string TestedVersions = "1.61";
+    /// <summary>The game versions CabinPlay was tried with. Keep in sync with GAME_VERSIONS in tools/build_mod.py.</summary>
+    public static readonly string[] TestedVersions = { "1.61", "1.62" };
+
+    /// <summary>The tested versions for messages: "1.61 / 1.62".</summary>
+    public static string TestedText => string.Join(" / ", TestedVersions);
 
     // A test instance (see Program.Namespace) can be given another log to read.
     public static readonly string LogPath =
@@ -43,8 +46,8 @@ internal sealed partial class GameLog
     /// <summary>Bumped each time a profile's mods have been listed.</summary>
     public int ModLists { get; private set; }
 
-    public bool VersionTested => GameVersion is null || GameVersion == TestedVersions ||
-                                 GameVersion.StartsWith(TestedVersions + ".", StringComparison.Ordinal);
+    public bool VersionTested => GameVersion is null || TestedVersions.Any(v =>
+        GameVersion == v || GameVersion.StartsWith(v + ".", StringComparison.Ordinal));
 
     [GeneratedRegex(@"init ver\.(\d+(?:\.\d+)+)")]
     private static partial Regex VersionLine();
@@ -169,7 +172,7 @@ internal sealed partial class GameLog
         log.Poll();
         if (!File.Exists(LogPath))
             return "Game log: not found at " + LogPath;
-        return $"Game log: version {log.GameVersion ?? "?"}{(log.VersionTested ? "" : $" (not tested, CabinPlay is for {TestedVersions})")}, " +
+        return $"Game log: version {log.GameVersion ?? "?"}{(log.VersionTested ? "" : $" (not tested, CabinPlay is for {TestedText})")}, " +
                $"profile '{log.Profile ?? "?"}', CabinPlay mod " +
                (log.ModActive switch { true => $"active (version {log.ModVersion})", false => "NOT active in this profile", _ => "not listed yet" });
     }

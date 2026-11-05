@@ -264,7 +264,7 @@ internal sealed class NoticeWatch
         Card = modOff ? "modOff" : unfitted ? "notFitted" : !_log.VersionTested ? "version" : null;
         InGame = !InGameEnabled ? null : modOffInGame ? "modOff" : unfittedInGame ? "notFitted" : null;
         if (Card == "version" && before.Card != "version")
-            Log.Write($"game version {_log.GameVersion} was not tested (CabinPlay is for {GameLog.TestedVersions})");
+            Log.Write($"game version {_log.GameVersion} was not tested (CabinPlay is for {GameLog.TestedText})");
         return before != (Card, InGame);
     }
 }

@@ -37,7 +37,7 @@ USE
   The language and all shortcuts are under Settings on the screen.
 
 NEEDS
-  Euro Truck Simulator 2 1.61, Windows 10 or 11. No DLC is needed.
+  Euro Truck Simulator 2 1.61 / 1.62, Windows 10 or 11. No DLC is needed.
   Works in single player and on TruckersMP.
 
 HELP

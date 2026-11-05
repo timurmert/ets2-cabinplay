@@ -14,7 +14,7 @@ A short description of the problem, and what you expected instead.
 
 **Your setup**
 - CabinPlay version (Settings on the screen):
-- Game version (e.g. 1.61):
+- Game version (e.g. 1.62):
 - Truck and screen place (e.g. Scania S, windscreen Large):
 - Windows 10 or 11:
 
