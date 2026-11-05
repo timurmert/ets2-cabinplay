@@ -17,88 +17,53 @@ BADGE = ("https://img.shields.io/endpoint?url=" + quote("https://raw.githubuserc
          + "&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=")
 # VirusTotal report of the released setup and its result (also shown in
 # docs/media/virustotal.png); update them after a release.
-VIRUSTOTAL = "https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1"
-VT_SCORE = "0/68"
-VT_ENGINES = "68"
+VIRUSTOTAL = "https://www.virustotal.com/gui/file/5aa0cb46ff4a66aaa382c5c78879660036f49f88ca1f41e3adee19f156fb1142?nocache=1"
+VT_SCORE = "0/55"
+VT_ENGINES = "55"
 VT_BADGE = "https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message="
 # What changed in this release: shown at the top of each language on the release page
 # only (not in the READMEs). Rewrite it for every release.
 WHATS_NEW = {
     "en": """### What's new in {version}
 
-- **Scroll while you drive:** hold `Ctrl+Alt` and turn the mouse wheel to scroll the page on the screen without pausing the game. The game does not get that turn of the wheel, so a retarder or zoom on it stays as it is. On YouTube Shorts, Instagram Reels and TikTok each notch is the next video. *Settings* > *Controls* can make it Alt + wheel, the wheel alone or off, and scrolling can go on a key or a steering wheel button.
-- **A weather card:** the home screen shows the weather where your truck is, the game's time, and the weather at the job's destination. It is the real weather of those places.
-- **Appearance:** *Settings* > *General* > *Appearance* has *Dark* (as before, and the default), *Light*, and *Automatic*: dark while the low beam is on, light while it is off.
-- **YouTube Shorts fit the screen:** the whole short is in view. *Settings* > *General* can switch it off.
-- **Site logos:** the shortcuts on the browser's start page, and the pages you keep with the star, now show each site's own logo.
-- **The pillow view in every truck:** with *CabinPlay TV (Back wall, to the pillow)* fitted, keep turning your head to the right past looking back, in any truck: the camera moves onto the bunk and stops at the pillow, facing the TV. Before, only the Scania S had it.
-- **Pick control mode's key:** *Settings* > *Controls* can now change it (`Ctrl+Alt+C` unless you do).
+- **Ready for Euro Truck Simulator 2 1.62:** CabinPlay was checked with 1.62 and works as before, in every truck, including the new DAF XG+ editions. The mod manager no longer marks the mod as made for another game version, and the home screen no longer says your game version is untested.
+- **Still on 1.61?** Nothing changes for you: this version works with both.
 
 **Already using CabinPlay 1.2.0 or newer?** The update comes by itself: it installs when you close the game. Using an older version? Close the game, download **CabinPlay-Setup-{version}.exe** below and run it.""",
     "tr": """### {version} sürümünde neler var
 
-- **Sürerken kaydır:** `Ctrl+Alt` basılı tutup fare tekerleğini çevirerek ekrandaki sayfayı oyunu durdurmadan kaydırabilirsin. O dönüş oyuna gitmez; tekerleğe bağlı retarder ya da yakınlaştırma etkilenmez. YouTube Shorts, Instagram Reels ve TikTok'ta her tık bir sonraki video. *Ayarlar* > *Kontroller*'den *Alt ile*, *Tek başına* ya da *Kapalı* seçebilir, kaydırmayı bir tuşa ya da direksiyon düğmesine atayabilirsin.
-- **Hava durumu kartı:** ana ekranda tırının bulunduğu yerin havası, oyun saati ve işin varış şehrinin havası. Gösterilen, o yerlerin gerçek dünyadaki havası.
-- **Görünüm:** *Ayarlar* > *Genel* > *Görünüm*'de *Koyu* (eskisi gibi, varsayılan), *Açık* ve *Otomatik* var: otomatikte kısa farlar açıkken koyu, kapalıyken açık.
-- **YouTube Shorts ekrana sığıyor:** videonun tamamı görünür. *Ayarlar* > *Genel*'den kapatabilirsin.
-- **Site logoları:** tarayıcının başlangıç sayfasındaki kısayollar ve yıldızla eklediğin sayfalar artık sitenin kendi logosuyla görünür.
-- **Yastık görünümü bütün tırlarda:** *CabinPlay TV (Back wall, to the pillow)* takılıyken kafanı sağa çevirmeye arkaya baktıktan sonra da devam et: kamera yatağa geçer ve yastıkta, TV'ye bakarak durur. Daha önce yalnızca Scania S'te vardı.
-- **Kontrol modunun tuşunu sen seç:** artık *Ayarlar* > *Kontroller*'den değiştirebilirsin (değiştirmezsen `Ctrl+Alt+C`).
+- **Euro Truck Simulator 2 1.62'ye hazır:** CabinPlay 1.62 ile denendi ve eskisi gibi çalışıyor; yeni DAF XG+ sürümleri dahil bütün tırlarda. Mod yöneticisi modu artık başka bir oyun sürümü için yapılmış diye işaretlemiyor, ana ekran da oyun sürümünün denenmediğini söylemiyor.
+- **Hâlâ 1.61'de misin?** Senin için bir şey değişmiyor: bu sürüm ikisinde de çalışır.
 
 **CabinPlay 1.2.0 ya da daha yenisini mi kullanıyorsun?** Güncelleme kendiliğinden gelir, oyunu kapattığında kurulur. Daha eski bir sürümdeysen oyunu kapat, aşağıdan **CabinPlay-Setup-{version}.exe**'yi indir ve çalıştır.""",
     "de": """### Neu in {version}
 
-- **Scrollen während der Fahrt:** Halte `Ctrl+Alt` und dreh das Mausrad, um die Seite auf dem Bildschirm zu scrollen, ohne das Spiel anzuhalten. Das Spiel bekommt diese Drehung nicht, ein Retarder oder Zoom auf dem Rad bleibt unberührt. Bei YouTube Shorts, Instagram Reels und TikTok ist jede Raste das nächste Video. Unter *Einstellungen* > *Steuerung* geht es auch mit Alt, mit dem Rad allein oder gar nicht, und Scrollen lässt sich auf eine Taste oder einen Lenkradknopf legen.
-- **Eine Wetterkarte:** Der Startbildschirm zeigt das Wetter am Ort deines Lkw, die Spielzeit und das Wetter am Ziel des Auftrags. Es ist das echte Wetter dieser Orte.
-- **Darstellung:** Unter *Einstellungen* > *Allgemein* > *Darstellung* gibt es *Dunkel* (wie bisher und voreingestellt), *Hell* und *Automatisch*: dunkel bei eingeschaltetem Abblendlicht, sonst hell.
-- **YouTube Shorts passen auf den Bildschirm:** Das ganze Video ist zu sehen. Unter *Einstellungen* > *Allgemein* abschaltbar.
-- **Logos der Websites:** Die Verknüpfungen auf der Startseite des Browsers und die Seiten, die du mit dem Stern behältst, zeigen jetzt das Logo der Website.
-- **Die Kopfkissen-Ansicht in jedem Lkw:** Mit *CabinPlay TV (Back wall, to the pillow)* dreh den Kopf über den Blick nach hinten hinaus weiter nach rechts, in jedem Lkw: Die Kamera wandert auf die Liege und bleibt am Kopfkissen stehen, mit Blick auf den Fernseher. Bisher gab es das nur im Scania S.
-- **Die Taste des Steuermodus wählen:** Unter *Einstellungen* > *Steuerung* lässt sie sich jetzt ändern (sonst `Ctrl+Alt+C`).
+- **Bereit für Euro Truck Simulator 2 1.62:** CabinPlay wurde mit 1.62 geprüft und läuft wie bisher, in jedem Lkw, auch in den neuen Editionen des DAF XG+. Der Mod-Manager markiert die Mod nicht mehr als für eine andere Spielversion gemacht, und der Startbildschirm meldet deine Spielversion nicht mehr als ungetestet.
+- **Noch auf 1.61?** Für dich ändert sich nichts: Diese Version läuft mit beiden.
 
 **Du nutzt CabinPlay 1.2.0 oder neuer?** Das Update kommt von selbst und wird beim Schließen des Spiels installiert. Ältere Version? Schließe das Spiel, lade unten **CabinPlay-Setup-{version}.exe** herunter und starte es.""",
     "pl": """### Co nowego w {version}
 
-- **Przewijanie w czasie jazdy:** przytrzymaj `Ctrl+Alt` i kręć kółkiem myszy, aby przewijać stronę na ekranie bez pauzowania gry. Gra nie dostaje tego ruchu kółka, więc retarder czy zoom na nim zostają nietknięte. W YouTube Shorts, Instagram Reels i TikToku każdy ząbek to następny film. W *Ustawienia* > *Sterowanie* można wybrać Alt, samo kółko albo wyłączyć, a przewijanie przypisać do klawisza lub przycisku kierownicy.
-- **Karta pogody:** ekran główny pokazuje pogodę tam, gdzie jest twoja ciężarówka, czas gry i pogodę w miejscu docelowym zlecenia. To prawdziwa pogoda tych miejsc.
-- **Wygląd:** w *Ustawienia* > *Ogólne* > *Wygląd* są *Ciemny* (jak dotąd, domyślny), *Jasny* i *Automatycznie*: ciemny przy włączonych światłach mijania, jasny bez nich.
-- **YouTube Shorts mieszczą się na ekranie:** widać cały film. Można to wyłączyć w *Ustawienia* > *Ogólne*.
-- **Logo stron:** skróty na stronie startowej przeglądarki i strony zapisane gwiazdką pokazują teraz logo danej strony.
-- **Widok z poduszki w każdej ciężarówce:** z *CabinPlay TV (Back wall, to the pillow)* obracaj głowę w prawo dalej, za widok do tyłu, w dowolnej ciężarówce: kamera przesunie się na leżankę i zatrzyma przy poduszce, zwrócona do telewizora. Wcześniej było to tylko w Scanii S.
-- **Wybierz klawisz trybu sterowania:** teraz można go zmienić w *Ustawienia* > *Sterowanie* (domyślnie `Ctrl+Alt+C`).
+- **Gotowy na Euro Truck Simulator 2 1.62:** CabinPlay został sprawdzony z 1.62 i działa jak dotąd, w każdej ciężarówce, także w nowych edycjach DAF XG+. Menedżer modów nie oznacza już moda jako zrobionego dla innej wersji gry, a ekran główny nie mówi już, że twoja wersja gry nie jest sprawdzona.
+- **Nadal na 1.61?** U ciebie nic się nie zmienia: ta wersja działa z obiema.
 
 **Masz CabinPlay 1.2.0 lub nowszy?** Aktualizacja przyjdzie sama i zainstaluje się po zamknięciu gry. Starsza wersja? Zamknij grę, pobierz poniżej **CabinPlay-Setup-{version}.exe** i uruchom go.""",
     "fr": """### Nouveautés de la version {version}
 
-- **Défiler en roulant :** maintenez `Ctrl+Alt` et tournez la molette pour faire défiler la page à l'écran sans mettre le jeu en pause. Le jeu ne reçoit pas ce cran, un ralentisseur ou un zoom sur la molette ne bouge pas. Sur YouTube Shorts, Instagram Reels et TikTok, chaque cran passe à la vidéo suivante. *Réglages* > *Commandes* permet de choisir Alt, la molette seule ou rien, et de placer le défilement sur une touche ou un bouton du volant.
-- **Une carte météo :** l'écran d'accueil montre la météo là où est votre camion, l'heure du jeu et la météo à la destination de la mission. C'est la vraie météo de ces lieux.
-- **Apparence :** *Réglages* > *Général* > *Apparence* propose *Sombre* (comme avant, par défaut), *Clair* et *Automatique* : sombre quand les feux de croisement sont allumés, clair sinon.
-- **Les YouTube Shorts tiennent à l'écran :** on voit toute la vidéo. *Réglages* > *Général* permet de le désactiver.
-- **Logos des sites :** les raccourcis de la page de démarrage du navigateur et les pages gardées avec l'étoile affichent maintenant le logo du site.
-- **La vue depuis l'oreiller dans chaque camion :** avec *CabinPlay TV (Back wall, to the pillow)*, continuez à tourner la tête vers la droite au-delà de la vue arrière, dans n'importe quel camion : la caméra passe sur la couchette et s'arrête à l'oreiller, face à la télé. Avant, seul le Scania S l'avait.
-- **Choisissez la touche du mode contrôle :** elle se change maintenant dans *Réglages* > *Commandes* (sinon `Ctrl+Alt+C`).
+- **Prêt pour Euro Truck Simulator 2 1.62 :** CabinPlay a été vérifié avec la 1.62 et marche comme avant, dans chaque camion, y compris les nouvelles éditions du DAF XG+. Le gestionnaire de mods ne signale plus le mod comme fait pour une autre version du jeu, et l'écran d'accueil ne dit plus que votre version du jeu n'est pas testée.
+- **Toujours en 1.61 ?** Rien ne change pour vous : cette version marche avec les deux.
 
 **Vous utilisez CabinPlay 1.2.0 ou plus récent ?** La mise à jour arrive toute seule et s'installe à la fermeture du jeu. Version plus ancienne ? Fermez le jeu, téléchargez **CabinPlay-Setup-{version}.exe** ci-dessous et lancez-le.""",
     "es": """### Novedades de la {version}
 
-- **Desplázate mientras conduces:** mantén `Ctrl+Alt` y gira la rueda del ratón para desplazar la página de la pantalla sin pausar el juego. El juego no recibe ese giro, así que un retardador o zoom en la rueda no cambia. En YouTube Shorts, Instagram Reels y TikTok cada paso es el siguiente vídeo. En *Ajustes* > *Controles* puedes elegir Alt, la rueda sola o desactivarlo, y asignar el desplazamiento a una tecla o un botón del volante.
-- **Una tarjeta del tiempo:** la pantalla de inicio muestra el tiempo donde está tu camión, la hora del juego y el tiempo en el destino del encargo. Es el tiempo real de esos lugares.
-- **Apariencia:** *Ajustes* > *General* > *Apariencia* tiene *Oscura* (como antes, por defecto), *Clara* y *Automática*: oscura con las luces de cruce encendidas, clara con ellas apagadas.
-- **Los YouTube Shorts caben en la pantalla:** se ve el vídeo entero. Puedes desactivarlo en *Ajustes* > *General*.
-- **Logos de los sitios:** los accesos de la página de inicio del navegador y las páginas guardadas con la estrella muestran ahora el logo del sitio.
-- **La vista desde la almohada en todos los camiones:** con *CabinPlay TV (Back wall, to the pillow)*, sigue girando la cabeza a la derecha después de mirar atrás, en cualquier camión: la cámara pasa a la litera y se detiene en la almohada, frente a la tele. Antes solo la tenía el Scania S.
-- **Elige la tecla del modo de control:** ahora se cambia en *Ajustes* > *Controles* (si no, `Ctrl+Alt+C`).
+- **Listo para Euro Truck Simulator 2 1.62:** CabinPlay se ha probado con la 1.62 y funciona como antes, en todos los camiones, también en las nuevas ediciones del DAF XG+. El gestor de mods ya no marca el mod como hecho para otra versión del juego, y la pantalla de inicio ya no dice que tu versión del juego no está probada.
+- **¿Sigues en la 1.61?** Para ti no cambia nada: esta versión funciona con las dos.
 
 **¿Usas CabinPlay 1.2.0 o posterior?** La actualización llega sola y se instala al cerrar el juego. ¿Una versión anterior? Cierra el juego, descarga **CabinPlay-Setup-{version}.exe** abajo y ejecútalo.""",
     "ru": """### Что нового в {version}
 
-- **Прокрутка во время езды:** удерживайте `Ctrl+Alt` и крутите колесо мыши, чтобы прокручивать страницу на экране, не ставя игру на паузу. Игра не получает этот поворот колеса, поэтому ретардер или зум на нём не срабатывают. В YouTube Shorts, Instagram Reels и TikTok каждый щелчок — следующее видео. В *Настройки* > *Управление* можно выбрать Alt, само колесо или выключить, а прокрутку назначить на клавишу или кнопку руля.
-- **Карточка погоды:** главный экран показывает погоду там, где ваш грузовик, время в игре и погоду в пункте назначения заказа. Это реальная погода этих мест.
-- **Оформление:** в *Настройки* > *Общие* > *Оформление* есть *Тёмное* (как раньше, по умолчанию), *Светлое* и *Авто*: тёмное при включённом ближнем свете, светлое без него.
-- **YouTube Shorts помещаются на экране:** видно всё видео. Можно выключить в *Настройки* > *Общие*.
-- **Логотипы сайтов:** ярлыки на стартовой странице браузера и страницы, сохранённые звездой, теперь показывают логотип сайта.
-- **Вид с подушки в каждом грузовике:** с *CabinPlay TV (Back wall, to the pillow)* продолжайте поворачивать голову вправо дальше взгляда назад, в любом грузовике: камера переместится на койку и остановится у подушки, лицом к телевизору. Раньше это было только в Scania S.
-- **Выберите клавишу режима управления:** теперь её можно изменить в *Настройки* > *Управление* (иначе `Ctrl+Alt+C`).
+- **Готов к Euro Truck Simulator 2 1.62:** CabinPlay проверен на 1.62 и работает как раньше, в каждом грузовике, включая новые издания DAF XG+. Менеджер модов больше не помечает мод как сделанный для другой версии игры, а главный экран больше не пишет, что ваша версия игры не проверена.
+- **Всё ещё на 1.61?** Для вас ничего не меняется: эта версия работает с обеими.
 
 **Пользуетесь CabinPlay 1.2.0 или новее?** Обновление придёт само и установится, когда вы закроете игру. Более старая версия? Закройте игру, скачайте ниже **CabinPlay-Setup-{version}.exe** и запустите.""",
 }
@@ -153,7 +118,7 @@ TEXT = {
         custom_note="**Side by side** puts two apps next to each other, for example the map on the left and music or the browser on the right: press the split button in the dock and pick the app for each half. Under **Settings** you can choose a background, also from your own pictures, change the keys of the shortcuts, and put any of them on a button of your steering wheel or gamepad. The home screen shows the weather where your truck is and at your destination, with the game's time. Under *Settings* > *General* > *Appearance* the screen is dark (as it comes), light, or automatic: dark while the low beam is on.",
         places_note="**More places:** besides the windscreen, the workshop has the screen for the *Dashboard*, the *Air vent*, *Overhead*, the *Passenger seat*, the *Console*, the *Cup holder* (newer trucks) and the *Passenger side* of the windscreen. To watch from the bunk there is **CabinPlay TV**, a 27\" set for the back wall (the light panel slot), flat or swung out towards the pillow, or for the windscreen, flat or turned to the bunk or to the driver. In every truck, keep turning your head to the right past looking back: the camera moves onto the bunk and stops at the pillow, facing the TV.",
         needs="What you need",
-        need_1="Euro Truck Simulator 2 **1.61**, Windows 10 or 11",
+        need_1="Euro Truck Simulator 2 **1.61 / 1.62**, Windows 10 or 11",
         need_2="No DLC needed",
         need_3="Works in single player and on TruckersMP",
         need_4="Fits 25 trucks; not the Renault E-Tech T",
@@ -202,7 +167,7 @@ TEXT = {
         custom_note="**Yan yana** görünüm iki uygulamayı aynı anda gösterir; örneğin solda harita, sağda müzik ya da tarayıcı: kenar çubuğundaki bölme düğmesine bas ve her yarı için uygulamayı seç. **Ayarlar**'dan arka planı (kendi resimlerinden de) seçebilir, kısayol tuşlarını değiştirebilir ve her birini direksiyonundaki ya da oyun kolundaki bir düğmeye atayabilirsin. Ana ekran, tırının bulunduğu yerin ve varış şehrinin havasını oyun saatiyle gösterir. *Ayarlar* > *Genel* > *Görünüm*'den ekran koyu (varsayılan), açık ya da otomatik olabilir: otomatikte kısa farlar açıkken koyu.",
         places_note="**Başka yerler:** Serviste ekranı ön camın dışında *Dashboard* (torpido), *Air vent* (havalandırma), *Overhead* (tavan), *Passenger seat* (yolcu koltuğu), *Console* (konsol), *Cup holder* (bardaklık, yeni tırlarda) ve *Passenger side* (camın yolcu tarafı) olarak da takabilirsin. Yatakta izlemek için 27\" **CabinPlay TV** var: arka duvara (Işık Panosu yuvası) düz ya da yastığa doğru açılmış, veya ön cama düz, yatağa dönük ya da sürücüye dönük. Her tırda kafanı sağa çevirmeye arkaya baktıktan sonra da devam et: kamera yatağa geçer ve yastıkta, TV'ye bakarak durur.",
         needs="Gerekenler",
-        need_1="Euro Truck Simulator 2 **1.61**, Windows 10 veya 11",
+        need_1="Euro Truck Simulator 2 **1.61 / 1.62**, Windows 10 veya 11",
         need_2="DLC gerekmez",
         need_3="Tek oyunculuda da TruckersMP'de de çalışır",
         need_4="25 tıra uyar; Renault E-Tech T'ye uymaz",
@@ -251,7 +216,7 @@ TEXT = {
         custom_note="**Nebeneinander** zeigt zwei Apps gleichzeitig, zum Beispiel links die Karte und rechts Musik oder den Browser: Tippe im Dock auf die Teilen-Taste und wähle für jede Hälfte eine App. Unter **Einstellungen** kannst du einen Hintergrund wählen, auch aus eigenen Bildern, die Tasten der Tastenkürzel ändern und jedes davon auf einen Knopf deines Lenkrads oder Gamepads legen. Der Startbildschirm zeigt das Wetter am Ort deines Lkw und am Ziel, mit der Spielzeit. Unter *Einstellungen* > *Allgemein* > *Darstellung* ist der Bildschirm dunkel (voreingestellt), hell oder automatisch: dunkel bei eingeschaltetem Abblendlicht.",
         places_note="**Weitere Plätze:** Außer an der Windschutzscheibe gibt es den Bildschirm in der Werkstatt auch für das *Dashboard* (Armaturenbrett), den *Air vent* (Lüftungsgitter), *Overhead* (Dach), den *Passenger seat* (Beifahrersitz), die *Console* (Mittelkonsole), den *Cup holder* (Getränkehalter, neuere Lkw) und die *Passenger side* (Beifahrerseite der Scheibe). Zum Zuschauen von der Liege gibt es den 27\"-**CabinPlay TV**: an der Rückwand (Platz des Lichtpaneels), flach oder zum Kopfkissen ausgeschwenkt, oder an der Windschutzscheibe, flach oder zur Liege bzw. zum Fahrer gedreht. In jedem Lkw dreh den Kopf über den Blick nach hinten hinaus weiter nach rechts: Die Kamera wandert auf die Liege und bleibt am Kopfkissen stehen, mit Blick auf den Fernseher.",
         needs="Voraussetzungen",
-        need_1="Euro Truck Simulator 2 **1.61**, Windows 10 oder 11",
+        need_1="Euro Truck Simulator 2 **1.61 / 1.62**, Windows 10 oder 11",
         need_2="Kein DLC nötig",
         need_3="Funktioniert im Einzelspieler und auf TruckersMP",
         need_4="Passt in 25 Lkw; nicht in den Renault E-Tech T",
@@ -300,7 +265,7 @@ TEXT = {
         custom_note="Widok **obok siebie** pokazuje dwie aplikacje naraz, na przykład mapę po lewej i muzykę lub przeglądarkę po prawej: naciśnij przycisk podziału w doku i wybierz aplikację dla każdej połowy. W **Ustawieniach** możesz wybrać tło, także z własnych obrazów, zmienić klawisze skrótów i przypisać każdy z nich do przycisku na kierownicy lub padzie. Ekran główny pokazuje pogodę tam, gdzie jest ciężarówka, i w miejscu docelowym, z czasem gry. W *Ustawienia* > *Ogólne* > *Wygląd* ekran może być ciemny (domyślnie), jasny lub automatyczny: ciemny przy włączonych światłach mijania.",
         places_note="**Więcej miejsc:** poza przednią szybą warsztat ma ekran także na *Dashboard* (deska rozdzielcza), *Air vent* (kratka nawiewu), *Overhead* (sufit), *Passenger seat* (fotel pasażera), *Console* (konsola), *Cup holder* (uchwyt na kubek, nowsze ciężarówki) i *Passenger side* (strona pasażera na szybie). Do oglądania z leżanki jest 27-calowy **CabinPlay TV**: na tylnej ścianie (gniazdo panelu świetlnego), płasko lub wysunięty w stronę poduszki, albo na przedniej szybie, płasko lub zwrócony do leżanki albo do kierowcy. W każdej ciężarówce obracaj głowę w prawo dalej, za widok do tyłu: kamera przesunie się na leżankę i zatrzyma przy poduszce, zwrócona do telewizora.",
         needs="Wymagania",
-        need_1="Euro Truck Simulator 2 **1.61**, Windows 10 lub 11",
+        need_1="Euro Truck Simulator 2 **1.61 / 1.62**, Windows 10 lub 11",
         need_2="Nie wymaga DLC",
         need_3="Działa w trybie jednoosobowym i na TruckersMP",
         need_4="Pasuje do 25 ciężarówek; nie do Renault E-Tech T",
@@ -349,7 +314,7 @@ TEXT = {
         custom_note="La vue **côte à côte** affiche deux apps en même temps, par exemple la carte à gauche et la musique ou le navigateur à droite : touchez le bouton de partage dans le dock et choisissez l'app de chaque moitié. Dans **Réglages**, vous pouvez choisir un arrière-plan, y compris parmi vos propres images, changer les touches des raccourcis et placer chacun d'eux sur un bouton de votre volant ou de votre manette. L'écran d'accueil montre la météo là où est votre camion et à destination, avec l'heure du jeu. Dans *Réglages* > *Général* > *Apparence*, l'écran est sombre (par défaut), clair ou automatique : sombre quand les feux de croisement sont allumés.",
         places_note="**Autres emplacements :** en plus du pare-brise, le garage propose l'écran pour le *Dashboard* (tableau de bord), l'*Air vent* (aérateur), *Overhead* (plafond), le *Passenger seat* (siège passager), la *Console* (console centrale), le *Cup holder* (porte-gobelet, camions récents) et le *Passenger side* (côté passager du pare-brise). Pour regarder depuis la couchette, il y a la **CabinPlay TV** de 27\" : sur la paroi arrière (emplacement du panneau lumineux), à plat ou sortie vers l'oreiller, ou sur le pare-brise, à plat ou tournée vers la couchette ou vers le conducteur. Dans chaque camion, continuez à tourner la tête vers la droite au-delà de la vue arrière : la caméra passe sur la couchette et s'arrête à l'oreiller, face à la télé.",
         needs="Prérequis",
-        need_1="Euro Truck Simulator 2 **1.61**, Windows 10 ou 11",
+        need_1="Euro Truck Simulator 2 **1.61 / 1.62**, Windows 10 ou 11",
         need_2="Aucun DLC requis",
         need_3="Fonctionne en solo et sur TruckersMP",
         need_4="Compatible avec 25 camions ; pas avec le Renault E-Tech T",
@@ -398,7 +363,7 @@ TEXT = {
         custom_note="La vista **en paralelo** muestra dos apps a la vez, por ejemplo el mapa a la izquierda y la música o el navegador a la derecha: pulsa el botón de división del dock y elige la app de cada mitad. En **Ajustes** puedes elegir un fondo, también entre tus propias imágenes, cambiar las teclas de los atajos y asignar cualquiera de ellos a un botón de tu volante o mando. La pantalla de inicio muestra el tiempo donde está tu camión y en el destino, con la hora del juego. En *Ajustes* > *General* > *Apariencia* la pantalla es oscura (por defecto), clara o automática: oscura con las luces de cruce encendidas.",
         places_note="**Más sitios:** además del parabrisas, el taller tiene la pantalla para el *Dashboard* (salpicadero), el *Air vent* (rejilla de ventilación), *Overhead* (techo), el *Passenger seat* (asiento del acompañante), la *Console* (consola), el *Cup holder* (portavasos, camiones nuevos) y el *Passenger side* (lado del acompañante del parabrisas). Para ver desde la litera está la **CabinPlay TV** de 27\": en la pared trasera (ranura del panel de luces), plana o abierta hacia la almohada, o en el parabrisas, plana o girada hacia la litera o hacia el conductor. En cualquier camión, sigue girando la cabeza a la derecha después de mirar atrás: la cámara pasa a la litera y se detiene en la almohada, frente a la tele.",
         needs="Requisitos",
-        need_1="Euro Truck Simulator 2 **1.61**, Windows 10 u 11",
+        need_1="Euro Truck Simulator 2 **1.61 / 1.62**, Windows 10 u 11",
         need_2="No requiere DLC",
         need_3="Funciona en un jugador y en TruckersMP",
         need_4="Compatible con 25 camiones; no con el Renault E-Tech T",
@@ -447,7 +412,7 @@ TEXT = {
         custom_note="Режим **«рядом»** показывает два приложения одновременно, например карту слева и музыку или браузер справа: нажмите кнопку разделения в доке и выберите приложение для каждой половины. В **Настройках** можно выбрать фон, в том числе из своих изображений, изменить клавиши сочетаний и назначить любое из них на кнопку руля или геймпада. Главный экран показывает погоду там, где ваш грузовик, и в пункте назначения, вместе со временем в игре. В *Настройки* > *Общие* > *Оформление* экран тёмный (по умолчанию), светлый или автоматический: тёмный при включённом ближнем свете.",
         places_note="**Другие места:** кроме лобового стекла, в мастерской экран можно поставить на *Dashboard* (приборная панель), *Air vent* (дефлектор), *Overhead* (потолок), *Passenger seat* (пассажирское сиденье), *Console* (консоль), *Cup holder* (подстаканник, новые грузовики) и *Passenger side* (пассажирская сторона стекла). Чтобы смотреть с койки, есть 27-дюймовый **CabinPlay TV**: на задней стенке (слот светового панно), плоско или выдвинутый к подушке, либо на лобовом стекле, плоско или повёрнутый к койке или к водителю. В любом грузовике продолжайте поворачивать голову вправо дальше взгляда назад: камера переместится на койку и остановится у подушки, лицом к телевизору.",
         needs="Требования",
-        need_1="Euro Truck Simulator 2 **1.61**, Windows 10 или 11",
+        need_1="Euro Truck Simulator 2 **1.61 / 1.62**, Windows 10 или 11",
         need_2="DLC не требуется",
         need_3="Работает в одиночной игре и в TruckersMP",
         need_4="Подходит для 25 грузовиков; не подходит для Renault E-Tech T",

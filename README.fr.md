@@ -6,7 +6,7 @@ Un écran multimédia fonctionnel pour la cabine de votre camion dans **Euro Tru
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=T%C3%89L%C3%89CHARGEMENTS" alt="Téléchargements"></a>
-  <a href="https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/68%20SAIN" alt="VirusTotal: 0/68 sain"></a>
+  <a href="https://www.virustotal.com/gui/file/5aa0cb46ff4a66aaa382c5c78879660036f49f88ca1f41e3adee19f156fb1142?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/55%20SAIN" alt="VirusTotal: 0/55 sain"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@ Un écran multimédia fonctionnel pour la cabine de votre camion dans **Euro Tru
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/68 sain"></a><br>
-  <sub>🛡️ Aucun des 68 antivirus de VirusTotal n'a signalé CabinPlay. <a href="https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1">Voir le rapport</a></sub>
+  <a href="https://www.virustotal.com/gui/file/5aa0cb46ff4a66aaa382c5c78879660036f49f88ca1f41e3adee19f156fb1142?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/55 sain"></a><br>
+  <sub>🛡️ Aucun des 55 antivirus de VirusTotal n'a signalé CabinPlay. <a href="https://www.virustotal.com/gui/file/5aa0cb46ff4a66aaa382c5c78879660036f49f88ca1f41e3adee19f156fb1142?nocache=1">Voir le rapport</a></sub>
 </p>
 
 ## Téléchargement
 
 **[Téléchargez la dernière version](https://github.com/timurmert/ets2-cabinplay/releases/latest)** et prenez le fichier `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Analyse antivirus :** le programme d'installation a été analysé sur VirusTotal par 68 antivirus, et aucun ne l'a signalé. **[Voir le rapport](https://www.virustotal.com/gui/file/1257b793158c4d3113f86633de5f3300c365ee66be17913629233ef669287ac5?nocache=1)**
+> 🛡️ **Analyse antivirus :** le programme d'installation a été analysé sur VirusTotal par 55 antivirus, et aucun ne l'a signalé. **[Voir le rapport](https://www.virustotal.com/gui/file/5aa0cb46ff4a66aaa382c5c78879660036f49f88ca1f41e3adee19f156fb1142?nocache=1)**
 
 ## Installation
 
@@ -94,7 +94,7 @@ La vue **côte à côte** affiche deux apps en même temps, par exemple la carte
 
 ## Prérequis
 
-- Euro Truck Simulator 2 **1.61**, Windows 10 ou 11
+- Euro Truck Simulator 2 **1.61 / 1.62**, Windows 10 ou 11
 - Aucun DLC requis
 - Fonctionne en solo et sur TruckersMP
 - Compatible avec 25 camions ; pas avec le Renault E-Tech T

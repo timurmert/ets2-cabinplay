@@ -986,7 +986,7 @@ internal sealed class MainForm : Form
                     ["inGame"] = _watch.InGame,
                     ["profile"] = _watch.Profile,
                     ["version"] = _watch.GameVersion,
-                    ["tested"] = GameLog.TestedVersions,
+                    ["tested"] = GameLog.TestedText,
                 },
                 ["game"] = new JsonObject
                 {

@@ -38,7 +38,7 @@ KULLANIM
   Dil ve tüm kısayollar ekrandaki Ayarlar bölümünde.
 
 GEREKENLER
-  Euro Truck Simulator 2 1.61, Windows 10 veya 11. DLC gerekmez.
+  Euro Truck Simulator 2 1.61 / 1.62, Windows 10 veya 11. DLC gerekmez.
   Tek oyunculuda da TruckersMP'de de çalışır.
 
 YARDIM

@@ -21,7 +21,7 @@ DIST = os.path.join(ROOT, "dist")
 STATIC = os.path.join(ROOT, "mod_static")
 
 MOD_VERSION = os.environ.get("CABINPLAY_VERSION", "0.0.0")  # set by build.ps1 from the VERSION file
-GAME_VERSION = "1.61.*"  # keep in sync with GameLog.TestedVersions in app/GameLog.cs
+GAME_VERSIONS = ["1.61.*", "1.62.*"]  # keep in sync with GameLog.TestedVersions in app/GameLog.cs
 MODEL_DIR = "/vehicle/truck/upgrade/cabinplay"
 
 # Trucks whose interiors have the left-windshield accessory slot (the one the
@@ -943,8 +943,9 @@ def main():
           '\tcategory[]: "interior"\n'
           '%s'
           '\tdescription_file: "mod_description.txt"\n'
-          '\tcompatible_versions[]: "%s"\n'
-          '}\n}\n' % (MOD_VERSION, '\ticon: "mod_icon.jpg"\n' if has_icon else '', GAME_VERSION))
+          '%s'
+          '}\n}\n' % (MOD_VERSION, '\ticon: "mod_icon.jpg"\n' if has_icon else '',
+                      ''.join('\tcompatible_versions[]: "%s"\n' % v for v in GAME_VERSIONS)))
     write("/mod_description.txt",
           "CabinPlay Screen\n\n"
           "Adds an in-cabin display to every truck. On the left of the windscreen in three versions,\n"
