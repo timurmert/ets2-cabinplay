@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=%C4%B0ND%C4%B0RME" alt="İndirme"></a>
-  <a href="https://www.virustotal.com/gui/file/5aa0cb46ff4a66aaa382c5c78879660036f49f88ca1f41e3adee19f156fb1142?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/55%20TEM%C4%B0Z" alt="VirusTotal: 0/55 temiz"></a>
+  <a href="https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20TEM%C4%B0Z" alt="VirusTotal: 0/69 temiz"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/5aa0cb46ff4a66aaa382c5c78879660036f49f88ca1f41e3adee19f156fb1142?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/55 temiz"></a><br>
-  <sub>🛡️ VirusTotal'daki 55 antivirüs motorunun hiçbiri CabinPlay'i zararlı bulmadı. <a href="https://www.virustotal.com/gui/file/5aa0cb46ff4a66aaa382c5c78879660036f49f88ca1f41e3adee19f156fb1142?nocache=1">Raporu gör</a></sub>
+  <a href="https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 temiz"></a><br>
+  <sub>🛡️ VirusTotal'daki 69 antivirüs motorunun hiçbiri CabinPlay'i zararlı bulmadı. <a href="https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1">Raporu gör</a></sub>
 </p>
 
 ## İndir
 
 **[Son sürümü indir](https://github.com/timurmert/ets2-cabinplay/releases/latest)**; `CabinPlay-Setup-x.y.z.exe` adlı dosyayı al.
 
-> 🛡️ **Virüs taraması:** Kurulum dosyası VirusTotal'da 55 antivirüs motoruyla tarandı, hiçbiri zararlı bulmadı. **[Raporu gör](https://www.virustotal.com/gui/file/5aa0cb46ff4a66aaa382c5c78879660036f49f88ca1f41e3adee19f156fb1142?nocache=1)**
+> 🛡️ **Virüs taraması:** Kurulum dosyası VirusTotal'da 69 antivirüs motoruyla tarandı, hiçbiri zararlı bulmadı. **[Raporu gör](https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1)**
 
 ## Kur
 

@@ -17,53 +17,46 @@ BADGE = ("https://img.shields.io/endpoint?url=" + quote("https://raw.githubuserc
          + "&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=")
 # VirusTotal report of the released setup and its result (also shown in
 # docs/media/virustotal.png); update them after a release.
-VIRUSTOTAL = "https://www.virustotal.com/gui/file/5aa0cb46ff4a66aaa382c5c78879660036f49f88ca1f41e3adee19f156fb1142?nocache=1"
-VT_SCORE = "0/55"
-VT_ENGINES = "55"
+VIRUSTOTAL = "https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1"
+VT_SCORE = "0/69"
+VT_ENGINES = "69"
 VT_BADGE = "https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message="
 # What changed in this release: shown at the top of each language on the release page
 # only (not in the READMEs). Rewrite it for every release.
 WHATS_NEW = {
     "en": """### What's new in {version}
 
-- **Ready for Euro Truck Simulator 2 1.62:** CabinPlay was checked with 1.62 and works as before, in every truck, including the new DAF XG+ editions. The mod manager no longer marks the mod as made for another game version, and the home screen no longer says your game version is untested.
-- **Still on 1.61?** Nothing changes for you: this version works with both.
+- **Fullscreen works again:** videos on YouTube, Twitch and every other site go fullscreen on the screen again, with the site's own button, a double click on the video, the fullscreen button in the dock or `Ctrl+Alt+F`. A recent Windows update of the browser part CabinPlay uses (Microsoft Edge WebView2) had started to refuse fullscreen for a window that is not in front, and with the game in front CabinPlay never is.
 
 **Already using CabinPlay 1.2.0 or newer?** The update comes by itself: it installs when you close the game. Using an older version? Close the game, download **CabinPlay-Setup-{version}.exe** below and run it.""",
     "tr": """### {version} sürümünde neler var
 
-- **Euro Truck Simulator 2 1.62'ye hazır:** CabinPlay 1.62 ile denendi ve eskisi gibi çalışıyor; yeni DAF XG+ sürümleri dahil bütün tırlarda. Mod yöneticisi modu artık başka bir oyun sürümü için yapılmış diye işaretlemiyor, ana ekran da oyun sürümünün denenmediğini söylemiyor.
-- **Hâlâ 1.61'de misin?** Senin için bir şey değişmiyor: bu sürüm ikisinde de çalışır.
+- **Tam ekran yeniden çalışıyor:** YouTube, Twitch ve diğer bütün sitelerdeki videolar ekranda yine tam ekran oluyor: sitenin kendi düğmesiyle, videoya çift tıklayarak, kenar çubuğundaki tam ekran düğmesiyle ya da `Ctrl+Alt+F` ile. CabinPlay'in kullandığı tarayıcı bileşeninin (Microsoft Edge WebView2) yakın zamanda gelen bir Windows güncellemesi, önde olmayan pencerelerde tam ekranı engellemeye başlamıştı; oyun açıkken CabinPlay hiçbir zaman önde değil.
 
 **CabinPlay 1.2.0 ya da daha yenisini mi kullanıyorsun?** Güncelleme kendiliğinden gelir, oyunu kapattığında kurulur. Daha eski bir sürümdeysen oyunu kapat, aşağıdan **CabinPlay-Setup-{version}.exe**'yi indir ve çalıştır.""",
     "de": """### Neu in {version}
 
-- **Bereit für Euro Truck Simulator 2 1.62:** CabinPlay wurde mit 1.62 geprüft und läuft wie bisher, in jedem Lkw, auch in den neuen Editionen des DAF XG+. Der Mod-Manager markiert die Mod nicht mehr als für eine andere Spielversion gemacht, und der Startbildschirm meldet deine Spielversion nicht mehr als ungetestet.
-- **Noch auf 1.61?** Für dich ändert sich nichts: Diese Version läuft mit beiden.
+- **Vollbild funktioniert wieder:** Videos auf YouTube, Twitch und allen anderen Websites gehen auf dem Bildschirm wieder in den Vollbildmodus: mit dem Knopf der Website, per Doppelklick auf das Video, mit der Vollbild-Taste im Dock oder mit `Ctrl+Alt+F`. Ein neues Windows-Update des Browser-Bausteins, den CabinPlay nutzt (Microsoft Edge WebView2), verweigerte Vollbild für Fenster, die nicht im Vordergrund sind, und solange das Spiel vorne ist, ist CabinPlay das nie.
 
 **Du nutzt CabinPlay 1.2.0 oder neuer?** Das Update kommt von selbst und wird beim Schließen des Spiels installiert. Ältere Version? Schließe das Spiel, lade unten **CabinPlay-Setup-{version}.exe** herunter und starte es.""",
     "pl": """### Co nowego w {version}
 
-- **Gotowy na Euro Truck Simulator 2 1.62:** CabinPlay został sprawdzony z 1.62 i działa jak dotąd, w każdej ciężarówce, także w nowych edycjach DAF XG+. Menedżer modów nie oznacza już moda jako zrobionego dla innej wersji gry, a ekran główny nie mówi już, że twoja wersja gry nie jest sprawdzona.
-- **Nadal na 1.61?** U ciebie nic się nie zmienia: ta wersja działa z obiema.
+- **Pełny ekran znowu działa:** filmy na YouTube, Twitchu i każdej innej stronie znowu przechodzą na ekranie w tryb pełnoekranowy: przyciskiem strony, dwukrotnym kliknięciem w film, przyciskiem pełnego ekranu w docku albo `Ctrl+Alt+F`. Niedawna aktualizacja Windows składnika przeglądarki, z którego korzysta CabinPlay (Microsoft Edge WebView2), zaczęła odmawiać pełnego ekranu oknu, które nie jest na wierzchu, a gdy gra jest na wierzchu, CabinPlay nigdy nie jest.
 
 **Masz CabinPlay 1.2.0 lub nowszy?** Aktualizacja przyjdzie sama i zainstaluje się po zamknięciu gry. Starsza wersja? Zamknij grę, pobierz poniżej **CabinPlay-Setup-{version}.exe** i uruchom go.""",
     "fr": """### Nouveautés de la version {version}
 
-- **Prêt pour Euro Truck Simulator 2 1.62 :** CabinPlay a été vérifié avec la 1.62 et marche comme avant, dans chaque camion, y compris les nouvelles éditions du DAF XG+. Le gestionnaire de mods ne signale plus le mod comme fait pour une autre version du jeu, et l'écran d'accueil ne dit plus que votre version du jeu n'est pas testée.
-- **Toujours en 1.61 ?** Rien ne change pour vous : cette version marche avec les deux.
+- **Le plein écran remarche :** les vidéos de YouTube, Twitch et de tous les autres sites repassent en plein écran sur l'écran : avec le bouton du site, un double clic sur la vidéo, le bouton plein écran du dock ou `Ctrl+Alt+F`. Une récente mise à jour Windows du composant navigateur qu'utilise CabinPlay (Microsoft Edge WebView2) s'était mise à refuser le plein écran à une fenêtre qui n'est pas au premier plan, et quand le jeu est devant, CabinPlay ne l'est jamais.
 
 **Vous utilisez CabinPlay 1.2.0 ou plus récent ?** La mise à jour arrive toute seule et s'installe à la fermeture du jeu. Version plus ancienne ? Fermez le jeu, téléchargez **CabinPlay-Setup-{version}.exe** ci-dessous et lancez-le.""",
     "es": """### Novedades de la {version}
 
-- **Listo para Euro Truck Simulator 2 1.62:** CabinPlay se ha probado con la 1.62 y funciona como antes, en todos los camiones, también en las nuevas ediciones del DAF XG+. El gestor de mods ya no marca el mod como hecho para otra versión del juego, y la pantalla de inicio ya no dice que tu versión del juego no está probada.
-- **¿Sigues en la 1.61?** Para ti no cambia nada: esta versión funciona con las dos.
+- **La pantalla completa vuelve a funcionar:** los vídeos de YouTube, Twitch y cualquier otro sitio vuelven a ponerse a pantalla completa en la pantalla: con el botón del sitio, con doble clic en el vídeo, con el botón de pantalla completa del dock o con `Ctrl+Alt+F`. Una actualización reciente de Windows del componente de navegador que usa CabinPlay (Microsoft Edge WebView2) empezó a negar la pantalla completa a una ventana que no está delante, y con el juego delante CabinPlay nunca lo está.
 
 **¿Usas CabinPlay 1.2.0 o posterior?** La actualización llega sola y se instala al cerrar el juego. ¿Una versión anterior? Cierra el juego, descarga **CabinPlay-Setup-{version}.exe** abajo y ejecútalo.""",
     "ru": """### Что нового в {version}
 
-- **Готов к Euro Truck Simulator 2 1.62:** CabinPlay проверен на 1.62 и работает как раньше, в каждом грузовике, включая новые издания DAF XG+. Менеджер модов больше не помечает мод как сделанный для другой версии игры, а главный экран больше не пишет, что ваша версия игры не проверена.
-- **Всё ещё на 1.61?** Для вас ничего не меняется: эта версия работает с обеими.
+- **Полноэкранный режим снова работает:** видео на YouTube, Twitch и любых других сайтах снова разворачиваются на весь экран: кнопкой сайта, двойным щелчком по видео, кнопкой полноэкранного режима в доке или `Ctrl+Alt+F`. Недавнее обновление Windows для браузерного компонента, которым пользуется CabinPlay (Microsoft Edge WebView2), стало запрещать полноэкранный режим окну, которое не на переднем плане, а пока игра впереди, CabinPlay там не бывает никогда.
 
 **Пользуетесь CabinPlay 1.2.0 или новее?** Обновление придёт само и установится, когда вы закроете игру. Более старая версия? Закройте игру, скачайте ниже **CabinPlay-Setup-{version}.exe** и запустите.""",
 }
