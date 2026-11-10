@@ -22,8 +22,10 @@ internal sealed class MainForm : Form
 
     // Chromium stops painting windows it believes are hidden; the game covers this one.
     // The colour profile is pinned so the map key colour reaches the plugin unchanged.
+    // Since WebView2 157 a page may only go fullscreen while its window has the keyboard,
+    // which this one never has with the game in front (crbug.com/40052279).
     private const string BrowserArguments =
-        "--disable-features=CalculateNativeWinOcclusion " +
+        "--disable-features=CalculateNativeWinOcclusion,SuppressFullscreenFromUnfocusedView " +
         "--disable-backgrounding-occluded-windows --disable-renderer-backgrounding " +
         "--autoplay-policy=no-user-gesture-required --force-color-profile=srgb";
 
