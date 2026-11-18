@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=%D0%97%D0%90%D0%93%D0%A0%D0%A3%D0%97%D0%9A%D0%98" alt="Загрузки"></a>
-  <a href="https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20%D0%A7%D0%98%D0%A1%D0%A2%D0%9E" alt="VirusTotal: 0/69 чисто"></a>
+  <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20%D0%A7%D0%98%D0%A1%D0%A2%D0%9E" alt="VirusTotal: 0/69 чисто"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 чисто"></a><br>
-  <sub>🛡️ Ни один из 69 антивирусов на VirusTotal не отметил CabinPlay. <a href="https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1">Открыть отчёт</a></sub>
+  <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 чисто"></a><br>
+  <sub>🛡️ Ни один из 69 антивирусов на VirusTotal не отметил CabinPlay. <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1">Открыть отчёт</a></sub>
 </p>
 
 ## Скачать
 
 **[Скачайте последнюю версию](https://github.com/timurmert/ets2-cabinplay/releases/latest)** и возьмите файл `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Проверка на вирусы:** установщик проверен на VirusTotal 69 антивирусами, ни один ничего не нашёл. **[Открыть отчёт](https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1)**
+> 🛡️ **Проверка на вирусы:** установщик проверен на VirusTotal 69 антивирусами, ни один ничего не нашёл. **[Открыть отчёт](https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1)**
 
 ## Установка
 
@@ -82,9 +82,9 @@
 
 Воспроизведение приостанавливается, когда вы ставите игру на паузу или выключаете зажигание. Язык меняется в **Настройках** на экране. Если вы закрыли CabinPlay в настройках, `Ctrl+Alt+C` (или клавиша, выбранная для режима управления) запустит его снова.
 
-Приложение **Грузовик** показывает повреждения грузовика и прицепа, груз, топливо и показания приборов. Сочетания Ctrl+Alt работают и тогда, когда игра на переднем плане, а их клавиши в игру не попадают, поэтому сочетание не включит гудок и ничего не переключит в грузовике.
+Приложение **Транспорт** показывает повреждения грузовика (или автобуса) и прицепа, груз, топливо и показания приборов. Сочетания Ctrl+Alt работают и тогда, когда игра на переднем плане, а их клавиши в игру не попадают, поэтому сочетание не включит гудок и ничего не переключит в грузовике.
 
-Приложение **Зеркала** выводит на экран зеркала грузовика: левое, левое широкоугольное и, если есть, переднее. Коснитесь зеркала, чтобы увеличить его.
+Приложение **Зеркала** (только в грузовиках) выводит на экран зеркала грузовика: левое, левое широкоугольное и, если есть, переднее. Коснитесь зеркала, чтобы увеличить его.
 
 Приложение **Браузер** открывает любой сайт: введите адрес или запрос в строке сверху и нажмите звезду, чтобы оставить страницу на стартовой. Вход на сайтах сохраняется, а `Ctrl+Alt+F` разворачивает видео на странице на весь экран. Для ввода текста нужен режим управления (`Ctrl+Alt+C`). Во время езды удерживайте `Ctrl+Alt` и крутите колесо мыши, чтобы прокручивать страницу без паузы (игра не получает этот поворот, так что ретардер на колесе не срабатывает); в YouTube Shorts, Instagram Reels и TikTok каждый щелчок — следующее видео, а YouTube Shorts целиком помещаются на экране.
 
@@ -92,12 +92,14 @@
 
 **Другие места:** кроме лобового стекла, в мастерской экран можно поставить на *Dashboard* (приборная панель), *Air vent* (дефлектор), *Overhead* (потолок), *Passenger seat* (пассажирское сиденье), *Console* (консоль), *Cup holder* (подстаканник, новые грузовики) и *Passenger side* (пассажирская сторона стекла). Чтобы смотреть с койки, есть 27-дюймовый **CabinPlay TV**: на задней стенке (слот светового панно), плоско или выдвинутый к подушке, либо на лобовом стекле, плоско или повёрнутый к койке или к водителю. В любом грузовике продолжайте поворачивать голову вправо дальше взгляда назад: камера переместится на койку и остановится у подушки, лицом к телевизору.
 
+**Автобусы:** с DLC Coaches CabinPlay есть и в мастерской автобуса — для MAN Lion's Coach, Scania Touring и Volvo 9700: три экрана слева на лобовом стекле, *Air vent* (дефлектор), *Cup holder* (подстаканник), *Dashboard* (приборная панель; MAN, Volvo), *Overhead* (потолок; MAN, Scania) и **CabinPlay TV (Passengers)** — 27-дюймовый телевизор, подвешенный к потолку над проходом. Продолжайте поворачивать голову вправо дальше взгляда назад: камера пройдёт по проходу к переднему пассажирскому сиденью справа. Без DLC ничего не меняется.
+
 ## Требования
 
 - Euro Truck Simulator 2 **1.61 / 1.62**, Windows 10 или 11
 - DLC не требуется
 - Работает в одиночной игре и в TruckersMP
-- Подходит для 25 грузовиков; не подходит для Renault E-Tech T
+- Подходит для 25 грузовиков и 3 автобусов из DLC Coaches; не подходит для Renault E-Tech T
 
 ## Помощь и сообщество
 

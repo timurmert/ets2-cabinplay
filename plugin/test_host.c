@@ -484,6 +484,18 @@ int main(int argc, char **argv)
           "fuel, wear and trailer passed on");
     check(vehicle && !(vehicle->flags & (CABINPLAY_VEHICLE_LOW_BEAM | CABINPLAY_VEHICLE_PLACED)),
           "no low beam and no position until the game says so");
+    check(vehicle && !(vehicle->flags & CABINPLAY_VEHICLE_BUS), "a truck is not a bus");
+    named_t bus_cfg[] = {attr_text("brand", "MAN"), attr_text("name", "Lion's Coach"),
+                         attr_text("id", "vehicle.man.lions_24"), {0}};
+    send_config("truck", bus_cfg);
+    present(hdr, 1);
+    check(vehicle && (vehicle->flags & CABINPLAY_VEHICLE_BUS) && !strcmp(vehicle->truck_name, "Lion's Coach"),
+          "a Coaches DLC bus is flagged as a bus");
+    named_t truck_again[] = {attr_text("brand", "Scania"), attr_text("name", "S"), attr_text("id", "vehicle.scania.s_2016"),
+                             attr_float("fuel.capacity", 700.0f), attr_text("license.plate", "34 CP 26"), {0}};
+    send_config("truck", truck_again);
+    present(hdr, 1);
+    check(vehicle && !(vehicle->flags & CABINPLAY_VEHICLE_BUS), "and back in a truck it is not");
     send_bool("truck.light.beam.low", 1);
     {
         value_t v;

@@ -17,9 +17,10 @@
 #ifndef Compression
   ; Every packing installs the same files. Antivirus engines that guess from the bytes
   ; judge them differently: for 1.2.0, lzma2/ultra64 got 2 such flags on VirusTotal and
-  ; lzma/ultra64 none; for 1.3.0, lzma/ultra64 got 1 and lzma2/max none. To try another:
-  ; ISCC /DCompression=lzma/ultra64 ...
-  #define Compression "lzma2/max"
+  ; lzma/ultra64 none; for 1.3.0, lzma/ultra64 got 1 and lzma2/max none; for 1.5.0,
+  ; lzma2/max got 1 (DeepInstinct) and lzma/max none. To try another:
+  ; ISCC /DCompression=lzma/ultra64 /O<folder> ...
+  #define Compression "lzma/max"
 #endif
 #ifndef Pictures
   #define Pictures "..\build\setup"

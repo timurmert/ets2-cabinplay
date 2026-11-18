@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=%C4%B0ND%C4%B0RME" alt="İndirme"></a>
-  <a href="https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20TEM%C4%B0Z" alt="VirusTotal: 0/69 temiz"></a>
+  <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20TEM%C4%B0Z" alt="VirusTotal: 0/69 temiz"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 temiz"></a><br>
-  <sub>🛡️ VirusTotal'daki 69 antivirüs motorunun hiçbiri CabinPlay'i zararlı bulmadı. <a href="https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1">Raporu gör</a></sub>
+  <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 temiz"></a><br>
+  <sub>🛡️ VirusTotal'daki 69 antivirüs motorunun hiçbiri CabinPlay'i zararlı bulmadı. <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1">Raporu gör</a></sub>
 </p>
 
 ## İndir
 
 **[Son sürümü indir](https://github.com/timurmert/ets2-cabinplay/releases/latest)**; `CabinPlay-Setup-x.y.z.exe` adlı dosyayı al.
 
-> 🛡️ **Virüs taraması:** Kurulum dosyası VirusTotal'da 69 antivirüs motoruyla tarandı, hiçbiri zararlı bulmadı. **[Raporu gör](https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1)**
+> 🛡️ **Virüs taraması:** Kurulum dosyası VirusTotal'da 69 antivirüs motoruyla tarandı, hiçbiri zararlı bulmadı. **[Raporu gör](https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1)**
 
 ## Kur
 
@@ -82,9 +82,9 @@ Bu kadar. Ekran tırın kontağıyla birlikte açılır. Kurulum dosyasıyla kur
 
 Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, ekrandaki **Ayarlar**'dan değişir. CabinPlay'i ayarlardan kapattıysan `Ctrl+Alt+C` (ya da kontrol moduna verdiğin tuş) onu yeniden başlatır.
 
-**Tır** uygulaması tırın ve dorsenin hasarını, yükü, yakıtı ve göstergeleri gösterir. Ctrl+Alt kısayolları oyun öndeyken de çalışır ve tuşları oyuna gitmez; bu yüzden kısayollar korna çalmaz, tırda hiçbir şeyi açıp kapatmaz.
+**Araç** uygulaması tırın (ya da otobüsün) ve dorsenin hasarını, yükü, yakıtı ve göstergeleri gösterir. Ctrl+Alt kısayolları oyun öndeyken de çalışır ve tuşları oyuna gitmez; bu yüzden kısayollar korna çalmaz, tırda hiçbir şeyi açıp kapatmaz.
 
-**Aynalar** uygulaması tırın kendi aynalarını ekrana getirir: sol ayna, sol geniş açı aynası ve tırda varsa ön ayna. Büyütmek için birine dokun.
+**Aynalar** uygulaması (yalnızca tırlarda) tırın kendi aynalarını ekrana getirir: sol ayna, sol geniş açı aynası ve tırda varsa ön ayna. Büyütmek için birine dokun.
 
 **Tarayıcı** uygulaması istediğin siteyi açar: üstteki çubuğa adres ya da arama yaz, bir sayfayı başlangıç sayfasında tutmak için yıldıza bas. Giriş yaptığın sitelerde oturumun açık kalır; `Ctrl+Alt+F` sayfadaki videoyu tam ekran yapar. Yazı yazmak için kontrol modu gerekir (`Ctrl+Alt+C`). Sürerken `Ctrl+Alt` basılı tutup fare tekerleğini çevirerek oyunu durdurmadan sayfayı kaydırabilirsin (o dönüş oyuna gitmez, tekerleğe bağlı retarder etkilenmez); YouTube Shorts, Instagram Reels ve TikTok'ta her tık bir sonraki video, YouTube Shorts da ekrana tam sığar.
 
@@ -92,12 +92,14 @@ Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, 
 
 **Başka yerler:** Serviste ekranı ön camın dışında *Dashboard* (torpido), *Air vent* (havalandırma), *Overhead* (tavan), *Passenger seat* (yolcu koltuğu), *Console* (konsol), *Cup holder* (bardaklık, yeni tırlarda) ve *Passenger side* (camın yolcu tarafı) olarak da takabilirsin. Yatakta izlemek için 27" **CabinPlay TV** var: arka duvara (Işık Panosu yuvası) düz ya da yastığa doğru açılmış, veya ön cama düz, yatağa dönük ya da sürücüye dönük. Her tırda kafanı sağa çevirmeye arkaya baktıktan sonra da devam et: kamera yatağa geçer ve yastıkta, TV'ye bakarak durur.
 
+**Otobüsler:** Coaches DLC'n varsa otobüs servisinde de CabinPlay var: MAN Lion's Coach, Scania Touring ve Volvo 9700 için soldaki üç ön cam ekranı, *Air vent* (havalandırma), *Cup holder* (bardaklık), *Dashboard* (torpido; MAN, Volvo), *Overhead* (tavan; MAN, Scania) ve koridorun üstünde tavandan sarkan 27" **CabinPlay TV (Passengers)**. Kafanı sağa çevirmeye arkaya baktıktan sonra da devam et: kamera koridordan geçip sağdaki ön yolcu koltuğuna oturur. DLC'si olmayanlarda hiçbir şey değişmez.
+
 ## Gerekenler
 
 - Euro Truck Simulator 2 **1.61 / 1.62**, Windows 10 veya 11
 - DLC gerekmez
 - Tek oyunculuda da TruckersMP'de de çalışır
-- 25 tıra uyar; Renault E-Tech T'ye uymaz
+- 25 tıra ve Coaches DLC'nin 3 otobüsüne uyar; Renault E-Tech T'ye uymaz
 
 ## Yardım ve topluluk
 

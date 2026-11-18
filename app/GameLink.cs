@@ -28,7 +28,15 @@ internal sealed record Vehicle(
     string TruckBrand, string TruckName, string TruckPlate, string TrailerName, string TrailerPlate,
     string Cargo, string SourceCity, string SourceCompany, string DestinationCity, string DestinationCompany,
     string JobMarket, string SourceCityId, string DestinationCityId,
-    bool LowBeam, bool Placed, double X, double Z); // X, Z: the truck in the game's world, metres
+    bool LowBeam, bool Placed, double X, double Z, // X, Z: the truck in the game's world, metres
+    bool BusFlag)
+{
+    /// <summary>One of the Coaches DLC buses. The plugin says so from the vehicle's id; an older
+    /// plugin does not, so the bus models' names count too.</summary>
+    public bool Bus => Truck && (BusFlag || TruckName.Contains("Lion's Coach", StringComparison.OrdinalIgnoreCase) ||
+                                 TruckName.Contains("Touring", StringComparison.OrdinalIgnoreCase) ||
+                                 TruckName.Contains("9700", StringComparison.Ordinal));
+}
 
 internal readonly record struct GameState(
     bool Connected,   // the plugin is rendering frames right now
@@ -66,7 +74,8 @@ internal sealed unsafe class GameLink : IDisposable
     // CABINPLAY_VEHICLE_*
     private const uint VehicleTruck = 0x01, VehicleEngine = 0x02, VehicleParkingBrake = 0x04, VehicleTrailer = 0x08,
                        VehicleTrailerCoupled = 0x10, VehicleJob = 0x20, VehicleCargoLoaded = 0x40,
-                       VehicleSpecial = 0x80, VehicleAts = 0x100, VehicleLowBeam = 0x200, VehiclePlaced = 0x400;
+                       VehicleSpecial = 0x80, VehicleAts = 0x100, VehicleLowBeam = 0x200, VehiclePlaced = 0x400,
+                       VehicleBus = 0x800;
 
     private readonly MemoryMappedFile _file;
     private readonly MemoryMappedViewAccessor _view;
@@ -147,7 +156,8 @@ internal sealed unsafe class GameLink : IDisposable
             Text(v + 104, 32), Text(v + 136, 48), Text(v + 184, 24), Text(v + 208, 48), Text(v + 256, 24),
             Text(v + 280, 64), Text(v + 344, 48), Text(v + 392, 48), Text(v + 440, 48), Text(v + 488, 48),
             Text(v + 536, 32), Text(v + 568, 32), Text(v + 600, 32),
-            (flags & VehicleLowBeam) != 0, (flags & VehiclePlaced) != 0, *(double*)(v + 632), *(double*)(v + 648));
+            (flags & VehicleLowBeam) != 0, (flags & VehiclePlaced) != 0, *(double*)(v + 632), *(double*)(v + 648),
+            (flags & VehicleBus) != 0);
     }
 
     private static string Text(byte* p, int capacity)
