@@ -6,7 +6,7 @@ Un écran multimédia fonctionnel pour la cabine de votre camion dans **Euro Tru
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=T%C3%89L%C3%89CHARGEMENTS" alt="Téléchargements"></a>
-  <a href="https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20SAIN" alt="VirusTotal: 0/69 sain"></a>
+  <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20SAIN" alt="VirusTotal: 0/69 sain"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@ Un écran multimédia fonctionnel pour la cabine de votre camion dans **Euro Tru
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 sain"></a><br>
-  <sub>🛡️ Aucun des 69 antivirus de VirusTotal n'a signalé CabinPlay. <a href="https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1">Voir le rapport</a></sub>
+  <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 sain"></a><br>
+  <sub>🛡️ Aucun des 69 antivirus de VirusTotal n'a signalé CabinPlay. <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1">Voir le rapport</a></sub>
 </p>
 
 ## Téléchargement
 
 **[Téléchargez la dernière version](https://github.com/timurmert/ets2-cabinplay/releases/latest)** et prenez le fichier `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Analyse antivirus :** le programme d'installation a été analysé sur VirusTotal par 69 antivirus, et aucun ne l'a signalé. **[Voir le rapport](https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1)**
+> 🛡️ **Analyse antivirus :** le programme d'installation a été analysé sur VirusTotal par 69 antivirus, et aucun ne l'a signalé. **[Voir le rapport](https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1)**
 
 ## Installation
 
@@ -82,9 +82,9 @@ C'est tout. L'écran s'allume avec le contact du camion. Installé avec le progr
 
 La lecture se met en pause quand vous mettez le jeu en pause ou coupez le contact. La langue se règle dans **Réglages**, à l'écran. Si vous avez fermé CabinPlay depuis ses réglages, `Ctrl+Alt+C` (ou la touche choisie pour le mode contrôle) le relance.
 
-L'app **Camion** affiche les dégâts du camion et de la remorque, la cargaison, le carburant et les indicateurs. Les raccourcis Ctrl+Alt fonctionnent aussi quand le jeu est au premier plan, et leurs touches n'atteignent jamais le jeu : un raccourci ne déclenche ni le klaxon ni rien d'autre sur le camion.
+L'app **Véhicule** affiche les dégâts du camion (ou de l'autocar) et de la remorque, la cargaison, le carburant et les indicateurs. Les raccourcis Ctrl+Alt fonctionnent aussi quand le jeu est au premier plan, et leurs touches n'atteignent jamais le jeu : un raccourci ne déclenche ni le klaxon ni rien d'autre sur le camion.
 
-L'app **Rétroviseurs** affiche les rétroviseurs du camion à l'écran : le rétro gauche, son grand angle et, s'il y en a un, le rétro avant. Touchez-en un pour l'agrandir.
+L'app **Rétroviseurs** (camions uniquement) affiche les rétroviseurs du camion à l'écran : le rétro gauche, son grand angle et, s'il y en a un, le rétro avant. Touchez-en un pour l'agrandir.
 
 L'app **Navigateur** ouvre n'importe quel site : saisissez une adresse ou une recherche dans la barre du haut, et touchez l'étoile pour garder une page sur la page de démarrage. Vous restez connecté aux sites, et `Ctrl+Alt+F` passe la vidéo d'une page en plein écran. La saisie nécessite le mode contrôle (`Ctrl+Alt+C`). En roulant, maintenez `Ctrl+Alt` et tournez la molette pour faire défiler la page sans mettre le jeu en pause (le jeu ne reçoit pas ce cran, un ralentisseur sur la molette ne bouge pas) ; sur YouTube Shorts, Instagram Reels et TikTok, chaque cran passe à la vidéo suivante, et les YouTube Shorts tiennent entiers à l'écran.
 
@@ -92,12 +92,14 @@ La vue **côte à côte** affiche deux apps en même temps, par exemple la carte
 
 **Autres emplacements :** en plus du pare-brise, le garage propose l'écran pour le *Dashboard* (tableau de bord), l'*Air vent* (aérateur), *Overhead* (plafond), le *Passenger seat* (siège passager), la *Console* (console centrale), le *Cup holder* (porte-gobelet, camions récents) et le *Passenger side* (côté passager du pare-brise). Pour regarder depuis la couchette, il y a la **CabinPlay TV** de 27" : sur la paroi arrière (emplacement du panneau lumineux), à plat ou sortie vers l'oreiller, ou sur le pare-brise, à plat ou tournée vers la couchette ou vers le conducteur. Dans chaque camion, continuez à tourner la tête vers la droite au-delà de la vue arrière : la caméra passe sur la couchette et s'arrête à l'oreiller, face à la télé.
 
+**Autocars :** avec le DLC Coaches, le garage de l'autocar propose aussi CabinPlay, pour le MAN Lion's Coach, le Scania Touring et le Volvo 9700 : les trois écrans à gauche du pare-brise, l'*Air vent* (aérateur), le *Cup holder* (porte-gobelet), le *Dashboard* (tableau de bord ; MAN, Volvo), *Overhead* (plafond ; MAN, Scania) et la **CabinPlay TV (Passengers)**, une télé de 27" suspendue au plafond au-dessus de l'allée. Continuez à tourner la tête vers la droite au-delà de la vue arrière : la caméra remonte l'allée jusqu'au siège passager avant de droite. Sans le DLC, rien ne change.
+
 ## Prérequis
 
 - Euro Truck Simulator 2 **1.61 / 1.62**, Windows 10 ou 11
 - Aucun DLC requis
 - Fonctionne en solo et sur TruckersMP
-- Compatible avec 25 camions ; pas avec le Renault E-Tech T
+- Compatible avec 25 camions et les 3 autocars du DLC Coaches ; pas avec le Renault E-Tech T
 
 ## Aide et communauté
 

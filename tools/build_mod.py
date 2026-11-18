@@ -38,6 +38,33 @@ TRUCKS = [
 SLOT = "set_lglass"
 CENTRE_SLOT = "set_glass"
 
+# The Coaches DLC buses. Their parts go under /def/vehicle/bus/, which the game only reads while
+# the DLC is there, so the mod still needs no DLC: without it these definitions are never loaded,
+# and the camera files below are only included by the DLC's own camera list. Each bus gets the
+# left windscreen screens (VARIANTS), some of the truck places, a TV for the passengers and a
+# passenger seat view. Measured from the game's interior models (driver's eyes at the origin, +x
+# right, +y up, -z forward):
+#   places    the PLACES units the bus gets (not the centre screen: the middle mount point sits
+#             high up the windscreen in a bus; not the overhead screen where it would hang in the
+#             view ahead, as in the Volvo, whose roof hook is at the top of the lower windscreen)
+#   aisle     x of the aisle, the middle of the bus
+#   ceiling   height of the roof over the aisle where the passenger TV hangs, tv_z: where along
+#             the bus it hangs (negative: ahead of the driver's eyes)
+#   seat      the eyes of a passenger in the front seat right of the aisle: the passenger seat view
+#   upper     double-decker: the eyes on the upper deck's front seat, reached up the stairs (a trial:
+#             the game may not draw the upper deck from the driver's camera)
+BUSES = {
+    "man.lions_24": dict(places=["cabinplay_d", "cabinplay_v", "cabinplay_k", "cabinplay_o"],
+                         aisle=0.685, ceiling=1.25, tv_z=-0.20, seat=(1.62, 0.30, 1.04)),
+    "scania.touring_23": dict(places=["cabinplay_v", "cabinplay_k", "cabinplay_o"],
+                              aisle=0.645, ceiling=1.21, tv_z=-0.35, seat=(1.59, 0.39, 0.79)),
+    "volvo.9700_23": dict(places=["cabinplay_d", "cabinplay_v", "cabinplay_k"],
+                          aisle=0.687, ceiling=0.22, tv_z=1.05, seat=(1.14, -0.50, 2.25),
+                          upper=(1.14, 1.28, -0.31), stairs=(1.45, 0.35, 0.55)),
+}
+# A slot some vehicles call by another name: the MAN bus's cup holder.
+SLOT_ALIASES = {"cup_holder": ("set_cuphold",)}
+
 # How far the middle mount point is above the left one in each truck's interior (metres),
 # measured from the game's interior models. The middle point sits half way up the glass,
 # so the centre screen hangs below it by about this much to end up level with the left one.
@@ -177,6 +204,11 @@ SIZE_COMPACT = dict(screen=(0.1150, 0.0575), screen_r=0.0050, body=(0.1220, 0.06
 SIZE_LARGE = dict(screen=(0.1260, 0.0630), screen_r=0.0055, body=(0.1330, 0.0700, 0.0095, 0.0130))  # 11 inch
 # A television to watch from the bunk, on a wall bracket: only for the places made for that.
 SIZE_TV = dict(screen=(0.3100, 0.1550), screen_r=0.0060, body=(0.3180, 0.1630, 0.0300, 0.0080))  # 27 inch
+# The passengers' TV in a bus, hanging from the roof over the aisle.
+# The passengers' TV in a bus, hanging from the roof over the aisle: as big as the bunk TV
+# (27 inch); 19 inch looked small from the seats.
+SIZE_COACH_TV = SIZE_TV
+TV_HANG = 0.06  # between the roof and the top of the passengers' TV
 
 UP, DOWN = (0.0, 1.0, 0.0), (0.0, -1.0, 0.0)
 SWING_PLATE = 0.012  # thickness of the folding arm's plates on the wall and the screen
@@ -258,12 +290,32 @@ def qinv(q):
     return (q[0] / l, -q[1] / l, -q[2] / l, -q[3] / l)
 
 
+def slot_of(place, truck):
+    """The name this truck (or bus) gives the place's slot, or None when it has no such slot."""
+    for name in (place["slot"],) + SLOT_ALIASES.get(place["slot"], ()):
+        if name in SLOTS[truck]:
+            return name
+    return None
+
+
+def bus_tv_place(bus):
+    """The passengers' TV in this bus: on the roof hook's slot, over the aisle further back, turned
+    to the passenger seat view."""
+    b = BUSES[bus]
+    pos = SLOTS[bus]["toyhang"][0]
+    centre = (b["aisle"], b["ceiling"] - TV_HANG - SIZE_COACH_TV["body"][1], b["tv_z"])
+    return dict(slot="toyhang", unit="cabinplay_pt", model="cp_bus_tv", name="CabinPlay TV (Passengers)",
+                price=3000, size=SIZE_COACH_TV, mount="ceiling", roof=b["ceiling"] + 0.03,
+                foot=vsub(centre, pos), normal=DOWN, centre=vsub(centre, pos), face=("cp_seat", (0.0, 0.0, 0.0)))
+
+
 def placed_variant(place, truck):
     """The screen for one place in one truck, in the slot's own axes, or None when the truck
     has no such slot."""
-    if place["slot"] not in SLOTS[truck]:
+    slot = slot_of(place, truck)
+    if slot is None:
         return None
-    pos, rot = SLOTS[truck][place["slot"]]
+    pos, rot = SLOTS[truck][slot]
     inv = qinv(rot)
 
     def world(offset):
@@ -308,6 +360,16 @@ def placed_variant(place, truck):
         return qrot(inv, vsub(p, pos))
     variant = dict(place, center=local(centre), cup=local(foot), glass=qrot(inv, normal),
                    frame=tuple(qrot(inv, a) for a in (right, up, front)), **place["size"])
+    if place.get("mount") == "ceiling":
+        # A pole from the roof: from a plate on the back of the screen it goes straight back, away
+        # from the viewer, and then up to a plate on the roof.
+        hinge = vsub(centre, vmul(front, place["size"]["body"][2] + SWING_PLATE))
+        back = vnorm((-front[0], 0.0, -front[2]))
+        elbow = vadd(hinge, vmul(back, 0.07))
+        roof = (elbow[0], place["roof"], elbow[2])
+        variant["cup"] = local(roof)
+        variant["arm_points"] = tuple(local(p) for p in (hinge, elbow, roof))
+        variant["wall_up"] = qrot(inv, UP)
     if place.get("mount") == "swing":
         # The folding arm: from the wall plate out to an elbow, bent away from the viewer, and
         # on to the hinge on the back of the screen.
@@ -349,15 +411,54 @@ def azimuth_ranges(text):
     return out
 
 
-def pillow_camera(truck):
-    """The game's interior camera of this truck with the pillow view added."""
+def last_range(truck):
+    """The game's own azimuth range furthest to the right in this vehicle's interior camera."""
+    ranges = azimuth_ranges(CAMERAS[truck][1])
+    return min(ranges.values(), key=lambda r: float(r["end_azimuth"]))
+
+
+def vec(s):
+    return tuple(float(c) for c in s.strip("() ").split(","))
+
+
+def extended_camera(truck, steps, note):
+    """The game's interior camera of this vehicle with azimuth ranges added after its last one on
+    the right. steps: (end azimuth, head offset, up/down default[, outside]), each range starting
+    where the one before ends."""
     _, text = CAMERAS[truck]
     unit = re.search(r"vehicle_interior_camera\s*:\s*(\S+)", text).group(1)
-    ranges = azimuth_ranges(text)
-    last = min(ranges.values(), key=lambda r: float(r["end_azimuth"]))  # furthest to the right
+    last = last_range(truck)
+    start = float(last["end_azimuth"])
+    up, down = last["end_up_limit"], last["end_down_limit"]
+    lr = last["end_left_right_default"]
+    prev_az, prev_off, prev_ud = start, vec(last["end_head_offset_offset"]), float(last["end_up_down_default"])
+    units, refs = "", ""
+    for i, step in enumerate(steps):
+        az, off, ud = step[:3]
+        outside = len(step) > 3 and step[3]
+        name = "_nameless.%s.ar.cp%d" % (truck, i + 1)
+        refs += "        azimuth_overrides[]: %s\n" % name
+        units += ("\ncamera_azimuth_range: %s\n{\n"
+                  "\tstart_azimuth: %.1f\n\tend_azimuth: %.1f\n\n\toutside: %s\n\n"
+                  "\tstart_up_limit: %s\n\tend_up_limit: %s\n"
+                  "\tstart_down_limit: %s\n\tend_down_limit: %s\n\n"
+                  "\tstart_up_down_default: %.1f\n\tend_up_down_default: %.1f\n\n"
+                  "\tstart_left_right_default: %s\n\tend_left_right_default: %s\n\n"
+                  "\tstart_head_offset_offset: (%.3f, %.3f, %.3f)\n\tend_head_offset_offset: (%.3f, %.3f, %.3f)\n"
+                  "}\n") % (name, prev_az, az, "true" if outside else "false", up, up, down, down, prev_ud, ud,
+                            lr, lr, *prev_off, *off)
+        prev_az, prev_off, prev_ud = az, off, ud
+    # the unit's own block ends at the first closing brace after its name
+    head, sep, rest = text.partition(unit)
+    body_end = rest.index("\n}")
+    rest = rest[:body_end] + "\n\t# CabinPlay: %s\n" % note + refs + rest[body_end:]
+    rest = re.sub(r"mouse_right_limit\s*:\s*-?[\d.]+", "mouse_right_limit: %.1f" % prev_az, rest, count=1)
+    return head + sep + rest.rstrip() + "\n" + units
 
-    def vec(s):
-        return tuple(float(c) for c in s.strip("() ").split(","))
+
+def pillow_camera(truck):
+    """The game's interior camera of this truck with the pillow view added."""
+    last = last_range(truck)
     place = next(p for p in PLACES if p["unit"] == PILLOW_TV)
     variant, _ = placed_variant(place, truck)
     pos, rot = SLOTS[truck][place["slot"]]
@@ -371,33 +472,51 @@ def pillow_camera(truck):
         watch -= 360
     pitch = math.degrees(math.atan2(d[1], math.hypot(d[0], d[2])))
 
-    up, down = last["end_up_limit"], last["end_down_limit"]
-    lr = last["end_left_right_default"]
     steps = [  # (end azimuth, head offset, up/down default)
         (start - 45, via, float(last["end_up_down_default"])),
         (watch + 15, eyes, pitch),
         (watch - PILLOW_TURN, eyes, pitch),  # free to look on to the right while lying there
     ]
-    prev_az, prev_off, prev_ud = start, vec(last["end_head_offset_offset"]), float(last["end_up_down_default"])
-    units, refs = "", ""
-    for i, (az, off, ud) in enumerate(steps):
-        name = "_nameless.%s.ar.cp%d" % (truck, i + 1)
-        refs += "        azimuth_overrides[]: %s\n" % name
-        units += ("\ncamera_azimuth_range: %s\n{\n"
-                  "\tstart_azimuth: %.1f\n\tend_azimuth: %.1f\n\n\toutside: false\n\n"
-                  "\tstart_up_limit: %s\n\tend_up_limit: %s\n"
-                  "\tstart_down_limit: %s\n\tend_down_limit: %s\n\n"
-                  "\tstart_up_down_default: %.1f\n\tend_up_down_default: %.1f\n\n"
-                  "\tstart_left_right_default: %s\n\tend_left_right_default: %s\n\n"
-                  "\tstart_head_offset_offset: (%.3f, %.3f, %.3f)\n\tend_head_offset_offset: (%.3f, %.3f, %.3f)\n"
-                  "}\n") % (name, prev_az, az, up, up, down, down, prev_ud, ud, lr, lr, *prev_off, *off)
-        prev_az, prev_off, prev_ud = az, off, ud
-    # the unit's own block ends at the first closing brace after its name
-    head, sep, rest = text.partition(unit)
-    body_end = rest.index("\n}")
-    rest = rest[:body_end] + "\n\t# CabinPlay: turn on to the right past looking back to lie on the pillow\n" + refs + rest[body_end:]
-    rest = re.sub(r"mouse_right_limit\s*:\s*-?[\d.]+", "mouse_right_limit: %.1f" % prev_az, rest, count=1)
-    return head + sep + rest.rstrip() + "\n" + units
+    return extended_camera(truck, steps, "turn on to the right past looking back to lie on the pillow")
+
+
+# The passenger seat view in a bus: turning on to the right past looking back carries the head
+# along the aisle to the front seat right of it, where it arrives looking ahead, a little towards
+# the passengers' TV. In the double-decker, turning on further takes it up the stairs to the upper
+# deck's front seat (a trial), and further still the same view with the camera counted as outside.
+SEAT_TURN = 75  # degrees the head can still turn right in the seat, past where it arrives
+
+
+def passenger_camera(bus):
+    """The game's interior camera of this bus with the passenger seat view added."""
+    b = BUSES[bus]
+    last = last_range(bus)
+    start = float(last["end_azimuth"])
+    eyes = b["seat"]
+    tv = (b["aisle"], b["ceiling"] - TV_HANG - SIZE_COACH_TV["body"][1], b["tv_z"])
+    d = vsub(tv, eyes)
+    # half way between straight ahead and the TV, so both the road and the TV are in view
+    watch = math.degrees(math.atan2(-d[0], -d[2])) / 2
+    while watch > start - 90:
+        watch -= 360
+    pitch = math.degrees(math.atan2(d[1], math.hypot(d[0], d[2]))) / 2 - 3
+    aisle = (b["aisle"], (eyes[1] + 0.15) / 2, 0.40)  # just behind the driver, on the way back
+    steps = [
+        (start - 60, aisle, float(last["end_up_down_default"])),
+        (watch + 15, eyes, pitch),
+        (watch - SEAT_TURN, eyes, pitch),
+    ]
+    note = "turn on to the right past looking back to sit in the front passenger seat"
+    if "upper" in b:
+        ahead = watch - math.degrees(math.atan2(-d[0], -d[2])) / 2 - 360  # straight ahead, once more round
+        steps += [
+            (watch - SEAT_TURN - 80, b["stairs"], -5.0),
+            (ahead + 15, b["upper"], -5.0),
+            (ahead - SEAT_TURN, b["upper"], -5.0),
+            (ahead - SEAT_TURN - 60, b["upper"], -5.0, True),  # trial: the same, counted as outside
+        ]
+        note += "; on further, up to the upper deck"
+    return extended_camera(bus, steps, note)
 
 
 # --------------------------------------------------------------------------- mesh
@@ -606,7 +725,7 @@ def build_model(variant):
     nav.quad(*q)
 
     wall = variant.get("mount") == "wall"
-    swing = variant.get("mount") == "swing"
+    swing = variant.get("mount") in ("swing", "ceiling")
     s = variant.get("arm", 1.0)  # size of the arm and its joints
     if wall:
         # a bracket plate from the back of the screen to the wall
@@ -645,6 +764,15 @@ def build_model(variant):
     for m in (body, glass, screen, nav):
         m.transform(place, rot)
     if wall:
+        return [body.piece(), glass.piece(), screen.piece(), nav.piece()]
+    if variant.get("mount") == "ceiling":
+        hinge, elbow, roof = variant["arm_points"]
+        up = vnorm(variant["wall_up"])
+        add_path_tube(body, [hinge, elbow], 0.010, seg=14, shade=106)
+        add_path_tube(body, [elbow, roof], 0.010, seg=14, shade=106)
+        add_sphere(body, elbow, 0.014, shade=110)
+        add_tube(body, [(vadd(roof, vmul(up, -0.012)), 0.040), (roof, 0.040)], seg=24, shade=84,
+                 cap_start=True, cap_end=True)
         return [body.piece(), glass.piece(), screen.piece(), nav.piece()]
     if swing:
         start, elbow, hinge = variant["arm_points"]
@@ -776,6 +904,38 @@ def write(rel, data):
     return path
 
 
+def write_nav_ui(ui_name, shown, ui_fill, map_w, u_span, v_span, fill):
+    """The navigation screen's UI: the map, the strip the plugin knows the texture by, and the
+    mirror views given."""
+    mirrors = ""
+    for name, material, (bottom, top), (x, y, w, h) in shown:
+        mirrors += ui_fill(name, 1, x, x + w, NAV_H - y, NAV_H - y - h,
+                           "<img src=/material/environment/%s_reflection.mat xscale=stretch yscale=stretch "
+                           "bottom=%.4f top=%.4f color=FFFFFFFF>" % (material, bottom, top))
+    parts = ["map", "mark_top", "mark_bottom", "background"] + [m[0] for m in shown]
+    write("/ui/dashboard/%s.sii" % ui_name,
+          'SiiNunit\n{\n'
+          'ui::window : _nameless.wnd {\n'
+          ' window_handler: null\n clip_children: true\n keep_aspect: none\n user_string_data: ""\n'
+          ' first_direction_focus_id: 0\n fitting: false\n'
+          ' my_children: %d\n' % len(parts)
+          + "".join(' my_children[%d]: _nameless._.%s\n' % (i, p) for i, p in enumerate(parts))
+          + ' coords_l: 0\n coords_r: %d\n coords_t: %d\n coords_b: 0\n'
+          ' area_l: 0\n area_r: %d\n area_t: %d\n area_b: 0\n'
+          ' id: 0\n layer: 0\n tab: -1\n pointer: -1\n my_parent: null\n}\n\n' % (NAV_W, NAV_H, NAV_W, NAV_H)
+          + ui_fill("map", 1, 0, map_w, NAV_H, NAV_H - MAP_H,
+                    "<img src=/material/ui/dashboard/bare_map.mat xscale=stretch yscale=stretch "
+                    "left=%.4f right=%.4f bottom=%.4f top=%.4f>" % (
+                        0.5 - u_span / 2, 0.5 + u_span / 2, 0.5 - v_span / 2, 0.5 + v_span / 2))
+          # The plugin tells the texture apart, and which way up it is stored, by this strip:
+          # green over magenta. Both read the same whichever way the colour bytes are ordered.
+          + ui_fill("mark_top", 2, map_w, NAV_W, NAV_H, NAV_H // 2, fill % "ff10c010")
+          + ui_fill("mark_bottom", 2, map_w, NAV_W, NAV_H // 2, 0, fill % "ffc010c0")
+          + ui_fill("background", 0, 0, NAV_W, NAV_H, 0, fill % "ff191919")
+          + mirrors
+          + '}\n')
+
+
 def main():
     shutil.rmtree(TREE, ignore_errors=True)
     os.makedirs(DIST, exist_ok=True)
@@ -789,11 +949,15 @@ def main():
         for base in CENTRE_VARIANTS:
             variant = centre_variant(base, truck)
             centre[variant["model"]] = variant
-    # the other places: one model per place and truck, shared by trucks where it comes out the same
+    # the passenger seat view in a bus, which the passengers' TV turns to, as if it were a slot
+    for bus, b in BUSES.items():
+        SLOTS[bus]["cp_seat"] = (b["seat"], (1.0, 0.0, 0.0, 0.0))
+    # the other places: one model per place and truck, shared by trucks where it comes out the same;
+    # the buses after the trucks, so the trucks' models keep their names
     placed, models = {}, {}
     for place in PLACES:
         shapes = {}
-        for truck in TRUCKS:
+        for truck in TRUCKS + [bus for bus, b in BUSES.items() if place["unit"] in b["places"]]:
             found = placed_variant(place, truck)
             if not found:
                 continue
@@ -802,6 +966,12 @@ def main():
                 shapes[key] = dict(variant, model="%s_%d" % (place["model"], len(shapes)))
                 models[place["model"], key] = shapes[key]
             placed[place["unit"], truck] = shapes[key]
+    # the passengers' TV, one per bus
+    for i, bus in enumerate(BUSES):
+        variant, key = placed_variant(bus_tv_place(bus), bus)
+        variant["model"] = "%s_%d" % (variant["model"], i)
+        models[variant["model"], key] = variant
+        placed[variant["unit"], bus] = variant
     for variant in VARIANTS + list(centre.values()) + list(models.values()):
         assert len(variant["unit"]) <= 12, "the game limits each part of a unit name to 12 characters"
         pieces = build_model(variant)
@@ -868,33 +1038,10 @@ def main():
     u_span = 0.84
     v_span = u_span * MAP_H / map_w
     fill = "<img src=/material/ui/white.mat color=%s xscale=stretch yscale=stretch>"
-    mirrors = ""
-    for name, material, (bottom, top), (x, y, w, h) in MIRRORS:
-        mirrors += ui_fill(name, 1, x, x + w, NAV_H - y, NAV_H - y - h,
-                           "<img src=/material/environment/%s_reflection.mat xscale=stretch yscale=stretch "
-                           "bottom=%.4f top=%.4f color=FFFFFFFF>" % (material, bottom, top))
-    parts = ["map", "mark_top", "mark_bottom", "background"] + [m[0] for m in MIRRORS]
-    write("/ui/dashboard/cabinplay_nav.sii",
-          'SiiNunit\n{\n'
-          'ui::window : _nameless.wnd {\n'
-          ' window_handler: null\n clip_children: true\n keep_aspect: none\n user_string_data: ""\n'
-          ' first_direction_focus_id: 0\n fitting: false\n'
-          ' my_children: %d\n' % len(parts)
-          + "".join(' my_children[%d]: _nameless._.%s\n' % (i, p) for i, p in enumerate(parts))
-          + ' coords_l: 0\n coords_r: %d\n coords_t: %d\n coords_b: 0\n'
-          ' area_l: 0\n area_r: %d\n area_t: %d\n area_b: 0\n'
-          ' id: 0\n layer: 0\n tab: -1\n pointer: -1\n my_parent: null\n}\n\n' % (NAV_W, NAV_H, NAV_W, NAV_H)
-          + ui_fill("map", 1, 0, map_w, NAV_H, NAV_H - MAP_H,
-                    "<img src=/material/ui/dashboard/bare_map.mat xscale=stretch yscale=stretch "
-                    "left=%.4f right=%.4f bottom=%.4f top=%.4f>" % (
-                        0.5 - u_span / 2, 0.5 + u_span / 2, 0.5 - v_span / 2, 0.5 + v_span / 2))
-          # The plugin tells the texture apart, and which way up it is stored, by this strip:
-          # green over magenta. Both read the same whichever way the colour bytes are ordered.
-          + ui_fill("mark_top", 2, map_w, NAV_W, NAV_H, NAV_H // 2, fill % "ff10c010")
-          + ui_fill("mark_bottom", 2, map_w, NAV_W, NAV_H // 2, 0, fill % "ffc010c0")
-          + ui_fill("background", 0, 0, NAV_W, NAV_H, 0, fill % "ff191919")
-          + mirrors
-          + '}\n')
+    # A bus draws its mirrors with the game's newer mirror materials, which ours do not show, so its
+    # screens get the map without the mirror views (and the app hides its mirrors app in a bus).
+    for ui_name, shown in (("cabinplay_nav", MIRRORS), ("cabinplay_nav_bus", [])):
+        write_nav_ui(ui_name, shown, ui_fill, map_w, u_span, v_span, fill)
 
     # accessory icon
     write("/material/ui/accessory/cabinplay_screen.dds", dds_bytes(256, 64, [(256, 64)], lambda w, h: render_icon(w, h)))
@@ -904,13 +1051,18 @@ def main():
           'effect : "ui.rfx" {\n\ttexture : "texture" {\n\t\tsource : "cabinplay_screen.tobj"\n'
           '\t\tu_address : clamp\n\t\tv_address : clamp\n\t\tmip_filter : none\n\t}\n}\n')
 
-    # one accessory definition per truck, mount point and version
-    for truck in TRUCKS:
+    # one accessory definition per truck, mount point and version, and the same for the buses
+    for truck in TRUCKS + list(BUSES):
+        bus = truck in BUSES
         fitted = [(SLOT, v) for v in VARIANTS]
-        fitted += [(CENTRE_SLOT, centre_variant(v, truck)) for v in CENTRE_VARIANTS]
-        fitted += [(p["slot"], placed[p["unit"], truck]) for p in PLACES if (p["unit"], truck) in placed]
+        if bus:
+            fitted += [(slot_of(p, truck), placed[p["unit"], truck]) for p in PLACES + [bus_tv_place(truck)]
+                       if (p["unit"], truck) in placed]
+        else:
+            fitted += [(CENTRE_SLOT, centre_variant(v, truck)) for v in CENTRE_VARIANTS]
+            fitted += [(slot_of(p, truck), placed[p["unit"], truck]) for p in PLACES if (p["unit"], truck) in placed]
         for slot, variant in fitted:
-            write("/def/vehicle/truck/%s/accessory/%s/%s.sii" % (truck, slot, variant["unit"]),
+            write("/def/vehicle/%s/%s/accessory/%s/%s.sii" % ("bus" if bus else "truck", truck, slot, variant["unit"]),
                   'SiiNunit\n{\n'
                   'accessory_addon_int_ui_data : %s.%s.%s\n{\n'
                   '\tname: "%s"\n'
@@ -921,15 +1073,17 @@ def main():
                   '\tinterior_model: "%s/%s.pmd"\n'
                   # the same model seen through the windows from the outside cameras
                   '\texterior_model: "%s/%s.pmd"\n\n'
-                  '\tui_path: "/ui/dashboard/cabinplay_nav.sii"\n'
+                  '\tui_path: "/ui/dashboard/%s.sii"\n'
                   '\tui_drawable_texture_path: "%s/nav_ui.tobj"\n'
                   '\tui_drawable_size: (%d, %d)\n'
                   '}\n}\n' % (variant["unit"], truck, slot, variant["name"], variant["price"],
-                              MODEL_DIR, variant["model"], MODEL_DIR, variant["model"], MODEL_DIR, NAV_W, NAV_H))
+                              MODEL_DIR, variant["model"], MODEL_DIR, variant["model"],
+                              "cabinplay_nav_bus" if bus else "cabinplay_nav", MODEL_DIR, NAV_W, NAV_H))
 
-    # interior cameras with the pillow view, in place of the game's own
+    # interior cameras with the pillow view (trucks) or the passenger seat view (buses), in place of
+    # the game's own
     for truck, (name, _) in CAMERAS.items():
-        write("/def/camera/units/%s.sui" % name, pillow_camera(truck))
+        write("/def/camera/units/%s.sui" % name, passenger_camera(truck) if truck in BUSES else pillow_camera(truck))
 
     # manifest
     has_icon = os.path.exists(os.path.join(STATIC, "mod_icon.jpg"))
@@ -953,6 +1107,7 @@ def main():
           "the middle of the windscreen (Centre), turned towards the driver. Also on the dashboard, the air vent, the\n"
           "roof, the passenger seat, the console, the cup holder or the passenger's side of the\n"
           "windscreen. And a 27 inch TV to watch from the bunk, on the back wall or the windscreen.\n"
+          "With the Coaches DLC also in its buses, with a TV for the passengers; the DLC is not needed.\n"
           "The picture comes from the CabinPlay companion app through the cabinplay plugin;\n"
           "without them the screen stays off.\n")
 

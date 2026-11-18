@@ -6,7 +6,7 @@ Działający ekran multimedialny w kabinie ciężarówki w **Euro Truck Simulato
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=POBRANIA" alt="Pobrania"></a>
-  <a href="https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20CZYSTY" alt="VirusTotal: 0/69 czysty"></a>
+  <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20CZYSTY" alt="VirusTotal: 0/69 czysty"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@ Działający ekran multimedialny w kabinie ciężarówki w **Euro Truck Simulato
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 czysty"></a><br>
-  <sub>🛡️ Żaden z 69 silników antywirusowych na VirusTotal nie oznaczył CabinPlay. <a href="https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1">Zobacz raport</a></sub>
+  <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 czysty"></a><br>
+  <sub>🛡️ Żaden z 69 silników antywirusowych na VirusTotal nie oznaczył CabinPlay. <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1">Zobacz raport</a></sub>
 </p>
 
 ## Pobieranie
 
 **[Pobierz najnowszą wersję](https://github.com/timurmert/ets2-cabinplay/releases/latest)** i weź plik `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Skan antywirusowy:** instalator został sprawdzony na VirusTotal przez 69 silników antywirusowych i żaden go nie oznaczył. **[Zobacz raport](https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1)**
+> 🛡️ **Skan antywirusowy:** instalator został sprawdzony na VirusTotal przez 69 silników antywirusowych i żaden go nie oznaczył. **[Zobacz raport](https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1)**
 
 ## Instalacja
 
@@ -82,9 +82,9 @@ To wszystko. Ekran włącza się razem z zapłonem ciężarówki. Zainstalowany 
 
 Odtwarzanie wstrzymuje się, gdy zatrzymasz grę lub wyłączysz zapłon. Język zmienisz w **Ustawieniach** na ekranie. Jeśli zamkniesz CabinPlay w ustawieniach, `Ctrl+Alt+C` (lub klawisz przypisany do trybu sterowania) uruchomi go ponownie.
 
-Aplikacja **Ciężarówka** pokazuje uszkodzenia ciężarówki i naczepy, ładunek, paliwo i wskaźniki. Skróty Ctrl+Alt działają także wtedy, gdy gra jest na pierwszym planie, a ich klawisze nie trafiają do gry, więc skrót nie włączy klaksonu ani niczego w ciężarówce.
+Aplikacja **Pojazd** pokazuje uszkodzenia ciężarówki (lub autobusu) i naczepy, ładunek, paliwo i wskaźniki. Skróty Ctrl+Alt działają także wtedy, gdy gra jest na pierwszym planie, a ich klawisze nie trafiają do gry, więc skrót nie włączy klaksonu ani niczego w ciężarówce.
 
-Aplikacja **Lusterka** pokazuje na ekranie lusterka ciężarówki: lewe, lewe szerokokątne oraz, jeśli jest, przednie. Dotknij jednego, aby je powiększyć.
+Aplikacja **Lusterka** (tylko w ciężarówkach) pokazuje na ekranie lusterka ciężarówki: lewe, lewe szerokokątne oraz, jeśli jest, przednie. Dotknij jednego, aby je powiększyć.
 
 Aplikacja **Przeglądarka** otwiera dowolną stronę: wpisz adres lub wyszukiwanie w pasku u góry i naciśnij gwiazdkę, aby zachować stronę na stronie startowej. W serwisach pozostajesz zalogowany, a `Ctrl+Alt+F` włącza pełny ekran dla wideo na stronie. Do pisania potrzebny jest tryb sterowania (`Ctrl+Alt+C`). W czasie jazdy przytrzymaj `Ctrl+Alt` i kręć kółkiem myszy, aby przewijać stronę bez pauzowania gry (gra nie dostaje tego ruchu, więc retarder na kółku zostaje nietknięty); w YouTube Shorts, Instagram Reels i TikToku każdy ząbek to następny film, a YouTube Shorts mieszczą się na ekranie w całości.
 
@@ -92,12 +92,14 @@ Widok **obok siebie** pokazuje dwie aplikacje naraz, na przykład mapę po lewej
 
 **Więcej miejsc:** poza przednią szybą warsztat ma ekran także na *Dashboard* (deska rozdzielcza), *Air vent* (kratka nawiewu), *Overhead* (sufit), *Passenger seat* (fotel pasażera), *Console* (konsola), *Cup holder* (uchwyt na kubek, nowsze ciężarówki) i *Passenger side* (strona pasażera na szybie). Do oglądania z leżanki jest 27-calowy **CabinPlay TV**: na tylnej ścianie (gniazdo panelu świetlnego), płasko lub wysunięty w stronę poduszki, albo na przedniej szybie, płasko lub zwrócony do leżanki albo do kierowcy. W każdej ciężarówce obracaj głowę w prawo dalej, za widok do tyłu: kamera przesunie się na leżankę i zatrzyma przy poduszce, zwrócona do telewizora.
 
+**Autobusy:** z DLC Coaches CabinPlay jest też w warsztacie autobusu, dla MAN Lion's Coach, Scania Touring i Volvo 9700: trzy ekrany po lewej stronie przedniej szyby, *Air vent* (kratka nawiewu), *Cup holder* (uchwyt na kubek), *Dashboard* (deska rozdzielcza; MAN, Volvo), *Overhead* (sufit; MAN, Scania) i **CabinPlay TV (Passengers)**, 27-calowy telewizor zawieszony pod sufitem nad przejściem. Obracaj głowę w prawo dalej, za widok do tyłu: kamera przejdzie przejściem do przedniego fotela pasażera po prawej. Bez DLC nic się nie zmienia.
+
 ## Wymagania
 
 - Euro Truck Simulator 2 **1.61 / 1.62**, Windows 10 lub 11
 - Nie wymaga DLC
 - Działa w trybie jednoosobowym i na TruckersMP
-- Pasuje do 25 ciężarówek; nie do Renault E-Tech T
+- Pasuje do 25 ciężarówek i 3 autobusów z DLC Coaches; nie do Renault E-Tech T
 
 ## Pomoc i społeczność
 

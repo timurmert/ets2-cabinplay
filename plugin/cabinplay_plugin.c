@@ -192,6 +192,7 @@ static volatile int g_engine_on, g_parking_brake, g_trailer_coupled, g_low_beam;
 static volatile double g_position[3]; /* truck.world.placement, copied to the app in publish_vehicle */
 static volatile int g_placed;
 static int g_have_truck, g_have_trailer, g_have_job, g_job_loaded, g_job_special;
+static int g_is_bus; /* the truck configuration is one of the Coaches DLC buses */
 static int g_is_ats;
 
 /* control mode */
@@ -1334,6 +1335,7 @@ static void publish_vehicle(void)
     if (g_is_ats) flags |= CABINPLAY_VEHICLE_ATS;
     if (g_low_beam) flags |= CABINPLAY_VEHICLE_LOW_BEAM;
     if (g_placed) flags |= CABINPLAY_VEHICLE_PLACED;
+    if (g_have_truck && g_is_bus) flags |= CABINPLAY_VEHICLE_BUS;
     g_vehicle.flags = flags;
     g_vehicle.position_x = g_position[0];
     g_vehicle.position_y = g_position[1];
@@ -3165,6 +3167,7 @@ static void __stdcall on_scs_configuration(uint32_t event, const void *info, voi
         g_job_loaded = g_job_special = 0;
     }
     int any = 0;
+    char vehicle_id[64] = "";
     for (const scs_named_value_t *a = c->attributes; a && a->name; a++) {
         const char *n = a->name;
         const scs_value_t *x = &a->value;
@@ -3175,6 +3178,7 @@ static void __stdcall on_scs_configuration(uint32_t event, const void *info, voi
             else if (!strcmp(n, "license.plate")) copy_text(v->truck_plate, sizeof(v->truck_plate), x);
             else if (!strcmp(n, "fuel.capacity")) v->fuel_capacity_l = (float)value_number(x);
             else if (!strcmp(n, "adblue.capacity")) v->adblue_capacity_l = (float)value_number(x);
+            else if (!strcmp(n, "id")) copy_text(vehicle_id, sizeof(vehicle_id), x);
         } else if (trailer) {
             if (!strcmp(n, "name")) copy_text(v->trailer_name, sizeof(v->trailer_name), x);
             else if (!strcmp(n, "license.plate")) copy_text(v->trailer_plate, sizeof(v->trailer_plate), x);
@@ -3196,6 +3200,16 @@ static void __stdcall on_scs_configuration(uint32_t event, const void *info, voi
             else if (!strcmp(n, "is.cargo.loaded")) g_job_loaded = value_number(x) != 0;
             else if (!strcmp(n, "special.transport")) g_job_special = value_number(x) != 0;
         }
+    }
+    if (truck && any) {
+        /* The game reports a bus as a truck; its id names the model (e.g. man.lions_24). */
+        static const char *const buses[] = { "lions_24", "touring_23", "9700_23" };
+        int bus = 0;
+        for (size_t i = 0; i < sizeof(buses) / sizeof(buses[0]); i++)
+            if (strstr(vehicle_id, buses[i])) bus = 1;
+        if (bus != g_is_bus || !g_have_truck)
+            logf_("vehicle: %s (%s)", vehicle_id[0] ? vehicle_id : "no id", bus ? "bus" : "truck");
+        g_is_bus = bus;
     }
     if (truck)
         g_have_truck = any;

@@ -6,7 +6,7 @@ A working media screen for your truck cabin in **Euro Truck Simulator 2**. Watch
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=DOWNLOADS" alt="Downloads"></a>
-  <a href="https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20CLEAN" alt="VirusTotal: 0/69 clean"></a>
+  <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20CLEAN" alt="VirusTotal: 0/69 clean"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@ A working media screen for your truck cabin in **Euro Truck Simulator 2**. Watch
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 clean"></a><br>
-  <sub>🛡️ None of the 69 antivirus engines on VirusTotal flagged CabinPlay. <a href="https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1">See the report</a></sub>
+  <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 clean"></a><br>
+  <sub>🛡️ None of the 69 antivirus engines on VirusTotal flagged CabinPlay. <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1">See the report</a></sub>
 </p>
 
 ## Download
 
 **[Download the latest version](https://github.com/timurmert/ets2-cabinplay/releases/latest)** and get the file named `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Virus scan:** the setup was checked by 69 antivirus engines on VirusTotal and none of them flagged it. **[See the report](https://www.virustotal.com/gui/file/03b8f1da76473e8a91e939d0ca7d83361b7f0f0c8ee5e8793eaebd0e75c586ea?nocache=1)**
+> 🛡️ **Virus scan:** the setup was checked by 69 antivirus engines on VirusTotal and none of them flagged it. **[See the report](https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1)**
 
 ## Install
 
@@ -82,9 +82,9 @@ That's it. The screen switches on with the truck's ignition. Installed with the 
 
 Playback pauses when you pause the game or switch the ignition off. The language is under **Settings** on the screen. If you closed CabinPlay from its settings, `Ctrl+Alt+C` (or the key you gave control mode) starts it again.
 
-The **Truck** app shows the damage to the truck and trailer, the cargo, the fuel and the gauges. The Ctrl+Alt shortcuts also work while the game is in front, and their keys never reach the game, so a shortcut does not sound the horn or switch anything on the truck.
+The **Vehicle** app shows the damage to the truck (or bus) and trailer, the cargo, the fuel and the gauges. The Ctrl+Alt shortcuts also work while the game is in front, and their keys never reach the game, so a shortcut does not sound the horn or switch anything on the truck.
 
-The **Mirrors** app puts the truck's own mirrors on the screen: the left mirror, its wide-angle mirror and, if the truck has one, the front mirror. Tap one to enlarge it.
+The **Mirrors** app (trucks only) puts the truck's own mirrors on the screen: the left mirror, its wide-angle mirror and, if the truck has one, the front mirror. Tap one to enlarge it.
 
 The **Browser** app opens any website: type an address or a search in the bar at the top, and press the star to keep a page on its start page. Sites you sign in to stay signed in, and `Ctrl+Alt+F` makes the video on a page fullscreen. Typing needs control mode (`Ctrl+Alt+C`). While you drive, hold `Ctrl+Alt` and turn the mouse wheel to scroll the page without pausing the game (the game does not get that turn, so a retarder on the wheel stays as it is); on YouTube Shorts, Instagram Reels and TikTok each notch is the next video, and YouTube Shorts fit the screen whole.
 
@@ -92,12 +92,14 @@ The **Browser** app opens any website: type an address or a search in the bar at
 
 **More places:** besides the windscreen, the workshop has the screen for the *Dashboard*, the *Air vent*, *Overhead*, the *Passenger seat*, the *Console*, the *Cup holder* (newer trucks) and the *Passenger side* of the windscreen. To watch from the bunk there is **CabinPlay TV**, a 27" set for the back wall (the light panel slot), flat or swung out towards the pillow, or for the windscreen, flat or turned to the bunk or to the driver. In every truck, keep turning your head to the right past looking back: the camera moves onto the bunk and stops at the pillow, facing the TV.
 
+**Buses:** with the Coaches DLC, the bus workshop has CabinPlay too, for the MAN Lion's Coach, the Scania Touring and the Volvo 9700: the three screens on the left of the windscreen, the *Air vent*, the *Cup holder*, the *Dashboard* (MAN, Volvo), *Overhead* (MAN, Scania) and **CabinPlay TV (Passengers)**, a 27" set hanging from the roof over the aisle. Keep turning your head to the right past looking back: the camera walks down the aisle to the front passenger seat on the right. Without the DLC nothing changes.
+
 ## What you need
 
 - Euro Truck Simulator 2 **1.61 / 1.62**, Windows 10 or 11
 - No DLC needed
 - Works in single player and on TruckersMP
-- Fits 25 trucks; not the Renault E-Tech T
+- Fits 25 trucks and the 3 buses of the Coaches DLC; not the Renault E-Tech T
 
 ## Help and community
 

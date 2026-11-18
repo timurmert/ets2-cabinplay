@@ -959,6 +959,15 @@
   function renderTruck(game, v) {
     const live = !!(game.connected && v);
     $('truck').classList.toggle('offline', !live);
+    // a bus (Coaches DLC): its own word over its parts, and no trailer
+    const bus = !!(live && v.bus);
+    const vehicleHead = $('damage-truck').previousElementSibling;
+    vehicleHead.dataset.i18n = bus ? 'bus' : 'groupTruck';
+    vehicleHead.textContent = t(vehicleHead.dataset.i18n);
+    $('damage-trailer').parentElement.hidden = bus;
+    $('rig-bus').toggleAttribute('hidden', !bus);
+    $('rig-tractor').toggleAttribute('hidden', bus);
+    $('rig-trailer').toggleAttribute('hidden', bus);
     $('rig-title').textContent = live ? [v.brand, v.name].filter(Boolean).join(' ') || t('truck') : t('truck');
     $('rig-sub').textContent = live
       ? [v.plate, v.odometer ? `${fmtInt.format(v.odometer)} km` : ''].filter(Boolean).join(' · ')
@@ -1047,10 +1056,17 @@
   }
 
   const frontId = () => state.active || (state.view !== 'home' && state.view !== 'split' ? state.view : null);
-  const dockApps = () => apps.filter((a) => (a.builtin ? usedViews.has(a.id)
+  // A bus's mirrors are drawn by the game in another way, so the mirrors app is for trucks only.
+  const onBus = () => !!(state.vehicle && state.vehicle.bus);
+  const available = (a) => !(a.id === 'mirrors' && onBus());
+  const dockApps = () => apps.filter((a) => available(a) && (a.builtin ? usedViews.has(a.id)
     : state.open.includes(a.id) || (a.browser && usedViews.has(a.id))));
 
   function render() {
+    if (state.view === 'mirrors' && !state.split && !state.active && onBus()) {
+      showView('home');
+      return;
+    }
     const media = state.media;
     const game = state.game || {};
     const playing = !!(media && media.playing);
@@ -1121,6 +1137,7 @@
     $('dock-forward').disabled = !browser.forward;
     for (const tile of grid.querySelectorAll('.app[data-id]')) {
       tile.classList.toggle('open', state.open.includes(tile.dataset.id));
+      tile.hidden = !available(byId(tile.dataset.id));
     }
 
     // link to the game

@@ -124,6 +124,7 @@ typedef struct cabinplay_frame_header {
 #define CABINPLAY_VEHICLE_ATS 0x100u           /* American Truck Simulator: dollars */
 #define CABINPLAY_VEHICLE_LOW_BEAM 0x200u      /* the low beam headlights are on (not just the parking lights) */
 #define CABINPLAY_VEHICLE_PLACED 0x400u        /* position_* hold where the truck is */
+#define CABINPLAY_VEHICLE_BUS 0x800u           /* the vehicle is a bus (Coaches DLC), not a truck */
 
 #pragma pack(push, 1)
 typedef struct cabinplay_notice_header {

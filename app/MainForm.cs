@@ -1037,6 +1037,7 @@ internal sealed class MainForm : Form
             ["brand"] = v.TruckBrand,
             ["name"] = v.TruckName,
             ["plate"] = v.TruckPlate,
+            ["bus"] = v.Bus,
             ["engine"] = v.Engine,
             ["parkingBrake"] = v.ParkingBrake,
             ["fuel"] = Math.Round(v.FuelL),
