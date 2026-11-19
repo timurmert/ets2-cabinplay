@@ -32,6 +32,7 @@ KULLANIM
   ya da oyun kolu düğmesi.
   Aynalar uygulaması tırın kendi aynalarını ekrana getirir.
   Tarayıcı uygulaması istediğin siteyi açar; adresi kontrol modunda yaz.
+  Reklam engelleyici (uBlock Origin Lite) açık gelir; Ayarlar > Genel'den kapatılır.
   CabinPlay'i ayarlardan kapattıysan Ctrl+Alt+C onu yeniden başlatır.
   Tır uygulaması tırın ve dorsenin hasarını, yükü ve yakıtı gösterir.
   Kısayollar oyun öndeyken de çalışır; tuşları oyuna gitmez.
@@ -56,6 +57,8 @@ KALDIRMA
 
 CabinPlay ücretsiz ve açık kaynaklıdır (GNU GPL v3.0 veya sonrası, bkz. LICENSE.txt).
 CabinPlay adı ve logosu lisansa dahil değildir: değiştirilmiş sürüm başka bir ad almalı.
+İçindeki uBlock Origin Lite da GPL v3'tür (app\adblock\LICENSE.txt,
+https://github.com/uBlockOrigin/uBOL-home).
 https://github.com/timurmert/ets2-cabinplay
 Resmi olmayan bir hayran projesidir; SCS Software, Google/YouTube, Twitch veya Apple
 ile bağlantılı değildir ve onlar tarafından desteklenmez.

@@ -6,7 +6,7 @@ A working media screen for your truck cabin in **Euro Truck Simulator 2**. Watch
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=DOWNLOADS" alt="Downloads"></a>
-  <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20CLEAN" alt="VirusTotal: 0/69 clean"></a>
+  <a href="https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20CLEAN" alt="VirusTotal: 0/69 clean"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@ A working media screen for your truck cabin in **Euro Truck Simulator 2**. Watch
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 clean"></a><br>
-  <sub>🛡️ None of the 69 antivirus engines on VirusTotal flagged CabinPlay. <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1">See the report</a></sub>
+  <a href="https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 clean"></a><br>
+  <sub>🛡️ None of the 69 antivirus engines on VirusTotal flagged CabinPlay. <a href="https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1">See the report</a></sub>
 </p>
 
 ## Download
 
 **[Download the latest version](https://github.com/timurmert/ets2-cabinplay/releases/latest)** and get the file named `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Virus scan:** the setup was checked by 69 antivirus engines on VirusTotal and none of them flagged it. **[See the report](https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1)**
+> 🛡️ **Virus scan:** the setup was checked by 69 antivirus engines on VirusTotal and none of them flagged it. **[See the report](https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1)**
 
 ## Install
 
@@ -87,6 +87,8 @@ The **Vehicle** app shows the damage to the truck (or bus) and trailer, the carg
 The **Mirrors** app (trucks only) puts the truck's own mirrors on the screen: the left mirror, its wide-angle mirror and, if the truck has one, the front mirror. Tap one to enlarge it.
 
 The **Browser** app opens any website: type an address or a search in the bar at the top, and press the star to keep a page on its start page. Sites you sign in to stay signed in, and `Ctrl+Alt+F` makes the video on a page fullscreen. Typing needs control mode (`Ctrl+Alt+C`). While you drive, hold `Ctrl+Alt` and turn the mouse wheel to scroll the page without pausing the game (the game does not get that turn, so a retarder on the wheel stays as it is); on YouTube Shorts, Instagram Reels and TikTok each notch is the next video, and YouTube Shorts fit the screen whole.
+
+**Ads:** CabinPlay blocks ads with [uBlock Origin Lite](https://github.com/uBlockOrigin/uBOL-home) built in: YouTube and YouTube Music play without ads, and websites lose most of theirs. It is on as it comes; switch it off under *Settings* > *General* > *Block ads*. Twitch puts its ads into the live stream itself, so some may still show there.
 
 **Side by side** puts two apps next to each other, for example the map on the left and music or the browser on the right: press the split button in the dock and pick the app for each half. Under **Settings** you can choose a background, also from your own pictures, change the keys of the shortcuts, and put any of them on a button of your steering wheel or gamepad. The home screen shows the weather where your truck is and at your destination, with the game's time. Under *Settings* > *General* > *Appearance* the screen is dark (as it comes), light, or automatic: dark while the low beam is on.
 
@@ -136,6 +138,6 @@ The city and country names on the truck page come from the game's own files:
 
 ## Credits and licence
 
-Made by **HydRaboN**, our community server and software team. CabinPlay is free and open source under the [GNU General Public License v3.0 or later](LICENSE): you may share and change it, but anything made from it must stay open source under the same licence and credit CabinPlay. Under section 7 of the licence, the name *CabinPlay* and its logo are not licensed, and a modified version must carry a different name. It includes [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).
+Made by **HydRaboN**, our community server and software team. CabinPlay is free and open source under the [GNU General Public License v3.0 or later](LICENSE): you may share and change it, but anything made from it must stay open source under the same licence and credit CabinPlay. Under section 7 of the licence, the name *CabinPlay* and its logo are not licensed, and a modified version must carry a different name. It includes [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause) and [uBlock Origin Lite](https://github.com/uBlockOrigin/uBOL-home) (GPL-3.0).
 
 CabinPlay is an unofficial fan project. It is not affiliated with or endorsed by SCS Software, Google/YouTube, Twitch or Apple.

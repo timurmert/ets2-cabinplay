@@ -6,7 +6,7 @@ Un écran multimédia fonctionnel pour la cabine de votre camion dans **Euro Tru
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=T%C3%89L%C3%89CHARGEMENTS" alt="Téléchargements"></a>
-  <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20SAIN" alt="VirusTotal: 0/69 sain"></a>
+  <a href="https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20SAIN" alt="VirusTotal: 0/69 sain"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@ Un écran multimédia fonctionnel pour la cabine de votre camion dans **Euro Tru
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 sain"></a><br>
-  <sub>🛡️ Aucun des 69 antivirus de VirusTotal n'a signalé CabinPlay. <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1">Voir le rapport</a></sub>
+  <a href="https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 sain"></a><br>
+  <sub>🛡️ Aucun des 69 antivirus de VirusTotal n'a signalé CabinPlay. <a href="https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1">Voir le rapport</a></sub>
 </p>
 
 ## Téléchargement
 
 **[Téléchargez la dernière version](https://github.com/timurmert/ets2-cabinplay/releases/latest)** et prenez le fichier `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Analyse antivirus :** le programme d'installation a été analysé sur VirusTotal par 69 antivirus, et aucun ne l'a signalé. **[Voir le rapport](https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1)**
+> 🛡️ **Analyse antivirus :** le programme d'installation a été analysé sur VirusTotal par 69 antivirus, et aucun ne l'a signalé. **[Voir le rapport](https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1)**
 
 ## Installation
 
@@ -88,6 +88,8 @@ L'app **Rétroviseurs** (camions uniquement) affiche les rétroviseurs du camion
 
 L'app **Navigateur** ouvre n'importe quel site : saisissez une adresse ou une recherche dans la barre du haut, et touchez l'étoile pour garder une page sur la page de démarrage. Vous restez connecté aux sites, et `Ctrl+Alt+F` passe la vidéo d'une page en plein écran. La saisie nécessite le mode contrôle (`Ctrl+Alt+C`). En roulant, maintenez `Ctrl+Alt` et tournez la molette pour faire défiler la page sans mettre le jeu en pause (le jeu ne reçoit pas ce cran, un ralentisseur sur la molette ne bouge pas) ; sur YouTube Shorts, Instagram Reels et TikTok, chaque cran passe à la vidéo suivante, et les YouTube Shorts tiennent entiers à l'écran.
 
+**Publicités :** CabinPlay bloque les publicités avec [uBlock Origin Lite](https://github.com/uBlockOrigin/uBOL-home) intégré : YouTube et YouTube Music jouent sans publicité, et les sites perdent la plupart des leurs. Il est activé d'origine ; désactivez-le dans *Réglages* > *Général* > *Bloquer les publicités*. Twitch insère ses publicités dans le direct lui-même, il peut donc encore y en avoir quelques-unes.
+
 La vue **côte à côte** affiche deux apps en même temps, par exemple la carte à gauche et la musique ou le navigateur à droite : touchez le bouton de partage dans le dock et choisissez l'app de chaque moitié. Dans **Réglages**, vous pouvez choisir un arrière-plan, y compris parmi vos propres images, changer les touches des raccourcis et placer chacun d'eux sur un bouton de votre volant ou de votre manette. L'écran d'accueil montre la météo là où est votre camion et à destination, avec l'heure du jeu. Dans *Réglages* > *Général* > *Apparence*, l'écran est sombre (par défaut), clair ou automatique : sombre quand les feux de croisement sont allumés.
 
 **Autres emplacements :** en plus du pare-brise, le garage propose l'écran pour le *Dashboard* (tableau de bord), l'*Air vent* (aérateur), *Overhead* (plafond), le *Passenger seat* (siège passager), la *Console* (console centrale), le *Cup holder* (porte-gobelet, camions récents) et le *Passenger side* (côté passager du pare-brise). Pour regarder depuis la couchette, il y a la **CabinPlay TV** de 27" : sur la paroi arrière (emplacement du panneau lumineux), à plat ou sortie vers l'oreiller, ou sur le pare-brise, à plat ou tournée vers la couchette ou vers le conducteur. Dans chaque camion, continuez à tourner la tête vers la droite au-delà de la vue arrière : la caméra passe sur la couchette et s'arrête à l'oreiller, face à la télé.
@@ -117,6 +119,6 @@ Pour signaler un problème, ouvrez **Réglages** à l'écran, appuyez sur **Cré
 
 ## Crédits et licence
 
-Réalisé par **HydRaboN**, notre serveur communautaire et équipe logicielle. CabinPlay est gratuit et open source sous [licence GNU GPL v3.0 ou ultérieure](LICENSE) : vous pouvez le partager et le modifier, mais tout ce qui en est tiré doit rester open source sous la même licence et citer CabinPlay. Selon la section 7 de la licence, le nom *CabinPlay* et son logo ne sont pas concédés ; une version modifiée doit porter un autre nom. Il inclut [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).
+Réalisé par **HydRaboN**, notre serveur communautaire et équipe logicielle. CabinPlay est gratuit et open source sous [licence GNU GPL v3.0 ou ultérieure](LICENSE) : vous pouvez le partager et le modifier, mais tout ce qui en est tiré doit rester open source sous la même licence et citer CabinPlay. Selon la section 7 de la licence, le nom *CabinPlay* et son logo ne sont pas concédés ; une version modifiée doit porter un autre nom. Il inclut [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause) et [uBlock Origin Lite](https://github.com/uBlockOrigin/uBOL-home) (GPL-3.0).
 
 CabinPlay est un projet de fans non officiel. Il n'est ni affilié à SCS Software, Google/YouTube, Twitch ou Apple, ni approuvé par eux.

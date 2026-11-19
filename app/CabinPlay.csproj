@@ -27,4 +27,15 @@
     <Content Include="ui\**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <!-- The ad blocker (uBlock Origin Lite) goes next to the app as "adblock". It is not in
+       git: tools\fetch_ubol.py downloads the pinned release into build\ubol\ext. -->
+  <Target Name="AddAdBlocker" BeforeTargets="AssignTargetPaths">
+    <Exec Command="python -I &quot;$(MSBuildProjectDirectory)\..\tools\fetch_ubol.py&quot;" />
+    <ItemGroup>
+      <AdBlockFile Include="$(MSBuildProjectDirectory)\..\build\ubol\ext\**" />
+      <Content Include="@(AdBlockFile)" Link="adblock\%(AdBlockFile.RecursiveDir)%(AdBlockFile.Filename)%(AdBlockFile.Extension)"
+               CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    </ItemGroup>
+  </Target>
+
 </Project>

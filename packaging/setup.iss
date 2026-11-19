@@ -206,6 +206,9 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [InstallDelete]
 ; A desktop shortcut left by the old installer when the box is now unticked.
 Type: files; Name: "{userdesktop}\CabinPlay.lnk"
+; The ad blocker (uBlock Origin Lite) is replaced as a whole, so files a newer release
+; dropped do not stay behind.
+Type: filesandordirs; Name: "{app}\adblock"
 
 [Files]
 Source: "{#Dist}\app\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
