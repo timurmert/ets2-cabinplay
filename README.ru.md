@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=%D0%97%D0%90%D0%93%D0%A0%D0%A3%D0%97%D0%9A%D0%98" alt="Загрузки"></a>
-  <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20%D0%A7%D0%98%D0%A1%D0%A2%D0%9E" alt="VirusTotal: 0/69 чисто"></a>
+  <a href="https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20%D0%A7%D0%98%D0%A1%D0%A2%D0%9E" alt="VirusTotal: 0/69 чисто"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 чисто"></a><br>
-  <sub>🛡️ Ни один из 69 антивирусов на VirusTotal не отметил CabinPlay. <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1">Открыть отчёт</a></sub>
+  <a href="https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 чисто"></a><br>
+  <sub>🛡️ Ни один из 69 антивирусов на VirusTotal не отметил CabinPlay. <a href="https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1">Открыть отчёт</a></sub>
 </p>
 
 ## Скачать
 
 **[Скачайте последнюю версию](https://github.com/timurmert/ets2-cabinplay/releases/latest)** и возьмите файл `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Проверка на вирусы:** установщик проверен на VirusTotal 69 антивирусами, ни один ничего не нашёл. **[Открыть отчёт](https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1)**
+> 🛡️ **Проверка на вирусы:** установщик проверен на VirusTotal 69 антивирусами, ни один ничего не нашёл. **[Открыть отчёт](https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1)**
 
 ## Установка
 
@@ -88,6 +88,8 @@
 
 Приложение **Браузер** открывает любой сайт: введите адрес или запрос в строке сверху и нажмите звезду, чтобы оставить страницу на стартовой. Вход на сайтах сохраняется, а `Ctrl+Alt+F` разворачивает видео на странице на весь экран. Для ввода текста нужен режим управления (`Ctrl+Alt+C`). Во время езды удерживайте `Ctrl+Alt` и крутите колесо мыши, чтобы прокручивать страницу без паузы (игра не получает этот поворот, так что ретардер на колесе не срабатывает); в YouTube Shorts, Instagram Reels и TikTok каждый щелчок — следующее видео, а YouTube Shorts целиком помещаются на экране.
 
+**Реклама:** CabinPlay блокирует рекламу с помощью встроенного [uBlock Origin Lite](https://github.com/uBlockOrigin/uBOL-home): YouTube и YouTube Music играют без рекламы, а сайты теряют большую её часть. Он включён сразу; выключить можно в *Настройки* > *Общие* > *Блокировать рекламу*. Twitch встраивает рекламу прямо в трансляцию, поэтому там часть рекламы всё же может появляться.
+
 Режим **«рядом»** показывает два приложения одновременно, например карту слева и музыку или браузер справа: нажмите кнопку разделения в доке и выберите приложение для каждой половины. В **Настройках** можно выбрать фон, в том числе из своих изображений, изменить клавиши сочетаний и назначить любое из них на кнопку руля или геймпада. Главный экран показывает погоду там, где ваш грузовик, и в пункте назначения, вместе со временем в игре. В *Настройки* > *Общие* > *Оформление* экран тёмный (по умолчанию), светлый или автоматический: тёмный при включённом ближнем свете.
 
 **Другие места:** кроме лобового стекла, в мастерской экран можно поставить на *Dashboard* (приборная панель), *Air vent* (дефлектор), *Overhead* (потолок), *Passenger seat* (пассажирское сиденье), *Console* (консоль), *Cup holder* (подстаканник, новые грузовики) и *Passenger side* (пассажирская сторона стекла). Чтобы смотреть с койки, есть 27-дюймовый **CabinPlay TV**: на задней стенке (слот светового панно), плоско или выдвинутый к подушке, либо на лобовом стекле, плоско или повёрнутый к койке или к водителю. В любом грузовике продолжайте поворачивать голову вправо дальше взгляда назад: камера переместится на койку и остановится у подушки, лицом к телевизору.
@@ -117,6 +119,6 @@
 
 ## Авторы и лицензия
 
-Сделано **HydRaboN** — нашим сервером сообщества и командой разработчиков. CabinPlay бесплатен и распространяется с открытым исходным кодом по [лицензии GNU GPL v3.0 или более поздней](LICENSE): его можно распространять и изменять, но всё, что сделано на его основе, должно оставаться открытым под той же лицензией и указывать CabinPlay. Согласно разделу 7 лицензии, название *CabinPlay* и его логотип не лицензируются, а изменённая версия должна называться иначе. Включает [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause).
+Сделано **HydRaboN** — нашим сервером сообщества и командой разработчиков. CabinPlay бесплатен и распространяется с открытым исходным кодом по [лицензии GNU GPL v3.0 или более поздней](LICENSE): его можно распространять и изменять, но всё, что сделано на его основе, должно оставаться открытым под той же лицензией и указывать CabinPlay. Согласно разделу 7 лицензии, название *CabinPlay* и его логотип не лицензируются, а изменённая версия должна называться иначе. Включает [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause) и [uBlock Origin Lite](https://github.com/uBlockOrigin/uBOL-home) (GPL-3.0).
 
 CabinPlay — неофициальный фанатский проект. Он не связан с SCS Software, Google/YouTube, Twitch или Apple и не одобрен ими.

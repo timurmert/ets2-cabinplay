@@ -205,7 +205,7 @@ internal sealed class MainForm : Form
         {
             _environment = await CoreWebView2Environment.CreateAsync(
                 null, Path.Combine(Program.DataDir, "WebView2"),
-                new CoreWebView2EnvironmentOptions(BrowserArguments));
+                new CoreWebView2EnvironmentOptions(BrowserArguments) { AreBrowserExtensionsEnabled = true });
             _environment.ProcessInfosChanged += (_, _) => RaisePriorities();
 
             await _shell.EnsureCoreWebView2Async(_environment);
@@ -224,6 +224,9 @@ internal sealed class MainForm : Form
             _icons.Changed += () => BeginInvoke(PushConfig);
             core.SetVirtualHostNameToFolderMapping(SiteIcons.Host, _icons.Folder, CoreWebView2HostResourceAccessKind.Allow);
             core.WebMessageReceived += OnShellMessage;
+            // Before any app opens a page, so the first one is filtered too.
+            await AdBlock.ApplyAsync(core.Profile, AdBlockOn, _settings);
+            SaveSettings();
             ApplyTheme();
             _shell.ZoomFactor = PixelZoom;
             await PrepareForInjectedInputAsync(core);
@@ -374,6 +377,9 @@ internal sealed class MainForm : Form
     // style no longer does it, the whole page is shrunk instead (smaller, but all there).
 
     private bool FitShorts => (bool?)_settings["fitShorts"] ?? true;
+
+    /// <summary>The ad blocker (see <see cref="AdBlock"/>); on unless switched off in the settings.</summary>
+    private bool AdBlockOn => (bool?)_settings["adBlock"] ?? true;
 
     /// <summary>The height the page needs for a short when only shrinking can make it fit.</summary>
     private const double ShortsPageHeight = 648;
@@ -602,6 +608,16 @@ internal sealed class MainForm : Form
                     SaveSettings();
                     foreach (AppView app in _apps.Values)
                         _ = FitShortsAsync(app);
+                    PushConfig();
+                    return;
+                case "ad-block":
+                    _settings["adBlock"] = (bool?)msg!["on"] ?? true;
+                    if (_shell.CoreWebView2 is not null)
+                        await AdBlock.ApplyAsync(_shell.CoreWebView2.Profile, AdBlockOn, _settings);
+                    SaveSettings();
+                    // A page that is open keeps what it loaded; loading it again shows the change.
+                    foreach (AppView app in _apps.Values)
+                        app.View.CoreWebView2?.Reload();
                     PushConfig();
                     return;
                 case "site-icons":
@@ -1809,6 +1825,8 @@ internal sealed class MainForm : Form
                 ["update"] = _updater?.ToJson(),
                 ["gameNotices"] = _watch.InGameEnabled,
                 ["fitShorts"] = FitShorts,
+                ["adBlock"] = AdBlockOn,
+                ["adBlockShipped"] = AdBlock.BundledVersion is not null,
                 ["theme"] = ThemeMode,
                 ["icons"] = new JsonObject((_icons?.Addresses() ?? new())
                     .Select(i => KeyValuePair.Create(i.Key, (JsonNode?)i.Value))),

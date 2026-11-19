@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=%C4%B0ND%C4%B0RME" alt="İndirme"></a>
-  <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20TEM%C4%B0Z" alt="VirusTotal: 0/69 temiz"></a>
+  <a href="https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20TEM%C4%B0Z" alt="VirusTotal: 0/69 temiz"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 temiz"></a><br>
-  <sub>🛡️ VirusTotal'daki 69 antivirüs motorunun hiçbiri CabinPlay'i zararlı bulmadı. <a href="https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1">Raporu gör</a></sub>
+  <a href="https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 temiz"></a><br>
+  <sub>🛡️ VirusTotal'daki 69 antivirüs motorunun hiçbiri CabinPlay'i zararlı bulmadı. <a href="https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1">Raporu gör</a></sub>
 </p>
 
 ## İndir
 
 **[Son sürümü indir](https://github.com/timurmert/ets2-cabinplay/releases/latest)**; `CabinPlay-Setup-x.y.z.exe` adlı dosyayı al.
 
-> 🛡️ **Virüs taraması:** Kurulum dosyası VirusTotal'da 69 antivirüs motoruyla tarandı, hiçbiri zararlı bulmadı. **[Raporu gör](https://www.virustotal.com/gui/file/85cf95d8fdda1ae70c9228dfa1a5b60fd057aec1fe7a2673a3d52222d469ccca?nocache=1)**
+> 🛡️ **Virüs taraması:** Kurulum dosyası VirusTotal'da 69 antivirüs motoruyla tarandı, hiçbiri zararlı bulmadı. **[Raporu gör](https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1)**
 
 ## Kur
 
@@ -88,6 +88,8 @@ Oyunu duraklattığında veya kontağı kapattığında çalan şey durur. Dil, 
 
 **Tarayıcı** uygulaması istediğin siteyi açar: üstteki çubuğa adres ya da arama yaz, bir sayfayı başlangıç sayfasında tutmak için yıldıza bas. Giriş yaptığın sitelerde oturumun açık kalır; `Ctrl+Alt+F` sayfadaki videoyu tam ekran yapar. Yazı yazmak için kontrol modu gerekir (`Ctrl+Alt+C`). Sürerken `Ctrl+Alt` basılı tutup fare tekerleğini çevirerek oyunu durdurmadan sayfayı kaydırabilirsin (o dönüş oyuna gitmez, tekerleğe bağlı retarder etkilenmez); YouTube Shorts, Instagram Reels ve TikTok'ta her tık bir sonraki video, YouTube Shorts da ekrana tam sığar.
 
+**Reklamlar:** CabinPlay içindeki [uBlock Origin Lite](https://github.com/uBlockOrigin/uBOL-home) ile reklamları engeller: YouTube ve YouTube Music reklamsız oynar, sitelerin reklamlarının da çoğu gider. Kendiliğinden açık gelir; *Ayarlar* > *Genel* > *Reklamları engelle*'den kapatabilirsin. Twitch reklamları canlı yayının içine koyduğu için orada bazı reklamlar yine çıkabilir.
+
 **Yan yana** görünüm iki uygulamayı aynı anda gösterir; örneğin solda harita, sağda müzik ya da tarayıcı: kenar çubuğundaki bölme düğmesine bas ve her yarı için uygulamayı seç. **Ayarlar**'dan arka planı (kendi resimlerinden de) seçebilir, kısayol tuşlarını değiştirebilir ve her birini direksiyonundaki ya da oyun kolundaki bir düğmeye atayabilirsin. Ana ekran, tırının bulunduğu yerin ve varış şehrinin havasını oyun saatiyle gösterir. *Ayarlar* > *Genel* > *Görünüm*'den ekran koyu (varsayılan), açık ya da otomatik olabilir: otomatikte kısa farlar açıkken koyu.
 
 **Başka yerler:** Serviste ekranı ön camın dışında *Dashboard* (torpido), *Air vent* (havalandırma), *Overhead* (tavan), *Passenger seat* (yolcu koltuğu), *Console* (konsol), *Cup holder* (bardaklık, yeni tırlarda) ve *Passenger side* (camın yolcu tarafı) olarak da takabilirsin. Yatakta izlemek için 27" **CabinPlay TV** var: arka duvara (Işık Panosu yuvası) düz ya da yastığa doğru açılmış, veya ön cama düz, yatağa dönük ya da sürücüye dönük. Her tırda kafanı sağa çevirmeye arkaya baktıktan sonra da devam et: kamera yatağa geçer ve yastıkta, TV'ye bakarak durur.
@@ -117,6 +119,6 @@ Sorun bildirmek için ekrandaki **Ayarlar**'ı aç, **Hata raporu oluştur**'a b
 
 ## Emeği geçenler ve lisans
 
-Topluluk sunucumuz ve yazılım ekibimiz **HydRaboN** tarafından yapıldı. CabinPlay ücretsiz ve açık kaynaklıdır; [GNU GPL v3.0 veya sonrası](LICENSE) lisansıyla yayınlanır: paylaşabilir ve değiştirebilirsin, ama ondan yapılan her şey aynı lisansla açık kaynak kalmalı ve CabinPlay'i kaynak göstermelidir. Lisansın 7. bölümü uyarınca *CabinPlay* adı ve logosu lisansa dahil değildir; değiştirilmiş bir sürüm farklı bir adla yayınlanmalıdır. İçinde [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause) kullanılır.
+Topluluk sunucumuz ve yazılım ekibimiz **HydRaboN** tarafından yapıldı. CabinPlay ücretsiz ve açık kaynaklıdır; [GNU GPL v3.0 veya sonrası](LICENSE) lisansıyla yayınlanır: paylaşabilir ve değiştirebilirsin, ama ondan yapılan her şey aynı lisansla açık kaynak kalmalı ve CabinPlay'i kaynak göstermelidir. Lisansın 7. bölümü uyarınca *CabinPlay* adı ve logosu lisansa dahil değildir; değiştirilmiş bir sürüm farklı bir adla yayınlanmalıdır. İçinde [MinHook](https://github.com/TsudaKageyu/minhook) (BSD 2-Clause) ve [uBlock Origin Lite](https://github.com/uBlockOrigin/uBOL-home) (GPL-3.0) kullanılır.
 
 CabinPlay resmi olmayan bir hayran projesidir. SCS Software, Google/YouTube, Twitch veya Apple ile bağlantılı değildir ve onlar tarafından desteklenmez.

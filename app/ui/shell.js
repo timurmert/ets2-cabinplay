@@ -199,6 +199,8 @@
   function layoutNoticeOption() {
     for (const b of $('settings-notices').children) b.classList.toggle('on', b.dataset.value === (config.gameNotices === false ? 'off' : 'on'));
     for (const b of $('settings-fit-shorts').children) b.classList.toggle('on', b.dataset.value === (config.fitShorts === false ? 'off' : 'on'));
+    for (const b of $('settings-ad-block').children) b.classList.toggle('on', b.dataset.value === (config.adBlock === false ? 'off' : 'on'));
+    $('settings-ad-block-row').hidden = config.adBlockShipped === false;
     for (const b of $('settings-theme').children) b.classList.toggle('on', b.dataset.value === (config.theme || 'dark'));
   }
   // Dark, light, or by the low beam (the host's UpdateTheme); dark unless picked otherwise.
@@ -208,6 +210,14 @@
   // YouTube Shorts shrunk until the whole short fits (the host's ApplyZoom): on unless switched off.
   for (const b of $('settings-fit-shorts').children) {
     b.addEventListener('click', () => send({ type: 'fit-shorts', on: b.dataset.value === 'on' }));
+  }
+  // The ad blocker (the host's AdBlock, uBlock Origin Lite): on unless switched off. Open
+  // apps load their page again so the change shows at once.
+  for (const b of $('settings-ad-block').children) {
+    b.addEventListener('click', () => {
+      if (b.classList.contains('on')) return; // no reload for the choice already made
+      send({ type: 'ad-block', on: b.dataset.value === 'on' });
+    });
   }
 
   // The wheel while driving: Ctrl+Alt + wheel until something else is picked.

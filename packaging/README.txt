@@ -31,6 +31,7 @@ USE
   gamepad buttons for any shortcut.
   The Mirrors app shows the truck's own mirrors on the screen.
   The Browser app opens any website; type the address in control mode.
+  The ad blocker (uBlock Origin Lite) is on; switch it off under Settings > General.
   Closed CabinPlay from its settings? Ctrl+Alt+C starts it again.
   The Truck app shows the damage to the truck and trailer, the cargo and the fuel.
   The shortcuts also work while the game is in front; their keys never reach the game.
@@ -55,6 +56,8 @@ REMOVE
 
 CabinPlay is free and open source (GNU GPL v3.0 or later, see LICENSE.txt). The
 name CabinPlay and its logo are not licensed: a modified version needs another name.
+The uBlock Origin Lite inside is GPL v3 too (app\adblock\LICENSE.txt,
+https://github.com/uBlockOrigin/uBOL-home).
 https://github.com/timurmert/ets2-cabinplay
 It is an unofficial fan project, not affiliated with or endorsed by SCS Software,
 Google/YouTube, Twitch or Apple.
