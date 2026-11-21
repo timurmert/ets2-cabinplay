@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://github.com/timurmert/ets2-cabinplay/releases/latest"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimurmert%2Fets2-cabinplay%2Fbadges%2Fdownloads.json&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=%D0%97%D0%90%D0%93%D0%A0%D0%A3%D0%97%D0%9A%D0%98" alt="Загрузки"></a>
-  <a href="https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/69%20%D0%A7%D0%98%D0%A1%D0%A2%D0%9E" alt="VirusTotal: 0/69 чисто"></a>
+  <a href="https://www.virustotal.com/gui/file/9f951da34b10f6df9d8ec67a2a434627079b4eb7a674515fcd1b19a0bc74d1f2?nocache=1"><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message=0/44%20%D0%A7%D0%98%D0%A1%D0%A2%D0%9E" alt="VirusTotal: 0/44 чисто"></a>
 </p>
 
 <p align="center">
@@ -35,15 +35,15 @@
 </p>
 
 <p align="center">
-  <a href="https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/69 чисто"></a><br>
-  <sub>🛡️ Ни один из 69 антивирусов на VirusTotal не отметил CabinPlay. <a href="https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1">Открыть отчёт</a></sub>
+  <a href="https://www.virustotal.com/gui/file/9f951da34b10f6df9d8ec67a2a434627079b4eb7a674515fcd1b19a0bc74d1f2?nocache=1"><img src="docs/media/virustotal.png" width="100%" alt="VirusTotal: 0/44 чисто"></a><br>
+  <sub>🛡️ Ни один из 44 антивирусов на VirusTotal не отметил CabinPlay. <a href="https://www.virustotal.com/gui/file/9f951da34b10f6df9d8ec67a2a434627079b4eb7a674515fcd1b19a0bc74d1f2?nocache=1">Открыть отчёт</a></sub>
 </p>
 
 ## Скачать
 
 **[Скачайте последнюю версию](https://github.com/timurmert/ets2-cabinplay/releases/latest)** и возьмите файл `CabinPlay-Setup-x.y.z.exe`.
 
-> 🛡️ **Проверка на вирусы:** установщик проверен на VirusTotal 69 антивирусами, ни один ничего не нашёл. **[Открыть отчёт](https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1)**
+> 🛡️ **Проверка на вирусы:** установщик проверен на VirusTotal 44 антивирусами, ни один ничего не нашёл. **[Открыть отчёт](https://www.virustotal.com/gui/file/9f951da34b10f6df9d8ec67a2a434627079b4eb7a674515fcd1b19a0bc74d1f2?nocache=1)**
 
 ## Установка
 

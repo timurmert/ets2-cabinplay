@@ -51,16 +51,16 @@ CENTRE_SLOT = "set_glass"
 #   ceiling   height of the roof over the aisle where the passenger TV hangs, tv_z: where along
 #             the bus it hangs (negative: ahead of the driver's eyes)
 #   seat      the eyes of a passenger in the front seat right of the aisle: the passenger seat view
-#   upper     double-decker: the eyes on the upper deck's front seat, reached up the stairs (a trial:
-#             the game may not draw the upper deck from the driver's camera)
+# No view of the Volvo's upper deck: the game does not draw it from the driver's camera, and a
+# camera turning on past two full turns, up there and out of the bus, broke the bus's interior
+# accessories in the workshop (1.5.0 and 1.6.0).
 BUSES = {
     "man.lions_24": dict(places=["cabinplay_d", "cabinplay_v", "cabinplay_k", "cabinplay_o"],
                          aisle=0.685, ceiling=1.25, tv_z=-0.20, seat=(1.62, 0.30, 1.04)),
     "scania.touring_23": dict(places=["cabinplay_v", "cabinplay_k", "cabinplay_o"],
                               aisle=0.645, ceiling=1.21, tv_z=-0.35, seat=(1.59, 0.39, 0.79)),
     "volvo.9700_23": dict(places=["cabinplay_d", "cabinplay_v", "cabinplay_k"],
-                          aisle=0.687, ceiling=0.22, tv_z=1.05, seat=(1.14, -0.50, 2.25),
-                          upper=(1.14, 1.28, -0.31), stairs=(1.45, 0.35, 0.55)),
+                          aisle=0.687, ceiling=0.22, tv_z=1.05, seat=(1.14, -0.50, 2.25)),
 }
 # A slot some vehicles call by another name: the MAN bus's cup holder.
 SLOT_ALIASES = {"cup_holder": ("set_cuphold",)}
@@ -423,7 +423,7 @@ def vec(s):
 
 def extended_camera(truck, steps, note):
     """The game's interior camera of this vehicle with azimuth ranges added after its last one on
-    the right. steps: (end azimuth, head offset, up/down default[, outside]), each range starting
+    the right. steps: (end azimuth, head offset, up/down default), each range starting
     where the one before ends."""
     _, text = CAMERAS[truck]
     unit = re.search(r"vehicle_interior_camera\s*:\s*(\S+)", text).group(1)
@@ -433,19 +433,17 @@ def extended_camera(truck, steps, note):
     lr = last["end_left_right_default"]
     prev_az, prev_off, prev_ud = start, vec(last["end_head_offset_offset"]), float(last["end_up_down_default"])
     units, refs = "", ""
-    for i, step in enumerate(steps):
-        az, off, ud = step[:3]
-        outside = len(step) > 3 and step[3]
+    for i, (az, off, ud) in enumerate(steps):
         name = "_nameless.%s.ar.cp%d" % (truck, i + 1)
         refs += "        azimuth_overrides[]: %s\n" % name
         units += ("\ncamera_azimuth_range: %s\n{\n"
-                  "\tstart_azimuth: %.1f\n\tend_azimuth: %.1f\n\n\toutside: %s\n\n"
+                  "\tstart_azimuth: %.1f\n\tend_azimuth: %.1f\n\n\toutside: false\n\n"
                   "\tstart_up_limit: %s\n\tend_up_limit: %s\n"
                   "\tstart_down_limit: %s\n\tend_down_limit: %s\n\n"
                   "\tstart_up_down_default: %.1f\n\tend_up_down_default: %.1f\n\n"
                   "\tstart_left_right_default: %s\n\tend_left_right_default: %s\n\n"
                   "\tstart_head_offset_offset: (%.3f, %.3f, %.3f)\n\tend_head_offset_offset: (%.3f, %.3f, %.3f)\n"
-                  "}\n") % (name, prev_az, az, "true" if outside else "false", up, up, down, down, prev_ud, ud,
+                  "}\n") % (name, prev_az, az, up, up, down, down, prev_ud, ud,
                             lr, lr, *prev_off, *off)
         prev_az, prev_off, prev_ud = az, off, ud
     # the unit's own block ends at the first closing brace after its name
@@ -482,8 +480,7 @@ def pillow_camera(truck):
 
 # The passenger seat view in a bus: turning on to the right past looking back carries the head
 # along the aisle to the front seat right of it, where it arrives looking ahead, a little towards
-# the passengers' TV. In the double-decker, turning on further takes it up the stairs to the upper
-# deck's front seat (a trial), and further still the same view with the camera counted as outside.
+# the passengers' TV.
 SEAT_TURN = 75  # degrees the head can still turn right in the seat, past where it arrives
 
 
@@ -506,17 +503,7 @@ def passenger_camera(bus):
         (watch + 15, eyes, pitch),
         (watch - SEAT_TURN, eyes, pitch),
     ]
-    note = "turn on to the right past looking back to sit in the front passenger seat"
-    if "upper" in b:
-        ahead = watch - math.degrees(math.atan2(-d[0], -d[2])) / 2 - 360  # straight ahead, once more round
-        steps += [
-            (watch - SEAT_TURN - 80, b["stairs"], -5.0),
-            (ahead + 15, b["upper"], -5.0),
-            (ahead - SEAT_TURN, b["upper"], -5.0),
-            (ahead - SEAT_TURN - 60, b["upper"], -5.0, True),  # trial: the same, counted as outside
-        ]
-        note += "; on further, up to the upper deck"
-    return extended_camera(bus, steps, note)
+    return extended_camera(bus, steps, "turn on to the right past looking back to sit in the front passenger seat")
 
 
 # --------------------------------------------------------------------------- mesh

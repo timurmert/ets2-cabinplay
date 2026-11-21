@@ -17,46 +17,46 @@ BADGE = ("https://img.shields.io/endpoint?url=" + quote("https://raw.githubuserc
          + "&style=for-the-badge&logo=github&logoColor=white&labelColor=24292f&color=2ea44f&label=")
 # VirusTotal report of the released setup and its result (also shown in
 # docs/media/virustotal.png); update them after a release.
-VIRUSTOTAL = "https://www.virustotal.com/gui/file/f9b000351e069aa6ab68a500ee4457e04c9ab7e9a0a583fa2d5437df474e6aef?nocache=1"
-VT_SCORE = "0/69"
-VT_ENGINES = "69"
+VIRUSTOTAL = "https://www.virustotal.com/gui/file/9f951da34b10f6df9d8ec67a2a434627079b4eb7a674515fcd1b19a0bc74d1f2?nocache=1"
+VT_SCORE = "0/44"
+VT_ENGINES = "44"
 VT_BADGE = "https://img.shields.io/static/v1?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF&color=2ea44f&label=VirusTotal&message="
 # What changed in this release: shown at the top of each language on the release page
 # only (not in the READMEs). Rewrite it for every release.
 WHATS_NEW = {
     "en": """### What's new in {version}
 
-- **Ad blocker:** CabinPlay now blocks ads, with [uBlock Origin Lite](https://github.com/uBlockOrigin/uBOL-home) built in. YouTube and YouTube Music play without the ads before and in the middle of videos (before, a long video had one every few minutes), and websites in the Browser app lose most of theirs. It is on as it comes; to switch it off, open *Settings* > *General* > *Block ads*. Twitch puts its ads into the live stream itself, so some may still show there.
+- **Volvo 9700 workshop fixed:** in the Coaches DLC's Volvo 9700 double-decker, the workshop's interior accessories screen no longer breaks, so CabinPlay's screens and the game's own accessories can be fitted again. The look up the stairs to the upper deck is gone (the game does not draw the upper deck from the driver's seat anyway); the passenger seat view and the passengers' TV stay. Nothing changes in the trucks or the other buses.
 
 **Already using CabinPlay 1.2.0 or newer?** The update comes by itself: it installs when you close the game. Using an older version? Close the game, download **CabinPlay-Setup-{version}.exe** below and run it.""",
     "tr": """### {version} sürümünde neler var
 
-- **Reklam engelleyici:** CabinPlay artık reklamları engelliyor; içinde [uBlock Origin Lite](https://github.com/uBlockOrigin/uBOL-home) var. YouTube ve YouTube Music videoların başındaki ve ortasındaki reklamlar olmadan oynuyor (önceden uzun bir videoda birkaç dakikada bir reklam çıkıyordu), Tarayıcı uygulamasındaki sitelerin reklamlarının da çoğu gidiyor. Kendiliğinden açık gelir; kapatmak için *Ayarlar* > *Genel* > *Reklamları engelle*. Twitch reklamları canlı yayının içine koyduğu için orada bazı reklamlar yine çıkabilir.
+- **Volvo 9700'de servis düzeldi:** Coaches DLC'nin iki katlı Volvo 9700 otobüsünde servisteki iç aksesuar ekranı artık bozulmuyor; CabinPlay ekranları da oyunun kendi aksesuarları da yeniden takılabiliyor. Merdivenden üst kata bakış kaldırıldı (oyun üst katı sürücü koltuğundan zaten çizmiyordu); yolcu koltuğu görünümü ve yolcu TV'si yerinde. Tırlarda ve diğer otobüslerde hiçbir şey değişmedi.
 
 **CabinPlay 1.2.0 ya da daha yenisini mi kullanıyorsun?** Güncelleme kendiliğinden gelir, oyunu kapattığında kurulur. Daha eski bir sürümdeysen oyunu kapat, aşağıdan **CabinPlay-Setup-{version}.exe**'yi indir ve çalıştır.""",
     "de": """### Neu in {version}
 
-- **Werbeblocker:** CabinPlay blockiert jetzt Werbung, mit eingebautem [uBlock Origin Lite](https://github.com/uBlockOrigin/uBOL-home). YouTube und YouTube Music laufen ohne die Werbung vor und mitten in Videos (vorher kam bei einem langen Video alle paar Minuten eine), und Webseiten in der Browser-App verlieren den Großteil ihrer Werbung. Er ist von Haus aus an; ausschalten unter *Einstellungen* > *Allgemein* > *Werbung blockieren*. Twitch baut seine Werbung in den Livestream selbst ein, dort kann also noch etwas Werbung kommen.
+- **Werkstatt im Volvo 9700 repariert:** Im Doppeldecker Volvo 9700 aus dem Coaches-DLC geht der Bildschirm für Innenausstattung in der Werkstatt nicht mehr kaputt, CabinPlays Bildschirme und das Zubehör des Spiels lassen sich wieder einbauen. Der Blick die Treppe hinauf ins Oberdeck ist entfernt (das Spiel zeichnet das Oberdeck vom Fahrersitz aus ohnehin nicht); die Ansicht vom Beifahrersitz und der Fahrgast-Fernseher bleiben. In den Lkw und den anderen Bussen ändert sich nichts.
 
 **Du nutzt CabinPlay 1.2.0 oder neuer?** Das Update kommt von selbst und wird beim Schließen des Spiels installiert. Ältere Version? Schließe das Spiel, lade unten **CabinPlay-Setup-{version}.exe** herunter und starte es.""",
     "pl": """### Co nowego w {version}
 
-- **Blokowanie reklam:** CabinPlay blokuje teraz reklamy dzięki wbudowanemu [uBlock Origin Lite](https://github.com/uBlockOrigin/uBOL-home). YouTube i YouTube Music grają bez reklam przed filmami i w ich trakcie (wcześniej w długim filmie reklama pojawiała się co kilka minut), a strony w aplikacji Przeglądarka tracą większość swoich reklam. Jest włączone od razu; aby je wyłączyć, otwórz *Ustawienia* > *Ogólne* > *Blokuj reklamy*. Twitch wstawia reklamy do samej transmisji na żywo, więc tam część reklam może się nadal pojawiać.
+- **Naprawiony warsztat w Volvo 9700:** w piętrowym Volvo 9700 z DLC Coaches ekran wyposażenia wnętrza w warsztacie już się nie psuje, więc ekrany CabinPlay i akcesoria z gry znowu da się zamontować. Usunięto widok po schodach na górny pokład (gra i tak nie rysuje górnego pokładu z miejsca kierowcy); widok z fotela pasażera i telewizor dla pasażerów zostają. W ciężarówkach i pozostałych autobusach nic się nie zmienia.
 
 **Masz CabinPlay 1.2.0 lub nowszy?** Aktualizacja przyjdzie sama i zainstaluje się po zamknięciu gry. Starsza wersja? Zamknij grę, pobierz poniżej **CabinPlay-Setup-{version}.exe** i uruchom go.""",
     "fr": """### Nouveautés de la version {version}
 
-- **Bloqueur de publicités :** CabinPlay bloque maintenant les publicités, avec [uBlock Origin Lite](https://github.com/uBlockOrigin/uBOL-home) intégré. YouTube et YouTube Music jouent sans les publicités avant et au milieu des vidéos (avant, une longue vidéo en avait une toutes les quelques minutes), et les sites de l'app Navigateur perdent la plupart des leurs. Il est activé d'origine ; pour le désactiver, ouvrez *Réglages* > *Général* > *Bloquer les publicités*. Twitch insère ses publicités dans le direct lui-même, il peut donc encore y en avoir quelques-unes.
+- **Atelier du Volvo 9700 réparé :** dans l'autocar à étage Volvo 9700 du DLC Coaches, l'écran des accessoires intérieurs de l'atelier ne se casse plus, on peut de nouveau y installer les écrans de CabinPlay et les accessoires du jeu. La vue en haut de l'escalier vers l'étage est retirée (le jeu ne dessine de toute façon pas l'étage depuis le siège du conducteur) ; la vue du siège passager et la télé des passagers restent. Rien ne change dans les camions ni dans les autres autocars.
 
 **Vous utilisez CabinPlay 1.2.0 ou plus récent ?** La mise à jour arrive toute seule et s'installe à la fermeture du jeu. Version plus ancienne ? Fermez le jeu, téléchargez **CabinPlay-Setup-{version}.exe** ci-dessous et lancez-le.""",
     "es": """### Novedades de la {version}
 
-- **Bloqueador de anuncios:** CabinPlay ahora bloquea los anuncios, con [uBlock Origin Lite](https://github.com/uBlockOrigin/uBOL-home) integrado. YouTube y YouTube Music se reproducen sin los anuncios del principio y de la mitad de los vídeos (antes, un vídeo largo tenía uno cada pocos minutos), y las páginas de la app Navegador pierden la mayoría de los suyos. Viene activado; para desactivarlo, abre *Ajustes* > *General* > *Bloquear anuncios*. Twitch mete sus anuncios en el propio directo, así que allí aún pueden salir algunos.
+- **Taller del Volvo 9700 arreglado:** en el autocar de dos pisos Volvo 9700 del DLC Coaches, la pantalla de accesorios interiores del taller ya no se rompe, así que las pantallas de CabinPlay y los accesorios del juego se pueden volver a montar. Se ha quitado la vista subiendo la escalera al piso de arriba (el juego no dibuja el piso de arriba desde el asiento del conductor); la vista del asiento del pasajero y la tele de los pasajeros se quedan. En los camiones y los otros autocares no cambia nada.
 
 **¿Usas CabinPlay 1.2.0 o posterior?** La actualización llega sola y se instala al cerrar el juego. ¿Una versión anterior? Cierra el juego, descarga **CabinPlay-Setup-{version}.exe** abajo y ejecútalo.""",
     "ru": """### Что нового в {version}
 
-- **Блокировщик рекламы:** CabinPlay теперь блокирует рекламу — в него встроен [uBlock Origin Lite](https://github.com/uBlockOrigin/uBOL-home). YouTube и YouTube Music играют без рекламы перед роликами и в их середине (раньше в длинном ролике реклама шла каждые несколько минут), а сайты в приложении «Браузер» теряют большую часть своей рекламы. Он включён сразу; чтобы выключить, откройте *Настройки* > *Общие* > *Блокировать рекламу*. Twitch встраивает рекламу прямо в трансляцию, поэтому там часть рекламы всё же может появляться.
+- **Исправлена мастерская в Volvo 9700:** в двухэтажном Volvo 9700 из DLC Coaches экран внутренних аксессуаров в мастерской больше не ломается, и экраны CabinPlay и аксессуары самой игры снова можно установить. Убран вид вверх по лестнице на второй этаж (игра всё равно не рисует второй этаж с места водителя); вид с пассажирского сиденья и телевизор для пассажиров остаются. В грузовиках и других автобусах ничего не меняется.
 
 **Пользуетесь CabinPlay 1.2.0 или новее?** Обновление придёт само и установится, когда вы закроете игру. Более старая версия? Закройте игру, скачайте ниже **CabinPlay-Setup-{version}.exe** и запустите.""",
 }
